@@ -5252,9 +5252,16 @@ function previousOnboardingStep() {
 
 function openOnboardingModal() {
   const profileName = (state.profile?.name || "").trim();
+  const isReturningUser = !!profileName && !isPendingNewAccount(currentUser?.email);
   const title = document.getElementById("onboarding-title");
   if (title) {
-    title.textContent = profileName ? `Welcome, ${profileName}` : "Welcome to UniTrack";
+    if (isReturningUser) {
+      title.textContent = `Welcome back, ${profileName}`;
+    } else if (profileName) {
+      title.textContent = `Welcome, ${profileName}`;
+    } else {
+      title.textContent = "Welcome to UniTrack";
+    }
   }
   onboardingStepIndex = 0;
   document.getElementById("onboarding-modal").classList.remove("hidden");
@@ -5266,6 +5273,10 @@ function closeOnboardingModal() {
   pendingOnboarding = false;
   pendingFirstRunSetup = false;
   document.getElementById("onboarding-modal").classList.add("hidden");
+  // Now that onboarding is done, show the setup modal if needed
+  if (currentUser && sessionStorage.getItem("justLoggedOut") !== "true") {
+    setupCourseIfNeeded();
+  }
 }
 
 function maybeShowOnboarding() {
@@ -5386,9 +5397,8 @@ function refreshAppAfterAuth() {
   renderStickyExams();
   setupDeadlineBarScrolling();
   updateGlobal();
-  if (currentUser && pendingFirstRunSetup && sessionStorage.getItem("justLoggedOut") !== "true") {
-    setupCourseIfNeeded();
-  }
+  // Only setup course AFTER onboarding is shown/completed, not before
+  // This ensures the setup modal doesn't interrupt the onboarding flow
   maybeShowOnboarding();
 }
 
