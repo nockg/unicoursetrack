@@ -2408,6 +2408,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 let cloudReady = false;
 let cloudHadSave = false;
+let recoveryModeActive = false;
 
 const BASE_MODULES = [
   { name:"Introduction to Aerospace Materials", kanji:"CMB121", short:"Materials", credits:20, cw:0, exam:100,
@@ -2590,11 +2591,9 @@ const preferences = Object.assign(
 );
 
 function updateAuthLock() {
-  document.body.classList.toggle("auth-locked", !currentUser);
-
-  if (!currentUser) {
-    openAuthModal();
-  }
+  const shouldLock = isRecoveryFlow();
+  document.body.classList.toggle("auth-locked", shouldLock);
+  if (shouldLock) openAuthModal("recovery");
 }
 
 function deepClone(value) {
@@ -4642,7 +4641,7 @@ document.addEventListener("click", (event) => {
 document.addEventListener("mouseup", stopTopicDrag);
 
 function isRecoveryFlow() {
-  return window.location.hash.includes("type=recovery") || window.location.search.includes("type=recovery");
+  return recoveryModeActive || window.location.hash.includes("type=recovery") || window.location.search.includes("type=recovery");
 }
 
 function clearRecoveryUrl() {
@@ -4658,6 +4657,7 @@ function clearRecoveryUrl() {
 function openAuthModal(mode = "login") {
   const modal = document.getElementById("auth-modal");
   if (!modal) return;
+  if (mode === "recovery") recoveryModeActive = true;
   modal.classList.remove("hidden");
   renderAuthModal(mode);
   const closeBtn = document.querySelector("#auth-modal .deadline-splash-close");
@@ -4790,6 +4790,7 @@ async function updatePasswordFromModal() {
 
   if (error) return alert(error.message);
 
+  recoveryModeActive = false;
   clearRecoveryUrl();
   alert("Password updated. Please log in again.");
   await logoutCloud();
