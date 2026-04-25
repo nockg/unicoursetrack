@@ -5926,27 +5926,29 @@ Promise.race([
   authStateInitialized,
   new Promise(resolve => setTimeout(resolve, 3000))  // 3 second fallback
 ]).then(async () => {
-  (async function initApp() {
+  (async function bootApp() {
+    await waitForInitialAuth();
     await loadCloudSave();
 
     renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
 
-    pendingFirstRunSetup = !!currentUser && !cloudHadSave && (isPendingNewAccount(currentUser?.email) || isFreshSupabaseUser(currentUser));
-    if (pendingFirstRunSetup) {
-      resetLocalAppState();
-      cloudReady = true;
+    if (!currentUser) return;
+
+    ensureYearsState();
+    refreshActiveYear();
+    applyPreferences();
+    renderYearSelector();
+    buildModules();
+    renderStickyExams();
+    setupDeadlineBarScrolling();
+    updateGlobal();
+
+    if (currentUser && !cloudHadSave && sessionStorage.getItem("justLoggedOut") !== "true") {
+      setupCourseIfNeeded();
     }
-    updateAuthButton();
-    updateAuthLock();
-    if (isRecoveryFlow()) {
-      recoveryModeActive = true;
-      authViewMode = "recovery";
-      openAuthModal("recovery");
-    }
-    refreshAppAfterAuth();
 
     setTimeout(() => {
-      if (currentUser && document.getElementById("template-splash").classList.contains("hidden")) {
+      if (currentUser && document.getElementById("template-splash")?.classList.contains("hidden")) {
         showDeadlineSplash();
       }
     }, 500);
