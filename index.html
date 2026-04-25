@@ -2023,7 +2023,7 @@ body.theme-dark-offwhite .b6::before {
     padding: 22px 18px;
   }
 
-  .onboarding-grid {
+  .onboarding-tour {
     grid-template-columns: 1fr;
   }
 
@@ -2179,36 +2179,101 @@ body.theme-dark-offwhite .b6::before {
 .onboarding-content {
   width: min(760px, calc(100vw - 32px));
 }
-.onboarding-grid {
+.onboarding-tour {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  grid-template-columns: 168px 1fr;
+  gap: 18px;
+  align-items: stretch;
 }
-.onboarding-card {
+.onboarding-steps {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.onboarding-step-tab {
+  border: 1px solid var(--border);
+  background: var(--paper2);
+  border-radius: 6px;
+  padding: 10px 12px;
+  text-align: left;
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+}
+.onboarding-step-tab.active {
+  background: var(--sumi);
+  border-color: var(--sumi);
+  color: var(--paper);
+}
+.onboarding-stage {
   background: var(--paper2);
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 18px;
+  padding: 22px;
+  min-height: 260px;
+  display: grid;
+  align-content: start;
+  gap: 14px;
 }
-.onboarding-card-title {
+.onboarding-kicker {
   font-family: "DM Mono", monospace;
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 8px;
 }
-.onboarding-card-copy {
+.onboarding-step-title {
+  font-family: "Shippori Mincho", serif;
+  font-size: 30px;
+  line-height: 1.05;
+  color: var(--ink);
+}
+.onboarding-step-copy {
   font-family: "Cormorant Garamond", serif;
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.45;
   color: #5a4d40;
 }
+.onboarding-preview {
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.42);
+  border-radius: 6px;
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+}
+.onboarding-preview-row {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
+  align-items: center;
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--slate);
+}
+.onboarding-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--gold2);
+}
 .onboarding-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 10px;
   margin-top: 18px;
+}
+.onboarding-progress {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .auth-switch-copy {
@@ -2255,15 +2320,27 @@ body.theme-dark .auth-gate-message,
 body.theme-dark .auth-success {
   color: #d9cbb9;
 }
-body.theme-dark .onboarding-card {
+body.theme-dark .onboarding-stage,
+body.theme-dark .onboarding-step-tab,
+body.theme-dark .onboarding-preview {
   background: rgba(255,255,255,0.04);
   border-color: rgba(255,255,255,0.1);
 }
-body.theme-dark .onboarding-card-title {
+body.theme-dark .onboarding-step-tab.active {
+  background: #f5f0e8;
+  border-color: #f5f0e8;
+  color: #1a1612;
+}
+body.theme-dark .onboarding-kicker,
+body.theme-dark .onboarding-progress {
   color: #bfae99;
 }
-body.theme-dark .onboarding-card-copy {
+body.theme-dark .onboarding-step-copy,
+body.theme-dark .onboarding-preview-row {
   color: #d9cbb9;
+}
+body.theme-dark .onboarding-step-title {
+  color: #f5f0e8;
 }
 body.theme-dark .auth-gate-label {
   color: #bfae99;
@@ -2665,26 +2742,19 @@ body.theme-dark .auth-gate-tab.active {
     <button class="dashboard-close" type="button" onclick="closeOnboardingModal()">X</button>
     <div class="timeline-subtitle">Getting Started</div>
     <div class="dashboard-title" id="onboarding-title">Welcome to UniTrack</div>
-    <div class="onboarding-grid">
-      <div class="onboarding-card">
-        <div class="onboarding-card-title">Modules</div>
-        <div class="onboarding-card-copy">Add your modules, set weights, and edit titles, codes, and topics as your course changes.</div>
-      </div>
-      <div class="onboarding-card">
-        <div class="onboarding-card-title">Marks</div>
-        <div class="onboarding-card-copy">Track coursework, exams, and calculators in one place so your overall year view stays current.</div>
-      </div>
-      <div class="onboarding-card">
-        <div class="onboarding-card-title">Deadlines</div>
-        <div class="onboarding-card-copy">Use the timeline and deadline bar to keep coursework, revision, and notes visible at a glance.</div>
-      </div>
-      <div class="onboarding-card">
-        <div class="onboarding-card-title">Style</div>
-        <div class="onboarding-card-copy">Switch themes, fonts, and backgrounds to make the tracker feel like your own workspace.</div>
+    <div class="onboarding-tour">
+      <div class="onboarding-steps" id="onboarding-steps"></div>
+      <div class="onboarding-stage">
+        <div class="onboarding-kicker" id="onboarding-kicker">Step 1</div>
+        <div class="onboarding-step-title" id="onboarding-step-title">Build your year</div>
+        <div class="onboarding-step-copy" id="onboarding-step-copy"></div>
+        <div class="onboarding-preview" id="onboarding-preview"></div>
       </div>
     </div>
     <div class="onboarding-actions">
-      <button class="nav-btn calendar-btn" type="button" onclick="closeOnboardingModal()">Let's Start</button>
+      <button class="nav-btn" id="onboarding-back-btn" type="button" onclick="previousOnboardingStep()">Back</button>
+      <div class="onboarding-progress" id="onboarding-progress">1 / 4</div>
+      <button class="nav-btn calendar-btn" id="onboarding-next-btn" type="button" onclick="nextOnboardingStep()">Next</button>
     </div>
   </div>
 </div>
@@ -2709,6 +2779,50 @@ let authViewMode = "login";
 let authStatusMessage = "";
 let authStatusTone = "error";
 let pendingOnboarding = false;
+let onboardingStepIndex = 0;
+
+const ONBOARDING_STEPS = [
+  {
+    label: "Modules",
+    title: "Build your year",
+    copy: "Start with Add Module, then open a module card to edit titles, codes, topics, links, and marks.",
+    preview: [
+      "Use Add Module in the top bar",
+      "Open a module card for details",
+      "Drag topics into the order you prefer"
+    ]
+  },
+  {
+    label: "Marks",
+    title: "Track marks clearly",
+    copy: "Use coursework and exam fields for quick marks, or open the coursework calculator when a module has several components.",
+    preview: [
+      "Coursework and exam marks update predictions",
+      "Clear marks works per module",
+      "Coursework components can override manual input"
+    ]
+  },
+  {
+    label: "Deadlines",
+    title: "Keep deadlines visible",
+    copy: "Add deadlines from the top bar, then use the timeline for larger titles, notes, and countdowns.",
+    preview: [
+      "Deadline bar stays at the top",
+      "Timeline shows every upcoming deadline",
+      "Notes save with each deadline"
+    ]
+  },
+  {
+    label: "Personalise",
+    title: "Make it feel like yours",
+    copy: "Open Preferences to change colour scheme, font style, backgrounds, and course setup.",
+    preview: [
+      "Themes and font styles",
+      "Hero and page backgrounds",
+      "Edit course setup any time"
+    ]
+  }
+];
 
 const BASE_MODULES = [
   { name:"Introduction to Aerospace Materials", kanji:"CMB121", short:"Materials", credits:20, cw:0, exam:100,
@@ -3834,7 +3948,7 @@ document.getElementById("course-setup-modal").addEventListener("click", (event) 
 });
 
 document.getElementById("onboarding-modal").addEventListener("click", (event) => {
-  if (event.target.id === "onboarding-modal") closeOnboardingModal();
+  if (event.target.id === "onboarding-modal") return;
 });
 
 document.getElementById("auth-modal").addEventListener("click", (event) => {
@@ -5045,13 +5159,67 @@ function shouldShowOnboarding() {
   return !!currentUser && !cloudHadSave && !hasSeenOnboarding();
 }
 
+function renderOnboardingStep() {
+  const step = ONBOARDING_STEPS[onboardingStepIndex] || ONBOARDING_STEPS[0];
+  const stepsHost = document.getElementById("onboarding-steps");
+  const kicker = document.getElementById("onboarding-kicker");
+  const title = document.getElementById("onboarding-step-title");
+  const copy = document.getElementById("onboarding-step-copy");
+  const preview = document.getElementById("onboarding-preview");
+  const progress = document.getElementById("onboarding-progress");
+  const backBtn = document.getElementById("onboarding-back-btn");
+  const nextBtn = document.getElementById("onboarding-next-btn");
+
+  if (stepsHost) {
+    stepsHost.innerHTML = ONBOARDING_STEPS.map((item, index) => `
+      <button class="onboarding-step-tab ${index === onboardingStepIndex ? "active" : ""}" type="button" onclick="setOnboardingStep(${index})">
+        <span>${index + 1}</span>
+        ${escapeHtml(item.label)}
+      </button>
+    `).join("");
+  }
+  if (kicker) kicker.textContent = `Step ${onboardingStepIndex + 1}`;
+  if (title) title.textContent = step.title;
+  if (copy) copy.textContent = step.copy;
+  if (preview) {
+    preview.innerHTML = step.preview.map((item) => `
+      <div class="onboarding-preview-row">
+        <span class="onboarding-dot"></span>
+        <span>${escapeHtml(item)}</span>
+      </div>
+    `).join("");
+  }
+  if (progress) progress.textContent = `${onboardingStepIndex + 1} / ${ONBOARDING_STEPS.length}`;
+  if (backBtn) backBtn.disabled = onboardingStepIndex === 0;
+  if (nextBtn) nextBtn.textContent = onboardingStepIndex === ONBOARDING_STEPS.length - 1 ? "Let's Start" : "Next";
+}
+
+function setOnboardingStep(index) {
+  onboardingStepIndex = Math.max(0, Math.min(ONBOARDING_STEPS.length - 1, index));
+  renderOnboardingStep();
+}
+
+function nextOnboardingStep() {
+  if (onboardingStepIndex >= ONBOARDING_STEPS.length - 1) {
+    closeOnboardingModal();
+    return;
+  }
+  setOnboardingStep(onboardingStepIndex + 1);
+}
+
+function previousOnboardingStep() {
+  if (onboardingStepIndex > 0) setOnboardingStep(onboardingStepIndex - 1);
+}
+
 function openOnboardingModal() {
   const profileName = (state.profile?.name || "").trim();
   const title = document.getElementById("onboarding-title");
   if (title) {
-    title.textContent = profileName ? `Welcome back, ${profileName}` : "Welcome to UniTrack";
+    title.textContent = profileName ? `Welcome, ${profileName}` : "Welcome to UniTrack";
   }
+  onboardingStepIndex = 0;
   document.getElementById("onboarding-modal").classList.remove("hidden");
+  renderOnboardingStep();
 }
 
 function closeOnboardingModal() {
