@@ -2014,6 +2014,32 @@ body.theme-dark-offwhite .b6::before {
   line-height: 1.45;
 }
 
+
+.auth-switch-copy {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 15px;
+  color: rgba(255,255,255,0.68);
+  line-height: 1.45;
+  margin-top: 8px;
+}
+.auth-error {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: #ffb4a8;
+  min-height: 14px;
+}
+.auth-signed-card {
+  display: grid;
+  gap: 12px;
+}
+.auth-email {
+  font-family: "DM Mono", monospace;
+  font-size: 12px;
+  color: #d8c8b0;
+  word-break: break-word;
+}
+
 </style>
 </head>
 <body>
@@ -2047,6 +2073,7 @@ body.theme-dark-offwhite .b6::before {
     </div>
   </div>
 </div>
+
 <div id="auth-modal" class="deadline-splash hidden">
   <div class="deadline-splash-card deadline-form-content">
     <button class="deadline-splash-close" type="button" onclick="closeAuthModal()">X</button>
@@ -3435,6 +3462,10 @@ document.getElementById("course-setup-modal").addEventListener("click", (event) 
   if (event.target.id === "course-setup-modal") closeCourseSetupModal();
 });
 
+document.getElementById("auth-modal").addEventListener("click", (event) => {
+  if (event.target.id === "auth-modal") closeAuthModal();
+});
+
 function renderDashboardChart() {
   const canvas = document.getElementById("dashboard-chart");
   if (!canvas) return;
@@ -4580,73 +4611,153 @@ document.addEventListener("click", (event) => {
 
 document.addEventListener("mouseup", stopTopicDrag);
 
-function openAuthModal() {
-  document.getElementById("auth-modal").classList.remove("hidden");
-  renderAuthModal();
+function openAuthModal(mode = "login") {
+  const modal = document.getElementById("auth-modal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+  renderAuthModal(mode);
 }
 
 function closeAuthModal() {
-  document.getElementById("auth-modal").classList.add("hidden");
+  const modal = document.getElementById("auth-modal");
+  if (modal) modal.classList.add("hidden");
+}
+
+function updateAuthButton() {
+  const btn = document.getElementById("auth-btn");
+  if (!btn) return;
+  btn.textContent = currentUser ? "Account ✓" : "Account";
 }
 
 function renderAuthModal(mode = "login") {
   const body = document.getElementById("auth-modal-body");
+  if (!body) return;
 
   if (currentUser) {
     body.innerHTML = `
       <div class="deadline-splash-title">Signed in</div>
-      <div class="template-splash-copy">${currentUser.email}</div>
-      <div class="deadline-form-actions">
-        <button class="nav-btn danger-btn" onclick="logoutCloud()">Logout</button>
+      <div class="auth-signed-card">
+        <div class="template-splash-copy">Your tracker is connected to:</div>
+        <div class="auth-email">${escapeHtml(currentUser.email || "Cloud account")}</div>
+        <div class="deadline-form-actions">
+          <button class="nav-btn danger-btn" type="button" onclick="logoutCloud()">Logout</button>
+        </div>
       </div>
     `;
     return;
   }
 
+  const isSignup = mode === "signup";
   body.innerHTML = `
-    <div class="deadline-splash-title">${mode === "signup" ? "Create account" : "Login"}</div>
-
-    <div class="deadline-form-grid">
+    <div class="deadline-splash-title">${isSignup ? "Create account" : "Login"}</div>
+    <div class="auth-switch-copy">${isSignup ? "Create a cloud account to sync this tracker across devices." : "Login to sync your tracker across devices."}</div>
+    <div class="deadline-form-grid" style="margin-top:14px;">
       <div class="field">
-        <label>Email</label>
-        <input class="input" id="auth-email" type="email">
+        <label for="auth-email">Email</label>
+        <input class="input" id="auth-email" type="email" autocomplete="email" placeholder="you@example.com">
       </div>
-
       <div class="field">
-        <label>Password</label>
-        <input class="input" id="auth-password" type="password">
+        <label for="auth-password">Password</label>
+        <input class="input" id="auth-password" type="password" autocomplete="${isSignup ? "new-password" : "current-password"}" placeholder="Minimum 6 characters">
       </div>
-
+      <div class="auth-error" id="auth-error"></div>
       <div class="deadline-form-actions">
-        <button class="nav-btn" onclick="renderAuthModal('${mode === "signup" ? "login" : "signup"}')">
-          ${mode === "signup" ? "Have account?" : "Create account"}
+        <button class="nav-btn" type="button" onclick="renderAuthModal('${isSignup ? "login" : "signup"}')">
+          ${isSignup ? "I have an account" : "Create account"}
         </button>
-        <button class="nav-btn calendar-btn" onclick="${mode === "signup" ? "signUpFromModal()" : "loginFromModal()"}">
-          ${mode === "signup" ? "Sign Up" : "Login"}
+        <button class="nav-btn calendar-btn" type="button" onclick="${isSignup ? "signUpFromModal()" : "loginFromModal()"}">
+          ${isSignup ? "Sign Up" : "Login"}
         </button>
       </div>
     </div>
   `;
+
+  setTimeout(() => document.getElementById("auth-email")?.focus(), 0);
+}
+
+function setAuthError(message) {
+  const errorEl = document.getElementById("auth-error");
+  if (errorEl) errorEl.textContent = message || "";
+  else if (message) alert(message);
+}
+
+function handleAuthKeydown(event, mode) {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  if (mode === "signup") signUpFromModal();
+  else loginFromModal();
 }
 
 async function signUpFromModal() {
-  const email = document.getElementById("auth-email").value.trim();
-  const password = document.getElementById("auth-password").value;
+  const email = document.getElementById("auth-email")?.value.trim();
+  const password = document.getElementById("auth-password")?.value || "";
 
-  const { error } = await supabaseClient.auth.signUp({ email, password });
-  if (error) return alert(error.message);
+  if (!email || !password) {
+    setAuthError("Enter an email and password.");
+    return;
+  }
 
-  alert("Account created. Check your email if confirmation is required.");
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: window.location.origin + window.location.pathname
+    }
+  });
+
+  if (error) {
+    setAuthError(error.message);
+    return;
+  }
+
+  if (data?.session) {
+    currentUser = data.session.user;
+    cloudReady = true;
+    await loadCloudSave();
+    updateAuthButton();
+    renderAuthModal();
+    closeAuthModal();
+    location.reload();
+  } else {
+    setAuthError("Account created. Check your email to confirm your account, then login.");
+  }
 }
 
 async function loginFromModal() {
-  const email = document.getElementById("auth-email").value.trim();
-  const password = document.getElementById("auth-password").value;
+  const email = document.getElementById("auth-email")?.value.trim();
+  const password = document.getElementById("auth-password")?.value || "";
 
-  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (error) return alert(error.message);
+  if (!email || !password) {
+    setAuthError("Enter your email and password.");
+    return;
+  }
 
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    setAuthError(error.message);
+    return;
+  }
+
+  currentUser = data.user;
   await loadCloudSave();
+  updateAuthButton();
+  closeAuthModal();
+  location.reload();
+}
+
+async function logoutCloud() {
+  const { error } = await supabaseClient.auth.signOut();
+  if (error) {
+    alert(error.message);
+    return;
+  }
+  currentUser = null;
+  cloudReady = false;
+  updateAuthButton();
   closeAuthModal();
   location.reload();
 }
@@ -4661,8 +4772,12 @@ async function loadCloudSave() {
 
   currentUser = sessionData.session?.user || null;
   console.log("Cloud user:", currentUser?.email || "not logged in");
+  updateAuthButton();
 
-  if (!currentUser) return;
+  if (!currentUser) {
+    cloudReady = false;
+    return;
+  }
 
   const { data, error } = await supabaseClient
     .from("tracker_profiles")
@@ -4728,14 +4843,15 @@ async function saveCloud() {
 supabaseClient.auth.onAuthStateChange((_event, session) => {
   currentUser = session?.user || null;
   if (!currentUser) cloudReady = false;
-
-  const btn = document.getElementById("auth-btn");
-  if (btn) btn.textContent = currentUser ? "Account ✓" : "Account";
+  updateAuthButton();
+  const modal = document.getElementById("auth-modal");
+  if (modal && !modal.classList.contains("hidden")) renderAuthModal();
 });
 
 
 (async function initApp() {
   await loadCloudSave();
+  updateAuthButton();
 
   ensureYearsState();
   refreshActiveYear();
