@@ -3179,10 +3179,7 @@ function togglePreferences() {
   document.getElementById("prefs-panel").classList.toggle("hidden");
 }
 
-function clearTrackerStorage() {
-  const confirmClear = confirm("This will reset ALL your progress, marks, notes, and links. Continue?");
-  if (!confirmClear) return;
-
+function clearLocalTrackerStorage() {
   localStorage.removeItem(KEY);
   localStorage.removeItem(PREFS_KEY);
 
@@ -3195,8 +3192,32 @@ function clearTrackerStorage() {
   localStorage.removeItem("uos_formula_links_v1");
   localStorage.removeItem("uos_exams_v2");
   localStorage.removeItem("uos_exams_v1");
+}
 
-  alert("Tracker reset successfully.");
+async function clearTrackerStorage() {
+  const confirmClear = confirm("This will reset all progress, marks, notes, links, and cloud saves for this account. Continue?");
+  if (!confirmClear) return;
+
+  clearTimeout(cloudSaveTimer);
+  cloudReady = false;
+  cloudHadSave = false;
+
+  if (currentUser) {
+    const { error } = await supabaseClient
+      .from("tracker_profiles")
+      .delete()
+      .eq("user_id", currentUser.id);
+
+    if (error) {
+      alert("Could not clear cloud storage: " + error.message);
+      cloudReady = true;
+      return;
+    }
+  }
+
+  clearLocalTrackerStorage();
+
+  alert("Local and cloud tracker data cleared successfully.");
 
   location.reload();
 }
