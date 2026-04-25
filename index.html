@@ -51,6 +51,7 @@ body.auth-required .nav-bar,
 body.auth-required .hero,
 body.auth-required .content,
 body.auth-required #dashboard-modal,
+body.auth-required #onboarding-modal,
 body.auth-required #timeline-modal,
 body.auth-required #deadline-form-modal,
 body.auth-required #course-setup-modal,
@@ -2022,6 +2023,10 @@ body.theme-dark-offwhite .b6::before {
     padding: 22px 18px;
   }
 
+  .onboarding-grid {
+    grid-template-columns: 1fr;
+  }
+
   .setup-fields,
   .setup-template-grid {
     grid-template-columns: 1fr;
@@ -2171,6 +2176,40 @@ body.theme-dark-offwhite .b6::before {
   color: var(--pine);
   min-height: 14px;
 }
+.onboarding-content {
+  width: min(760px, calc(100vw - 32px));
+}
+.onboarding-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.onboarding-card {
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 18px;
+}
+.onboarding-card-title {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.onboarding-card-copy {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 18px;
+  line-height: 1.45;
+  color: #5a4d40;
+}
+.onboarding-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
 
 .auth-switch-copy {
   font-family: "Cormorant Garamond", serif;
@@ -2214,6 +2253,16 @@ body.theme-dark .auth-gate-panel {
 }
 body.theme-dark .auth-gate-message,
 body.theme-dark .auth-success {
+  color: #d9cbb9;
+}
+body.theme-dark .onboarding-card {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.1);
+}
+body.theme-dark .onboarding-card-title {
+  color: #bfae99;
+}
+body.theme-dark .onboarding-card-copy {
   color: #d9cbb9;
 }
 body.theme-dark .auth-gate-label {
@@ -2611,6 +2660,35 @@ body.theme-dark .auth-gate-tab.active {
   </div>
 </div>
 
+<div id="onboarding-modal" class="dashboard-modal hidden">
+  <div class="dashboard-content onboarding-content">
+    <button class="dashboard-close" type="button" onclick="closeOnboardingModal()">X</button>
+    <div class="timeline-subtitle">Getting Started</div>
+    <div class="dashboard-title" id="onboarding-title">Welcome to UniTrack</div>
+    <div class="onboarding-grid">
+      <div class="onboarding-card">
+        <div class="onboarding-card-title">Modules</div>
+        <div class="onboarding-card-copy">Add your modules, set weights, and edit titles, codes, and topics as your course changes.</div>
+      </div>
+      <div class="onboarding-card">
+        <div class="onboarding-card-title">Marks</div>
+        <div class="onboarding-card-copy">Track coursework, exams, and calculators in one place so your overall year view stays current.</div>
+      </div>
+      <div class="onboarding-card">
+        <div class="onboarding-card-title">Deadlines</div>
+        <div class="onboarding-card-copy">Use the timeline and deadline bar to keep coursework, revision, and notes visible at a glance.</div>
+      </div>
+      <div class="onboarding-card">
+        <div class="onboarding-card-title">Style</div>
+        <div class="onboarding-card-copy">Switch themes, fonts, and backgrounds to make the tracker feel like your own workspace.</div>
+      </div>
+    </div>
+    <div class="onboarding-actions">
+      <button class="nav-btn calendar-btn" type="button" onclick="closeOnboardingModal()">Let's Start</button>
+    </div>
+  </div>
+</div>
+
 <div class="content" id="modules-start">
   <div id="modules"></div>
   <div class="footer" id="footer-label">Course Progress Tracker</div>
@@ -2630,6 +2708,7 @@ let recoveryModeActive = false;
 let authViewMode = "login";
 let authStatusMessage = "";
 let authStatusTone = "error";
+let pendingOnboarding = false;
 
 const BASE_MODULES = [
   { name:"Introduction to Aerospace Materials", kanji:"CMB121", short:"Materials", credits:20, cw:0, exam:100,
@@ -3044,6 +3123,7 @@ function saveCourseSetup() {
   updateGlobal();
   document.getElementById("course-setup-modal").classList.add("hidden");
   courseSetupInitial = false;
+  if (pendingOnboarding) maybeShowOnboarding();
 }
 
 if (currentUser && !cloudHadSave && sessionStorage.getItem("justLoggedOut") !== "true") {
@@ -3751,6 +3831,10 @@ document.getElementById("deadline-form-modal").addEventListener("click", (event)
 
 document.getElementById("course-setup-modal").addEventListener("click", (event) => {
   if (event.target.id === "course-setup-modal") closeCourseSetupModal();
+});
+
+document.getElementById("onboarding-modal").addEventListener("click", (event) => {
+  if (event.target.id === "onboarding-modal") closeOnboardingModal();
 });
 
 document.getElementById("auth-modal").addEventListener("click", (event) => {
@@ -4943,6 +5027,50 @@ function clearAuthMessage() {
   setAuthMessage("");
 }
 
+function getOnboardingSeenKey() {
+  return currentUser ? `unitrack_onboarding_seen_${currentUser.id}` : null;
+}
+
+function hasSeenOnboarding() {
+  const key = getOnboardingSeenKey();
+  return key ? localStorage.getItem(key) === "1" : false;
+}
+
+function markOnboardingSeen() {
+  const key = getOnboardingSeenKey();
+  if (key) localStorage.setItem(key, "1");
+}
+
+function shouldShowOnboarding() {
+  return !!currentUser && !cloudHadSave && !hasSeenOnboarding();
+}
+
+function openOnboardingModal() {
+  const profileName = (state.profile?.name || "").trim();
+  const title = document.getElementById("onboarding-title");
+  if (title) {
+    title.textContent = profileName ? `Welcome back, ${profileName}` : "Welcome to UniTrack";
+  }
+  document.getElementById("onboarding-modal").classList.remove("hidden");
+}
+
+function closeOnboardingModal() {
+  markOnboardingSeen();
+  pendingOnboarding = false;
+  document.getElementById("onboarding-modal").classList.add("hidden");
+}
+
+function maybeShowOnboarding() {
+  if (!shouldShowOnboarding()) return;
+  const setupModal = document.getElementById("course-setup-modal");
+  if (setupModal && !setupModal.classList.contains("hidden")) {
+    pendingOnboarding = true;
+    return;
+  }
+  pendingOnboarding = false;
+  openOnboardingModal();
+}
+
 function renderAuthGate(mode = authViewMode) {
   authViewMode = mode;
   const host = document.getElementById("auth-gate-body");
@@ -4950,6 +5078,8 @@ function renderAuthGate(mode = authViewMode) {
   const isSignup = mode === "signup";
   const isRecovery = mode === "recovery" || isRecoveryFlow();
   const feedbackClass = authStatusTone === "success" ? "auth-success" : "auth-error";
+  const profileName = escapeHtml((state.profile?.name || "").trim());
+  const loginTitle = profileName ? `Welcome back, ${profileName}` : "Welcome back!";
 
   host.innerHTML = isRecovery ? `
     <div class="auth-gate-card">
@@ -4973,7 +5103,7 @@ function renderAuthGate(mode = authViewMode) {
         <button class="auth-gate-tab ${!isSignup ? "active" : ""}" type="button" onclick="setAuthScreen('login')">Sign In</button>
         <button class="auth-gate-tab ${isSignup ? "active" : ""}" type="button" onclick="setAuthScreen('signup')">Create Account</button>
       </div>
-      <div class="deadline-splash-title" style="color: var(--ink);">${isSignup ? "Create your account" : "Welcome back!"}</div>
+      <div class="deadline-splash-title" style="color: var(--ink);">${isSignup ? "Create your account" : loginTitle}</div>
       <div class="auth-gate-message">${isSignup ? "Create a new cloud account to keep your tracker, deadlines, and preferences synced." : "Sign in with your existing account to view your tracker."}</div>
       <div class="deadline-form-grid">
         <div class="field">
@@ -5043,6 +5173,7 @@ function refreshAppAfterAuth() {
   if (currentUser && !cloudHadSave && sessionStorage.getItem("justLoggedOut") !== "true") {
     setupCourseIfNeeded();
   }
+  maybeShowOnboarding();
 }
 
 function resetLocalAppState() {
