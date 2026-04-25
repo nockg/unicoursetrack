@@ -2770,7 +2770,14 @@ body.theme-dark .auth-gate-tab.active {
 const SUPABASE_URL = "https://ifktohckrkqbpzcssrnu.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_Ny7C4xhGJJ8EgWmsmaF-DA_P6N20C5M";
 
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase?.createClient ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    storageKey: "unitrack-cloud-auth",
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+}) : null;
 let currentUser = null;
 let cloudReady = false;
 let cloudHadSave = false;
@@ -5413,6 +5420,21 @@ function setAuthError(message) {
   setAuthMessage(message, "error");
 }
 
+function ensureCloudAuthReady() {
+  if (supabaseClient) return true;
+  setAuthError("Cloud sign-in did not load. Refresh the page and check your internet connection.");
+  return false;
+}
+
+function withCloudTimeout(promise, label = "Cloud request") {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(`${label} took too long. Check your connection and try again.`)), 15000);
+    })
+  ]);
+}
+
 function handleAuthKeydown(event, mode) {
   if (event.key !== "Enter") return;
   event.preventDefault();
@@ -5423,6 +5445,7 @@ function handleAuthKeydown(event, mode) {
 }
 
 async function resetPasswordFromModal() {
+  if (!ensureCloudAuthReady()) return;
   const email = getAuthInputValue("email");
 
   if (!email) {
@@ -5430,9 +5453,15 @@ async function resetPasswordFromModal() {
     return;
   }
 
-  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin + window.location.pathname
-  });
+  let error;
+  try {
+    ({ error } = await withCloudTimeout(supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname
+    }), "Password reset"));
+  } catch (cloudError) {
+    setAuthError(cloudError?.message || "Password reset failed. Please try again.");
+    return;
+  }
 
   if (error) {
     setAuthError(error.message);
@@ -5443,13 +5472,20 @@ async function resetPasswordFromModal() {
 }
 
 async function updatePasswordFromModal() {
+  if (!ensureCloudAuthReady()) return;
   const password = getAuthInputValue("new-password");
   if (!password) {
     setAuthError("Enter a new password.");
     return;
   }
 
-  const { error } = await supabaseClient.auth.updateUser({ password });
+  let error;
+  try {
+    ({ error } = await withCloudTimeout(supabaseClient.auth.updateUser({ password }), "Password update"));
+  } catch (cloudError) {
+    setAuthError(cloudError?.message || "Password update failed. Please try again.");
+    return;
+  }
 
   if (error) {
     setAuthError(error.message);
@@ -5465,6 +5501,7 @@ async function updatePasswordFromModal() {
 }
 
 async function signUpFromModal() {
+  if (!ensureCloudAuthReady()) return;
   const email = getAuthInputValue("email");
   const password = getAuthInputValue("password");
 
@@ -5473,13 +5510,20 @@ async function signUpFromModal() {
     return;
   }
 
-  const { data, error } = await supabaseClient.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: window.location.origin + window.location.pathname
-    }
-  });
+  let data;
+  let error;
+  try {
+    ({ data, error } = await withCloudTimeout(supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: window.location.origin + window.location.pathname
+      }
+    }), "Account creation"));
+  } catch (cloudError) {
+    setAuthError(cloudError?.message || "Account creation failed. Please try again.");
+    return;
+  }
 
   if (error) {
     setAuthError(error.message);
@@ -5501,6 +5545,7 @@ async function signUpFromModal() {
 }
 
 async function loginFromModal() {
+  if (!ensureCloudAuthReady()) return;
   const email = getAuthInputValue("email");
   const password = getAuthInputValue("password");
 
@@ -5509,24 +5554,31 @@ async function loginFromModal() {
     return;
   }
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
+  setAuthMessage("Signing in...", "success");
 
-  if (error) {
-    setAuthError(error.message);
-    return;
+  try {
+    const { data, error } = await withCloudTimeout(supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    }), "Sign in");
+
+    if (error) {
+      setAuthError(error.message);
+      return;
+    }
+
+    currentUser = data.session?.user || data.user || null;
+    await loadCloudSave();
+    updateAuthButton();
+    updateAuthLock();
+    refreshAppAfterAuth();
+  } catch (error) {
+    setAuthError(error?.message || "Sign in failed. Please check your connection and try again.");
   }
-
-  currentUser = data.user;
-  await loadCloudSave();
-  updateAuthButton();
-  updateAuthLock();
-  refreshAppAfterAuth();
 }
 
 async function logoutCloud() {
+  if (!ensureCloudAuthReady()) return;
   sessionStorage.setItem("justLoggedOut", "true");
   closeAuthModal(true);
 
@@ -5548,7 +5600,22 @@ async function logoutCloud() {
 }
 
 async function loadCloudSave() {
-  const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+  if (!supabaseClient) {
+    cloudReady = false;
+    setAuthError("Cloud sign-in did not load. Refresh the page and check your internet connection.");
+    return;
+  }
+
+  let sessionData;
+  let sessionError;
+  try {
+    ({ data: sessionData, error: sessionError } = await withCloudTimeout(supabaseClient.auth.getSession(), "Session check"));
+  } catch (error) {
+    console.warn("Cloud session error:", error?.message || error);
+    setAuthError("Could not reach cloud sign-in. Check your connection and try again.");
+    cloudReady = false;
+    return;
+  }
 
   if (sessionError) {
     console.warn("Cloud session error:", sessionError.message);
@@ -5564,11 +5631,19 @@ async function loadCloudSave() {
     return;
   }
 
-  const { data, error } = await supabaseClient
-    .from("tracker_profiles")
-    .select("data, prefs, updated_at")
-    .eq("user_id", currentUser.id)
-    .maybeSingle();
+  let data;
+  let error;
+  try {
+    ({ data, error } = await withCloudTimeout(supabaseClient
+      .from("tracker_profiles")
+      .select("data, prefs, updated_at")
+      .eq("user_id", currentUser.id)
+      .maybeSingle(), "Cloud data load"));
+  } catch (cloudError) {
+    console.warn("Cloud load error:", cloudError?.message || cloudError);
+    cloudReady = true;
+    return;
+  }
 
   if (error) {
     console.warn("Cloud load error:", error.message);
@@ -5594,7 +5669,7 @@ async function loadCloudSave() {
 }
 
 async function saveCloudNow() {
-  if (!currentUser || !cloudReady) return;
+  if (!supabaseClient || !currentUser || !cloudReady) return;
 
   const { error } = await supabaseClient
     .from("tracker_profiles")
@@ -5623,7 +5698,7 @@ async function saveCloud() {
   await saveCloudNow();
 }
 
-
+if (supabaseClient) {
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   currentUser = session?.user || null;
   if (!currentUser) cloudReady = false;
@@ -5646,6 +5721,9 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   updateAuthLock();
   renderAuthGate("login");
 });
+} else {
+  setTimeout(() => setAuthError("Cloud sign-in did not load. Refresh the page and check your internet connection."), 0);
+}
 
 
 (async function initApp() {
