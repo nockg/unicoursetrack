@@ -2788,6 +2788,15 @@ let authStatusTone = "error";
 let pendingOnboarding = false;
 let pendingFirstRunSetup = false;
 let accountCreationInProgress = false;
+
+// AUTH STATE SYNCHRONIZATION
+// Tracks when Supabase has checked the session, preventing premature app init
+let authStateKnown = false;
+let authStateResolver = null;
+const authStateInitialized = new Promise(resolve => {
+  authStateResolver = resolve;
+});
+
 let onboardingStepIndex = 0;
 const PENDING_NEW_ACCOUNT_EMAIL_KEY = "unitrack_pending_new_account_email";
 
@@ -5252,13 +5261,15 @@ function previousOnboardingStep() {
 
 function openOnboardingModal() {
   const profileName = (state.profile?.name || "").trim();
-  const isReturningUser = !!profileName && !isPendingNewAccount(currentUser?.email);
+  const isNewUser = pendingFirstRunSetup;
+  const isReturningUser = cloudHadSave && !isPendingNewAccount(currentUser?.email);
+  
   const title = document.getElementById("onboarding-title");
   if (title) {
-    if (isReturningUser) {
-      title.textContent = `Welcome back, ${profileName}`;
-    } else if (profileName) {
-      title.textContent = `Welcome, ${profileName}`;
+    if (isReturningUser && profileName) {
+      title.textContent = `Welcome back, ${escapeHtml(profileName)}`;
+    } else if (isNewUser && profileName) {
+      title.textContent = `Welcome, ${escapeHtml(profileName)}`;
     } else {
       title.textContent = "Welcome to UniTrack";
     }
@@ -5273,10 +5284,6 @@ function closeOnboardingModal() {
   pendingOnboarding = false;
   pendingFirstRunSetup = false;
   document.getElementById("onboarding-modal").classList.add("hidden");
-  // Now that onboarding is done, show the setup modal if needed
-  if (currentUser && sessionStorage.getItem("justLoggedOut") !== "true") {
-    setupCourseIfNeeded();
-  }
 }
 
 function maybeShowOnboarding() {
@@ -5288,6 +5295,50 @@ function maybeShowOnboarding() {
   }
   pendingOnboarding = false;
   openOnboardingModal();
+}
+
+function maybeShowWelcomeBackSplash() {
+  // Only show if user is logged in
+  if (!currentUser) return;
+  
+  const profileName = (state.profile?.name || "").trim();
+  const isReturningUser = cloudHadSave && !isPendingNewAccount(currentUser?.email);
+  const isOnboardingUser = pendingFirstRunSetup;
+  
+  // Only show welcome back splash if:
+  // 1. User is a returning user (has saved data)
+  // 2. Has a profile name
+  // 3. Won't see onboarding modal (so message needs to be shown here)
+  if (isReturningUser && profileName && !isOnboardingUser) {
+    const welcomeKey = `welcome_back_seen_${currentUser?.id}`;
+    
+    // Only show once per session
+    if (!sessionStorage.getItem(welcomeKey)) {
+      sessionStorage.setItem(welcomeKey, "true");
+      
+      // Show temporary welcome message
+      const splash = document.getElementById("deadline-splash");
+      const card = document.querySelector(".deadline-splash-card");
+      
+      if (splash && card) {
+        // Build the welcome back HTML
+        const html = `
+          <button class="deadline-splash-close" onclick="document.getElementById('deadline-splash').classList.add('hidden')">&times;</button>
+          <div class="deadline-splash-label">Welcome</div>
+          <div class="deadline-splash-title">Welcome back, ${escapeHtml(profileName)}</div>
+          <div class="template-splash-copy" style="margin-top: 16px; color: rgba(255,255,255,0.68);">Great to see you again! Your progress has been saved.</div>
+        `;
+        
+        card.innerHTML = html;
+        splash.classList.remove("hidden");
+        
+        // Auto-hide after 4 seconds
+        setTimeout(() => {
+          splash.classList.add("hidden");
+        }, 4000);
+      }
+    }
+  }
 }
 
 function renderAuthGate(mode = authViewMode) {
@@ -5397,9 +5448,12 @@ function refreshAppAfterAuth() {
   renderStickyExams();
   setupDeadlineBarScrolling();
   updateGlobal();
-  // Only setup course AFTER onboarding is shown/completed, not before
-  // This ensures the setup modal doesn't interrupt the onboarding flow
+  if (currentUser && pendingFirstRunSetup && sessionStorage.getItem("justLoggedOut") !== "true") {
+    setupCourseIfNeeded();
+  }
   maybeShowOnboarding();
+  // Also show welcome back message for returning users (after onboarding if needed)
+  maybeShowWelcomeBackSplash();
 }
 
 function resetLocalAppState() {
@@ -5831,37 +5885,49 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   pendingFirstRunSetup = false;
   updateAuthLock();
   renderAuthGate("login");
+  
+  // SIGNAL AUTH STATE IS KNOWN - allows initApp to proceed
+  if (!authStateKnown) {
+    authStateKnown = true;
+    authStateResolver?.();
+  }
 });
 } else {
   setTimeout(() => setAuthError("Cloud sign-in did not load. Refresh the page and check your internet connection."), 0);
 }
 
 
-(async function initApp() {
-  renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
-  await loadCloudSave();
-  pendingFirstRunSetup = !!currentUser && !cloudHadSave && (isPendingNewAccount(currentUser?.email) || isFreshSupabaseUser(currentUser));
-  if (pendingFirstRunSetup) {
-    resetLocalAppState();
-    cloudReady = true;
-  }
-  updateAuthButton();
-  updateAuthLock();
-  if (isRecoveryFlow()) {
-    recoveryModeActive = true;
-    authViewMode = "recovery";
-    openAuthModal("recovery");
-  }
-  refreshAppAfterAuth();
-
-  setTimeout(() => {
-    if (currentUser && document.getElementById("template-splash").classList.contains("hidden")) {
-      showDeadlineSplash();
+// Wait for Supabase to check session, with timeout fallback
+Promise.race([
+  authStateInitialized,
+  new Promise(resolve => setTimeout(resolve, 3000))  // 3 second fallback
+]).then(async () => {
+  (async function initApp() {
+    renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
+    await loadCloudSave();
+    pendingFirstRunSetup = !!currentUser && !cloudHadSave && (isPendingNewAccount(currentUser?.email) || isFreshSupabaseUser(currentUser));
+    if (pendingFirstRunSetup) {
+      resetLocalAppState();
+      cloudReady = true;
     }
-  }, 500);
+    updateAuthButton();
+    updateAuthLock();
+    if (isRecoveryFlow()) {
+      recoveryModeActive = true;
+      authViewMode = "recovery";
+      openAuthModal("recovery");
+    }
+    refreshAppAfterAuth();
 
-  setInterval(renderStickyExams, 1000);
-})();
+    setTimeout(() => {
+      if (currentUser && document.getElementById("template-splash").classList.contains("hidden")) {
+        showDeadlineSplash();
+      }
+    }, 500);
+
+    setInterval(renderStickyExams, 1000);
+  })();
+});
 </script>
 </body>
 </html>
