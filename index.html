@@ -2245,10 +2245,34 @@ body.theme-dark .auth-gate-tab.active {
         <div class="auth-gate-label">SNTutors</div>
       </div>
       <div class="auth-gate-title">UniTrack</div>
-      <div class="auth-gate-copy">Don't stress so much la.</div>
+      <div class="auth-gate-copy">Sign in to UniTrack.</div>
     </div>
     <div class="auth-gate-panel">
-      <div id="auth-gate-body"></div>
+      <div id="auth-gate-body">
+        <div class="auth-gate-card">
+          <div class="auth-gate-tabs">
+            <button class="auth-gate-tab active" type="button">Sign In</button>
+            <button class="auth-gate-tab" type="button">Create Account</button>
+          </div>
+          <div class="deadline-splash-title" style="color: var(--ink);">Welcome back!</div>
+          <div class="auth-gate-message">Sign in with your existing account to view your tracker.</div>
+          <div class="deadline-form-grid">
+            <div class="field">
+              <label for="auth-gate-email">Email</label>
+              <input class="input" id="auth-gate-email" type="email" autocomplete="email" placeholder="you@example.com">
+            </div>
+            <div class="field">
+              <label for="auth-gate-password">Password</label>
+              <input class="input" id="auth-gate-password" type="password" autocomplete="current-password" placeholder="Minimum 6 characters">
+            </div>
+            <div id="auth-gate-feedback" class="auth-error"></div>
+            <div class="deadline-form-actions">
+              <button class="nav-btn" type="button">Forgot Password</button>
+              <button class="nav-btn calendar-btn" type="button">Sign In</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -5307,6 +5331,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
 
 
 (async function initApp() {
+  renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
   await loadCloudSave();
   updateAuthButton();
   updateAuthLock();
