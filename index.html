@@ -2800,7 +2800,9 @@ function saveCourseSetup() {
   courseSetupInitial = false;
 }
 
-setupCourseIfNeeded();
+if (currentUser && !cloudHadSave && sessionStorage.getItem("justLoggedOut") !== "true") {
+  setupCourseIfNeeded();
+}
 
 function shouldShowTemplateSplash() {
   const profile = state.profile || deepClone(defaultProfile);
@@ -4870,7 +4872,7 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
     !cloudHadSave &&
     sessionStorage.getItem("justLoggedOut") !== "true"
   ) {
-    showTemplateSplash();
+    setupCourseIfNeeded();
   }
 
   setTimeout(() => {
