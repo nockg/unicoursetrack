@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2060,6 +2060,8 @@ body.theme-dark-offwhite .b6::before {
   <button class="nav-btn" onclick="openDeadlineTimeline()">Deadlines</button>
   <button class="nav-btn prefs-toggle-btn" onclick="togglePreferences()">Preferences</button>
   <button class="nav-btn" onclick="openDashboard()">Dashboard</button>
+  <button class="nav-btn" onclick="loginWithGoogle()">Cloud Login</button>
+  <button class="nav-btn" onclick="logoutCloud()">Logout</button>
 </div>
 
 <div class="prefs-panel hidden" id="prefs-panel">
@@ -2347,7 +2349,16 @@ body.theme-dark-offwhite .b6::before {
   <div class="footer" id="footer-label">Course Progress Tracker</div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+
+const SUPABASE_URL = "https://ifktohckrkqbpzcssrnu.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_Ny7C4xhGJJ8EgWmsmaF-DA_P6N20C5M";
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentUser = null;
+let cloudReady = false;
+
 const BASE_MODULES = [
   { name:"Introduction to Aerospace Materials", kanji:"CMB121", short:"Materials", credits:20, cw:0, exam:100,
     topics:["Intensive and Extensive Properties","Introduction to Mechanical Properties","Material Classes, Ashby Diagrams, HHI","Types of Bonding, Interatomic Forces","Packing and Temperature, Unit Cells, FCC/HCP/BCC","Essential Crystallography, Miller Indices","Tensile Tests, Elastic Properties, Bond Stiffness","Strength of Materials, Power Law & Work Hardening, Hardness","Theoretical Strength, Defects and Dislocations","Ductility and Brittleness, Charpy Impact Testing","Fracture Mechanics, Defects and Fatigue","Bending or Twisting, 3-point Bending, Second Moment of Area","Scalars, Vectors and Matrix Tensors","Directionality in Crystals","Rotation of Stress, Principal Stress, Mohr's Circle, Failure Criteria","Glass, Glass Properties","Technical and Non-Technical Ceramics, Porosity","Metals, Steel Properties, Hall-Petch Relationship","Types of Ferrous Materials, Fe-C Phase Diagram","Non-Ferrous Alloys (Al, Mg, Ni, Ti)","Polymer Chains","Thermoplastics, Thermosets, Elastomers","Composites, Fibre Reinforced, Mixture Rules","Wood, Particulate Composites, MMC, Concrete","Materials Selection, Ashby Diagrams","Conflicting Constraints, Min-Max, Penalty Functions","Life-Cycle Analysis, Embodied Energy","Recycling, Materials Selection, LCA"]},
@@ -2624,6 +2635,7 @@ let state = loadJson(KEY, null);
 if (!state) {
   state = createInitialState();
   localStorage.setItem(KEY, JSON.stringify(state));
+  saveCloud();
 }
 
 function ensureYearsState() {
@@ -4556,21 +4568,84 @@ document.addEventListener("click", (event) => {
 
 document.addEventListener("mouseup", stopTopicDrag);
 
-applyPreferences();
-renderYearSelector();
-buildModules();
-renderStickyExams();
-setupDeadlineBarScrolling();
-updateGlobal();
-showTemplateSplash();
+async function loginWithGoogle() {
+  await supabaseClient.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: window.location.origin + window.location.pathname
+    }
+  });
+}
 
-setTimeout(() => {
-  if (document.getElementById("template-splash").classList.contains("hidden")) {
-    showDeadlineSplash();
+async function logoutCloud() {
+  await supabaseClient.auth.signOut();
+  currentUser = null;
+  cloudReady = false;
+  location.reload();
+}
+
+async function loadCloudSave() {
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  currentUser = sessionData.session?.user || null;
+
+  if (!currentUser) return;
+
+  const { data, error } = await supabaseClient
+    .from("tracker_profiles")
+    .select("data, prefs")
+    .eq("user_id", currentUser.id)
+    .single();
+
+  if (data?.data) {
+    state = data.data;
+    localStorage.setItem(KEY, JSON.stringify(state));
   }
-}, 500);
-setInterval(renderStickyExams, 1000);
+
+  if (data?.prefs) {
+    Object.assign(preferences, data.prefs);
+    localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
+  }
+
+  cloudReady = true;
+}
+
+async function saveCloud() {
+  if (!currentUser || !cloudReady) return;
+
+  await supabaseClient
+    .from("tracker_profiles")
+    .upsert({
+      user_id: currentUser.id,
+      data: state,
+      prefs: preferences,
+      updated_at: new Date().toISOString()
+    });
+}
+
+
+(async function initApp() {
+  await loadCloudSave();
+
+  ensureYearsState();
+  refreshActiveYear();
+  applyPreferences();
+  renderYearSelector();
+  buildModules();
+  renderStickyExams();
+  setupDeadlineBarScrolling();
+  updateGlobal();
+  showTemplateSplash();
+
+  setTimeout(() => {
+    if (document.getElementById("template-splash").classList.contains("hidden")) {
+      showDeadlineSplash();
+    }
+  }, 500);
+
+  setInterval(renderStickyExams, 1000);
+})();
 </script>
 </body>
 </html>
 
+>
