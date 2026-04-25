@@ -4750,15 +4750,14 @@ async function loginFromModal() {
 }
 
 async function logoutCloud() {
-  const { error } = await supabaseClient.auth.signOut();
-  if (error) {
-    alert(error.message);
-    return;
-  }
+  await supabaseClient.auth.signOut();
+
   currentUser = null;
   cloudReady = false;
-  updateAuthButton();
-  closeAuthModal();
+
+  localStorage.removeItem(KEY);
+  localStorage.removeItem(PREFS_KEY);
+
   location.reload();
 }
 
@@ -4844,8 +4843,8 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
   currentUser = session?.user || null;
   if (!currentUser) cloudReady = false;
   updateAuthButton();
-  const modal = document.getElementById("auth-modal");
-  if (modal && !modal.classList.contains("hidden")) renderAuthModal();
+  const btn = document.getElementById("auth-btn");
+  if (btn) btn.textContent = currentUser ? "Account ✓" : "Signed Out";
 });
 
 
