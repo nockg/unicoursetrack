@@ -2051,48 +2051,46 @@ body.theme-dark-offwhite .b6::before {
   padding: 32px 16px;
 }
 .auth-gate-shell {
-  width: min(940px, calc(100vw - 32px));
+  width: min(880px, calc(100vw - 32px));
   display: grid;
-  grid-template-columns: minmax(280px, 0.95fr) minmax(320px, 1.05fr);
+  grid-template-columns: minmax(240px, 0.8fr) minmax(340px, 1.2fr);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 6px;
   overflow: hidden;
-  background: rgba(245,240,232,0.92);
-  box-shadow: 0 24px 70px rgba(14,12,10,0.12);
+  background: var(--paper2);
+  box-shadow: var(--shadow);
 }
 .auth-gate-aside {
   padding: 34px 30px;
-  background:
-    linear-gradient(rgba(18,15,12,0.78), rgba(18,15,12,0.78)),
-    url("https://images.unsplash.com/photo-1517479149777-5f3b1511d5ad?q=80&w=1400&auto=format&fit=crop");
-  background-size: cover;
-  background-position: center;
-  color: #f5f0e8;
+  background: rgba(255,255,255,0.38);
+  border-right: 1px solid var(--border);
+  color: var(--ink);
   display: grid;
   align-content: center;
-  gap: 14px;
+  gap: 10px;
 }
 .auth-gate-label {
   font-family: "DM Mono", monospace;
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(245,240,232,0.62);
+  color: var(--muted);
 }
 .auth-gate-title {
   font-family: "Shippori Mincho", serif;
-  font-size: clamp(34px, 4vw, 48px);
-  line-height: 0.98;
+  font-size: clamp(34px, 4vw, 44px);
+  line-height: 1;
+  color: var(--ink);
 }
 .auth-gate-copy {
   font-family: "Cormorant Garamond", serif;
-  font-size: 19px;
-  line-height: 1.5;
-  color: rgba(245,240,232,0.82);
+  font-size: 21px;
+  line-height: 1.35;
+  color: #5a4d40;
 }
 .auth-gate-panel {
   padding: 34px 30px;
-  background: rgba(245,240,232,0.96);
+  background: var(--paper);
 }
 .auth-gate-card {
   display: grid;
@@ -2159,8 +2157,13 @@ body.theme-dark-offwhite .b6::before {
   word-break: break-word;
 }
 body.theme-dark .auth-gate-shell {
-  background: rgba(19,16,13,0.94);
+  background: rgba(29,25,21,0.94);
   border-color: rgba(255,255,255,0.1);
+}
+body.theme-dark .auth-gate-aside {
+  background: rgba(255,255,255,0.03);
+  border-right-color: rgba(255,255,255,0.08);
+  color: var(--ink);
 }
 body.theme-dark .auth-gate-panel {
   background: rgba(19,16,13,0.96);
@@ -2168,6 +2171,13 @@ body.theme-dark .auth-gate-panel {
 body.theme-dark .auth-gate-message,
 body.theme-dark .auth-success {
   color: #d9cbb9;
+}
+body.theme-dark .auth-gate-label {
+  color: #bfae99;
+}
+body.theme-dark .auth-gate-copy,
+body.theme-dark .auth-gate-title {
+  color: #f5f0e8;
 }
 body.theme-dark .auth-gate-tab {
   border-color: rgba(255,255,255,0.14);
@@ -2186,9 +2196,9 @@ body.theme-dark .auth-gate-tab.active {
 <div id="auth-gate">
   <div class="auth-gate-shell">
     <div class="auth-gate-aside">
-      <div class="auth-gate-label">Cloud Workspace</div>
-      <div class="auth-gate-title">Sign in to your tracker</div>
-      <div class="auth-gate-copy">New users can create an account, returning users can sign back in, and password recovery stays in a dedicated flow instead of dropping you through the app.</div>
+      <div class="auth-gate-label">SNTutors</div>
+      <div class="auth-gate-title">UniTrack</div>
+      <div class="auth-gate-copy">Don't stress so much la.</div>
     </div>
     <div class="auth-gate-panel">
       <div id="auth-gate-body"></div>
@@ -4851,8 +4861,8 @@ function renderAuthGate(mode = authViewMode) {
         <button class="auth-gate-tab ${!isSignup ? "active" : ""}" type="button" onclick="setAuthScreen('login')">Sign In</button>
         <button class="auth-gate-tab ${isSignup ? "active" : ""}" type="button" onclick="setAuthScreen('signup')">Create Account</button>
       </div>
-      <div class="deadline-splash-title" style="color: var(--ink);">${isSignup ? "Create your account" : "Welcome back"}</div>
-      <div class="auth-gate-message">${isSignup ? "Create a new cloud account to keep your tracker, deadlines, and preferences synced." : "Sign in with your existing account to open your tracker and cloud save."}</div>
+      <div class="deadline-splash-title" style="color: var(--ink);">${isSignup ? "Create your account" : "Welcome back!"}</div>
+      <div class="auth-gate-message">${isSignup ? "Create a cloud account to keep everything synced." : "Sign in with your existing account to open your tracker."}</div>
       <div class="deadline-form-grid">
         <div class="field">
           <label for="auth-gate-email">Email</label>
@@ -4951,8 +4961,8 @@ function openAuthModal(mode = "login") {
   if (closeBtn) closeBtn.style.display = (currentUser && !isRecoveryFlow()) ? "block" : "none";
 }
 
-function closeAuthModal() {
-  if (!currentUser || isRecoveryFlow()) return;
+function closeAuthModal(force = false) {
+  if (!force && (!currentUser || isRecoveryFlow())) return;
   const modal = document.getElementById("auth-modal");
   if (!modal) return;
   modal.classList.add("hidden");
@@ -5107,6 +5117,7 @@ async function loginFromModal() {
 
 async function logoutCloud() {
   sessionStorage.setItem("justLoggedOut", "true");
+  closeAuthModal(true);
 
   await supabaseClient.auth.signOut();
 
@@ -5121,7 +5132,6 @@ async function logoutCloud() {
 
   updateAuthButton();
   updateAuthLock();
-  closeAuthModal();
   resetLocalAppState();
   renderAuthGate("login");
 }
