@@ -2376,27 +2376,9 @@ body.theme-dark .auth-gate-tab.active {
     <div class="auth-gate-panel">
       <div id="auth-gate-body">
         <div class="auth-gate-card">
-          <div class="auth-gate-tabs">
-            <button class="auth-gate-tab active" type="button" onclick="setAuthScreen('login')">Sign In</button>
-            <button class="auth-gate-tab" type="button" onclick="setAuthScreen('signup')">Create Account</button>
-          </div>
-          <div class="deadline-splash-title" style="color: var(--ink);">Welcome back!</div>
-          <div class="auth-gate-message">Sign in with your existing account to view your tracker.</div>
-          <div class="deadline-form-grid">
-            <div class="field">
-              <label for="auth-gate-email">Email</label>
-              <input class="input" id="auth-gate-email" type="email" autocomplete="email" placeholder="you@example.com" onkeydown="handleAuthKeydown(event, 'login')">
-            </div>
-            <div class="field">
-              <label for="auth-gate-password">Password</label>
-              <input class="input" id="auth-gate-password" type="password" autocomplete="current-password" placeholder="Minimum 6 characters" onkeydown="handleAuthKeydown(event, 'login')">
-            </div>
-            <div id="auth-gate-feedback" class="auth-error"></div>
-            <div class="deadline-form-actions">
-              <button class="nav-btn" type="button" onclick="setAuthScreen('reset')">Forgot Password</button>
-              <button class="nav-btn calendar-btn" type="button" onclick="loginFromModal()">Sign In</button>
-            </div>
-          </div>
+          <div class="deadline-splash-title" style="color: var(--ink);">Restoring your session...</div>
+          <div class="auth-gate-message">Checking whether you are already signed in before showing anything.</div>
+          <div id="auth-gate-feedback" class="auth-success"></div>
         </div>
       </div>
     </div>
@@ -5198,28 +5180,21 @@ function clearAuthMessage() {
   setAuthMessage("");
 }
 
-function waitForInitialAuth() {
-  return new Promise((resolve) => {
-    let resolved = false;
+async function waitForInitialAuth() {
+  if (!supabaseClient) {
+    markAuthStateKnown();
+    return;
+  }
 
-    const finish = (session) => {
-      if (resolved) return;
-      resolved = true;
-      currentUser = session?.user || null;
-      resolve();
-    };
+  try {
+    const { data } = await supabaseClient.auth.getSession();
+    currentUser = data?.session?.user || null;
+  } catch (error) {
+    currentUser = null;
+    console.warn("Initial auth check failed:", error?.message || error);
+  }
 
-    supabaseClient.auth.getSession().then(({ data }) => {
-      finish(data.session);
-    });
-
-    const { data: listener } = supabaseClient.auth.onAuthStateChange((_event, session) => {
-      finish(session);
-      listener.subscription.unsubscribe();
-    });
-
-    setTimeout(() => finish(null), 3000);
-  });
+  markAuthStateKnown();
 }
 
 function getOnboardingSeenKey() {
@@ -5891,6 +5866,10 @@ async function saveCloud() {
 
 if (supabaseClient) {
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  // Supabase can briefly emit a null INITIAL_SESSION while it is still restoring
+  // the saved login. Do not show the sign-in screen until getSession() has finished.
+  if (!authStateKnown && !session) return;
+
   currentUser = session?.user || null;
   markAuthStateKnown();
   if (!currentUser) cloudReady = false;
@@ -5919,48 +5898,40 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   pendingFirstRunSetup = false;
   updateAuthLock();
   renderAuthGate("login");
-  
 });
 } else {
   setTimeout(() => setAuthError("Cloud sign-in did not load. Refresh the page and check your internet connection."), 0);
 }
 
 
-// Wait for Supabase to check session, with timeout fallback
-Promise.race([
-  authStateInitialized,
-  new Promise(resolve => setTimeout(resolve, 3000))  // 3 second fallback
-]).then(async () => {
-  (async function bootApp() {
-    await waitForInitialAuth();
-    await loadCloudSave();
+// Wait for Supabase to check/restore the session before showing login or the dashboard.
+(async function bootApp() {
+  await waitForInitialAuth();
 
+  if (!currentUser) {
     updateAuthLock();
+    renderAuthGate("login");
+    return;
+  }
 
-    if (!currentUser) return;
+  await loadCloudSave();
+  pendingFirstRunSetup = !cloudHadSave && (isPendingNewAccount(currentUser?.email) || isFreshSupabaseUser(currentUser));
+  if (pendingFirstRunSetup) {
+    resetLocalAppState();
+    cloudReady = true;
+  }
 
-    ensureYearsState();
-    refreshActiveYear();
-    applyPreferences();
-    renderYearSelector();
-    buildModules();
-    renderStickyExams();
-    setupDeadlineBarScrolling();
-    updateGlobal();
+  updateAuthLock();
+  refreshAppAfterAuth();
 
-    if (currentUser && !cloudHadSave && sessionStorage.getItem("justLoggedOut") !== "true") {
-      setupCourseIfNeeded();
+  setTimeout(() => {
+    if (currentUser && document.getElementById("template-splash")?.classList.contains("hidden")) {
+      showDeadlineSplash();
     }
+  }, 500);
 
-    setTimeout(() => {
-      if (currentUser && document.getElementById("template-splash")?.classList.contains("hidden")) {
-        showDeadlineSplash();
-      }
-    }, 500);
-
-    setInterval(renderStickyExams, 1000);
-  })();
-});
+  setInterval(renderStickyExams, 1000);
+})();
 </script>
 </body>
 </html>
