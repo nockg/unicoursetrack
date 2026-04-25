@@ -4663,6 +4663,26 @@ function updateAuthButton() {
 
 function renderAuthModal(mode = "login") {
   const body = document.getElementById("auth-modal-body");
+  const isRecovery = window.location.hash.includes("type=recovery");
+
+  if (isRecovery) {
+    body.innerHTML = `
+      <div class="deadline-splash-title">Set new password</div>
+      <div class="deadline-form-grid">
+        <div class="field">
+          <label>New Password</label>
+          <input class="input" id="auth-new-password" type="password">
+        </div>
+        <div class="deadline-form-actions">
+          <button class="nav-btn calendar-btn" type="button" onclick="updatePasswordFromModal()">
+          Update Password
+        </button>
+      </div>
+    </div>
+  `;
+  return;
+  }
+  
   if (!body) return;
 
   if (currentUser) {
@@ -4743,6 +4763,18 @@ async function resetPasswordFromModal() {
   if (error) return alert(error.message);
 
   alert("Password reset email sent. Check your inbox.");
+}
+
+async function updatePasswordFromModal() {
+  const password = document.getElementById("auth-new-password").value;
+  if (!password) return alert("Enter a new password.");
+
+  const { error } = await supabaseClient.auth.updateUser({ password });
+
+  if (error) return alert(error.message);
+
+  alert("Password updated. Please log in again.");
+  await logoutCloud();
 }
 
 async function signUpFromModal() {
