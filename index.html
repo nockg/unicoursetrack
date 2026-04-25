@@ -2797,6 +2797,13 @@ const authStateInitialized = new Promise(resolve => {
   authStateResolver = resolve;
 });
 
+function markAuthStateKnown() {
+  if (!authStateKnown) {
+    authStateKnown = true;
+    authStateResolver?.();
+  }
+}
+
 let onboardingStepIndex = 0;
 const PENDING_NEW_ACCOUNT_EMAIL_KEY = "unitrack_pending_new_account_email";
 
@@ -3302,6 +3309,8 @@ function shouldShowTemplateSplash() {
 
 function showTemplateSplash() {
   if (!currentUser) return;
+  if (!pendingFirstRunSetup) return;
+  if (cloudHadSave) return;
   if (sessionStorage.getItem("justLoggedOut") === "true") return;
   if (!shouldShowTemplateSplash()) return;
   document.getElementById("template-splash").classList.remove("hidden");
@@ -5883,6 +5892,7 @@ async function saveCloud() {
 if (supabaseClient) {
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   currentUser = session?.user || null;
+  markAuthStateKnown();
   if (!currentUser) cloudReady = false;
   if (accountCreationInProgress) return;
   updateAuthButton();
@@ -5910,11 +5920,6 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   updateAuthLock();
   renderAuthGate("login");
   
-  // SIGNAL AUTH STATE IS KNOWN - allows initApp to proceed
-  if (!authStateKnown) {
-    authStateKnown = true;
-    authStateResolver?.();
-  }
 });
 } else {
   setTimeout(() => setAuthError("Cloud sign-in did not load. Refresh the page and check your internet connection."), 0);
@@ -5930,7 +5935,7 @@ Promise.race([
     await waitForInitialAuth();
     await loadCloudSave();
 
-    renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
+    updateAuthLock();
 
     if (!currentUser) return;
 
