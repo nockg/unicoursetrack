@@ -4663,7 +4663,11 @@ function updateAuthButton() {
 
 function renderAuthModal(mode = "login") {
   const body = document.getElementById("auth-modal-body");
-  const isRecovery = window.location.hash.includes("type=recovery");
+  if (!body) return;
+
+  const isRecovery =
+    window.location.hash.includes("type=recovery") ||
+    window.location.search.includes("type=recovery");
 
   if (isRecovery) {
     body.innerHTML = `
@@ -4675,15 +4679,13 @@ function renderAuthModal(mode = "login") {
         </div>
         <div class="deadline-form-actions">
           <button class="nav-btn calendar-btn" type="button" onclick="updatePasswordFromModal()">
-          Update Password
-        </button>
+            Update Password
+          </button>
+        </div>
       </div>
-    </div>
-  `;
-  return;
+    `;
+    return;
   }
-  
-  if (!body) return;
 
   if (currentUser) {
     body.innerHTML = `
@@ -4700,6 +4702,7 @@ function renderAuthModal(mode = "login") {
   }
 
   const isSignup = mode === "signup";
+
   body.innerHTML = `
     <div class="deadline-splash-title">${isSignup ? "Create account" : "Login"}</div>
     <div class="auth-switch-copy">${isSignup ? "Create a cloud account to sync this tracker across devices." : "Login to sync your tracker across devices."}</div>
