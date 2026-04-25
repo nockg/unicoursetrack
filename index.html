@@ -2060,7 +2060,7 @@ body.theme-dark-offwhite .b6::before {
   <button class="nav-btn" onclick="openDeadlineTimeline()">Deadlines</button>
   <button class="nav-btn prefs-toggle-btn" onclick="togglePreferences()">Preferences</button>
   <button class="nav-btn" onclick="openDashboard()">Dashboard</button>
-  <button class="nav-btn" onclick="loginWithGoogle()">Cloud Login</button>
+  <button class="nav-btn" onclick="loginWithEmail()">Cloud Login</button>
   <button class="nav-btn" onclick="logoutCloud()">Logout</button>
 </div>
 
@@ -2504,7 +2504,7 @@ function deleteCustomBackground(key) {
     preferences.hero = "bg1";
   }
 
-  localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
+  savePreferences();
   applyPreferences();
 }
 
@@ -2866,7 +2866,7 @@ function applyPreferences() {
 
 function setPreference(key, value) {
   preferences[key] = value;
-  localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
+  savePreferences();
   applyPreferences();
   if (!document.getElementById("dashboard-modal").classList.contains("hidden")) renderDashboardChart();
 }
@@ -2886,7 +2886,7 @@ function addCustomBackground() {
   preferences.customBackgrounds[customKey] = url;
   preferences.hero = customKey;
 
-  localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
+  savePreferences();
 
   input.value = "";
   applyPreferences();
@@ -2897,7 +2897,7 @@ function setBodyBackground() {
   if (!input) return;
   const raw = input.value.trim();
   preferences.bodyBackground = raw ? safeUrl(raw) : "";
-  localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
+  savePreferences();
   applyPreferences();
 }
 
@@ -2943,6 +2943,12 @@ function clearTrackerStorage() {
 
 function save() {
   localStorage.setItem(KEY, JSON.stringify(state));
+  saveCloudDebounced();
+}
+
+function savePreferences() {
+  localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
+  saveCloudDebounced();
 }
 
 function parseMark(value) {
@@ -4568,6 +4574,25 @@ document.addEventListener("click", (event) => {
 
 document.addEventListener("mouseup", stopTopicDrag);
 
+async function loginWithEmail() {
+  const email = prompt("Enter your email for cloud sync:");
+  if (!email || !email.trim()) return;
+
+  const { error } = await supabaseClient.auth.signInWithOtp({
+    email: email.trim(),
+    options: {
+      emailRedirectTo: window.location.origin + window.location.pathname
+    }
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Check your email for the login link. Open it on this device to finish signing in.");
+}
+
 async function loginWithGoogle() {
   await supabaseClient.auth.signInWithOAuth({
     provider: "google",
@@ -4585,16 +4610,29 @@ async function logoutCloud() {
 }
 
 async function loadCloudSave() {
-  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+
+  if (sessionError) {
+    console.warn("Cloud session error:", sessionError.message);
+    return;
+  }
+
   currentUser = sessionData.session?.user || null;
+  console.log("Cloud user:", currentUser?.email || "not logged in");
 
   if (!currentUser) return;
 
   const { data, error } = await supabaseClient
     .from("tracker_profiles")
-    .select("data, prefs")
+    .select("data, prefs, updated_at")
     .eq("user_id", currentUser.id)
-    .single();
+    .maybeSingle();
+
+  if (error) {
+    console.warn("Cloud load error:", error.message);
+    cloudReady = true;
+    return;
+  }
 
   if (data?.data) {
     state = data.data;
@@ -4607,20 +4645,48 @@ async function loadCloudSave() {
   }
 
   cloudReady = true;
+
+  // First login on a fresh account: upload whatever is already saved locally.
+  if (!data) {
+    await saveCloudNow();
+  }
 }
 
-async function saveCloud() {
+async function saveCloudNow() {
   if (!currentUser || !cloudReady) return;
 
-  await supabaseClient
+  const { error } = await supabaseClient
     .from("tracker_profiles")
     .upsert({
       user_id: currentUser.id,
       data: state,
       prefs: preferences,
       updated_at: new Date().toISOString()
-    });
+    }, { onConflict: "user_id" });
+
+  if (error) {
+    console.warn("Cloud save error:", error.message);
+  } else {
+    console.log("Cloud save complete");
+  }
 }
+
+let cloudSaveTimer = null;
+function saveCloudDebounced() {
+  if (!currentUser || !cloudReady) return;
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = setTimeout(saveCloudNow, 700);
+}
+
+async function saveCloud() {
+  await saveCloudNow();
+}
+
+
+supabaseClient.auth.onAuthStateChange((_event, session) => {
+  currentUser = session?.user || null;
+  if (!currentUser) cloudReady = false;
+});
 
 
 (async function initApp() {
