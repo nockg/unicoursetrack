@@ -4758,6 +4758,8 @@ async function logoutCloud() {
   localStorage.removeItem(KEY);
   localStorage.removeItem(PREFS_KEY);
 
+  sessionStorage.setItem("justLoggedOut", "true");
+
   location.reload();
 }
 
@@ -4860,7 +4862,14 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
   renderStickyExams();
   setupDeadlineBarScrolling();
   updateGlobal();
-  showTemplateSplash();
+  
+  if (
+    currentUser &&
+    !localStorage.getItem(KEY) &&
+    sessionStorage.getItem("justLoggedOut") !== "true"
+    ) {
+      showTemplateSplash();
+    }
 
   setTimeout(() => {
     if (document.getElementById("template-splash").classList.contains("hidden")) {
