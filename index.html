@@ -2047,6 +2047,13 @@ body.theme-dark-offwhite .b6::before {
     </div>
   </div>
 </div>
+<div id="auth-modal" class="deadline-splash hidden">
+  <div class="deadline-splash-card deadline-form-content">
+    <button class="deadline-splash-close" type="button" onclick="closeAuthModal()">X</button>
+    <div class="deadline-splash-label">Cloud Account</div>
+    <div id="auth-modal-body"></div>
+  </div>
+</div>
 
 <div class="sticky-exams" id="live-exam-bar"></div>
 
@@ -2060,8 +2067,7 @@ body.theme-dark-offwhite .b6::before {
   <button class="nav-btn" onclick="openDeadlineTimeline()">Deadlines</button>
   <button class="nav-btn prefs-toggle-btn" onclick="togglePreferences()">Preferences</button>
   <button class="nav-btn" onclick="openDashboard()">Dashboard</button>
-  <button class="nav-btn" onclick="loginWithEmail()">Cloud Login</button>
-  <button class="nav-btn" onclick="logoutCloud()">Logout</button>
+  <button class="nav-btn" id="auth-btn" onclick="openAuthModal()">Account</button>
 </div>
 
 <div class="prefs-panel hidden" id="prefs-panel">
@@ -4574,38 +4580,74 @@ document.addEventListener("click", (event) => {
 
 document.addEventListener("mouseup", stopTopicDrag);
 
-async function loginWithEmail() {
-  const email = prompt("Enter your email for cloud sync:");
-  if (!email || !email.trim()) return;
+function openAuthModal() {
+  document.getElementById("auth-modal").classList.remove("hidden");
+  renderAuthModal();
+}
 
-  const { error } = await supabaseClient.auth.signInWithOtp({
-    email: email.trim(),
-    options: {
-      emailRedirectTo: window.location.origin + window.location.pathname
-    }
-  });
+function closeAuthModal() {
+  document.getElementById("auth-modal").classList.add("hidden");
+}
 
-  if (error) {
-    alert(error.message);
+function renderAuthModal(mode = "login") {
+  const body = document.getElementById("auth-modal-body");
+
+  if (currentUser) {
+    body.innerHTML = `
+      <div class="deadline-splash-title">Signed in</div>
+      <div class="template-splash-copy">${currentUser.email}</div>
+      <div class="deadline-form-actions">
+        <button class="nav-btn danger-btn" onclick="logoutCloud()">Logout</button>
+      </div>
+    `;
     return;
   }
 
-  alert("Check your email for the login link. Open it on this device to finish signing in.");
+  body.innerHTML = `
+    <div class="deadline-splash-title">${mode === "signup" ? "Create account" : "Login"}</div>
+
+    <div class="deadline-form-grid">
+      <div class="field">
+        <label>Email</label>
+        <input class="input" id="auth-email" type="email">
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input class="input" id="auth-password" type="password">
+      </div>
+
+      <div class="deadline-form-actions">
+        <button class="nav-btn" onclick="renderAuthModal('${mode === "signup" ? "login" : "signup"}')">
+          ${mode === "signup" ? "Have account?" : "Create account"}
+        </button>
+        <button class="nav-btn calendar-btn" onclick="${mode === "signup" ? "signUpFromModal()" : "loginFromModal()"}">
+          ${mode === "signup" ? "Sign Up" : "Login"}
+        </button>
+      </div>
+    </div>
+  `;
 }
 
-async function loginWithGoogle() {
-  await supabaseClient.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: window.location.origin + window.location.pathname
-    }
-  });
+async function signUpFromModal() {
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value;
+
+  const { error } = await supabaseClient.auth.signUp({ email, password });
+  if (error) return alert(error.message);
+
+  alert("Account created. Check your email if confirmation is required.");
 }
 
-async function logoutCloud() {
-  await supabaseClient.auth.signOut();
-  currentUser = null;
-  cloudReady = false;
+async function loginFromModal() {
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value;
+
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) return alert(error.message);
+
+  await loadCloudSave();
+  closeAuthModal();
   location.reload();
 }
 
@@ -4686,6 +4728,9 @@ async function saveCloud() {
 supabaseClient.auth.onAuthStateChange((_event, session) => {
   currentUser = session?.user || null;
   if (!currentUser) cloudReady = false;
+
+  const btn = document.getElementById("auth-btn");
+  if (btn) btn.textContent = currentUser ? "Account ✓" : "Account";
 });
 
 
