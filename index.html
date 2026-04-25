@@ -4640,19 +4640,33 @@ document.addEventListener("click", (event) => {
 
 document.addEventListener("mouseup", stopTopicDrag);
 
+function isRecoveryFlow() {
+  return window.location.hash.includes("type=recovery") || window.location.search.includes("type=recovery");
+}
+
+function clearRecoveryUrl() {
+  if (!isRecoveryFlow()) return;
+  const cleanUrl = window.location.pathname + window.location.search.replace(/([?&])type=recovery(&)?/, (match, prefix, suffix) => {
+    if (prefix === "?" && suffix) return "?";
+    if (prefix === "?" && !suffix) return "";
+    return suffix ? prefix : "";
+  });
+  history.replaceState({}, document.title, cleanUrl);
+}
+
 function openAuthModal(mode = "login") {
   const modal = document.getElementById("auth-modal");
   if (!modal) return;
   modal.classList.remove("hidden");
   renderAuthModal(mode);
-}
-
-function openAuthModal() {
-  document.getElementById("auth-modal").classList.remove("hidden");
-  renderAuthModal();
-
   const closeBtn = document.querySelector("#auth-modal .deadline-splash-close");
   if (closeBtn) closeBtn.style.display = currentUser ? "block" : "none";
+}
+
+function closeAuthModal() {
+  const modal = document.getElementById("auth-modal");
+  if (!modal) return;
+  modal.classList.add("hidden");
 }
 
 function updateAuthButton() {
@@ -4665,9 +4679,7 @@ function renderAuthModal(mode = "login") {
   const body = document.getElementById("auth-modal-body");
   if (!body) return;
 
-  const isRecovery =
-    window.location.hash.includes("type=recovery") ||
-    window.location.search.includes("type=recovery");
+  const isRecovery = mode === "recovery" || isRecoveryFlow();
 
   if (isRecovery) {
     body.innerHTML = `
@@ -4776,8 +4788,10 @@ async function updatePasswordFromModal() {
 
   if (error) return alert(error.message);
 
+  clearRecoveryUrl();
   alert("Password updated. Please log in again.");
   await logoutCloud();
+  openAuthModal("login");
 }
 
 async function signUpFromModal() {
@@ -4933,12 +4947,15 @@ async function saveCloud() {
 }
 
 
-supabaseClient.auth.onAuthStateChange((_event, session) => {
+supabaseClient.auth.onAuthStateChange((event, session) => {
   currentUser = session?.user || null;
   if (!currentUser) cloudReady = false;
   updateAuthButton();
   const btn = document.getElementById("auth-btn");
   if (btn) btn.textContent = currentUser ? "Account ✓" : "Signed Out";
+  if (event === "PASSWORD_RECOVERY" || isRecoveryFlow()) {
+    openAuthModal("recovery");
+  }
 });
 
 
@@ -4946,6 +4963,9 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
   await loadCloudSave();
   updateAuthButton();
   updateAuthLock();
+  if (isRecoveryFlow()) {
+    openAuthModal("recovery");
+  }
 
   ensureYearsState();
   refreshActiveYear();
