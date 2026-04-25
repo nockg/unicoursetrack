@@ -4647,9 +4647,12 @@ function openAuthModal(mode = "login") {
   renderAuthModal(mode);
 }
 
-function closeAuthModal() {
-  const modal = document.getElementById("auth-modal");
-  if (modal) modal.classList.add("hidden");
+function openAuthModal() {
+  document.getElementById("auth-modal").classList.remove("hidden");
+  renderAuthModal();
+
+  const closeBtn = document.querySelector("#auth-modal .deadline-splash-close");
+  if (closeBtn) closeBtn.style.display = currentUser ? "block" : "none";
 }
 
 function updateAuthButton() {
@@ -4698,6 +4701,14 @@ function renderAuthModal(mode = "login") {
           ${isSignup ? "Sign Up" : "Login"}
         </button>
       </div>
+
+      ${!isSignup ? `
+        <div style="margin-top: 8px;">
+          <button class="nav-btn" type="button" onclick="resetPasswordFromModal()">
+            Forgot Password?
+          </button>
+        </div>
+      ` : ""}
     </div>
   `;
 
@@ -4715,6 +4726,23 @@ function handleAuthKeydown(event, mode) {
   event.preventDefault();
   if (mode === "signup") signUpFromModal();
   else loginFromModal();
+}
+
+async function resetPasswordFromModal() {
+  const email = document.getElementById("auth-email").value.trim();
+
+  if (!email) {
+    alert("Enter your email first.");
+    return;
+  }
+
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + window.location.pathname
+  });
+
+  if (error) return alert(error.message);
+
+  alert("Password reset email sent. Check your inbox.");
 }
 
 async function signUpFromModal() {
