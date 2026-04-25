@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -32,21 +32,6 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
-body.auth-locked .nav-bar,
-body.auth-locked .hero,
-body.auth-locked .content,
-body.auth-locked .sticky-exams {
-  pointer-events: none;
-  filter: blur(2px);
-  opacity: 0.45;
-}
-
-body.auth-locked #auth-modal {
-  pointer-events: auto;
-  filter: none;
-  opacity: 1;
-}
-
 body {
   background-color: var(--paper);
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231a1612' fill-opacity='0.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
@@ -57,6 +42,25 @@ body {
   font-family: "Cormorant Garamond", serif;
   min-height: 100vh;
   padding-top: 126px;
+}
+body.auth-required {
+  padding-top: 0;
+}
+body.auth-required .sticky-exams,
+body.auth-required .nav-bar,
+body.auth-required .hero,
+body.auth-required .content,
+body.auth-required #dashboard-modal,
+body.auth-required #timeline-modal,
+body.auth-required #deadline-form-modal,
+body.auth-required #course-setup-modal,
+body.auth-required #deadline-splash,
+body.auth-required #template-splash,
+body.auth-required #auth-modal {
+  display: none !important;
+}
+body.auth-required #auth-gate {
+  display: flex;
 }
 body.has-body-background::before {
   content: "";
@@ -1990,6 +1994,15 @@ body.theme-dark-offwhite .b6::before {
     padding: 18px;
   }
 
+  .auth-gate-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-gate-aside,
+  .auth-gate-panel {
+    padding: 22px 18px;
+  }
+
   .setup-fields,
   .setup-template-grid {
     grid-template-columns: 1fr;
@@ -2030,6 +2043,96 @@ body.theme-dark-offwhite .b6::before {
   line-height: 1.45;
 }
 
+#auth-gate {
+  display: none;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+}
+.auth-gate-shell {
+  width: min(940px, calc(100vw - 32px));
+  display: grid;
+  grid-template-columns: minmax(280px, 0.95fr) minmax(320px, 1.05fr);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(245,240,232,0.92);
+  box-shadow: 0 24px 70px rgba(14,12,10,0.12);
+}
+.auth-gate-aside {
+  padding: 34px 30px;
+  background:
+    linear-gradient(rgba(18,15,12,0.78), rgba(18,15,12,0.78)),
+    url("https://images.unsplash.com/photo-1517479149777-5f3b1511d5ad?q=80&w=1400&auto=format&fit=crop");
+  background-size: cover;
+  background-position: center;
+  color: #f5f0e8;
+  display: grid;
+  align-content: center;
+  gap: 14px;
+}
+.auth-gate-label {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.62);
+}
+.auth-gate-title {
+  font-family: "Shippori Mincho", serif;
+  font-size: clamp(34px, 4vw, 48px);
+  line-height: 0.98;
+}
+.auth-gate-copy {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 19px;
+  line-height: 1.5;
+  color: rgba(245,240,232,0.82);
+}
+.auth-gate-panel {
+  padding: 34px 30px;
+  background: rgba(245,240,232,0.96);
+}
+.auth-gate-card {
+  display: grid;
+  gap: 16px;
+}
+.auth-gate-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.auth-gate-tab {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--slate);
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.auth-gate-tab.active {
+  background: var(--sumi);
+  color: var(--paper);
+  border-color: var(--sumi);
+}
+.auth-gate-message {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 18px;
+  line-height: 1.45;
+  color: #5a4d40;
+}
+.auth-success {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--pine);
+  min-height: 14px;
+}
 
 .auth-switch-copy {
   font-family: "Cormorant Garamond", serif;
@@ -2055,10 +2158,43 @@ body.theme-dark-offwhite .b6::before {
   color: #d8c8b0;
   word-break: break-word;
 }
+body.theme-dark .auth-gate-shell {
+  background: rgba(19,16,13,0.94);
+  border-color: rgba(255,255,255,0.1);
+}
+body.theme-dark .auth-gate-panel {
+  background: rgba(19,16,13,0.96);
+}
+body.theme-dark .auth-gate-message,
+body.theme-dark .auth-success {
+  color: #d9cbb9;
+}
+body.theme-dark .auth-gate-tab {
+  border-color: rgba(255,255,255,0.14);
+  color: #d9cbb9;
+}
+body.theme-dark .auth-gate-tab.active {
+  background: #f5f0e8;
+  color: #1a1612;
+  border-color: #f5f0e8;
+}
 
 </style>
 </head>
-<body>
+<body class="auth-required">
+
+<div id="auth-gate">
+  <div class="auth-gate-shell">
+    <div class="auth-gate-aside">
+      <div class="auth-gate-label">Cloud Workspace</div>
+      <div class="auth-gate-title">Sign in to your tracker</div>
+      <div class="auth-gate-copy">New users can create an account, returning users can sign back in, and password recovery stays in a dedicated flow instead of dropping you through the app.</div>
+    </div>
+    <div class="auth-gate-panel">
+      <div id="auth-gate-body"></div>
+    </div>
+  </div>
+</div>
 
 <div id="deadline-splash" class="deadline-splash hidden">
   <div class="deadline-splash-card">
@@ -2409,6 +2545,9 @@ let currentUser = null;
 let cloudReady = false;
 let cloudHadSave = false;
 let recoveryModeActive = false;
+let authViewMode = "login";
+let authStatusMessage = "";
+let authStatusTone = "error";
 
 const BASE_MODULES = [
   { name:"Introduction to Aerospace Materials", kanji:"CMB121", short:"Materials", credits:20, cw:0, exam:100,
@@ -2585,15 +2724,17 @@ const defaultState = {
 
 let MODULES = [];
 let TOTAL_CREDITS = 0;
+const DEFAULT_PREFERENCES = { theme: "light", density: "comfortable", font: "japanese", hero: "bg1", bodyBackground: "" };
 const preferences = Object.assign(
-  { theme: "light", density: "comfortable", font: "japanese", hero: "bg1", bodyBackground: "" },
+  {},
+  DEFAULT_PREFERENCES,
   loadJson(PREFS_KEY, loadJson(LEGACY_PREFS_KEY, {}))
 );
 
 function updateAuthLock() {
-  const shouldLock = isRecoveryFlow();
-  document.body.classList.toggle("auth-locked", shouldLock);
-  if (shouldLock) openAuthModal("recovery");
+  const requiresAuth = !currentUser || isRecoveryFlow();
+  document.body.classList.toggle("auth-required", requiresAuth);
+  if (requiresAuth) renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
 }
 
 function deepClone(value) {
@@ -3491,7 +3632,7 @@ document.getElementById("course-setup-modal").addEventListener("click", (event) 
 });
 
 document.getElementById("auth-modal").addEventListener("click", (event) => {
-  if (isRecoveryFlow()) return;
+  if (!currentUser || isRecoveryFlow()) return;
   if (event.target.id === "auth-modal") closeAuthModal();
 });
 
@@ -4654,7 +4795,153 @@ function clearRecoveryUrl() {
   history.replaceState({}, document.title, cleanUrl);
 }
 
+function getAuthInputValue(name) {
+  const gateInput = document.getElementById(`auth-gate-${name}`);
+  if (gateInput) return gateInput.value.trim();
+  const modalInput = document.getElementById(`auth-${name}`);
+  if (modalInput) return modalInput.value.trim();
+  return "";
+}
+
+function setAuthMessage(message = "", tone = "error") {
+  authStatusMessage = message || "";
+  authStatusTone = tone;
+  const gateFeedback = document.getElementById("auth-gate-feedback");
+  if (gateFeedback) {
+    gateFeedback.className = tone === "success" ? "auth-success" : "auth-error";
+    gateFeedback.textContent = authStatusMessage;
+  }
+  const modalError = document.getElementById("auth-error");
+  if (modalError) modalError.textContent = tone === "error" ? authStatusMessage : "";
+}
+
+function clearAuthMessage() {
+  authStatusMessage = "";
+  authStatusTone = "error";
+  setAuthMessage("");
+}
+
+function renderAuthGate(mode = authViewMode) {
+  authViewMode = mode;
+  const host = document.getElementById("auth-gate-body");
+  if (!host) return;
+  const isSignup = mode === "signup";
+  const isRecovery = mode === "recovery" || isRecoveryFlow();
+  const feedbackClass = authStatusTone === "success" ? "auth-success" : "auth-error";
+
+  host.innerHTML = isRecovery ? `
+    <div class="auth-gate-card">
+      <div class="auth-gate-label">Password Recovery</div>
+      <div class="deadline-splash-title" style="color: var(--ink);">Set a new password</div>
+      <div class="auth-gate-message">Finish the reset here before going back into the app.</div>
+      <div class="deadline-form-grid">
+        <div class="field">
+          <label for="auth-gate-new-password">New Password</label>
+          <input class="input" id="auth-gate-new-password" type="password" autocomplete="new-password" placeholder="Minimum 6 characters" onkeydown="handleAuthKeydown(event, 'recovery')">
+        </div>
+        <div id="auth-gate-feedback" class="${feedbackClass}">${escapeHtml(authStatusMessage || "")}</div>
+        <div class="deadline-form-actions">
+          <button class="nav-btn calendar-btn" type="button" onclick="updatePasswordFromModal()">Update Password</button>
+        </div>
+      </div>
+    </div>
+  ` : `
+    <div class="auth-gate-card">
+      <div class="auth-gate-tabs">
+        <button class="auth-gate-tab ${!isSignup ? "active" : ""}" type="button" onclick="setAuthScreen('login')">Sign In</button>
+        <button class="auth-gate-tab ${isSignup ? "active" : ""}" type="button" onclick="setAuthScreen('signup')">Create Account</button>
+      </div>
+      <div class="deadline-splash-title" style="color: var(--ink);">${isSignup ? "Create your account" : "Welcome back"}</div>
+      <div class="auth-gate-message">${isSignup ? "Create a new cloud account to keep your tracker, deadlines, and preferences synced." : "Sign in with your existing account to open your tracker and cloud save."}</div>
+      <div class="deadline-form-grid">
+        <div class="field">
+          <label for="auth-gate-email">Email</label>
+          <input class="input" id="auth-gate-email" type="email" autocomplete="email" placeholder="you@example.com" onkeydown="handleAuthKeydown(event, '${isSignup ? "signup" : "login"}')">
+        </div>
+        <div class="field">
+          <label for="auth-gate-password">Password</label>
+          <input class="input" id="auth-gate-password" type="password" autocomplete="${isSignup ? "new-password" : "current-password"}" placeholder="Minimum 6 characters" onkeydown="handleAuthKeydown(event, '${isSignup ? "signup" : "login"}')">
+        </div>
+        <div id="auth-gate-feedback" class="${feedbackClass}">${escapeHtml(authStatusMessage || "")}</div>
+        <div class="deadline-form-actions">
+          ${isSignup ? `
+            <button class="nav-btn calendar-btn" type="button" onclick="signUpFromModal()">Create Account</button>
+          ` : `
+            <button class="nav-btn" type="button" onclick="setAuthScreen('reset')">Forgot Password</button>
+            <button class="nav-btn calendar-btn" type="button" onclick="loginFromModal()">Sign In</button>
+          `}
+        </div>
+      </div>
+    </div>
+  `;
+
+  if (mode === "reset") {
+    host.innerHTML = `
+      <div class="auth-gate-card">
+        <div class="auth-gate-tabs">
+          <button class="auth-gate-tab" type="button" onclick="setAuthScreen('login')">Sign In</button>
+          <button class="auth-gate-tab" type="button" onclick="setAuthScreen('signup')">Create Account</button>
+        </div>
+        <div class="deadline-splash-title" style="color: var(--ink);">Reset your password</div>
+        <div class="auth-gate-message">Enter the email tied to your account and I'll send you a reset link.</div>
+        <div class="deadline-form-grid">
+          <div class="field">
+            <label for="auth-gate-email">Email</label>
+            <input class="input" id="auth-gate-email" type="email" autocomplete="email" placeholder="you@example.com" onkeydown="handleAuthKeydown(event, 'reset')">
+          </div>
+          <div id="auth-gate-feedback" class="${feedbackClass}">${escapeHtml(authStatusMessage || "")}</div>
+          <div class="deadline-form-actions">
+            <button class="nav-btn" type="button" onclick="setAuthScreen('login')">Back</button>
+            <button class="nav-btn calendar-btn" type="button" onclick="resetPasswordFromModal()">Send Reset Email</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  const focusId = isRecovery ? "auth-gate-new-password" : "auth-gate-email";
+  setTimeout(() => document.getElementById(focusId)?.focus(), 0);
+}
+
+function setAuthScreen(mode) {
+  authViewMode = mode;
+  clearAuthMessage();
+  renderAuthGate(mode);
+}
+
+function refreshAppAfterAuth() {
+  ensureYearsState();
+  refreshActiveYear();
+  applyPreferences();
+  renderYearSelector();
+  buildModules();
+  renderStickyExams();
+  setupDeadlineBarScrolling();
+  updateGlobal();
+  if (currentUser && !cloudHadSave && sessionStorage.getItem("justLoggedOut") !== "true") {
+    setupCourseIfNeeded();
+  }
+}
+
+function resetLocalAppState() {
+  state = createInitialState();
+  Object.keys(preferences).forEach((key) => delete preferences[key]);
+  Object.assign(preferences, DEFAULT_PREFERENCES);
+  ensureYearsState();
+  refreshActiveYear();
+  applyPreferences();
+  renderYearSelector();
+  buildModules();
+  renderStickyExams();
+  updateGlobal();
+}
+
 function openAuthModal(mode = "login") {
+  if (!currentUser) {
+    setAuthScreen(isRecoveryFlow() ? "recovery" : mode);
+    updateAuthLock();
+    return;
+  }
   const modal = document.getElementById("auth-modal");
   if (!modal) return;
   if (mode === "recovery") recoveryModeActive = true;
@@ -4665,7 +4952,7 @@ function openAuthModal(mode = "login") {
 }
 
 function closeAuthModal() {
-  if (isRecoveryFlow()) return;
+  if (!currentUser || isRecoveryFlow()) return;
   const modal = document.getElementById("auth-modal");
   if (!modal) return;
   modal.classList.add("hidden");
@@ -4674,32 +4961,17 @@ function closeAuthModal() {
 function updateAuthButton() {
   const btn = document.getElementById("auth-btn");
   if (!btn) return;
-  btn.textContent = currentUser ? "Account ✓" : "Account";
+  btn.textContent = currentUser ? "Account \u2713" : "Account";
 }
 
 function renderAuthModal(mode = "login") {
-  const body = document.getElementById("auth-modal-body");
-  if (!body) return;
-
-  const isRecovery = mode === "recovery" || isRecoveryFlow();
-
-  if (isRecovery) {
-    body.innerHTML = `
-      <div class="deadline-splash-title">Set new password</div>
-      <div class="deadline-form-grid">
-        <div class="field">
-          <label>New Password</label>
-          <input class="input" id="auth-new-password" type="password">
-        </div>
-        <div class="deadline-form-actions">
-          <button class="nav-btn calendar-btn" type="button" onclick="updatePasswordFromModal()">
-            Update Password
-          </button>
-        </div>
-      </div>
-    `;
+  if (!currentUser) {
+    setAuthScreen(isRecoveryFlow() ? "recovery" : mode);
+    updateAuthLock();
     return;
   }
+  const body = document.getElementById("auth-modal-body");
+  if (!body) return;
 
   if (currentUser) {
     body.innerHTML = `
@@ -4714,62 +4986,26 @@ function renderAuthModal(mode = "login") {
     `;
     return;
   }
-
-  const isSignup = mode === "signup";
-
-  body.innerHTML = `
-    <div class="deadline-splash-title">${isSignup ? "Create account" : "Login"}</div>
-    <div class="auth-switch-copy">${isSignup ? "Create a cloud account to sync this tracker across devices." : "Login to sync your tracker across devices."}</div>
-    <div class="deadline-form-grid" style="margin-top:14px;">
-      <div class="field">
-        <label for="auth-email">Email</label>
-        <input class="input" id="auth-email" type="email" autocomplete="email" placeholder="you@example.com">
-      </div>
-      <div class="field">
-        <label for="auth-password">Password</label>
-        <input class="input" id="auth-password" type="password" autocomplete="${isSignup ? "new-password" : "current-password"}" placeholder="Minimum 6 characters">
-      </div>
-      <div class="auth-error" id="auth-error"></div>
-      <div class="deadline-form-actions">
-        <button class="nav-btn" type="button" onclick="renderAuthModal('${isSignup ? "login" : "signup"}')">
-          ${isSignup ? "I have an account" : "Create account"}
-        </button>
-        <button class="nav-btn calendar-btn" type="button" onclick="${isSignup ? "signUpFromModal()" : "loginFromModal()"}">
-          ${isSignup ? "Sign Up" : "Login"}
-        </button>
-      </div>
-
-      ${!isSignup ? `
-        <div style="margin-top: 8px;">
-          <button class="nav-btn" type="button" onclick="resetPasswordFromModal()">
-            Forgot Password?
-          </button>
-        </div>
-      ` : ""}
-    </div>
-  `;
-
-  setTimeout(() => document.getElementById("auth-email")?.focus(), 0);
 }
 
 function setAuthError(message) {
-  const errorEl = document.getElementById("auth-error");
-  if (errorEl) errorEl.textContent = message || "";
-  else if (message) alert(message);
+  setAuthMessage(message, "error");
 }
 
 function handleAuthKeydown(event, mode) {
   if (event.key !== "Enter") return;
   event.preventDefault();
   if (mode === "signup") signUpFromModal();
+  else if (mode === "recovery") updatePasswordFromModal();
+  else if (mode === "reset") resetPasswordFromModal();
   else loginFromModal();
 }
 
 async function resetPasswordFromModal() {
-  const email = document.getElementById("auth-email").value.trim();
+  const email = getAuthInputValue("email");
 
   if (!email) {
-    alert("Enter your email first.");
+    setAuthError("Enter your email first.");
     return;
   }
 
@@ -4777,29 +5013,39 @@ async function resetPasswordFromModal() {
     redirectTo: window.location.origin + window.location.pathname
   });
 
-  if (error) return alert(error.message);
+  if (error) {
+    setAuthError(error.message);
+    return;
+  }
 
-  alert("Password reset email sent. Check your inbox.");
+  setAuthMessage("Check your email for the reset link.", "success");
 }
 
 async function updatePasswordFromModal() {
-  const password = document.getElementById("auth-new-password").value;
-  if (!password) return alert("Enter a new password.");
+  const password = getAuthInputValue("new-password");
+  if (!password) {
+    setAuthError("Enter a new password.");
+    return;
+  }
 
   const { error } = await supabaseClient.auth.updateUser({ password });
 
-  if (error) return alert(error.message);
+  if (error) {
+    setAuthError(error.message);
+    return;
+  }
 
   recoveryModeActive = false;
   clearRecoveryUrl();
-  alert("Password updated. Please log in again.");
   await logoutCloud();
-  openAuthModal("login");
+  authViewMode = "login";
+  setAuthMessage("Password updated. Please sign in with your new password.", "success");
+  renderAuthGate("login");
 }
 
 async function signUpFromModal() {
-  const email = document.getElementById("auth-email")?.value.trim();
-  const password = document.getElementById("auth-password")?.value || "";
+  const email = getAuthInputValue("email");
+  const password = getAuthInputValue("password");
 
   if (!email || !password) {
     setAuthError("Enter an email and password.");
@@ -4824,17 +5070,18 @@ async function signUpFromModal() {
     cloudReady = true;
     await loadCloudSave();
     updateAuthButton();
-    renderAuthModal();
-    closeAuthModal();
-    location.reload();
+    updateAuthLock();
+    refreshAppAfterAuth();
   } else {
-    setAuthError("Account created. Check your email to confirm your account, then login.");
+    authViewMode = "login";
+    setAuthMessage("Account created. Check your email to confirm it, then sign in.", "success");
+    renderAuthGate("login");
   }
 }
 
 async function loginFromModal() {
-  const email = document.getElementById("auth-email")?.value.trim();
-  const password = document.getElementById("auth-password")?.value || "";
+  const email = getAuthInputValue("email");
+  const password = getAuthInputValue("password");
 
   if (!email || !password) {
     setAuthError("Enter your email and password.");
@@ -4854,8 +5101,8 @@ async function loginFromModal() {
   currentUser = data.user;
   await loadCloudSave();
   updateAuthButton();
-  closeAuthModal();
-  location.reload();
+  updateAuthLock();
+  refreshAppAfterAuth();
 }
 
 async function logoutCloud() {
@@ -4865,12 +5112,18 @@ async function logoutCloud() {
 
   currentUser = null;
   cloudReady = false;
+  cloudHadSave = false;
+  recoveryModeActive = false;
+  authViewMode = "login";
 
   localStorage.removeItem(KEY);
   localStorage.removeItem(PREFS_KEY);
 
   updateAuthButton();
   updateAuthLock();
+  closeAuthModal();
+  resetLocalAppState();
+  renderAuthGate("login");
 }
 
 async function loadCloudSave() {
@@ -4950,15 +5203,27 @@ async function saveCloud() {
 }
 
 
-supabaseClient.auth.onAuthStateChange((event, session) => {
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
   currentUser = session?.user || null;
   if (!currentUser) cloudReady = false;
   updateAuthButton();
   const btn = document.getElementById("auth-btn");
-  if (btn) btn.textContent = currentUser ? "Account ✓" : "Signed Out";
+  if (btn) btn.textContent = currentUser ? "Account \u2713" : "Account";
   if (event === "PASSWORD_RECOVERY" || isRecoveryFlow()) {
+    recoveryModeActive = true;
+    authViewMode = "recovery";
+    updateAuthLock();
     openAuthModal("recovery");
+    return;
   }
+  if (currentUser) {
+    await loadCloudSave();
+    updateAuthLock();
+    refreshAppAfterAuth();
+    return;
+  }
+  updateAuthLock();
+  renderAuthGate("login");
 });
 
 
@@ -4967,28 +5232,14 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
   updateAuthButton();
   updateAuthLock();
   if (isRecoveryFlow()) {
+    recoveryModeActive = true;
+    authViewMode = "recovery";
     openAuthModal("recovery");
   }
-
-  ensureYearsState();
-  refreshActiveYear();
-  applyPreferences();
-  renderYearSelector();
-  buildModules();
-  renderStickyExams();
-  setupDeadlineBarScrolling();
-  updateGlobal();
-  
-  if (
-    currentUser &&
-    !cloudHadSave &&
-    sessionStorage.getItem("justLoggedOut") !== "true"
-  ) {
-    setupCourseIfNeeded();
-  }
+  refreshAppAfterAuth();
 
   setTimeout(() => {
-    if (document.getElementById("template-splash").classList.contains("hidden")) {
+    if (currentUser && document.getElementById("template-splash").classList.contains("hidden")) {
       showDeadlineSplash();
     }
   }, 500);
@@ -4999,4 +5250,5 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
 </body>
 </html>
 
->
+
+
