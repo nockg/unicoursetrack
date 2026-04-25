@@ -3225,12 +3225,18 @@ async function clearTrackerStorage() {
   clearTimeout(cloudSaveTimer);
   cloudReady = false;
   cloudHadSave = false;
+  const blankState = createInitialState();
+  const blankPrefs = { ...DEFAULT_PREFERENCES };
 
   if (currentUser) {
     const { error } = await supabaseClient
       .from("tracker_profiles")
-      .delete()
-      .eq("user_id", currentUser.id);
+      .upsert({
+        user_id: currentUser.id,
+        data: blankState,
+        prefs: blankPrefs,
+        updated_at: new Date().toISOString()
+      }, { onConflict: "user_id" });
 
     if (error) {
       alert("Could not clear cloud storage: " + error.message);
@@ -3240,10 +3246,23 @@ async function clearTrackerStorage() {
   }
 
   clearLocalTrackerStorage();
+  state = blankState;
+  Object.keys(preferences).forEach((key) => delete preferences[key]);
+  Object.assign(preferences, blankPrefs);
+  localStorage.setItem(KEY, JSON.stringify(state));
+  localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
+  ensureYearsState();
+  refreshActiveYear();
+  applyPreferences();
+  renderYearSelector();
+  buildModules();
+  renderStickyExams();
+  updateGlobal();
 
   alert("Local and cloud tracker data cleared successfully.");
-
-  location.reload();
+  if (currentUser) {
+    setupCourseIfNeeded();
+  }
 }
 
 function save() {
@@ -4900,9 +4919,9 @@ function clearRecoveryUrl() {
 
 function getAuthInputValue(name) {
   const gateInput = document.getElementById(`auth-gate-${name}`);
-  if (gateInput) return gateInput.value.trim();
+  if (gateInput) return name.includes("password") ? gateInput.value : gateInput.value.trim();
   const modalInput = document.getElementById(`auth-${name}`);
-  if (modalInput) return modalInput.value.trim();
+  if (modalInput) return name.includes("password") ? modalInput.value : modalInput.value.trim();
   return "";
 }
 
