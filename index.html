@@ -32,14 +32,19 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
-body.auth-locked .nav-btn:not(#auth-btn),
-body.auth-locked .nav-select,
+body.auth-locked .nav-bar,
 body.auth-locked .hero,
 body.auth-locked .content,
 body.auth-locked .sticky-exams {
   pointer-events: none;
   filter: blur(2px);
   opacity: 0.45;
+}
+
+body.auth-locked #auth-modal {
+  pointer-events: auto;
+  filter: none;
+  opacity: 1;
 }
 
 body {
