@@ -2905,21 +2905,43 @@ function stopTopicDrag() {
   dragTopicValue = null;
 }
 
-function showDeadlineSplash() {
+function getNearestUpcomingDeadline() {
   const store = getStore();
   const exams = store.customExams || [];
   const now = Date.now();
 
-  const upcoming = exams
+  return exams
     .filter(exam => new Date(exam.date).getTime() > now)
-    .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+    .sort((a, b) => new Date(a.date) - new Date(b.date))[0] || null;
+}
 
-  if (!upcoming) return;
+function restoreDeadlineSplashCard() {
+  const splash = document.getElementById("deadline-splash");
+  if (!splash) return null;
+
+  splash.innerHTML = `
+    <div class="deadline-splash-card">
+      <button class="deadline-splash-close" type="button" onclick="closeDeadlineSplash()">X</button>
+      <div class="deadline-splash-label">Nearest Deadline</div>
+      <div id="deadline-splash-title" class="deadline-splash-title"></div>
+      <div id="deadline-splash-time" class="deadline-splash-time"></div>
+    </div>
+  `;
+
+  return splash;
+}
+
+function showDeadlineSplash() {
+  const upcoming = getNearestUpcomingDeadline();
+  if (!upcoming) return false;
+
+  const splash = restoreDeadlineSplashCard();
+  if (!splash) return false;
 
   const titleEl = document.getElementById("deadline-splash-title");
   const timeEl = document.getElementById("deadline-splash-time");
+  if (!titleEl || !timeEl) return false;
 
-  document.querySelector(".deadline-splash-label").textContent = "Nearest Deadline";
   titleEl.textContent = upcoming.mod || "Upcoming deadline";
 
   function updateSplashTimer() {
@@ -2931,7 +2953,8 @@ function showDeadlineSplash() {
   clearInterval(deadlineSplashInterval);
   deadlineSplashInterval = setInterval(updateSplashTimer, 1000);
 
-  document.getElementById("deadline-splash").classList.remove("hidden");
+  splash.classList.remove("hidden");
+  return true;
 }
 
 function closeDeadlineSplash() {
@@ -5306,46 +5329,40 @@ function maybeShowOnboarding() {
 }
 
 function maybeShowWelcomeBackSplash() {
-  // Only show if user is logged in
+  // Deadline popup wins. If a deadline exists, do not show welcome back.
+  if (getNearestUpcomingDeadline()) return;
   if (!currentUser) return;
-  
+
   const profileName = (state.profile?.name || "").trim();
   const isReturningUser = cloudHadSave && !isPendingNewAccount(currentUser?.email);
   const isOnboardingUser = pendingFirstRunSetup;
-  
-  // Only show welcome back splash if:
-  // 1. User is a returning user (has saved data)
-  // 2. Has a profile name
-  // 3. Won't see onboarding modal (so message needs to be shown here)
+
   if (isReturningUser && profileName && !isOnboardingUser) {
     const welcomeKey = `welcome_back_seen_${currentUser?.id}`;
-    
-    // Only show once per session
-    if (!sessionStorage.getItem(welcomeKey)) {
-      sessionStorage.setItem(welcomeKey, "true");
-      
-      // Show temporary welcome message
-      const splash = document.getElementById("deadline-splash");
-      const card = document.querySelector(".deadline-splash-card");
-      
-      if (splash && card) {
-        // Build the welcome back HTML
-        const html = `
-          <button class="deadline-splash-close" onclick="document.getElementById('deadline-splash').classList.add('hidden')">&times;</button>
-          <div class="deadline-splash-label">Welcome</div>
-          <div class="deadline-splash-title">Welcome back, ${escapeHtml(profileName)}</div>
-          <div class="template-splash-copy" style="margin-top: 16px; color: rgba(255,255,255,0.68);">Great to see you again! Your progress has been saved.</div>
-        `;
-        
-        card.innerHTML = html;
-        splash.classList.remove("hidden");
-        
-        // Auto-hide after 4 seconds
-        setTimeout(() => {
-          splash.classList.add("hidden");
-        }, 4000);
-      }
-    }
+    if (sessionStorage.getItem(welcomeKey)) return;
+
+    sessionStorage.setItem(welcomeKey, "true");
+
+    const splash = document.getElementById("deadline-splash");
+    if (!splash) return;
+
+    clearInterval(deadlineSplashInterval);
+    deadlineSplashInterval = null;
+
+    splash.innerHTML = `
+      <div class="deadline-splash-card">
+        <button class="deadline-splash-close" type="button" onclick="closeDeadlineSplash()">&times;</button>
+        <div class="deadline-splash-label">Welcome</div>
+        <div class="deadline-splash-title">Welcome back, ${escapeHtml(profileName)}</div>
+        <div class="template-splash-copy" style="margin-top: 16px; color: rgba(255,255,255,0.68);">Great to see you again! Your progress has been saved.</div>
+      </div>
+    `;
+
+    splash.classList.remove("hidden");
+
+    setTimeout(() => {
+      if (!getNearestUpcomingDeadline()) splash.classList.add("hidden");
+    }, 4000);
   }
 }
 
