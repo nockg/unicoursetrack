@@ -5477,8 +5477,19 @@ function refreshAppAfterAuth() {
     setupCourseIfNeeded();
   }
   maybeShowOnboarding();
-  // Also show welcome back message for returning users (after onboarding if needed)
-  maybeShowWelcomeBackSplash();
+
+  // After any sign-in/auth refresh, deadline wins over welcome back.
+  // Important: loginFromModal() reaches this path, so the nearest deadline must be checked here,
+  // not only inside the initial page boot code.
+  setTimeout(() => {
+    if (!currentUser) return;
+
+    const templateSplash = document.getElementById("template-splash");
+    if (templateSplash && !templateSplash.classList.contains("hidden")) return;
+
+    const deadlineShown = showDeadlineSplash();
+    if (!deadlineShown) maybeShowWelcomeBackSplash();
+  }, 250);
 }
 
 function resetLocalAppState() {
