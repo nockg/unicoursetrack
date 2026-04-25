@@ -2391,6 +2391,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_Ny7C4xhGJJ8EgWmsmaF-DA_P6N20C5M";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 let cloudReady = false;
+let cloudHadSave = false;
 
 const BASE_MODULES = [
   { name:"Introduction to Aerospace Materials", kanji:"CMB121", short:"Materials", credits:20, cw:0, exam:100,
@@ -4795,8 +4796,11 @@ async function loadCloudSave() {
   }
 
   if (data?.data) {
+    cloudHadSave = true;
     state = data.data;
     localStorage.setItem(KEY, JSON.stringify(state));
+  } else {
+    cloudHadSave = false;
   }
 
   if (data?.prefs) {
@@ -4806,10 +4810,6 @@ async function loadCloudSave() {
 
   cloudReady = true;
 
-  // First login on a fresh account: upload whatever is already saved locally.
-  if (!data) {
-    await saveCloudNow();
-  }
 }
 
 async function saveCloudNow() {
@@ -4867,11 +4867,11 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
   
   if (
     currentUser &&
-    !localStorage.getItem(KEY) &&
+    !cloudHadSave &&
     sessionStorage.getItem("justLoggedOut") !== "true"
-    ) {
-      showTemplateSplash();
-    }
+  ) {
+    showTemplateSplash();
+  }
 
   setTimeout(() => {
     if (document.getElementById("template-splash").classList.contains("hidden")) {
