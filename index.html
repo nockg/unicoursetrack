@@ -2786,7 +2786,10 @@ let authViewMode = "login";
 let authStatusMessage = "";
 let authStatusTone = "error";
 let pendingOnboarding = false;
+let pendingFirstRunSetup = false;
+let accountCreationInProgress = false;
 let onboardingStepIndex = 0;
+const PENDING_NEW_ACCOUNT_EMAIL_KEY = "unitrack_pending_new_account_email";
 
 const ONBOARDING_STEPS = [
   {
@@ -3166,6 +3169,31 @@ function setupCourseIfNeeded() {
   openCourseSetupModal(true);
 }
 
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function markPendingNewAccount(email) {
+  const normalized = normalizeEmail(email);
+  if (normalized) localStorage.setItem(PENDING_NEW_ACCOUNT_EMAIL_KEY, normalized);
+}
+
+function clearPendingNewAccount(email) {
+  const normalized = normalizeEmail(email);
+  if (!normalized || localStorage.getItem(PENDING_NEW_ACCOUNT_EMAIL_KEY) === normalized) {
+    localStorage.removeItem(PENDING_NEW_ACCOUNT_EMAIL_KEY);
+  }
+}
+
+function isPendingNewAccount(email) {
+  return !!email && localStorage.getItem(PENDING_NEW_ACCOUNT_EMAIL_KEY) === normalizeEmail(email);
+}
+
+function isFreshSupabaseUser(user) {
+  const createdAt = user?.created_at ? Date.parse(user.created_at) : NaN;
+  return Number.isFinite(createdAt) && Date.now() - createdAt < 20 * 60 * 1000;
+}
+
 function selectSetupTemplate(template) {
   selectedSetupTemplate = template === "aero" ? "aero" : "blank";
   const blank = document.getElementById("setup-choice-blank");
@@ -3244,10 +3272,14 @@ function saveCourseSetup() {
   updateGlobal();
   document.getElementById("course-setup-modal").classList.add("hidden");
   courseSetupInitial = false;
+  if (pendingFirstRunSetup) {
+    clearPendingNewAccount(currentUser?.email);
+    saveCloudNow();
+  }
   if (pendingOnboarding) maybeShowOnboarding();
 }
 
-if (currentUser && !cloudHadSave && sessionStorage.getItem("justLoggedOut") !== "true") {
+if (currentUser && pendingFirstRunSetup && sessionStorage.getItem("justLoggedOut") !== "true") {
   setupCourseIfNeeded();
 }
 
@@ -5163,7 +5195,7 @@ function markOnboardingSeen() {
 }
 
 function shouldShowOnboarding() {
-  return !!currentUser && !cloudHadSave && !hasSeenOnboarding();
+  return !!currentUser && pendingFirstRunSetup && !hasSeenOnboarding();
 }
 
 function renderOnboardingStep() {
@@ -5232,6 +5264,7 @@ function openOnboardingModal() {
 function closeOnboardingModal() {
   markOnboardingSeen();
   pendingOnboarding = false;
+  pendingFirstRunSetup = false;
   document.getElementById("onboarding-modal").classList.add("hidden");
 }
 
@@ -5289,12 +5322,20 @@ function renderAuthGate(mode = authViewMode) {
           <label for="auth-gate-password">Password</label>
           <input class="input" id="auth-gate-password" type="password" autocomplete="${isSignup ? "new-password" : "current-password"}" placeholder="Minimum 6 characters" onkeydown="handleAuthKeydown(event, '${isSignup ? "signup" : "login"}')">
         </div>
+        ${isSignup ? `
+          <div class="field">
+            <label for="auth-gate-confirm-password">Confirm Password</label>
+            <input class="input" id="auth-gate-confirm-password" type="password" autocomplete="new-password" placeholder="Repeat your password" onkeydown="handleAuthKeydown(event, 'signup')">
+          </div>
+        ` : ""}
         <div id="auth-gate-feedback" class="${feedbackClass}">${escapeHtml(authStatusMessage || "")}</div>
         <div class="deadline-form-actions">
           ${isSignup ? `
-            <button class="nav-btn calendar-btn" type="button" onclick="signUpFromModal()">Create Account</button>
+            <button class="nav-btn" type="button" data-password-toggle onclick="togglePasswordVisibility('auth-gate-password', 'auth-gate-confirm-password')">Show Password</button>
+            <button class="nav-btn calendar-btn" id="auth-signup-btn" type="button" onclick="signUpFromModal()">Create Account</button>
           ` : `
             <button class="nav-btn" type="button" onclick="setAuthScreen('reset')">Forgot Password</button>
+            <button class="nav-btn" type="button" data-password-toggle onclick="togglePasswordVisibility('auth-gate-password')">Show Password</button>
             <button class="nav-btn calendar-btn" type="button" onclick="loginFromModal()">Sign In</button>
           `}
         </div>
@@ -5345,7 +5386,7 @@ function refreshAppAfterAuth() {
   renderStickyExams();
   setupDeadlineBarScrolling();
   updateGlobal();
-  if (currentUser && !cloudHadSave && sessionStorage.getItem("justLoggedOut") !== "true") {
+  if (currentUser && pendingFirstRunSetup && sessionStorage.getItem("justLoggedOut") !== "true") {
     setupCourseIfNeeded();
   }
   maybeShowOnboarding();
@@ -5420,6 +5461,19 @@ function setAuthError(message) {
   setAuthMessage(message, "error");
 }
 
+function setAuthButtonBusy(selector, busy, busyText = "Working...") {
+  const button = document.querySelector(selector);
+  if (!button) return;
+  if (busy) {
+    button.dataset.originalText = button.textContent;
+    button.textContent = busyText;
+    button.disabled = true;
+  } else {
+    button.textContent = button.dataset.originalText || button.textContent;
+    button.disabled = false;
+  }
+}
+
 function ensureCloudAuthReady() {
   if (supabaseClient) return true;
   setAuthError("Cloud sign-in did not load. Refresh the page and check your internet connection.");
@@ -5433,6 +5487,18 @@ function withCloudTimeout(promise, label = "Cloud request") {
       setTimeout(() => reject(new Error(`${label} took too long. Check your connection and try again.`)), 15000);
     })
   ]);
+}
+
+function togglePasswordVisibility(...ids) {
+  const inputs = ids.map((id) => document.getElementById(id)).filter(Boolean);
+  if (!inputs.length) return;
+  const show = inputs[0].type === "password";
+  inputs.forEach((input) => {
+    input.type = show ? "text" : "password";
+  });
+  document.querySelectorAll("[data-password-toggle]").forEach((button) => {
+    button.textContent = show ? "Hide Password" : "Show Password";
+  });
 }
 
 function handleAuthKeydown(event, mode) {
@@ -5504,14 +5570,26 @@ async function signUpFromModal() {
   if (!ensureCloudAuthReady()) return;
   const email = getAuthInputValue("email");
   const password = getAuthInputValue("password");
+  const confirmPassword = getAuthInputValue("confirm-password");
 
-  if (!email || !password) {
-    setAuthError("Enter an email and password.");
+  if (!email || !password || !confirmPassword) {
+    setAuthError("Enter an email, password, and confirmation password.");
+    return;
+  }
+  if (password !== confirmPassword) {
+    setAuthError("Passwords do not match.");
+    return;
+  }
+  if (password.length < 6) {
+    setAuthError("Password must be at least 6 characters.");
     return;
   }
 
   let data;
   let error;
+  accountCreationInProgress = true;
+  setAuthButtonBusy("#auth-signup-btn", true, "Creating...");
+  setAuthMessage("Creating your account...", "success");
   try {
     ({ data, error } = await withCloudTimeout(supabaseClient.auth.signUp({
       email,
@@ -5521,27 +5599,36 @@ async function signUpFromModal() {
       }
     }), "Account creation"));
   } catch (cloudError) {
+    accountCreationInProgress = false;
+    setAuthButtonBusy("#auth-signup-btn", false);
     setAuthError(cloudError?.message || "Account creation failed. Please try again.");
     return;
   }
 
   if (error) {
+    accountCreationInProgress = false;
+    setAuthButtonBusy("#auth-signup-btn", false);
     setAuthError(error.message);
     return;
   }
 
+  markPendingNewAccount(email);
   if (data?.session) {
-    currentUser = data.session.user;
-    cloudReady = true;
-    await loadCloudSave();
-    updateAuthButton();
-    updateAuthLock();
-    refreshAppAfterAuth();
-  } else {
-    authViewMode = "login";
-    setAuthMessage("Account created. Check your email to confirm it, then sign in.", "success");
-    renderAuthGate("login");
+    try {
+      await supabaseClient.auth.signOut();
+    } catch (signOutError) {
+      console.warn("Post-signup sign out error:", signOutError?.message || signOutError);
+    }
+    currentUser = null;
+    cloudReady = false;
   }
+  accountCreationInProgress = false;
+  authViewMode = "login";
+  updateAuthLock();
+  setAuthMessage(data?.session
+    ? "Account created. Please sign in now to set up your tracker."
+    : "Account created. Check your email to confirm it, then sign in.", "success");
+  renderAuthGate("login");
 }
 
 async function loginFromModal() {
@@ -5569,6 +5656,11 @@ async function loginFromModal() {
 
     currentUser = data.session?.user || data.user || null;
     await loadCloudSave();
+    pendingFirstRunSetup = !cloudHadSave && (isPendingNewAccount(currentUser?.email) || isFreshSupabaseUser(currentUser));
+    if (pendingFirstRunSetup) {
+      resetLocalAppState();
+      cloudReady = true;
+    }
     updateAuthButton();
     updateAuthLock();
     refreshAppAfterAuth();
@@ -5588,6 +5680,7 @@ async function logoutCloud() {
   cloudReady = false;
   cloudHadSave = false;
   recoveryModeActive = false;
+  pendingFirstRunSetup = false;
   authViewMode = "login";
 
   localStorage.removeItem(KEY);
@@ -5628,6 +5721,7 @@ async function loadCloudSave() {
 
   if (!currentUser) {
     cloudReady = false;
+    pendingFirstRunSetup = false;
     return;
   }
 
@@ -5702,6 +5796,7 @@ if (supabaseClient) {
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   currentUser = session?.user || null;
   if (!currentUser) cloudReady = false;
+  if (accountCreationInProgress) return;
   updateAuthButton();
   const btn = document.getElementById("auth-btn");
   if (btn) btn.textContent = currentUser ? "Account \u2713" : "Account";
@@ -5714,10 +5809,16 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   }
   if (currentUser) {
     await loadCloudSave();
+    pendingFirstRunSetup = !cloudHadSave && (isPendingNewAccount(currentUser?.email) || isFreshSupabaseUser(currentUser));
+    if (pendingFirstRunSetup) {
+      resetLocalAppState();
+      cloudReady = true;
+    }
     updateAuthLock();
     refreshAppAfterAuth();
     return;
   }
+  pendingFirstRunSetup = false;
   updateAuthLock();
   renderAuthGate("login");
 });
@@ -5729,6 +5830,11 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
 (async function initApp() {
   renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
   await loadCloudSave();
+  pendingFirstRunSetup = !!currentUser && !cloudHadSave && (isPendingNewAccount(currentUser?.email) || isFreshSupabaseUser(currentUser));
+  if (pendingFirstRunSetup) {
+    resetLocalAppState();
+    cloudReady = true;
+  }
   updateAuthButton();
   updateAuthLock();
   if (isRecoveryFlow()) {
