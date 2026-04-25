@@ -2810,6 +2810,8 @@ function shouldShowTemplateSplash() {
 }
 
 function showTemplateSplash() {
+  if (!currentUser) return;
+  if (sessionStorage.getItem("justLoggedOut") === "true") return;
   if (!shouldShowTemplateSplash()) return;
   document.getElementById("template-splash").classList.remove("hidden");
 }
@@ -4750,6 +4752,8 @@ async function loginFromModal() {
 }
 
 async function logoutCloud() {
+  sessionStorage.setItem("justLoggedOut", "true");
+
   await supabaseClient.auth.signOut();
 
   currentUser = null;
@@ -4757,8 +4761,6 @@ async function logoutCloud() {
 
   localStorage.removeItem(KEY);
   localStorage.removeItem(PREFS_KEY);
-
-  sessionStorage.setItem("justLoggedOut", "true");
 
   location.reload();
 }
