@@ -3492,6 +3492,7 @@ document.getElementById("course-setup-modal").addEventListener("click", (event) 
 });
 
 document.getElementById("auth-modal").addEventListener("click", (event) => {
+  if (isRecoveryFlow()) return;
   if (event.target.id === "auth-modal") closeAuthModal();
 });
 
@@ -4660,10 +4661,11 @@ function openAuthModal(mode = "login") {
   modal.classList.remove("hidden");
   renderAuthModal(mode);
   const closeBtn = document.querySelector("#auth-modal .deadline-splash-close");
-  if (closeBtn) closeBtn.style.display = currentUser ? "block" : "none";
+  if (closeBtn) closeBtn.style.display = (currentUser && !isRecoveryFlow()) ? "block" : "none";
 }
 
 function closeAuthModal() {
+  if (isRecoveryFlow()) return;
   const modal = document.getElementById("auth-modal");
   if (!modal) return;
   modal.classList.add("hidden");
