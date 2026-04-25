@@ -340,6 +340,25 @@ body.font-mono .deadline-splash-title {
   gap: 12px;
   align-items: center;
 }
+.nav-brand {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #111;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow2);
+}
+.nav-brand img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .prefs-toggle-btn {
   margin-left: auto;
 }
@@ -2069,6 +2088,27 @@ body.theme-dark-offwhite .b6::before {
   align-content: center;
   gap: 10px;
 }
+.auth-gate-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.auth-gate-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #111;
+  box-shadow: var(--shadow2);
+  flex: 0 0 24px;
+}
+.auth-gate-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .auth-gate-label {
   font-family: "DM Mono", monospace;
   font-size: 10px;
@@ -2165,6 +2205,10 @@ body.theme-dark .auth-gate-aside {
   border-right-color: rgba(255,255,255,0.08);
   color: var(--ink);
 }
+body.theme-dark .auth-gate-logo,
+body.theme-dark .nav-brand {
+  border-color: rgba(255,255,255,0.14);
+}
 body.theme-dark .auth-gate-panel {
   background: rgba(19,16,13,0.96);
 }
@@ -2196,7 +2240,10 @@ body.theme-dark .auth-gate-tab.active {
 <div id="auth-gate">
   <div class="auth-gate-shell">
     <div class="auth-gate-aside">
-      <div class="auth-gate-label">SNTutors</div>
+      <div class="auth-gate-brand">
+        <div class="auth-gate-logo"><img src="sntutors-logo.png" alt="SNTutors logo"></div>
+        <div class="auth-gate-label">SNTutors</div>
+      </div>
       <div class="auth-gate-title">UniTrack</div>
       <div class="auth-gate-copy">Don't stress so much la.</div>
     </div>
@@ -2247,6 +2294,7 @@ body.theme-dark .auth-gate-tab.active {
 <div class="sticky-exams" id="live-exam-bar"></div>
 
 <div class="nav-bar">
+  <div class="nav-brand" aria-hidden="true"><img src="sntutors-logo.png" alt=""></div>
   <div class="year-controls">
     <select class="nav-select" id="year-select" onchange="handleYearDropdown(this.value)"></select>
   </div>
@@ -4862,7 +4910,7 @@ function renderAuthGate(mode = authViewMode) {
         <button class="auth-gate-tab ${isSignup ? "active" : ""}" type="button" onclick="setAuthScreen('signup')">Create Account</button>
       </div>
       <div class="deadline-splash-title" style="color: var(--ink);">${isSignup ? "Create your account" : "Welcome back!"}</div>
-      <div class="auth-gate-message">${isSignup ? "Create a cloud account to keep everything synced." : "Sign in with your existing account to open your tracker."}</div>
+      <div class="auth-gate-message">${isSignup ? "Create a new cloud account to keep your tracker, deadlines, and preferences synced." : "Sign in with your existing account to view your tracker."}</div>
       <div class="deadline-form-grid">
         <div class="field">
           <label for="auth-gate-email">Email</label>
