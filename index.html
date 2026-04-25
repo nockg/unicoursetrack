@@ -5556,7 +5556,7 @@ function withCloudTimeout(promise, label = "Cloud request") {
   return Promise.race([
     promise,
     new Promise((_, reject) => {
-      setTimeout(() => reject(new Error(`${label} took too long. Check your connection and try again.`)), 15000);
+      setTimeout(() => reject(new Error(`${label} took too long. Check your connection and try again.`)), 5000);
     })
   ]);
 }
@@ -5728,7 +5728,7 @@ async function loginFromModal() {
 
     currentUser = data.session?.user || data.user || null;
     await loadCloudSave();
-    pendingFirstRunSetup = !cloudHadSave && (isPendingNewAccount(currentUser?.email) || isFreshSupabaseUser(currentUser));
+    pendingFirstRunSetup = !cloudHadSave && isPendingNewAccount(currentUser?.email);
     if (pendingFirstRunSetup) {
       resetLocalAppState();
       cloudReady = true;
@@ -5771,23 +5771,25 @@ async function loadCloudSave() {
     return;
   }
 
-  let sessionData;
-  let sessionError;
-  try {
-    ({ data: sessionData, error: sessionError } = await withCloudTimeout(supabaseClient.auth.getSession(), "Session check"));
-  } catch (error) {
-    console.warn("Cloud session error:", error?.message || error);
-    setAuthError("Could not reach cloud sign-in. Check your connection and try again.");
-    cloudReady = false;
-    return;
+  if (!currentUser) {
+    let sessionData;
+    let sessionError;
+    try {
+      ({ data: sessionData, error: sessionError } = await withCloudTimeout(supabaseClient.auth.getSession(), "Session check"));
+    } catch (error) {
+      console.warn("Cloud session error:", error?.message || error);
+      cloudReady = false;
+      return;
+    }
+
+    if (sessionError) {
+      console.warn("Cloud session error:", sessionError.message);
+      return;
+    }
+
+    currentUser = sessionData.session?.user || null;
   }
 
-  if (sessionError) {
-    console.warn("Cloud session error:", sessionError.message);
-    return;
-  }
-
-  currentUser = sessionData.session?.user || null;
   console.log("Cloud user:", currentUser?.email || "not logged in");
   updateAuthButton();
 
@@ -5885,8 +5887,15 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     return;
   }
   if (currentUser) {
+    // Do not block the UI on the cloud database. Show the local/cached dashboard first,
+    // then replace it with cloud data as soon as it arrives.
+    cloudReady = true;
+    pendingFirstRunSetup = false;
+    updateAuthLock();
+    refreshAppAfterAuth();
+
     await loadCloudSave();
-    pendingFirstRunSetup = !cloudHadSave && (isPendingNewAccount(currentUser?.email) || isFreshSupabaseUser(currentUser));
+    pendingFirstRunSetup = !cloudHadSave && isPendingNewAccount(currentUser?.email);
     if (pendingFirstRunSetup) {
       resetLocalAppState();
       cloudReady = true;
@@ -5911,11 +5920,19 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (!currentUser) {
     updateAuthLock();
     renderAuthGate("login");
+    setInterval(renderStickyExams, 1000);
     return;
   }
 
+  // Fast path for returning users: unlock immediately using the cached local state.
+  // Cloud data then syncs in without trapping the user on the sign-in screen.
+  cloudReady = true;
+  pendingFirstRunSetup = false;
+  updateAuthLock();
+  refreshAppAfterAuth();
+
   await loadCloudSave();
-  pendingFirstRunSetup = !cloudHadSave && (isPendingNewAccount(currentUser?.email) || isFreshSupabaseUser(currentUser));
+  pendingFirstRunSetup = !cloudHadSave && isPendingNewAccount(currentUser?.email);
   if (pendingFirstRunSetup) {
     resetLocalAppState();
     cloudReady = true;
