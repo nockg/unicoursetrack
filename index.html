@@ -5189,6 +5189,30 @@ function clearAuthMessage() {
   setAuthMessage("");
 }
 
+function waitForInitialAuth() {
+  return new Promise((resolve) => {
+    let resolved = false;
+
+    const finish = (session) => {
+      if (resolved) return;
+      resolved = true;
+      currentUser = session?.user || null;
+      resolve();
+    };
+
+    supabaseClient.auth.getSession().then(({ data }) => {
+      finish(data.session);
+    });
+
+    const { data: listener } = supabaseClient.auth.onAuthStateChange((_event, session) => {
+      finish(session);
+      listener.subscription.unsubscribe();
+    });
+
+    setTimeout(() => finish(null), 3000);
+  });
+}
+
 function getOnboardingSeenKey() {
   return currentUser ? `unitrack_onboarding_seen_${currentUser.id}` : null;
 }
@@ -5903,8 +5927,10 @@ Promise.race([
   new Promise(resolve => setTimeout(resolve, 3000))  // 3 second fallback
 ]).then(async () => {
   (async function initApp() {
-    renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
     await loadCloudSave();
+
+    renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
+
     pendingFirstRunSetup = !!currentUser && !cloudHadSave && (isPendingNewAccount(currentUser?.email) || isFreshSupabaseUser(currentUser));
     if (pendingFirstRunSetup) {
       resetLocalAppState();
