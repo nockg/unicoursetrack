@@ -120,7 +120,7 @@ body.has-body-background::before {
 }
 body.theme-dark.has-body-background::before {
   background:
-    linear-gradient(rgba(11,16,25,0.84), rgba(11,16,25,0.84)),
+    linear-gradient(rgba(24,24,27,0.84), rgba(24,24,27,0.84)),
     var(--page-bg);
   background-size: cover;
   background-repeat: no-repeat;
@@ -614,6 +614,8 @@ h1 {
   position: relative;
   overflow: hidden;
   cursor: pointer;
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.2);
   transition: transform 0.28s ease, background 0.28s ease, border-color 0.28s ease;
 }
 
@@ -648,6 +650,12 @@ h1 {
   color: rgba(245,240,232,0.72);
   line-height: 1.3;
   margin-top: 6px;
+}
+#hero-title,
+.mod-name {
+  letter-spacing: 0 !important;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
 }
 .predictor-hero-number {
   font-family: "Shippori Mincho", serif;
@@ -1488,30 +1496,30 @@ body.theme-quiet .fc6 {
 }
 
 body.theme-dark {
-  --ink: #eef1f7;
-  --paper: #121821;
-  --paper2: #18202b;
-  --paper3: #1d2632;
-  --washi: #273241;
-  --sumi: #0d1219;
-  --slate: #ccd4e0;
-  --muted: #97a3b4;
-  --faint: #6b7788;
-  --border: rgba(148,163,184,0.12);
-  --border2: rgba(148,163,184,0.2);
+  --ink: #ececec;
+  --paper: #171717;
+  --paper2: #202020;
+  --paper3: #262626;
+  --washi: #303030;
+  --sumi: #0f0f0f;
+  --slate: #d4d4d4;
+  --muted: #a3a3a3;
+  --faint: #737373;
+  --border: rgba(255,255,255,0.1);
+  --border2: rgba(255,255,255,0.18);
   --shadow: 0 8px 28px rgba(0,0,0,0.34);
   --shadow2: 0 4px 10px rgba(0,0,0,0.24);
 }
 body.theme-dark .nav-btn,
 body.theme-dark .nav-select,
 body.theme-dark .input {
-  background: #1b2430;
+  background: #2a2a2a;
 }
 body.theme-dark .dashboard-chart-wrap {
   background: rgba(255,255,255,0.04);
 }
 body.theme-dark .topic-label {
-  color: #dde7f5;
+  color: #e7e7e7;
 }
 body.theme-dark .topic-row:hover {
   background: rgba(255,255,255,0.04);
@@ -1535,14 +1543,14 @@ body.theme-dark .field label,
 body.theme-dark .topic-tools-title,
 body.theme-dark .formula-links-title,
 body.theme-dark .timeline-notes-label {
-  color: #92a0b5;
+  color: #a3a3a3;
 }
 body.theme-dark .topic-entry-help {
-  color: #92a0b5;
+  color: #a3a3a3;
 }
 body.theme-dark .setup-copy,
 body.theme-dark .setup-choice-detail {
-  color: #cbd5e1;
+  color: #d4d4d4;
 }
 body.theme-dark .setup-choice {
   background: rgba(255,255,255,0.04);
@@ -1552,19 +1560,19 @@ body.theme-dark .setup-choice:hover {
   border-color: rgba(255,255,255,0.2);
 }
 body.theme-dark .setup-choice.active {
-  background: rgba(125,148,186,0.12);
-  border-color: #7d94ba;
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.26);
 }
 body.theme-dark .setup-choice-title {
-  color: #eef2fb;
+  color: #f3f3f3;
 }
 body.theme-dark .timeline-notes {
-  background: rgba(148,163,184,0.1);
-  color: #eef2fb;
-  border-color: rgba(148,163,184,0.22);
+  background: rgba(255,255,255,0.08);
+  color: #f3f3f3;
+  border-color: rgba(255,255,255,0.16);
 }
 body.theme-dark .timeline-notes::placeholder {
-  color: rgba(238,242,251,0.45);
+  color: rgba(255,255,255,0.42);
 }
 body.theme-dark .timeline-badge.countdown {
   background: rgba(245,240,232,0.12);
@@ -1577,9 +1585,9 @@ body.theme-dark .timeline-badge.countdown.urgent {
   border-color: rgba(192,57,43,0.34);
 }
 body.theme-dark .timeline-badge:not(.countdown) {
-  background: rgba(148,163,184,0.1);
-  color: #eef2fb;
-  border-color: rgba(148,163,184,0.2);
+  background: rgba(255,255,255,0.08);
+  color: #f3f3f3;
+  border-color: rgba(255,255,255,0.16);
 }
 body.theme-dark .ticker-time {
   color: #fff;
@@ -1596,7 +1604,7 @@ body.theme-dark .formula-btn:hover,
 body.theme-dark .formula-edit-btn:hover,
 body.theme-dark .mini-btn:hover,
 body.theme-dark .nav-btn:hover {
-  background: #243140;
+  background: #343434;
 }
 
 body.theme-dark-offwhite .c0,
@@ -3304,34 +3312,40 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
   }
 
   .mod-name {
-    font-size: 16px !important;
-    line-height: 1.08;
-    margin-bottom: 4px;
+    font-size: 18px !important;
+    line-height: 1.05;
+    margin-bottom: 3px;
     max-width: 100%;
     word-break: break-word;
   }
 
   .mod-kanji {
-    font-size: 10px;
-    margin-bottom: 8px;
+    font-size: 9px;
+    margin-bottom: 7px;
   }
 
   .module-links {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.15fr 0.85fr;
     gap: 8px;
   }
 
   .module-links .bb-link,
   .module-links .formula-btn {
     width: 100%;
-    min-height: 38px;
+    min-height: 36px;
     padding: 8px 10px;
-    font-size: 9.5px;
+    font-size: 9px;
     line-height: 1.15;
     text-align: center;
     white-space: normal;
     overflow-wrap: anywhere;
+  }
+
+  .module-links .bb-link {
+    min-height: 40px;
+    font-size: 9.6px;
+    font-weight: 600;
   }
 
   .progress-section,
@@ -3351,18 +3365,25 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
   }
 
   .prog-header {
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
   }
 
   .prog-done {
-    font-size: 16px;
+    font-size: 15px;
+    line-height: 1;
   }
 
   .prog-pct,
   .prog-of {
     font-size: 9px;
     line-height: 1.25;
+  }
+
+  .prog-of {
+    display: inline;
   }
 
   .inputs-grid {
@@ -3387,7 +3408,7 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
   }
 
   .final-mark {
-    font-size: 22px;
+    font-size: 20px;
     margin-bottom: 2px;
   }
 
@@ -3413,6 +3434,12 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
     align-items: center;
     justify-content: center;
     pointer-events: none;
+  }
+
+  .prog-track,
+  .progress-track {
+    height: 3px;
+    margin-bottom: 4px;
   }
 
   .module-delete-corner {
@@ -3655,7 +3682,6 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
   <div class="year-controls">
     <select class="nav-select" id="year-select" onchange="handleYearDropdown(this.value)"></select>
   </div>
-  <button class="nav-btn" onclick="document.getElementById('modules-start').scrollIntoView({ behavior: 'smooth' })">Jump to Modules</button>
   <button class="nav-btn calendar-btn" onclick="window.open('https://calendar.google.com/calendar/u/0/r','_blank','noopener')">Open Google Calendar</button>
   <button class="nav-btn" onclick="addModuleToCurrentYear()">Add Module</button>
   <button class="nav-btn" onclick="openDeadlineTimeline()">Deadlines</button>
@@ -6953,12 +6979,12 @@ function openAppDialog(options = {}) {
   if (title) title.textContent = options.title || "Are you sure?";
   if (message) message.textContent = options.message || "";
 
-  const needsInput = appDialogMode === "prompt" || appDialogRequireYes;
+  const needsInput = appDialogMode === "prompt";
   if (field) field.classList.toggle("hidden", !needsInput);
-  if (inputLabel) inputLabel.textContent = appDialogRequireYes ? "Type yes to confirm" : (options.inputLabel || "Value");
+  if (inputLabel) inputLabel.textContent = options.inputLabel || "Value";
   if (input) {
-    input.value = appDialogRequireYes ? "" : (options.defaultValue || "");
-    input.placeholder = options.placeholder || (appDialogRequireYes ? "yes" : "");
+    input.value = options.defaultValue || "";
+    input.placeholder = options.placeholder || "";
   }
 
   if (checkWrap) checkWrap.classList.toggle("hidden", !options.checkboxLabel);
@@ -6998,11 +7024,6 @@ function resolveAppDialog(confirmed) {
 
   if (!confirmed) {
     resolver(null);
-    return;
-  }
-
-  if (appDialogRequireYes && (input?.value || "").trim().toLowerCase() !== "yes") {
-    resolver(false);
     return;
   }
 
