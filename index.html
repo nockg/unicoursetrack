@@ -4810,6 +4810,220 @@ body.theme-dark-offwhite .module-library-section {
   }
 }
 
+
+/* V1.4 course-code libraries + header wording + mobile library polish */
+.dash-hero-btn {
+  border-radius: 5px !important;
+}
+.dash-actions-card {
+  gap: 8px !important;
+}
+.module-library-content {
+  border-radius: 8px !important;
+}
+.module-library-toolbar {
+  border-radius: 5px !important;
+}
+.module-library-view-toggle,
+.module-library-view-toggle .nav-btn {
+  border-radius: 4px !important;
+}
+.module-library-section,
+body.theme-dark .module-library-section,
+body.theme-dark-offwhite .module-library-section {
+  border-radius: 6px !important;
+}
+.module-library-card,
+.module-library-list:not(.cards) .module-library-card {
+  border-radius: 4px !important;
+}
+.module-library-pill,
+.module-library-card-actions .mini-btn,
+.module-library-card-actions .module-delete-btn {
+  border-radius: 3px !important;
+}
+.module-library-collapse {
+  border-radius: 5px 5px 0 0;
+}
+
+@media (max-width: 760px) {
+  #module-library-modal.dashboard-modal {
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0 !important;
+  }
+  .module-library-content {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-height: 100vh;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    padding: 16px 12px 20px !important;
+    overflow-y: auto !important;
+  }
+  .module-library-topline {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 10px !important;
+    padding-right: 42px;
+  }
+  .module-library-topline .timeline-page-title {
+    font-size: clamp(30px, 10vw, 42px) !important;
+    line-height: 0.98 !important;
+  }
+  .module-library-top-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px !important;
+  }
+  .module-library-top-actions .nav-btn {
+    width: 100%;
+    min-width: 0 !important;
+    padding: 9px 8px;
+    font-size: 9px;
+  }
+  .module-library-toolbar {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    margin: 14px 0 !important;
+  }
+  .module-library-toolbar .input,
+  .module-library-toolbar .nav-select {
+    min-height: 38px;
+    font-size: 12px;
+  }
+  .module-library-view-toggle {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    justify-self: stretch !important;
+  }
+  .module-library-view-toggle .nav-btn {
+    width: 100%;
+  }
+  .module-library-stack {
+    gap: 10px !important;
+  }
+  .module-library-section {
+    min-height: 0 !important;
+  }
+  .module-library-collapse,
+  .module-library-section-head {
+    padding: 12px 12px 11px !important;
+  }
+  .module-library-section-label {
+    font-size: 9px !important;
+  }
+  .module-library-section-copy {
+    font-size: 14px !important;
+    line-height: 1.35 !important;
+  }
+  .module-library-list,
+  .module-library-list.cards {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    padding: 10px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .module-library-card,
+  .module-library-list.cards .module-library-card,
+  .module-library-list:not(.cards) .module-library-card {
+    grid-template-columns: 6px minmax(0, 1fr) !important;
+    gap: 8px !important;
+    padding: 11px 12px !important;
+  }
+  .module-library-card-head,
+  .module-library-card-notes,
+  .module-library-card-actions,
+  .module-library-list.cards .module-library-card-head,
+  .module-library-list.cards .module-library-card-notes,
+  .module-library-list.cards .module-library-card-actions,
+  .module-library-list:not(.cards) .module-library-card-head,
+  .module-library-list:not(.cards) .module-library-card-notes,
+  .module-library-list:not(.cards) .module-library-card-actions {
+    grid-column: 2 !important;
+  }
+  .module-library-card-title {
+    font-size: 16px !important;
+    line-height: 1.18 !important;
+  }
+  .module-library-card-notes {
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+  }
+  .module-library-card-meta {
+    gap: 5px !important;
+  }
+  .module-library-pill {
+    font-size: 8px !important;
+    padding: 3px 5px !important;
+    max-width: 100%;
+  }
+  .module-library-card-actions {
+    justify-content: stretch !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px !important;
+  }
+  .module-library-card-actions .mini-btn,
+  .module-library-card-actions .module-delete-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 32px !important;
+  }
+  .dashboard-close {
+    top: 12px !important;
+    right: 12px !important;
+    z-index: 5;
+  }
+  .dash-hero-btn {
+    border-radius: 4px !important;
+    padding: 12px !important;
+  }
+}
+
+/* v1.5 — module options contrast fix */
+.module-edit-tools .weight-edit-btn,
+.module-edit-primary .weight-edit-btn,
+button.weight-edit-btn {
+  background: #111418 !important;
+  border-color: rgba(17, 20, 24, 0.92) !important;
+  color: #f7f1e7 !important;
+  text-shadow: none !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(14,12,10,0.12);
+}
+.module-edit-tools .weight-edit-btn:hover,
+.module-edit-primary .weight-edit-btn:hover,
+button.weight-edit-btn:hover {
+  background: #1f2733 !important;
+  border-color: rgba(216, 200, 176, 0.45) !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(14,12,10,0.16);
+}
+body.theme-dark .module-edit-tools .weight-edit-btn,
+body.theme-dark-offwhite .module-edit-tools .weight-edit-btn,
+body.theme-dark .module-edit-primary .weight-edit-btn,
+body.theme-dark-offwhite .module-edit-primary .weight-edit-btn,
+body.theme-dark button.weight-edit-btn,
+body.theme-dark-offwhite button.weight-edit-btn {
+  background: #232833 !important;
+  border-color: rgba(255,255,255,0.14) !important;
+  color: #fff6e8 !important;
+}
+body.theme-dark .module-edit-tools .weight-edit-btn:hover,
+body.theme-dark-offwhite .module-edit-tools .weight-edit-btn:hover,
+body.theme-dark .module-edit-primary .weight-edit-btn:hover,
+body.theme-dark-offwhite .module-edit-primary .weight-edit-btn:hover,
+body.theme-dark button.weight-edit-btn:hover,
+body.theme-dark-offwhite button.weight-edit-btn:hover {
+  background: #303846 !important;
+  border-color: rgba(216,200,176,0.45) !important;
+  color: #ffffff !important;
+}
 </style>
 </head>
 <body class="auth-required auth-loading">
@@ -4957,10 +5171,10 @@ body.theme-dark-offwhite .module-library-section {
       </select>
     </div>
     <div class="field prefs-inline-field prefs-span-2 custom-bg-field">
-      <label for="custom-bg-url">Hero Image</label>
+      <label for="custom-bg-url">Header Image</label>
       <div class="prefs-input-row">
         <input class="input" id="custom-bg-url" placeholder="Paste image URL">
-        <button class="nav-btn" type="button" onclick="addCustomBackground()">Add Hero Image</button>
+        <button class="nav-btn" type="button" onclick="addCustomBackground()">Add Header Image</button>
       </div>
     </div>
     <div class="field prefs-inline-field prefs-span-2 custom-bg-field">
@@ -5199,13 +5413,14 @@ body.theme-dark-offwhite .module-library-section {
         </button>
         <div class="module-library-list hidden" id="module-library-links"></div>
       </section>
-      <section class="module-library-section module-library-materials-section">
-        <div class="module-library-section-head">
+      <section class="module-library-section module-library-materials-section module-library-section-collapsible">
+        <button class="module-library-collapse" type="button" onclick="toggleModuleLibraryMaterials()">
           <div>
             <div class="module-library-section-label">Module Material</div>
             <div class="module-library-section-copy">Formula sheets, worked examples, reference pages, and quick-access study material.</div>
           </div>
-        </div>
+          <span class="module-library-collapse-chevron open" id="module-library-materials-chevron"></span>
+        </button>
         <div class="module-library-list" id="module-library-materials"></div>
       </section>
     </div>
@@ -5377,7 +5592,7 @@ const ONBOARDING_STEPS = [
     copy: "Use Preferences for themes, fonts, backgrounds, and course details.",
     preview: [
       "Switch themes and font styles",
-      "Change hero and page backgrounds",
+      "Change header and page backgrounds",
       "Edit your course setup anytime"
     ]
   }
@@ -5457,6 +5672,7 @@ let moduleLibraryViewMode = "list";
 let moduleLibrarySearch = "";
 let moduleLibraryFilter = "all";
 let moduleLibraryLinksOpen = false;
+let moduleLibraryMaterialsOpen = true;
 let isDraggingTopics = false;
 let dragTopicValue = null;
 let draggedTopic = null;
@@ -6813,6 +7029,11 @@ function toggleModuleLibraryLinks() {
   renderModuleLibrary();
 }
 
+function toggleModuleLibraryMaterials() {
+  moduleLibraryMaterialsOpen = !moduleLibraryMaterialsOpen;
+  renderModuleLibrary();
+}
+
 function buildModuleLibraryCard(item) {
   const notes = item.notes ? `<div class="module-library-card-notes">${escapeHtml(item.notes)}</div>` : "";
   const tag = item.tag ? `<span class="module-library-pill">${escapeHtml(item.tag)}</span>` : "";
@@ -6874,9 +7095,10 @@ function renderModuleLibrary() {
   const materials = getModuleLibraryItems("formula", moduleLibraryScopeMi);
   const links = getModuleLibraryItems("relevant", moduleLibraryScopeMi);
   if (moduleLibrarySearch.trim() && links.length) moduleLibraryLinksOpen = true;
-  materialsHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "");
+  materialsHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "") + (moduleLibraryMaterialsOpen ? "" : " hidden");
   linksHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "") + (moduleLibraryLinksOpen ? "" : " hidden");
   document.getElementById("module-library-links-chevron")?.classList.toggle("open", moduleLibraryLinksOpen);
+  document.getElementById("module-library-materials-chevron")?.classList.toggle("open", moduleLibraryMaterialsOpen);
   materialsHost.innerHTML = materials.length
     ? materials.map(buildModuleLibraryCard).join("")
     : `<div class="module-library-empty">No module material saved yet.</div>`;
@@ -6892,6 +7114,7 @@ function openModuleLibrary(mi = null, focus = "both", event) {
   if (moduleLibraryScopeMi === null) moduleLibraryFilter = "all";
   else moduleLibraryFilter = String(moduleLibraryScopeMi);
   moduleLibraryLinksOpen = focus === "links";
+  moduleLibraryMaterialsOpen = true;
   document.getElementById("module-library-modal").classList.remove("hidden");
   renderModuleLibrary();
 }
@@ -7018,7 +7241,7 @@ function updateFormulaButton(mi) {
     const count = getFormulaLinks(mi).length;
     const compact = document.body.classList.contains("compact-ui");
     const mod = MODULES[mi] || {};
-    const labelBase = mod.short || mod.name || mod.kanji || "Module";
+    const labelBase = mod.kanji || mod.short || "Module";
     btn.textContent = compact
       ? "Library"
       : `${labelBase} Library`;
@@ -8144,7 +8367,7 @@ function buildModules() {
         <div class="mod-kanji">${escapeHtml(mod.kanji)} · CW ${mod.cw === 0 ? "N/A" : escapeHtml(String(mod.cw ?? 0)) + "%"} · EXAMS ${mod.exam === 0 ? "N/A" : escapeHtml(String(mod.exam ?? 0)) + "%"}</div>
         <div class="module-links">
           <button class="bb-link" id="bb-link-${mi}" type="button" onclick="openBlackboardLink(${mi}, event)">Set Blackboard</button>
-          <button class="formula-btn" id="formula-btn-${mi}" type="button" onclick="openFormulaLink(${mi}, event)">${escapeHtml(mod.short || mod.name || "Module")} Library</button>
+          <button class="formula-btn" id="formula-btn-${mi}" type="button" onclick="openFormulaLink(${mi}, event)">${escapeHtml(mod.kanji || mod.short || "Module")} Library</button>
         </div>
       </div>
       <div class="progress-section">
