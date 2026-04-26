@@ -2787,6 +2787,13 @@ function markAuthStateKnown() {
   }
 }
 
+function clearLogoutFlagForSignedInUser() {
+  // justLoggedOut is only meant to protect the immediate signed-out screen.
+  // If another account signs in during the same browser session, this stale flag
+  // must be cleared or it will wrongly block first-run setup/template screens.
+  if (currentUser) sessionStorage.removeItem("justLoggedOut");
+}
+
 let onboardingStepIndex = 0;
 const PENDING_NEW_ACCOUNT_EMAIL_KEY = "unitrack_pending_new_account_email";
 
@@ -3301,7 +3308,7 @@ function saveCourseSetup() {
   if (pendingOnboarding) maybeShowOnboarding();
 }
 
-if (currentUser && pendingFirstRunSetup && sessionStorage.getItem("justLoggedOut") !== "true") {
+if (currentUser && pendingFirstRunSetup) {
   setupCourseIfNeeded();
 }
 
@@ -3317,7 +3324,6 @@ function showTemplateSplash() {
   if (!currentUser) return;
   if (!pendingFirstRunSetup) return;
   if (cloudHadSave) return;
-  if (sessionStorage.getItem("justLoggedOut") === "true") return;
   if (!shouldShowTemplateSplash()) return;
   document.getElementById("template-splash").classList.remove("hidden");
 }
@@ -5475,7 +5481,7 @@ function refreshAppAfterAuth() {
   renderStickyExams();
   setupDeadlineBarScrolling();
   updateGlobal();
-  if (currentUser && pendingFirstRunSetup && sessionStorage.getItem("justLoggedOut") !== "true") {
+  if (currentUser && pendingFirstRunSetup) {
     setupCourseIfNeeded();
   }
   maybeShowOnboarding();
@@ -5757,6 +5763,7 @@ async function loginFromModal() {
     }
 
     currentUser = data.session?.user || data.user || null;
+    clearLogoutFlagForSignedInUser();
     await loadCloudSave();
     pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
     if (pendingFirstRunSetup) {
@@ -5908,6 +5915,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
 
   currentUser = session?.user || null;
   markAuthStateKnown();
+  clearLogoutFlagForSignedInUser();
   if (!currentUser) cloudReady = false;
   if (accountCreationInProgress) return;
   updateAuthButton();
@@ -5957,6 +5965,8 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     setInterval(renderStickyExams, 1000);
     return;
   }
+
+  clearLogoutFlagForSignedInUser();
 
   // Fast path for returning users: unlock immediately using the cached local state.
   // Cloud data then syncs in without trapping the user on the sign-in screen.
