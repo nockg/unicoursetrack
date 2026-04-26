@@ -5053,6 +5053,14 @@ function clearTopicSelection(mi = null) {
   if (parseTopicSelectionKey(lastSelectedTopicKey)?.mi === mi) lastSelectedTopicKey = null;
 }
 
+function getSelectedTopicModules() {
+  return [...new Set(
+    [...selectedTopicKeys]
+      .map((key) => parseTopicSelectionKey(key)?.mi)
+      .filter((value) => Number.isInteger(value))
+  )];
+}
+
 function selectTopicRow(mi, ti, si = null, event = null) {
   const key = topicSelectionKey(mi, ti, si);
   if (event?.shiftKey) {
@@ -5084,6 +5092,20 @@ function selectTopicRow(mi, ti, si = null, event = null) {
   selectedTopicKeys.add(key);
   lastSelectedTopicKey = key;
   buildModules();
+}
+
+async function handleSelectedTopicDeleteFromKeyboard(event) {
+  if (event.key !== "Delete" && event.key !== "Backspace") return;
+  const activeTag = document.activeElement?.tagName;
+  if (activeTag === "INPUT" || activeTag === "TEXTAREA" || document.activeElement?.isContentEditable) return;
+  const modules = getSelectedTopicModules();
+  if (!modules.length) return;
+  event.preventDefault();
+  if (modules.length > 1) {
+    await showAppNotice("One module at a time", "Delete selected topics from one module at a time so the list stays predictable.");
+    return;
+  }
+  await deleteSelectedTopicsInModule(modules[0]);
 }
 
 function isColourCustomisableTheme() {
@@ -6597,17 +6619,19 @@ function startTopicReorder(mi, ti, event) {
 }
 
 function allowTopicDrop(mi, ti, event) {
-  if (!draggedTopic || draggedTopic.mi !== mi || draggedTopic.ti === ti) return;
+  if (!draggedTopic || draggedTopic.mi !== mi) return;
   event.preventDefault();
   const indentDelta = (event.clientX || 0) - (draggedTopic.startX || 0);
   const rect = event.currentTarget.getBoundingClientRect();
   const dropAfter = (event.clientY || rect.top) > rect.top + (rect.height / 2);
-  const canNestHere = indentDelta > 34 && !dropAfter && ti > 0;
+  const canNestBeforeTarget = indentDelta > 34 && !dropAfter && ti > 0;
+  const canNestInPlace = indentDelta > 34 && draggedTopic.ti === ti && ti > 0;
+  const canNestAfterParent = indentDelta > 34 && dropAfter && draggedTopic.ti !== ti;
   document.querySelectorAll(".topic-row.drop-before, .topic-row.drop-after, .topic-row.drop-subtopic").forEach((row) => {
     if (row !== event.currentTarget) row.classList.remove("drop-before", "drop-after", "drop-subtopic");
   });
   event.currentTarget.classList.remove("reordering", "drop-before", "drop-after", "drop-subtopic");
-  if (canNestHere) {
+  if (canNestBeforeTarget || canNestInPlace || canNestAfterParent) {
     event.currentTarget.classList.add("drop-subtopic");
   } else {
     event.currentTarget.classList.add(dropAfter ? "drop-after" : "drop-before");
@@ -6625,9 +6649,12 @@ function dropTopicReorder(mi, ti, event) {
   const indentDelta = (event.clientX || 0) - (draggedTopic.startX || 0);
   const rect = event.currentTarget.getBoundingClientRect();
   const dropAfter = (event.clientY || rect.top) > rect.top + (rect.height / 2);
-  const canNestHere = indentDelta > 34 && !dropAfter && ti > 0;
-  if (canNestHere) {
-    nestTopicUnderTopic(mi, draggedTopic.ti, ti - 1);
+  const canNestBeforeTarget = indentDelta > 34 && !dropAfter && ti > 0;
+  const canNestInPlace = indentDelta > 34 && draggedTopic.ti === ti && ti > 0;
+  const canNestAfterParent = indentDelta > 34 && dropAfter && draggedTopic.ti !== ti;
+  if (canNestBeforeTarget || canNestInPlace || canNestAfterParent) {
+    const parentIndex = canNestAfterParent ? ti : ti - 1;
+    nestTopicUnderTopic(mi, draggedTopic.ti, parentIndex);
     draggedTopic = null;
     draggedTopicStartX = 0;
     return;
@@ -6890,7 +6917,9 @@ function setupDeadlineBarScrolling() {
 
   function endDrag(event) {
     if (!isDown) return;
-    const releasedDeadlineIndex = event.target.closest(".exam-ticker")?.dataset?.deadlineIndex ?? null;
+    const releasedCard = document.elementFromPoint(event.clientX, event.clientY)?.closest?.(".exam-ticker")
+      || event.target.closest(".exam-ticker");
+    const releasedDeadlineIndex = releasedCard?.dataset?.deadlineIndex ?? null;
     const shouldOpen = !moved && pressedDeadlineIndex !== null && pressedDeadlineIndex === releasedDeadlineIndex;
     isDown = false;
     bar.classList.remove("dragging");
@@ -7183,13 +7212,9 @@ function buildModules() {
 
     const topicTools = document.createElement("div");
     topicTools.className = "notes-area-wrap";
-    const selectedTopicCount = getSelectedTopicCount(mi);
     topicTools.innerHTML = `
       <div class="topic-tools">
         <div class="topic-tools-title">Topics</div>
-        <div class="topic-tools-actions">
-          ${selectedTopicCount ? `<button class="mini-btn" type="button" onclick="deleteSelectedTopicsInModule(${mi}, event)">Delete Selected (${selectedTopicCount})</button>` : ""}
-        </div>
       </div>
       <div class="topic-entry-row">
         <input class="input" id="topic-add-${mi}" placeholder='Add one topic, or "Topic 1" "Topic 2"'>
@@ -8831,6 +8856,10 @@ async function removeExam(index) {
   renderStickyExams();
   renderDeadlineTimeline();
 }
+
+document.addEventListener("keydown", (event) => {
+  handleSelectedTopicDeleteFromKeyboard(event);
+});
 
 // Wait for Supabase to check/restore the session before showing login or the dashboard.
 (async function bootApp() {
