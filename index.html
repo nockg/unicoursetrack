@@ -855,8 +855,16 @@ h1 {
 .cls-s-21 { background: rgba(184,134,11,0.1); color: var(--gold); border: 1px solid rgba(184,134,11,0.3); }
 .cls-s-22 { background: rgba(26,44,74,0.1); color: var(--indigo); border: 1px solid rgba(26,44,74,0.25); }
 .cls-s-third { background: rgba(74,85,104,0.1); color: var(--slate); border: 1px solid var(--border2); }
-.chevron { font-size: 10px; color: var(--faint); transition: transform 0.25s ease; }
-.chevron.open { transform: rotate(90deg); }
+.chevron {
+  width: 9px;
+  height: 9px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  color: var(--faint);
+  transform: rotate(-45deg);
+  transition: transform 0.25s ease;
+}
+.chevron.open { transform: rotate(45deg); }
 .module-actions {
   display: flex;
   gap: 6px;
@@ -865,6 +873,10 @@ h1 {
 .module-delete-btn {
   width: 24px;
   height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  flex: 0 0 24px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   padding: 0;
   display: inline-flex;
@@ -967,7 +979,7 @@ h1 {
 .module-section-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   border: none;
   background: none;
   color: var(--ink);
@@ -983,12 +995,18 @@ h1 {
   text-transform: uppercase;
 }
 .module-section-chevron {
-  font-size: 10px;
+  width: 9px;
+  height: 9px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
   color: var(--faint);
+  transform: rotate(-45deg);
   transition: transform 0.2s ease;
+  flex: 0 0 auto;
+  margin-top: 1px;
 }
 .module-section-chevron.open {
-  transform: rotate(90deg);
+  transform: rotate(45deg);
 }
 .module-section-controls {
   display: flex;
@@ -1003,6 +1021,47 @@ h1 {
 }
 .module-section-body.open {
   display: block;
+}
+body.setup-required .dashboard-content {
+  background: rgba(250,247,242,0.985);
+  border: 1px solid rgba(26,22,18,0.16);
+  box-shadow: 0 24px 60px rgba(14,12,10,0.12);
+}
+body.setup-required .setup-content {
+  width: min(780px, calc(100vw - 28px));
+}
+body.setup-required .setup-grid {
+  background: rgba(255,255,255,0.52);
+  border: 1px solid rgba(26,22,18,0.08);
+  border-radius: 8px;
+  padding: 14px;
+}
+body.auth-loading .auth-gate-shell {
+  background: rgba(250,247,242,0.985) !important;
+  border: 1px solid rgba(26,22,18,0.16) !important;
+  box-shadow: 0 24px 60px rgba(14,12,10,0.12) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+body.auth-loading .auth-gate-aside {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.7), rgba(237,232,220,0.86)),
+    var(--paper2) !important;
+  border-right-color: rgba(26,22,18,0.12) !important;
+}
+body.auth-loading .auth-gate-panel {
+  background: rgba(255,255,255,0.9) !important;
+}
+body.auth-loading .auth-gate-card {
+  min-height: 160px;
+  align-content: center;
+}
+body.auth-loading #auth-gate-body .deadline-splash-title,
+body.auth-loading #auth-gate-body .auth-gate-message {
+  color: var(--ink) !important;
+}
+body.auth-loading #auth-gate-body .deadline-splash-title {
+  font-weight: 700;
 }
 .formula-links-list, .relevant-links-list {
   display: flex;
@@ -3403,6 +3462,15 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
     white-space: nowrap;
   }
 
+  .module-delete-btn {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+    flex-basis: 28px !important;
+    padding: 0 !important;
+  }
+
   .formula-links-head,
   .relevant-links-head,
   .topic-tools,
@@ -3449,6 +3517,22 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
     padding: 4px 6px !important;
     font-size: 7.6px !important;
     width: auto !important;
+  }
+
+  .module-section-head {
+    align-items: center !important;
+  }
+
+  .module-section-controls {
+    flex: 0 0 auto;
+  }
+
+  .module-delete-btn {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    min-height: 26px !important;
+    flex-basis: 26px !important;
   }
 }
 </style>
@@ -3999,6 +4083,8 @@ const openModuleSections = {};
 let authScreenLoading = true;
 let authLoadingTitle = "Restoring your session...";
 let authLoadingMessage = "Checking whether you are already signed in before showing anything.";
+let deadlineSplashShownThisLoad = false;
+let welcomeSplashShownThisLoad = false;
 
 function setTopicCheckbox(checkbox, mi, ti, value) {
   const store = getStore();
@@ -4061,10 +4147,7 @@ function showDeadlineSplash(options = {}) {
   const upcoming = getNearestUpcomingDeadline();
   if (!upcoming) return false;
 
-  // Show the deadline splash only once per signed-in user per tab session.
-  // This stops it from reappearing every time Supabase/auth refreshes when you switch tabs.
-  const splashSeenKey = currentUser?.id ? `deadline_splash_seen_${currentUser.id}` : "deadline_splash_seen_guest";
-  if (!options.force && sessionStorage.getItem(splashSeenKey) === "true") return false;
+  if (!options.force && deadlineSplashShownThisLoad) return false;
 
   const splash = restoreDeadlineSplashCard();
   if (!splash) return false;
@@ -4084,7 +4167,7 @@ function showDeadlineSplash(options = {}) {
   clearInterval(deadlineSplashInterval);
   deadlineSplashInterval = setInterval(updateSplashTimer, 1000);
 
-  sessionStorage.setItem(splashSeenKey, "true");
+  deadlineSplashShownThisLoad = true;
   splash.classList.remove("hidden");
   return true;
 }
@@ -4340,7 +4423,10 @@ function getModuleSectionStateKey(mi, section) {
 
 function isModuleSectionOpen(mi, section) {
   const key = getModuleSectionStateKey(mi, section);
-  if (openModuleSections[key] === undefined) return false;
+  if (openModuleSections[key] === undefined) {
+    if (window.innerWidth <= 760) return section === "coursework";
+    return false;
+  }
   return !!openModuleSections[key];
 }
 
@@ -4365,7 +4451,7 @@ function createModuleSection(mi, section, title, controlHtml = "") {
     <div class="module-section-head">
       <button class="module-section-toggle" type="button" onclick="toggleModuleSection(${mi}, '${section}', event)">
         <span class="module-section-title">${title}</span>
-        <span class="module-section-chevron" id="module-section-chevron-${mi}-${section}">&#9654;</span>
+        <span class="module-section-chevron" id="module-section-chevron-${mi}-${section}" aria-hidden="true"></span>
       </button>
       <div class="module-section-controls">${controlHtml}</div>
     </div>
@@ -5735,7 +5821,7 @@ function buildModules() {
         <div id="mcls-${mi}" class="final-cls"></div>
       </div>
       <div class="module-actions"></div>
-      <div class="chevron" id="chev-${mi}">&#9654;</div>
+      <div class="chevron" id="chev-${mi}" aria-hidden="true"></div>
     `;
 
     const list = document.createElement("div");
@@ -6187,10 +6273,8 @@ function maybeShowWelcomeBackSplash() {
   const isOnboardingUser = pendingFirstRunSetup;
 
   if (isReturningUser && profileName && !isOnboardingUser) {
-    const welcomeKey = `welcome_back_seen_${currentUser?.id}`;
-    if (sessionStorage.getItem(welcomeKey)) return;
-
-    sessionStorage.setItem(welcomeKey, "true");
+    if (welcomeSplashShownThisLoad) return;
+    welcomeSplashShownThisLoad = true;
 
     const splash = document.getElementById("deadline-splash");
     if (!splash) return;
@@ -6218,12 +6302,14 @@ function maybeShowWelcomeBackSplash() {
 function renderAuthGate(mode = authViewMode) {
   authViewMode = mode;
   const host = document.getElementById("auth-gate-body");
+  const asideCopy = document.querySelector(".auth-gate-copy");
   if (!host) return;
   const isSignup = mode === "signup";
   const isRecovery = mode === "recovery" || isRecoveryFlow();
   const feedbackClass = authStatusTone === "success" ? "auth-success" : "auth-error";
   const profileName = escapeHtml((state.profile?.name || "").trim());
   const loginTitle = profileName ? `Welcome back, ${profileName}` : "Welcome back!";
+  if (asideCopy) asideCopy.textContent = authScreenLoading ? "Opening your saved tracker." : "Sign in to UniTrack.";
 
   if (authScreenLoading && !isRecovery) {
     host.innerHTML = `
@@ -6639,6 +6725,8 @@ async function logoutCloud() {
   recoveryModeActive = false;
   pendingFirstRunSetup = false;
   authViewMode = "login";
+  deadlineSplashShownThisLoad = false;
+  welcomeSplashShownThisLoad = false;
 
   localStorage.removeItem(KEY);
   localStorage.removeItem(PREFS_KEY);
