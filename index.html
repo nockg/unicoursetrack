@@ -2939,9 +2939,14 @@ function restoreDeadlineSplashCard() {
   return splash;
 }
 
-function showDeadlineSplash() {
+function showDeadlineSplash(options = {}) {
   const upcoming = getNearestUpcomingDeadline();
   if (!upcoming) return false;
+
+  // Show the deadline splash only once per signed-in user per tab session.
+  // This stops it from reappearing every time Supabase/auth refreshes when you switch tabs.
+  const splashSeenKey = currentUser?.id ? `deadline_splash_seen_${currentUser.id}` : "deadline_splash_seen_guest";
+  if (!options.force && sessionStorage.getItem(splashSeenKey) === "true") return false;
 
   const splash = restoreDeadlineSplashCard();
   if (!splash) return false;
@@ -2961,6 +2966,7 @@ function showDeadlineSplash() {
   clearInterval(deadlineSplashInterval);
   deadlineSplashInterval = setInterval(updateSplashTimer, 1000);
 
+  sessionStorage.setItem(splashSeenKey, "true");
   splash.classList.remove("hidden");
   return true;
 }
