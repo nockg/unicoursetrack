@@ -6312,14 +6312,14 @@ function buildModules() {
     `;
     list.appendChild(moduleEditTools);
 
-    const colourSection = createModuleSection(
-      mi,
-      "colour",
-      "Module Colour",
-      "",
-    );
-    colourSection.body.innerHTML = `
-      ${customisableTheme ? `
+    if (customisableTheme) {
+      const colourSection = createModuleSection(
+        mi,
+        "colour",
+        "Module Colour",
+        "",
+      );
+      colourSection.body.innerHTML = `
         <div class="module-colour-meta">${themeFamilyLabel}</div>
         <div class="module-colour-copy">Pick the accent for this module in the current theme.</div>
         <div class="module-colour-picker">
@@ -6333,13 +6333,9 @@ function buildModules() {
             onchange="setModuleColour(${mi}, this.value, event)">
           <div class="module-colour-preview" style="background:${moduleColours.fill};"></div>
         </div>
-      ` : `
-        <div class="module-colour-meta">Theme controlled</div>
-        <div class="module-colour-copy">Custom module colours are available only in Light and Dark themes.</div>
-        <div class="module-colour-preview" style="background:${moduleColours.fill};"></div>
-      `}
-    `;
-    list.appendChild(colourSection.wrap);
+      `;
+      list.appendChild(colourSection.wrap);
+    }
 
     const notesWrap = document.createElement("div");
     notesWrap.className = "notes-area-wrap";
