@@ -5004,6 +5004,8 @@ function setPreference(key, value) {
   preferences[key] = value;
   savePreferences();
   applyPreferences();
+  buildModules();
+  updateGlobal();
   if (!document.getElementById("dashboard-modal").classList.contains("hidden")) renderDashboardChart();
 }
 
