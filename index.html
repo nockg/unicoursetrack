@@ -2763,6 +2763,7 @@ const supabaseClient = window.supabase?.createClient ? supabase.createClient(SUP
 let currentUser = null;
 let cloudReady = false;
 let cloudHadSave = false;
+let cloudLoadSucceeded = false;
 let recoveryModeActive = false;
 let authViewMode = "login";
 let authStatusMessage = "";
@@ -3186,7 +3187,7 @@ ensureYearsState();
 
 function setupCourseIfNeeded() {
   const profile = state.profile || deepClone(defaultProfile);
-  if (profile.course && profile.university) return;
+  if (!pendingFirstRunSetup && profile.course && profile.university) return;
   openCourseSetupModal(true);
 }
 
@@ -3481,6 +3482,7 @@ async function clearTrackerStorage() {
   clearTimeout(cloudSaveTimer);
   cloudReady = false;
   cloudHadSave = false;
+  cloudLoadSucceeded = false;
   const blankState = createInitialState();
   const blankPrefs = { ...DEFAULT_PREFERENCES };
 
@@ -5756,7 +5758,7 @@ async function loginFromModal() {
 
     currentUser = data.session?.user || data.user || null;
     await loadCloudSave();
-    pendingFirstRunSetup = !cloudHadSave && isPendingNewAccount(currentUser?.email);
+    pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
     if (pendingFirstRunSetup) {
       resetLocalAppState();
       cloudReady = true;
@@ -5779,6 +5781,7 @@ async function logoutCloud() {
   currentUser = null;
   cloudReady = false;
   cloudHadSave = false;
+  cloudLoadSucceeded = false;
   recoveryModeActive = false;
   pendingFirstRunSetup = false;
   authViewMode = "login";
@@ -5793,6 +5796,7 @@ async function logoutCloud() {
 }
 
 async function loadCloudSave() {
+  cloudLoadSucceeded = false;
   if (!supabaseClient) {
     cloudReady = false;
     setAuthError("Cloud sign-in did not load. Refresh the page and check your internet connection.");
@@ -5846,6 +5850,8 @@ async function loadCloudSave() {
     cloudReady = true;
     return;
   }
+
+  cloudLoadSucceeded = true;
 
   if (data?.data) {
     cloudHadSave = true;
@@ -5923,7 +5929,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     refreshAppAfterAuth();
 
     await loadCloudSave();
-    pendingFirstRunSetup = !cloudHadSave && isPendingNewAccount(currentUser?.email);
+    pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
     if (pendingFirstRunSetup) {
       resetLocalAppState();
       cloudReady = true;
@@ -5960,7 +5966,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   refreshAppAfterAuth();
 
   await loadCloudSave();
-  pendingFirstRunSetup = !cloudHadSave && isPendingNewAccount(currentUser?.email);
+  pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
   if (pendingFirstRunSetup) {
     resetLocalAppState();
     cloudReady = true;
