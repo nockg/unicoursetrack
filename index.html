@@ -3429,8 +3429,7 @@ function showDeadlineSplash(options = {}) {
 }
 
 function closeDeadlineSplash() {
-  const splash = document.getElementById("deadline-splash");
-  if (splash) splash.classList.add("hidden");
+  document.getElementById("deadline-splash").classList.add("hidden");
 
   if (deadlineSplashInterval) {
     clearInterval(deadlineSplashInterval);
@@ -3458,6 +3457,22 @@ function renderBackgroundPicker() {
       ` : ""}
     </div>
   `).join("");
+}
+
+function deleteCustomBackground(key) {
+  if (!preferences.customBackgrounds || !preferences.customBackgrounds[key]) return;
+
+  const confirmDelete = confirm("Delete this custom background?");
+  if (!confirmDelete) return;
+
+  delete preferences.customBackgrounds[key];
+
+  if (preferences.hero === key) {
+    preferences.hero = "bg1";
+  }
+
+  savePreferences();
+  applyPreferences();
 }
 
 const KEY = "course_progress_tracker_v1";
@@ -3552,6 +3567,43 @@ function createYearStore(modules) {
     customExams: [],
     archived: false
   };
+}
+
+function migrateLegacyState() {
+  const migrated = deepClone(defaultState);
+  const legacy = firstExisting(LEGACY_STATE_KEYS, {});
+  const legacyBoard = firstExisting(LEGACY_BLACKBOARD_KEYS, {});
+  const legacyFormula = firstExisting(LEGACY_FORMULA_KEYS, {});
+  const legacyExams = firstExisting(LEGACY_EXAM_KEYS, []);
+  const yearId = "year1";
+  migrated.years[yearId] = {
+    id: yearId,
+    label: "Year 1",
+    store: createYearStore(BASE_MODULES)
+  };
+  const store = migrated.years[yearId].store;
+
+  BASE_MODULES.forEach((mod, mi) => {
+    mod.topics.forEach((_, ti) => {
+      const key = `t_${mi}_${ti}`;
+      if (legacy[key]) store.topics[key] = true;
+    });
+    const cwKey = `cw_${mi}`;
+    const exKey = `ex_${mi}`;
+    const notesKey = `notes_${mi}`;
+    if (legacy[cwKey] !== undefined) store.coursework[mi] = legacy[cwKey];
+    if (legacy[exKey] !== undefined) store.exams[mi] = legacy[exKey];
+    if (legacy[notesKey] !== undefined) store.notes[mi] = legacy[notesKey];
+    if (legacyBoard && legacyBoard[mi]) store.blackboard[mi] = legacyBoard[mi];
+    if (legacyFormula && legacyFormula[mi]) {
+      store.formulas[mi] = Array.isArray(legacyFormula[mi])
+        ? legacyFormula[mi]
+        : [{ name: mod.short + " Formula Sheet", url: legacyFormula[mi] }];
+    }
+  });
+
+  if (Array.isArray(legacyExams)) store.customExams = legacyExams;
+  return migrated;
 }
 
 let state = loadJson(KEY, null);
@@ -3746,6 +3798,31 @@ function dismissTemplateSplash() {
   document.getElementById("template-splash").classList.add("hidden");
 }
 
+function loadAeroTemplate() {
+  const currentYear = getCurrentYear();
+  if (!currentYear) return;
+  if (currentYear.store.modules.length) {
+    const replace = confirm("Replace the current year's modules with the Year 1 Aerospace Engineering template?");
+    if (!replace) return;
+  }
+  currentYear.store = createYearStore(BASE_MODULES);
+  if (!state.profile.course || state.profile.course === "Course" || state.profile.course === "Your Course") {
+    state.profile.course = "Aerospace Engineering";
+  }
+  if (!state.profile.university || state.profile.university === "University") {
+    state.profile.university = "University of Sheffield";
+  }
+  if (!state.setup) state.setup = {};
+  state.setup.templateChoiceMade = true;
+  refreshActiveYear();
+  save();
+  document.getElementById("template-splash").classList.add("hidden");
+  renderYearSelector();
+  buildModules();
+  renderStickyExams();
+  updateGlobal();
+}
+
 function getCurrentYear() {
   return state.years[state.ui.currentYearId];
 }
@@ -3834,6 +3911,20 @@ function setBodyBackground() {
   applyPreferences();
 }
 
+function clearModuleMarks(mi, event) {
+  if (event) event.stopPropagation();
+  const store = getStore();
+  const mod = MODULES[mi];
+  if (!mod) return;
+  if (!confirm(`Clear coursework and exam marks for ${mod.kanji || mod.name}?`)) return;
+  delete store.coursework[mi];
+  delete store.exams[mi];
+  if (store.courseworkComponents) delete store.courseworkComponents[mi];
+  save();
+  buildModules();
+  updateGlobal();
+}
+
 function togglePreferences() {
   document.getElementById("prefs-panel").classList.toggle("hidden");
 }
@@ -3851,6 +3942,54 @@ function clearLocalTrackerStorage() {
   localStorage.removeItem("uos_formula_links_v1");
   localStorage.removeItem("uos_exams_v2");
   localStorage.removeItem("uos_exams_v1");
+}
+
+async function clearTrackerStorage() {
+  const confirmClear = confirm("This will reset all progress, marks, notes, links, and cloud saves for this account. Continue?");
+  if (!confirmClear) return;
+
+  clearTimeout(cloudSaveTimer);
+  cloudReady = false;
+  cloudHadSave = false;
+  cloudLoadSucceeded = false;
+  const blankState = createInitialState();
+  const blankPrefs = { ...DEFAULT_PREFERENCES };
+
+  if (currentUser) {
+    const { error } = await supabaseClient
+      .from("tracker_profiles")
+      .upsert({
+        user_id: currentUser.id,
+        data: blankState,
+        prefs: blankPrefs,
+        updated_at: new Date().toISOString()
+      }, { onConflict: "user_id" });
+
+    if (error) {
+      alert("Could not clear cloud storage: " + error.message);
+      cloudReady = true;
+      return;
+    }
+  }
+
+  clearLocalTrackerStorage();
+  state = blankState;
+  Object.keys(preferences).forEach((key) => delete preferences[key]);
+  Object.assign(preferences, blankPrefs);
+  localStorage.setItem(KEY, JSON.stringify(state));
+  localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
+  ensureYearsState();
+  refreshActiveYear();
+  applyPreferences();
+  renderYearSelector();
+  buildModules();
+  renderStickyExams();
+  updateGlobal();
+
+  alert("Local and cloud tracker data cleared successfully.");
+  if (currentUser) {
+    setupCourseIfNeeded();
+  }
 }
 
 function save() {
@@ -4443,6 +4582,43 @@ function formatCountdown(dateString) {
   return `${sign}${days}d ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
+function renderYearSelector() {
+  const select = document.getElementById("year-select");
+  if (!select) return;
+  const currentYear = getCurrentYear();
+  const yearOptions = Object.values(state.years)
+    .sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true }))
+    .map((year) => `<option value="${escapeHtml(year.id)}">${escapeHtml(year.label)}${year.store.archived ? " (Archived)" : ""}</option>`);
+  const actionOptions = [
+    '<option value="__new__">+ New Year</option>',
+    `<option value="__archive__">${currentYear.store.archived ? "Unarchive Current Year" : "Archive Current Year"}</option>`,
+    '<option value="__delete__">Delete Current Year</option>'
+  ];
+  select.innerHTML = yearOptions.join("") + actionOptions.join("");
+  select.value = state.ui.currentYearId;
+
+  const profile = Object.assign({}, defaultProfile, state.profile || {});
+  const yearNumber = parseInt(currentYear.label.match(/\d+/)?.[0] || "1", 10);
+  const profileStartYear = parseInt(profile.startYear, 10);
+  const startYear = (Number.isFinite(profileStartYear) ? profileStartYear : new Date().getFullYear()) + (yearNumber - 1);
+  const endYear = startYear + 1;
+  const userName = (profile.name || "").trim();
+  const university = profile.university || "University";
+  const course = profile.course || "Course";
+
+  const eyebrow = document.getElementById("hero-eyebrow");
+  if (eyebrow) eyebrow.textContent = userName
+    ? `${userName} Â· ${university} Â· ${currentYear.label} Â· ${startYear}-${String(endYear).slice(2)}`
+    : `${university} Â· ${currentYear.label} Â· ${startYear}-${String(endYear).slice(2)}`;
+
+  const title = document.getElementById("hero-title");
+  if (title) title.textContent = `Year ${yearNumber} ${course}`;
+
+  const footer = document.getElementById("footer-label");
+  if (footer) footer.textContent = `${university} ${currentYear.label} Â· Progress Tracker`;
+
+  document.title = `${course} ${currentYear.label} Tracker`;
+}
 function handleYearDropdown(value) {
   if (value === "__new__") return createNewYear();
   if (value === "__archive__") return archiveCurrentYear();
@@ -4453,6 +4629,48 @@ function handleYearDropdown(value) {
 function switchYear(yearId) {
   if (!state.years[yearId]) return;
   state.ui.currentYearId = yearId;
+  refreshActiveYear();
+  save();
+  renderYearSelector();
+  buildModules();
+  renderStickyExams();
+  updateGlobal();
+}
+
+function deleteCurrentYear() {
+  const year = getCurrentYear();
+  if (!year) return;
+  if (Object.keys(state.years).length === 1) {
+    alert("You need at least one year.");
+    return;
+  }
+  const confirmation = prompt(`Type yes to delete ${year.label}:`, "");
+  if (confirmation !== "yes") return;
+  delete state.years[year.id];
+  state.ui.currentYearId = Object.keys(state.years)[0];
+  refreshActiveYear();
+  save();
+  renderYearSelector();
+  buildModules();
+  renderStickyExams();
+  updateGlobal();
+}
+
+function createNewYear() {
+  const rawLabel = prompt("New year label:", `Year ${Object.keys(state.years).length + 1}`);
+  if (rawLabel === null || !rawLabel.trim()) return;
+  const label = rawLabel.trim();
+  const id = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || `year-${Date.now()}`;
+  if (state.years[id]) {
+    alert("That year already exists.");
+    return;
+  }
+  state.years[id] = {
+    id,
+    label,
+    store: createYearStore(confirm("Use the current year's modules as a starting template?") ? MODULES : [])
+  };
+  state.ui.currentYearId = id;
   refreshActiveYear();
   save();
   renderYearSelector();
@@ -4547,6 +4765,59 @@ function shiftTopicsAfterModuleDelete(topics, deletedIndex) {
   return shifted;
 }
 
+function deleteModuleFromCurrentYear(mi, event) {
+  if (event) event.stopPropagation();
+  const mod = MODULES[mi];
+  if (!mod) return;
+  const confirmation = confirm(`Delete ${mod.kanji || mod.short || mod.name}?`);
+  if (!confirmation) return;
+
+  const store = getStore();
+  MODULES.splice(mi, 1);
+  store.topics = shiftTopicsAfterModuleDelete(store.topics, mi);
+  store.coursework = shiftIndexedObjectAfterDelete(store.coursework, mi);
+  store.courseworkComponents = shiftIndexedObjectAfterDelete(store.courseworkComponents, mi);
+  store.exams = shiftIndexedObjectAfterDelete(store.exams, mi);
+  store.notes = shiftIndexedObjectAfterDelete(store.notes, mi);
+  store.blackboard = shiftIndexedObjectAfterDelete(store.blackboard, mi);
+  store.formulas = shiftIndexedObjectAfterDelete(store.formulas, mi);
+  store.relevantLinks = shiftIndexedObjectAfterDelete(store.relevantLinks, mi);
+
+  save();
+  refreshActiveYear();
+  buildModules();
+  renderStickyExams();
+  updateGlobal();
+}
+
+function editModuleTitle(mi, event) {
+  if (event) event.stopPropagation();
+  const mod = MODULES[mi];
+  if (!mod) return;
+  const title = prompt("Module title:", mod.name || "");
+  if (title === null || !title.trim()) return;
+  mod.name = title.trim();
+  if (!mod.short || mod.short === mod.kanji) mod.short = title.trim();
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+function editModuleCode(mi, event) {
+  if (event) event.stopPropagation();
+  const mod = MODULES[mi];
+  if (!mod) return;
+  const previousCode = mod.kanji || "";
+  const code = prompt("Module code:", previousCode);
+  if (code === null || !code.trim()) return;
+  mod.kanji = code.trim().toUpperCase();
+  if (!mod.short || mod.short === previousCode) mod.short = mod.kanji;
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+
 function addCourseworkComponent(mi, event) {
   if (event) event.stopPropagation();
   courseworkFormModuleIndex = mi;
@@ -4601,6 +4872,16 @@ function saveCourseworkComponentForm() {
   closeCourseworkComponentForm();
 }
 
+function deleteCourseworkComponent(mi, ci, event) {
+  if (event) event.stopPropagation();
+  const components = getCourseworkComponents(mi);
+  if (!components[ci]) return;
+  components.splice(ci, 1);
+  save();
+  buildModules();
+  updateGlobal();
+}
+
 function updateCourseworkComponent(mi, ci, field, value) {
   const components = getCourseworkComponents(mi);
   if (!components[ci]) return;
@@ -4636,6 +4917,74 @@ function updateCourseworkSummary(mi) {
   }
 
   summary.textContent = `No coursework mark yet. Add components, or use the Coursework % input above.`;
+}
+
+function addTopicToModule(mi, event) {
+  if (event) event.stopPropagation();
+  const draftInput = document.getElementById(`topic-add-${mi}`);
+  const input = draftInput
+    ? draftInput.value
+    : prompt('Add topic(s).\n\nSingle topic: Aerodynamics intro\nMultiple topics: "Topic 1" "Topic 2" "Topic 3"');
+
+  if (!input || !input.trim()) return;
+
+  const quotedTopics = [...input.matchAll(/"([^"]+)"/g)]
+    .map(match => match[1].trim())
+    .filter(Boolean);
+
+  const topicsToAdd = quotedTopics.length
+    ? quotedTopics
+    : [input.trim()];
+
+  MODULES[mi].topics.push(...topicsToAdd);
+  if (draftInput) draftInput.value = "";
+
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+function deleteTopicFromModule(mi, ti, event) {
+  if (event) event.stopPropagation();
+  const title = MODULES[mi].topics[ti];
+  if (!title) return;
+  const confirmation = prompt(`Type yes to delete topic:\n${title}`, "");
+  if (confirmation !== "yes") return;
+
+  const store = getStore();
+  MODULES[mi].topics.splice(ti, 1);
+  const nextTopics = {};
+  Object.keys(store.topics).forEach((key) => {
+    const match = /^t_(\d+)_(\d+)$/.exec(key);
+    if (!match) {
+      nextTopics[key] = store.topics[key];
+      return;
+    }
+    const moduleIndex = Number(match[1]);
+    const topicIndex = Number(match[2]);
+    if (moduleIndex !== mi) {
+      nextTopics[key] = store.topics[key];
+      return;
+    }
+    if (topicIndex < ti) nextTopics[key] = store.topics[key];
+    if (topicIndex > ti) nextTopics[`t_${mi}_${topicIndex - 1}`] = store.topics[key];
+  });
+  store.topics = nextTopics;
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+function editTopicInModule(mi, ti, event) {
+  if (event) event.stopPropagation();
+  const topic = MODULES[mi]?.topics[ti];
+  if (!topic) return;
+  const updated = prompt("Topic name:", topic);
+  if (updated === null || !updated.trim()) return;
+  MODULES[mi].topics[ti] = updated.trim();
+  save();
+  buildModules();
+  updateGlobal();
 }
 
 function remapTopicStateForReorder(mi, fromIndex, toIndex) {
@@ -4806,6 +5155,118 @@ function saveDeadlineForm() {
   closeDeadlineForm();
 }
 
+function removeExam(index) {
+  const store = getStore();
+  if (!store.customExams[index]) return;
+  if (!confirm(`Remove ${store.customExams[index].mod} deadline?`)) return;
+  store.customExams.splice(index, 1);
+  save();
+  renderStickyExams();
+  renderDeadlineTimeline();
+}
+
+function setupDeadlineBarScrolling() {
+  const bar = document.getElementById("live-exam-bar");
+  if (!bar || bar.dataset.scrollReady) return;
+  bar.dataset.scrollReady = "true";
+
+  let isDown = false;
+  let startX = 0;
+  let startScrollLeft = 0;
+  let moved = false;
+
+  bar.addEventListener("wheel", (event) => {
+    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+    event.preventDefault();
+    bar.scrollLeft += event.deltaY;
+  }, { passive: false });
+
+  bar.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    if (event.target.closest("button")) return;
+    isDown = true;
+    moved = false;
+    startX = event.clientX;
+    startScrollLeft = bar.scrollLeft;
+    bar.classList.add("dragging");
+    bar.setPointerCapture(event.pointerId);
+  });
+
+  bar.addEventListener("pointermove", (event) => {
+    if (!isDown) return;
+    const dx = event.clientX - startX;
+    if (Math.abs(dx) > 4) moved = true;
+    bar.scrollLeft = startScrollLeft - dx;
+  });
+
+  function endDrag(event) {
+    if (!isDown) return;
+    isDown = false;
+    bar.classList.remove("dragging");
+    if (bar.hasPointerCapture(event.pointerId)) bar.releasePointerCapture(event.pointerId);
+  }
+
+  bar.addEventListener("pointerup", endDrag);
+  bar.addEventListener("pointercancel", endDrag);
+  bar.addEventListener("click", (event) => {
+    if (!moved) return;
+    event.preventDefault();
+    event.stopPropagation();
+    moved = false;
+  }, true);
+}
+
+function renderDeadlineTimeline() {
+  const host = document.getElementById("timeline-list");
+  if (!host) return;
+  const store = getStore();
+  const now = Date.now();
+  const exams = (store.customExams || [])
+    .map((exam, originalIndex) => ({ ...exam, originalIndex }))
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  if (!exams.length) {
+    host.innerHTML = '<div class="timeline-empty">No deadlines yet. Add one from the top bar or from this timeline.</div>';
+    return;
+  }
+
+  host.innerHTML = exams.map((exam) => {
+    const target = new Date(exam.date);
+    const isUrgent = target.getTime() <= now;
+    return `
+      <div class="timeline-item">
+        <div class="timeline-rail"><div class="timeline-dot"></div></div>
+        <div class="timeline-card">
+          <div class="timeline-title">${escapeHtml(exam.mod)}</div>
+          <div class="timeline-meta">
+            <span class="timeline-badge countdown ${isUrgent ? "urgent" : ""}" data-deadline-countdown="${escapeHtml(exam.date)}">${escapeHtml(formatCountdown(exam.date))}</span>
+            <span class="timeline-badge">${escapeHtml(target.toLocaleString([], { dateStyle: "full", timeStyle: "short" }))}</span>
+          </div>
+          <div class="timeline-notes-label">Notes</div>
+          <textarea class="timeline-notes" data-deadline-note-index="${exam.originalIndex}" placeholder="Add context, room, prep checklist, what to bring...">${escapeHtml(exam.note || "")}</textarea>
+          <div class="timeline-actions">
+            <button class="mini-btn" type="button" onclick="editDeadline(${exam.originalIndex})">Edit</button>
+            <button class="mini-btn module-delete-btn" type="button" onclick="removeExam(${exam.originalIndex})" title="Delete deadline" aria-label="Delete deadline">x</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  host.querySelectorAll("[data-deadline-note-index]").forEach((textarea) => {
+    textarea.addEventListener("input", (event) => {
+      updateDeadlineNote(Number(event.target.dataset.deadlineNoteIndex), event.target.value);
+    });
+  });
+}
+
+function updateDeadlineNote(index, value) {
+  const store = getStore();
+  if (!store.customExams[index]) return;
+  store.customExams[index].note = value;
+  save();
+}
+
 function openDeadlineTimeline() {
   document.getElementById("timeline-modal").classList.remove("hidden");
   renderDeadlineTimeline();
@@ -4822,8 +5283,7 @@ function updateDeadlineCountdowns() {
 }
 
 function closeDeadlineTimeline() {
-  const modal = document.getElementById("timeline-modal");
-  if (modal) modal.classList.add("hidden");
+  document.getElementById("timeline-modal").classList.add("hidden");
   if (deadlineTimelineInterval) {
     clearInterval(deadlineTimelineInterval);
     deadlineTimelineInterval = null;
@@ -5600,14 +6060,6 @@ function withCloudTimeout(promise, label = "Cloud request") {
   ]);
 }
 
-function getAuthRedirectUrl() {
-  // Supabase redirect URLs must be HTTP(S). A local file:// page cannot be used
-  // as an email confirmation or password recovery callback.
-  if (window.location.protocol === "http:" || window.location.protocol === "https:") {
-    return window.location.origin + window.location.pathname;
-  }
-  return "https://unitrack-cloud.vercel.app/";
-}
 function togglePasswordVisibility(...ids) {
   const inputs = ids.map((id) => document.getElementById(id)).filter(Boolean);
   if (!inputs.length) return;
@@ -5641,7 +6093,7 @@ async function resetPasswordFromModal() {
   let error;
   try {
     ({ error } = await withCloudTimeout(supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: getAuthRedirectUrl()
+      redirectTo: window.location.origin + window.location.pathname
     }), "Password reset"));
   } catch (cloudError) {
     setAuthError(cloudError?.message || "Password reset failed. Please try again.");
@@ -5714,7 +6166,7 @@ async function signUpFromModal() {
       email,
       password,
       options: {
-        emailRedirectTo: getAuthRedirectUrl()
+        emailRedirectTo: window.location.origin + window.location.pathname
       }
     }), "Account creation"));
   } catch (cloudError) {
@@ -6208,12 +6660,12 @@ function renderYearSelector() {
   const course = profile.course || "Course";
   const eyebrow = document.getElementById("hero-eyebrow");
   if (eyebrow) eyebrow.textContent = userName
-    ? `${userName} - ${university} - ${currentYear.label} - ${startYear}-${String(endYear).slice(2)}`
-    : `${university} - ${currentYear.label} - ${startYear}-${String(endYear).slice(2)}`;
+    ? `${userName} Â· ${university} Â· ${currentYear.label} Â· ${startYear}-${String(endYear).slice(2)}`
+    : `${university} Â· ${currentYear.label} Â· ${startYear}-${String(endYear).slice(2)}`;
   const title = document.getElementById("hero-title");
   if (title) title.textContent = `Year ${yearNumber} ${course}`;
   const footer = document.getElementById("footer-label");
-  if (footer) footer.textContent = `${university} ${currentYear.label} - Progress Tracker`;
+  if (footer) footer.textContent = `${university} ${currentYear.label} Â· Progress Tracker`;
   document.title = `${course} ${currentYear.label} Tracker`;
 }
 
@@ -6445,13 +6897,6 @@ async function removeExam(index) {
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
 
 
 
