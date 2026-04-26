@@ -1296,6 +1296,31 @@ body.theme-dark-offwhite .material-library-empty {
   opacity: 0.55;
   background: rgba(26,44,74,0.06);
 }
+.topic-row.drop-before,
+.topic-row.drop-subtopic {
+  position: relative;
+}
+.topic-row.drop-before::before,
+.topic-row.drop-subtopic::before {
+  content: "";
+  position: absolute;
+  left: 42px;
+  right: 18px;
+  top: 0;
+  height: 2px;
+  background: var(--gold2);
+  border-radius: 999px;
+  pointer-events: none;
+}
+.topic-row.drop-subtopic::before {
+  left: 78px;
+}
+.topic-row.drop-subtopic {
+  background: rgba(26,44,74,0.07);
+}
+.topic-row.drop-subtopic .topic-main {
+  transform: translateX(16px);
+}
 .topic-main {
   display: flex;
   align-items: flex-start;
@@ -6431,16 +6456,25 @@ function startTopicReorder(mi, ti, event) {
 function allowTopicDrop(mi, ti, event) {
   if (!draggedTopic || draggedTopic.mi !== mi || draggedTopic.ti === ti) return;
   event.preventDefault();
-  event.currentTarget.classList.add("reordering");
+  const indentDelta = (event.clientX || 0) - (draggedTopic.startX || 0);
+  document.querySelectorAll(".topic-row.drop-before, .topic-row.drop-subtopic").forEach((row) => {
+    if (row !== event.currentTarget) row.classList.remove("drop-before", "drop-subtopic");
+  });
+  event.currentTarget.classList.remove("reordering", "drop-before", "drop-subtopic");
+  if (indentDelta > 56) {
+    event.currentTarget.classList.add("drop-subtopic");
+  } else {
+    event.currentTarget.classList.add("drop-before");
+  }
 }
 
 function clearTopicDropState(event) {
-  event.currentTarget.classList.remove("reordering");
+  event.currentTarget.classList.remove("reordering", "drop-before", "drop-subtopic");
 }
 
 function dropTopicReorder(mi, ti, event) {
   event.preventDefault();
-  event.currentTarget.classList.remove("reordering");
+  event.currentTarget.classList.remove("reordering", "drop-before", "drop-subtopic");
   if (!draggedTopic || draggedTopic.mi !== mi) return;
   const indentDelta = (event.clientX || 0) - (draggedTopic.startX || 0);
   if (indentDelta > 56) {
@@ -6454,7 +6488,7 @@ function dropTopicReorder(mi, ti, event) {
 
 function endTopicReorder() {
   draggedTopic = null;
-  document.querySelectorAll(".topic-row.reordering").forEach((row) => row.classList.remove("reordering"));
+  document.querySelectorAll(".topic-row.reordering, .topic-row.drop-before, .topic-row.drop-subtopic").forEach((row) => row.classList.remove("reordering", "drop-before", "drop-subtopic"));
 }
 
 function renderStickyExams() {
@@ -6482,7 +6516,6 @@ function renderStickyExams() {
       event.preventDefault();
       removeExam(exam.originalIndex);
     });
-    card.addEventListener("dblclick", () => removeExam(exam.originalIndex));
     card.addEventListener("click", () => openDeadlineForm(exam.originalIndex));
     host.appendChild(card);
   });
@@ -6998,7 +7031,7 @@ function buildModules() {
         <input class="input" id="topic-add-${mi}" placeholder='Add one topic, or "Topic 1" "Topic 2"'>
         <button class="mini-btn" type="button" onclick="addTopicToModule(${mi}, event)">Add Topic</button>
       </div>
-      <div class="topic-entry-help">Use quotes for several topics. Drag a topic onto another topic, then drop slightly to the right to turn it into a subtopic.</div>
+      <div class="topic-entry-help">Use quotes for several topics. Drag a topic to reorder it. Drag onto another topic and move slightly right until the indented guide appears to turn it into a subtopic.</div>
     `;
     list.appendChild(topicTools);
     const topicAddInput = topicTools.querySelector(`#topic-add-${mi}`);
