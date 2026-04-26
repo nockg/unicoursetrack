@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -5178,6 +5178,142 @@ body.theme-dark-offwhite .module-section.coursework-section .module-section-titl
   .module-library-collapse, .module-library-section-head { padding: 7px 8px !important; }
 }
 
+
+/* v1.7 — Ink & Parchment library contrast + collapsed mobile library fix */
+.module-library-materials-section {
+  min-height: 0 !important;
+}
+.module-library-section-collapsible.is-collapsed {
+  min-height: 0 !important;
+}
+.module-library-section-collapsible.is-collapsed .module-library-list,
+.module-library-list.hidden {
+  display: none !important;
+}
+.module-library-section-collapsible.is-collapsed .module-library-collapse {
+  border-radius: 5px !important;
+  border-bottom: 0 !important;
+}
+.module-library-section-collapsible.is-collapsed .module-library-section-label::after {
+  content: "" !important;
+}
+.module-section.notes-section .module-section-title {
+  font-size: 10px !important;
+  letter-spacing: 0.12em !important;
+}
+@media (max-width: 760px) {
+  .module-section.notes-section .module-section-title {
+    font-size: 9px !important;
+  }
+}
+body.theme-dark-offwhite .youtube-btn {
+  background: rgba(250,247,242,0.86) !important;
+  border-color: rgba(36,29,22,0.22) !important;
+  color: #241d16 !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.38), 0 2px 8px rgba(36,29,22,0.08) !important;
+}
+body.theme-dark-offwhite .youtube-btn:hover {
+  background: rgba(192,57,43,0.13) !important;
+  border-color: rgba(192,57,43,0.42) !important;
+  color: #a42b22 !important;
+}
+body.theme-dark-offwhite .dash-hero-btn,
+body.theme-dark-offwhite .dash-library-launch {
+  background: rgba(245,240,232,0.88) !important;
+  border-color: rgba(216,200,176,0.55) !important;
+  color: #1c1712 !important;
+}
+body.theme-dark-offwhite .dash-hero-btn .dash-launch-icon,
+body.theme-dark-offwhite .dash-hero-btn .dash-launch-copy,
+body.theme-dark-offwhite .dash-library-launch .dash-launch-icon,
+body.theme-dark-offwhite .dash-library-launch .dash-launch-copy {
+  color: #1c1712 !important;
+}
+body.theme-dark-offwhite .dash-hero-btn:hover,
+body.theme-dark-offwhite .dash-library-launch:hover {
+  background: rgba(250,247,242,0.96) !important;
+  border-color: rgba(36,29,22,0.32) !important;
+}
+body.theme-dark-offwhite .module-library-content {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(216,200,176,0.20), transparent 34%),
+    radial-gradient(circle at 88% 8%, rgba(26,44,74,0.08), transparent 38%),
+    color-mix(in srgb, var(--paper) 92%, white 8%) !important;
+  border-color: rgba(36,29,22,0.14) !important;
+  box-shadow: 0 28px 80px rgba(14,12,10,0.20) !important;
+  color: #241d16 !important;
+}
+body.theme-dark-offwhite .module-library-toolbar,
+body.theme-dark-offwhite .module-library-section,
+body.theme-dark-offwhite .module-library-card {
+  background: rgba(250,247,242,0.74) !important;
+  border-color: rgba(36,29,22,0.14) !important;
+  color: #241d16 !important;
+}
+body.theme-dark-offwhite .module-library-section-head,
+body.theme-dark-offwhite .module-library-collapse {
+  background: linear-gradient(180deg, rgba(255,255,255,0.64), rgba(245,240,232,0.50)) !important;
+  border-color: rgba(36,29,22,0.14) !important;
+  color: #241d16 !important;
+}
+body.theme-dark-offwhite .module-library-section-collapsible.is-collapsed .module-library-collapse {
+  background: linear-gradient(180deg, rgba(255,255,255,0.66), rgba(245,240,232,0.54)) !important;
+}
+body.theme-dark-offwhite .module-library-topline .timeline-page-title,
+body.theme-dark-offwhite .module-library-section-label,
+body.theme-dark-offwhite .module-library-section-copy,
+body.theme-dark-offwhite .module-library-card-title,
+body.theme-dark-offwhite .module-library-card-notes,
+body.theme-dark-offwhite .module-library-empty,
+body.theme-dark-offwhite .module-library-pill {
+  color: #241d16 !important;
+}
+body.theme-dark-offwhite .module-library-section-copy {
+  opacity: 0.82 !important;
+  font-weight: 500 !important;
+}
+body.theme-dark-offwhite .module-library-pill {
+  background: rgba(255,255,255,0.70) !important;
+  border-color: rgba(36,29,22,0.16) !important;
+}
+body.theme-dark-offwhite .module-library-top-actions .nav-btn,
+body.theme-dark-offwhite .module-library-view-toggle .nav-btn,
+body.theme-dark-offwhite .module-library-toolbar .nav-select,
+body.theme-dark-offwhite .module-library-toolbar .input,
+body.theme-dark-offwhite .module-library-card-actions .mini-btn {
+  background: rgba(255,255,255,0.84) !important;
+  color: #241d16 !important;
+  border-color: rgba(36,29,22,0.18) !important;
+}
+body.theme-dark-offwhite .module-library-view-toggle .nav-btn.calendar-btn {
+  background: #1a2c4a !important;
+  color: #fff7ed !important;
+  border-color: #1a2c4a !important;
+}
+body.theme-dark-offwhite .module-library-card-actions .module-delete-btn {
+  background: rgba(255,255,255,0.72) !important;
+  color: #9f2f26 !important;
+  border-color: rgba(159,47,38,0.36) !important;
+}
+body.theme-dark-offwhite .module-section-toggle,
+body.theme-dark-offwhite .module-section-title,
+body.theme-dark-offwhite .module-section.coursework-section .module-section-title {
+  color: #241d16 !important;
+}
+body.theme-dark-offwhite .coursework-calc-head,
+body.theme-dark-offwhite .module-section-head {
+  background: rgba(250,247,242,0.60) !important;
+  color: #241d16 !important;
+}
+@media (max-width: 760px) {
+  .module-library-section-collapsible.is-collapsed .module-library-collapse {
+    border-radius: 3px !important;
+  }
+  .module-library-section-collapsible.is-collapsed {
+    margin-bottom: 0 !important;
+  }
+}
+
 </style>
 </head>
 <body class="auth-required auth-loading">
@@ -6540,7 +6676,7 @@ function toggleModuleSection(mi, section, event) {
 
 function createModuleSection(mi, section, title, controlHtml = "") {
   const wrap = document.createElement("div");
-  wrap.className = "module-section" + (section === "coursework" ? " coursework-section" : "");
+  wrap.className = "module-section " + section + "-section" + (section === "coursework" ? " coursework-section" : "");
   wrap.innerHTML = `
     <div class="module-section-head">
       <button class="module-section-toggle" type="button" onclick="toggleModuleSection(${mi}, '${section}', event)">
@@ -10458,6 +10594,57 @@ document.addEventListener("keydown", (event) => {
   };
 })();
 
+
+// v1.7 — cleaner collapsed labels + mobile library opens compact instead of revealing everything
+(function patchModuleLibraryMobileAndCopy(){
+  const originalRenderModuleLibraryV17 = renderModuleLibrary;
+  renderModuleLibrary = function patchedRenderModuleLibraryV17() {
+    originalRenderModuleLibraryV17.apply(this, arguments);
+    const materials = getModuleLibraryItems("formula", moduleLibraryScopeMi);
+    const links = getModuleLibraryItems("relevant", moduleLibraryScopeMi);
+    const materialsSection = document.querySelector(".module-library-materials-section");
+    const linksSection = document.querySelector("#module-library-links")?.closest(".module-library-section");
+    const materialsCopy = materialsSection?.querySelector(".module-library-section-copy");
+    const linksCopy = linksSection?.querySelector(".module-library-section-copy");
+    const materialWord = materials.length === 1 ? "item" : "items";
+    const linkWord = links.length === 1 ? "link" : "links";
+
+    if (materialsSection) materialsSection.classList.toggle("is-collapsed", !moduleLibraryMaterialsOpen);
+    if (linksSection) linksSection.classList.toggle("is-collapsed", !moduleLibraryLinksOpen);
+
+    if (materialsCopy) {
+      materialsCopy.textContent = moduleLibraryMaterialsOpen
+        ? `Formula sheets, worked examples, reference pages, and quick-access study material. ${materials.length} saved ${materialWord}.`
+        : `${materials.length} saved material ${materialWord}. Tap to expand.`;
+    }
+    if (linksCopy) {
+      linksCopy.textContent = moduleLibraryLinksOpen
+        ? `Useful URLs, portals, videos, docs, and external resources. ${links.length} saved ${linkWord}.`
+        : `${links.length} saved relevant ${linkWord}. Tap to expand.`;
+    }
+  };
+
+  openModuleLibrary = function patchedOpenModuleLibrary(mi = null, focus = "both", event) {
+    if (event) event.stopPropagation();
+    materialLibraryModuleIndex = mi;
+    moduleLibraryScopeMi = Number.isInteger(mi) ? mi : null;
+    if (moduleLibraryScopeMi === null) moduleLibraryFilter = "all";
+    else moduleLibraryFilter = String(moduleLibraryScopeMi);
+
+    const isMobile = window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
+    if (isMobile) {
+      moduleLibraryLinksOpen = focus === "links";
+      moduleLibraryMaterialsOpen = focus === "formula";
+    } else {
+      moduleLibraryLinksOpen = focus === "links";
+      moduleLibraryMaterialsOpen = true;
+    }
+
+    document.getElementById("module-library-modal").classList.remove("hidden");
+    renderModuleLibrary();
+  };
+})();
+
 // Wait for Supabase to check/restore the session before showing login or the dashboard.
 (async function bootApp() {
   setAuthLoading(true, "Restoring your session...", "Checking whether you are already signed in before showing anything.");
@@ -10502,7 +10689,6 @@ document.addEventListener("keydown", (event) => {
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
-
 
 
 
