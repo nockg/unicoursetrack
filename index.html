@@ -2805,118 +2805,6 @@ body.auth-required .auth-gate-panel { background: rgba(250,247,242,0.97) !import
   body.auth-required .auth-gate-title { font-size: 38px; }
 }
 
-
-/* ===== Final auth visual pass: ocean washi glassmorphism ===== */
-body.auth-required {
-  background:
-    radial-gradient(circle at 18% 18%, rgba(255,255,255,0.26), transparent 30%),
-    radial-gradient(circle at 82% 72%, rgba(26,44,74,0.12), transparent 34%),
-    linear-gradient(135deg, #d9e6e7 0%, #b8d0d5 48%, #8fb2bf 100%) !important;
-  color: #0e0c0a !important;
-}
-body.auth-required::before {
-  background-image:
-    linear-gradient(90deg, rgba(255,255,255,0.30), transparent 42%, rgba(26,44,74,0.045)),
-    repeating-linear-gradient(112deg, rgba(255,255,255,0.24) 0 1px, transparent 1px 8px),
-    repeating-linear-gradient(18deg, rgba(26,44,74,0.035) 0 1px, transparent 1px 13px) !important;
-  background-size: auto, 24px 24px, 34px 34px !important;
-  opacity: 0.74 !important;
-  mix-blend-mode: soft-light !important;
-}
-body.auth-required .auth-gate-shell {
-  background: rgba(255,255,255,0.22) !important;
-  border-color: rgba(255,255,255,0.48) !important;
-  box-shadow: 0 22px 70px rgba(26,44,74,0.18) !important;
-  backdrop-filter: blur(18px) saturate(118%) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(118%) !important;
-}
-body.auth-required .auth-gate-aside {
-  background: rgba(250,247,242,0.52) !important;
-  border-right-color: rgba(14,12,10,0.10) !important;
-  color: #0e0c0a !important;
-  backdrop-filter: blur(24px) saturate(120%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(120%) !important;
-}
-body.auth-required .auth-gate-panel {
-  background: rgba(250,247,242,0.76) !important;
-  backdrop-filter: blur(22px) saturate(116%) !important;
-  -webkit-backdrop-filter: blur(22px) saturate(116%) !important;
-}
-body.auth-required .auth-gate-logo {
-  width: 42px !important;
-  height: 42px !important;
-  flex-basis: 42px !important;
-  border-radius: 50% !important;
-  background: rgba(255,255,255,0.42) !important;
-  border: 1px solid rgba(14,12,10,0.16) !important;
-  box-shadow: 0 10px 24px rgba(26,44,74,0.12), inset 0 1px 0 rgba(255,255,255,0.55) !important;
-  overflow: hidden !important;
-}
-body.auth-required .auth-gate-logo img {
-  transform: scale(1.02) !important;
-  filter: grayscale(100%) contrast(1.2) brightness(0.18) !important;
-  opacity: 0.92 !important;
-}
-body.auth-required .auth-gate-label {
-  color: #0e0c0a !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.18em !important;
-  text-shadow: none !important;
-}
-body.auth-required .auth-gate-title {
-  color: #0e0c0a !important;
-  text-transform: lowercase !important;
-  letter-spacing: -0.035em !important;
-}
-body.auth-required .auth-gate-copy {
-  color: rgba(14,12,10,0.74) !important;
-}
-body.auth-required .auth-gate-panel .auth-gate-message,
-body.auth-required .auth-gate-panel .deadline-splash-title {
-  color: #0e0c0a !important;
-}
-body.auth-required .auth-gate-tab.active {
-  background: #0e0c0a !important;
-  border-color: #0e0c0a !important;
-  color: #f5f0e8 !important;
-}
-body.auth-required .auth-gate-tab {
-  color: #0e0c0a !important;
-  border-color: rgba(14,12,10,0.18) !important;
-  background: rgba(255,255,255,0.18) !important;
-}
-@media (max-width: 700px) {
-  body.auth-required .auth-gate-aside {
-    border-right: none !important;
-    border-bottom: 1px solid rgba(14,12,10,0.10) !important;
-  }
-}
-
-
-/* ===== Final correction: previous ocean glass look + true black UniTrack text ===== */
-body.auth-required .auth-gate-title {
-  color: #000 !important;
-  text-transform: none !important;
-  letter-spacing: -0.02em !important;
-}
-body.auth-required .auth-gate-copy {
-  color: #000 !important;
-}
-body.auth-required .auth-gate-label {
-  color: #000 !important;
-}
-body.auth-required .auth-gate-panel .auth-gate-message,
-body.auth-required .auth-gate-panel .deadline-splash-title {
-  color: #000 !important;
-}
-body.auth-required .auth-gate-logo img {
-  filter: grayscale(100%) contrast(1.25) brightness(0) !important;
-}
-.app-dialog-field.hidden,
-.app-dialog-check.hidden {
-  display: none !important;
-}
-
 </style>
 </head>
 <body class="auth-required">
@@ -2929,7 +2817,7 @@ body.auth-required .auth-gate-logo img {
         <div class="auth-gate-label">SNTUTORS</div>
       </div>
       <div class="auth-gate-title">UniTrack</div>
-      <div class="auth-gate-copy">Sign in to UniTrack</div>
+      <div class="auth-gate-copy">Sign in to UniTrack.</div>
     </div>
     <div class="auth-gate-panel">
       <div id="auth-gate-body">
@@ -3303,7 +3191,7 @@ body.auth-required .auth-gate-logo img {
   <div class="dashboard-content onboarding-content">
     <button class="dashboard-close" type="button" onclick="closeOnboardingModal()">X</button>
     <div class="timeline-subtitle">Getting Started</div>
-    <div class="dashboard-title" id="onboarding-title">Welcome to unitrack</div>
+    <div class="dashboard-title" id="onboarding-title">Welcome to UniTrack</div>
     <div class="onboarding-tour">
       <div class="onboarding-steps" id="onboarding-steps"></div>
       <div class="onboarding-stage">
@@ -3391,7 +3279,7 @@ const ONBOARDING_STEPS = [
   {
     label: "Marks",
     title: "Track your marks",
-    copy: "Enter coursework and exam estimates. unitrack updates the prediction automatically.",
+    copy: "Enter coursework and exam estimates. UniTrack updates the prediction automatically.",
     preview: [
       "Coursework + exam marks feed the final score",
       "Use components for multi-part coursework",
@@ -3582,22 +3470,16 @@ function renderBackgroundPicker() {
   `).join("");
 }
 
-async function deleteCustomBackground(key) {
+function deleteCustomBackground(key) {
   if (!preferences.customBackgrounds || !preferences.customBackgrounds[key]) return;
 
-  const confirmDelete = await appConfirm({
-    label: "Background",
-    title: "Delete custom background?",
-    message: "This removes the saved background from this tracker.",
-    confirmText: "Delete",
-    danger: true
-  });
+  const confirmDelete = confirm("Delete this custom background?");
   if (!confirmDelete) return;
 
   delete preferences.customBackgrounds[key];
 
   if (preferences.hero === key) {
-    preferences.hero = "bg8";
+    preferences.hero = "bg1";
   }
 
   savePreferences();
@@ -3927,17 +3809,11 @@ function dismissTemplateSplash() {
   document.getElementById("template-splash").classList.add("hidden");
 }
 
-async function loadAeroTemplate() {
+function loadAeroTemplate() {
   const currentYear = getCurrentYear();
   if (!currentYear) return;
   if (currentYear.store.modules.length) {
-    const replace = await appConfirm({
-      label: "Template",
-      title: "Replace current modules?",
-      message: "This will replace the current year's modules with the Year 1 Aerospace Engineering template.",
-      confirmText: "Replace",
-      danger: true
-    });
+    const replace = confirm("Replace the current year's modules with the Year 1 Aerospace Engineering template?");
     if (!replace) return;
   }
   currentYear.store = createYearStore(BASE_MODULES);
@@ -4046,19 +3922,12 @@ function setBodyBackground() {
   applyPreferences();
 }
 
-async function clearModuleMarks(mi, event) {
+function clearModuleMarks(mi, event) {
   if (event) event.stopPropagation();
   const store = getStore();
   const mod = MODULES[mi];
   if (!mod) return;
-  const confirmed = await appConfirm({
-    label: "Clear marks",
-    title: `Clear marks for ${mod.kanji || mod.name}?`,
-    message: "This clears coursework, exam marks, and coursework components for this module.",
-    confirmText: "Clear",
-    danger: true
-  });
-  if (!confirmed) return;
+  if (!confirm(`Clear coursework and exam marks for ${mod.kanji || mod.name}?`)) return;
   delete store.coursework[mi];
   delete store.exams[mi];
   if (store.courseworkComponents) delete store.courseworkComponents[mi];
@@ -4066,7 +3935,6 @@ async function clearModuleMarks(mi, event) {
   buildModules();
   updateGlobal();
 }
-
 
 function togglePreferences() {
   document.getElementById("prefs-panel").classList.toggle("hidden");
@@ -4088,13 +3956,7 @@ function clearLocalTrackerStorage() {
 }
 
 async function clearTrackerStorage() {
-  const confirmClear = await appConfirm({
-    label: "Reset tracker",
-    title: "Reset this account?",
-    message: "This clears progress, marks, notes, links, local data, and cloud save data for this account.",
-    confirmText: "Reset",
-    danger: true
-  });
+  const confirmClear = confirm("This will reset all progress, marks, notes, links, and cloud saves for this account. Continue?");
   if (!confirmClear) return;
 
   clearTimeout(cloudSaveTimer);
@@ -4106,31 +3968,502 @@ async function clearTrackerStorage() {
 
   if (currentUser) {
     const { error } = await supabaseClient
-      .from("tracker_saves")
-      .delete()
-      .eq("user_id", currentUser.id);
+      .from("tracker_profiles")
+      .upsert({
+        user_id: currentUser.id,
+        data: blankState,
+        prefs: blankPrefs,
+        updated_at: new Date().toISOString()
+      }, { onConflict: "user_id" });
+
     if (error) {
-      console.warn("Cloud reset delete failed", error);
+      alert("Could not clear cloud storage: " + error.message);
+      cloudReady = true;
+      return;
     }
   }
 
-  state = blankState;
-  preferences = blankPrefs;
-  MODULES = getCurrentYear().store.modules;
-  refreshActiveYear();
   clearLocalTrackerStorage();
-  saveLocalOnly();
-  savePreferences();
+  state = blankState;
+  Object.keys(preferences).forEach((key) => delete preferences[key]);
+  Object.assign(preferences, blankPrefs);
+  localStorage.setItem(KEY, JSON.stringify(state));
+  localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
+  ensureYearsState();
+  refreshActiveYear();
   applyPreferences();
   renderYearSelector();
   buildModules();
   renderStickyExams();
   updateGlobal();
-  closeDashboard();
-  cloudReady = !!currentUser;
-  if (currentUser) queueCloudSave();
+
+  alert("Local and cloud tracker data cleared successfully.");
+  if (currentUser) {
+    setupCourseIfNeeded();
+  }
 }
 
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(state));
+  saveCloudDebounced();
+}
+
+function savePreferences() {
+  localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
+  saveCloudDebounced();
+}
+
+function parseMark(value) {
+  if (value === "" || value === null || value === undefined) return null;
+  const num = parseFloat(value);
+  if (Number.isNaN(num)) return null;
+  return Math.max(0, Math.min(100, num));
+}
+
+function topicKey(mi, ti) { return `t_${mi}_${ti}`; }
+function getModuleDone(mi) {
+  const store = getStore();
+  return MODULES[mi].topics.filter((_, ti) => !!store.topics[topicKey(mi, ti)]).length;
+}
+function getModulePct(mi) { return MODULES[mi].topics.length ? (getModuleDone(mi) / MODULES[mi].topics.length) * 100 : 0; }
+function getBlackboardLink(mi) {
+  const store = getStore();
+  return store.blackboard[mi] || "";
+}
+function getFormulaLinks(mi) {
+  const store = getStore();
+  return Array.isArray(store.formulas[mi]) ? store.formulas[mi] : [];
+}
+
+function getRelevantLinks(mi) {
+  const store = getStore();
+  if (!store.relevantLinks) store.relevantLinks = {};
+  return Array.isArray(store.relevantLinks[mi]) ? store.relevantLinks[mi] : [];
+}
+
+
+function getCourseworkComponents(mi) {
+  const store = getStore();
+  if (!store.courseworkComponents) store.courseworkComponents = {};
+  if (!Array.isArray(store.courseworkComponents[mi])) store.courseworkComponents[mi] = [];
+  return store.courseworkComponents[mi];
+}
+
+function calculateCourseworkFromComponents(mi) {
+  const components = getCourseworkComponents(mi);
+  const valid = components
+    .map((component, index) => ({
+      index,
+      name: component.name || `Component ${index + 1}`,
+      mark: parseMark(component.mark),
+      weight: parseMark(component.weight)
+    }))
+    .filter((component) => component.mark !== null);
+
+  if (!valid.length) {
+    return { mark: null, weightTotal: 0, count: components.length };
+  }
+
+  const explicit = valid.filter((component) => component.weight !== null);
+  const unweighted = valid.filter((component) => component.weight === null);
+  const explicitTotal = explicit.reduce((sum, component) => sum + component.weight, 0);
+  const remaining = Math.max(0, 100 - explicitTotal);
+  const autoWeight = unweighted.length ? remaining / unweighted.length : 0;
+
+  let weightedSum = 0;
+  let assignedTotal = 0;
+
+  valid.forEach((component) => {
+    const weight = component.weight !== null ? component.weight : autoWeight;
+    weightedSum += component.mark * weight;
+    assignedTotal += weight;
+  });
+
+  if (assignedTotal <= 0) return { mark: null, weightTotal: 0, count: components.length };
+
+  return {
+    mark: weightedSum / assignedTotal,
+    weightTotal: assignedTotal,
+    count: components.length
+  };
+}
+
+function getEffectiveCourseworkMark(mi) {
+  const calculated = calculateCourseworkFromComponents(mi);
+  if (calculated.mark !== null) return calculated.mark;
+  return parseMark(getStore().coursework[mi]);
+}
+
+function getModuleFinal(mi) {
+  const mod = MODULES[mi];
+  const store = getStore();
+  const cw = getEffectiveCourseworkMark(mi);
+  const ex = parseMark(store.exams[mi]);
+  if (mod.cw === 0) return ex;
+  if (cw === null || ex === null) return null;
+  return (cw * mod.cw + ex * mod.exam) / 100;
+}
+
+function classify(mark) {
+  if (mark === null) return null;
+  if (mark >= 70) return { label: "1st", badge: "1st Class", cls: "cls-s-first", heroCls: "cls-first" };
+  if (mark >= 60) return { label: "2:1", badge: "2:1", cls: "cls-s-21", heroCls: "cls-21" };
+  if (mark >= 50) return { label: "2:2", badge: "2:2", cls: "cls-s-22", heroCls: "cls-22" };
+  if (mark >= 40) return { label: "3rd", badge: "3rd", cls: "cls-s-third", heroCls: "cls-third" };
+  return { label: "Fail", badge: "Fail", cls: "", heroCls: "" };
+}
+
+function getWeightedAvg() {
+  let weighted = 0;
+  let credits = 0;
+  MODULES.forEach((mod, mi) => {
+    const final = getModuleFinal(mi);
+    if (final !== null) {
+      weighted += final * mod.credits;
+      credits += mod.credits;
+    }
+  });
+  return credits ? weighted / credits : null;
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function safeUrl(url) {
+  const trimmed = String(url || "").trim();
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return "https://" + trimmed.replace(/^\/+/, "");
+}
+
+function parseDeadlineInput(input) {
+  const raw = String(input || "").trim();
+  const match = raw.match(/^(\d{1,2})[\/\-. ](\d{1,2})[\/\-. ](\d{4})(?:[ ,]+(\d{1,2}):(\d{2}))?$/);
+  if (!match) return null;
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = Number(match[3]);
+  const hours = Number(match[4] ?? 0);
+  const minutes = Number(match[5] ?? 0);
+  const date = new Date(year, month - 1, day, hours, minutes);
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day ||
+    hours > 23 ||
+    minutes > 59
+  ) return null;
+  return date;
+}
+
+function toDeadlineStorageString(date) {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const hh = String(date.getHours()).padStart(2, "0");
+  const min = String(date.getMinutes()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+}
+
+function setBlackboardLink(mi, event) {
+  if (event) event.stopPropagation();
+  openLinkForm({ type: "blackboard", mi });
+}
+
+function openLinkForm(context) {
+  linkFormContext = context;
+  const modal = document.getElementById("link-form-modal");
+  const subtitle = document.getElementById("link-form-subtitle");
+  const title = document.getElementById("link-form-title");
+  const nameField = document.getElementById("link-name-field");
+  const nameInput = document.getElementById("link-name-input");
+  const urlInput = document.getElementById("link-url-input");
+
+  nameInput.value = "";
+  urlInput.value = "";
+  nameField.style.display = "block";
+
+  if (context.type === "blackboard") {
+    subtitle.textContent = "Blackboard";
+    title.textContent = "Set Blackboard Link";
+    nameField.style.display = "none";
+    urlInput.value = getBlackboardLink(context.mi) || "";
+  } else if (context.type === "formula") {
+    subtitle.textContent = "Reference Sheets";
+    title.textContent = "Add Reference Sheet";
+    nameInput.value = MODULES[context.mi].short + " Reference Sheet";
+  } else {
+    subtitle.textContent = "Relevant Links";
+    title.textContent = "Add Relevant Link";
+    nameInput.value = "Useful resource";
+  }
+
+  modal.classList.remove("hidden");
+  setTimeout(() => (nameField.style.display === "none" ? urlInput : nameInput).focus(), 0);
+}
+
+function closeLinkForm() {
+  document.getElementById("link-form-modal").classList.add("hidden");
+  linkFormContext = null;
+}
+
+function saveLinkForm() {
+  if (!linkFormContext) return;
+  const nameInput = document.getElementById("link-name-input");
+  const urlInput = document.getElementById("link-url-input");
+  const url = (urlInput.value || "").trim();
+  const store = getStore();
+
+  if (linkFormContext.type === "blackboard") {
+    if (url) store.blackboard[linkFormContext.mi] = safeUrl(url);
+    else delete store.blackboard[linkFormContext.mi];
+    save();
+    updateBlackboardButton(linkFormContext.mi);
+    closeLinkForm();
+    return;
+  }
+
+  const name = (nameInput.value || "").trim();
+  if (!name || !url) {
+    alert("Please enter both a name and a URL.");
+    return;
+  }
+
+  if (linkFormContext.type === "formula") {
+    const items = getFormulaLinks(linkFormContext.mi).slice();
+    items.push({ name, url: safeUrl(url) });
+    store.formulas[linkFormContext.mi] = items;
+    save();
+    updateFormulaButton(linkFormContext.mi);
+  } else if (linkFormContext.type === "relevant") {
+    if (!store.relevantLinks) store.relevantLinks = {};
+    const items = getRelevantLinks(linkFormContext.mi).slice();
+    items.push({ name, url: safeUrl(url) });
+    store.relevantLinks[linkFormContext.mi] = items;
+    save();
+    renderRelevantLinks(linkFormContext.mi);
+  }
+  closeLinkForm();
+}
+
+function openBlackboardLink(mi, event) {
+  if (event) event.stopPropagation();
+  const url = getBlackboardLink(mi);
+  if (url) window.open(url, "_blank", "noopener");
+  else setBlackboardLink(mi);
+}
+
+function updateBlackboardButton(mi) {
+  const btn = document.getElementById(`bb-link-${mi}`);
+  if (!btn) return;
+  const hasLink = !!getBlackboardLink(mi);
+  const compact = document.body.classList.contains("compact-ui");
+  if (compact) btn.textContent = hasLink ? "Blackboard" : "Set";
+  else btn.textContent = hasLink ? "Launch Blackboard" : "Set Blackboard";
+}
+
+function setFormulaLink(mi, event) {
+  if (event) event.stopPropagation();
+  openLinkForm({ type: "formula", mi });
+}
+
+function deleteFormulaLink(mi, index, event) {
+  if (event) event.stopPropagation();
+  const items = getFormulaLinks(mi).slice();
+  if (!items[index]) return;
+  items.splice(index, 1);
+  const store = getStore();
+  if (items.length) store.formulas[mi] = items; else delete store.formulas[mi];
+  save();
+  updateFormulaButton(mi);
+}
+
+function openFormulaLink(mi, event) {
+  if (event) event.stopPropagation();
+  const items = getFormulaLinks(mi);
+  if (!items.length) return setFormulaLink(mi);
+  if (items.length === 1) {
+    window.open(items[0].url, "_blank", "noopener");
+    return;
+  }
+  const options = items.map((item, index) => `${index + 1}. ${item.name}`).join("\n");
+  const chosen = prompt(`Open which formula sheet?\n${options}`, "1");
+  if (chosen === null) return;
+  const idx = parseInt(chosen, 10) - 1;
+  if (items[idx]) window.open(items[idx].url, "_blank", "noopener");
+}
+
+function renderFormulaLinks(mi) {
+  const host = document.getElementById(`formula-links-${mi}`);
+  if (!host) return;
+  const items = getFormulaLinks(mi);
+  if (!items.length) {
+    host.innerHTML = '<div class="formula-empty">No reference sheets added yet.</div>';
+    return;
+  }
+  host.innerHTML = items.map((item, index) => `
+    <div class="formula-chip">
+      <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener">${escapeHtml(item.name)}</a>
+      <button class="formula-remove-btn" type="button" onclick="deleteFormulaLink(${mi}, ${index}, event)" title="Delete formula sheet">x</button>
+    </div>
+  `).join("");
+}
+
+function addRelevantLink(mi, event) {
+  if (event) event.stopPropagation();
+  openLinkForm({ type: "relevant", mi });
+}
+
+function deleteRelevantLink(mi, index, event) {
+  if (event) event.stopPropagation();
+  const items = getRelevantLinks(mi).slice();
+  if (!items[index]) return;
+  items.splice(index, 1);
+  const store = getStore();
+  if (!store.relevantLinks) store.relevantLinks = {};
+  if (items.length) store.relevantLinks[mi] = items; else delete store.relevantLinks[mi];
+  save();
+  renderRelevantLinks(mi);
+}
+
+function renderRelevantLinks(mi) {
+  const host = document.getElementById(`relevant-links-${mi}`);
+  if (!host) return;
+  const items = getRelevantLinks(mi);
+  if (!items.length) {
+    host.innerHTML = '<div class="relevant-links-empty">No relevant links added yet.</div>';
+    return;
+  }
+  host.innerHTML = items.map((item, index) => `
+    <div class="relevant-link-chip">
+      <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener">${escapeHtml(item.name)}</a>
+      <button class="relevant-link-remove-btn" type="button" onclick="deleteRelevantLink(${mi}, ${index}, event)" title="Delete relevant link">x</button>
+    </div>
+  `).join("");
+}
+
+function updateFormulaButton(mi) {
+  const btn = document.getElementById(`formula-btn-${mi}`);
+  if (btn) {
+    const count = getFormulaLinks(mi).length;
+    const compact = document.body.classList.contains("compact-ui");
+    btn.textContent = compact ? "Refs" : (count ? `Reference Sheets (${count})` : "Reference Sheets");
+    btn.style.opacity = count ? "1" : "0.55";
+  }
+  renderFormulaLinks(mi);
+}
+
+function updateModule(mi) {
+  const done = getModuleDone(mi);
+  const pct = getModulePct(mi);
+  document.getElementById(`mdone-${mi}`).textContent = done;
+  document.getElementById(`mpct-${mi}`).textContent = pct.toFixed(1) + "% complete";
+  document.getElementById(`mfill-${mi}`).style.width = pct.toFixed(1) + "%";
+
+  const final = getModuleFinal(mi);
+  const finalEl = document.getElementById(`mfinal-${mi}`);
+  const clsEl = document.getElementById(`mcls-${mi}`);
+  finalEl.textContent = final === null ? "-" : final.toFixed(1) + "%";
+  if (final !== null) {
+    const cls = classify(final);
+    clsEl.className = "final-cls " + (cls.cls || "");
+    clsEl.textContent = cls.label;
+  } else {
+    clsEl.className = "final-cls";
+    clsEl.textContent = "";
+  }
+
+  const cwInput = document.getElementById(`cw-${mi}`);
+  if (cwInput) {
+    const calculated = calculateCourseworkFromComponents(mi);
+    cwInput.disabled = MODULES[mi].cw === 0;
+    if (MODULES[mi].cw === 0) cwInput.placeholder = "N/A";
+    else {
+      if (calculated.mark !== null) {
+        getStore().coursework[mi] = calculated.mark.toFixed(1);
+        cwInput.value = calculated.mark.toFixed(1);
+        cwInput.placeholder = `Calc ${calculated.mark.toFixed(1)}%`;
+      } else {
+        cwInput.placeholder = "-";
+      }
+    }
+  }
+  updateCourseworkSummary(mi);
+}
+
+function updateGlobal() {
+  let total = 0;
+  let done = 0;
+  let weightedCredits = 0;
+  MODULES.forEach((mod, mi) => {
+    total += mod.topics.length;
+    done += getModuleDone(mi);
+    weightedCredits += mod.credits * (getModulePct(mi) / 100);
+  });
+  const pct = total ? (done / total) * 100 : 0;
+  document.getElementById("global-done").textContent = done;
+  document.getElementById("global-total").textContent = total;
+  document.getElementById("global-fill").style.width = pct.toFixed(1) + "%";
+  document.getElementById("global-pct-text").textContent = pct.toFixed(1) + "% complete";
+  document.getElementById("credits-text").textContent = weightedCredits.toFixed(1) + " / " + TOTAL_CREDITS + " credits";
+  updatePredictor();
+  updateDashboard();
+}
+
+function updatePredictor() {
+  const avg = getWeightedAvg();
+  const heroPredictor = document.getElementById("hero-predictor");
+  const heroClass = document.getElementById("hero-class");
+  const badgeHost = document.getElementById("classification-badge");
+  if (avg === null) {
+    heroPredictor.textContent = "-";
+    heroClass.textContent = "Awaiting marks";
+    badgeHost.innerHTML = "";
+    return;
+  }
+  const cls = classify(avg);
+  heroPredictor.textContent = avg.toFixed(1) + "%";
+  heroClass.textContent = cls.badge;
+  badgeHost.innerHTML = `<span class="classification-badge ${cls.heroCls}">${cls.badge}</span>`;
+}
+
+function updateDashboard() {
+  const avg = getWeightedAvg();
+  let total = 0;
+  let done = 0;
+  let weightedCredits = 0;
+  let creditsWithMarks = 0;
+  MODULES.forEach((mod, mi) => {
+    total += mod.topics.length;
+    done += getModuleDone(mi);
+    weightedCredits += mod.credits * (getModulePct(mi) / 100);
+    if (getModuleFinal(mi) !== null) creditsWithMarks += mod.credits;
+  });
+  document.getElementById("dash-completion").textContent = (total ? (done / total) * 100 : 0).toFixed(0) + "%";
+  document.getElementById("dash-credits").textContent = weightedCredits.toFixed(1) + " / " + TOTAL_CREDITS + " credits";
+
+  const predictor = document.getElementById("dash-predictor");
+  const status = document.getElementById("dash-status");
+  const badge = document.getElementById("dash-badge");
+  if (avg === null) {
+    predictor.textContent = "-";
+    status.textContent = "Enter module marks below";
+    badge.innerHTML = "";
+  } else {
+    const cls = classify(avg);
+    predictor.textContent = avg.toFixed(1) + "%";
+    status.textContent = `Full-year weighted average based on ${creditsWithMarks} / ${TOTAL_CREDITS} credits`;
+    badge.innerHTML = `<span class="classification-badge ${cls.heroCls}">${cls.badge}</span>`;
+  }
+  if (!document.getElementById("dashboard-modal").classList.contains("hidden")) renderDashboardChart();
+}
 
 function openDashboard() {
   document.getElementById("dashboard-modal").classList.remove("hidden");
@@ -4315,22 +4648,15 @@ function switchYear(yearId) {
   updateGlobal();
 }
 
-async function deleteCurrentYear() {
+function deleteCurrentYear() {
   const year = getCurrentYear();
   if (!year) return;
   if (Object.keys(state.years).length === 1) {
-    await showAppNotice("Keep one year", "You need at least one year in the tracker.");
-    renderYearSelector();
+    alert("You need at least one year.");
     return;
   }
-  const confirmed = await appConfirm({
-    label: "Delete year",
-    title: `Delete ${year.label}?`,
-    message: "This removes the year, its modules, progress, marks, notes, and deadlines from this tracker.",
-    confirmText: "Delete",
-    danger: true
-  });
-  if (!confirmed) { renderYearSelector(); return; }
+  const confirmation = prompt(`Type yes to delete ${year.label}:`, "");
+  if (confirmation !== "yes") return;
   delete state.years[year.id];
   state.ui.currentYearId = Object.keys(state.years)[0];
   refreshActiveYear();
@@ -4341,32 +4667,19 @@ async function deleteCurrentYear() {
   updateGlobal();
 }
 
-
-async function createNewYear() {
-  const nextNumber = Object.keys(state.years).length + 1;
-  const result = await appPrompt({
-    label: "New year",
-    title: "Add a new year",
-    message: "Name the year exactly how you want it to appear in the tracker.",
-    inputLabel: "Year name",
-    defaultValue: `Year ${nextNumber}`,
-    placeholder: "Year 2 Engineering",
-    confirmText: "Create",
-    checkboxLabel: "Use the current year's modules as a starting template",
-    checkboxDefault: false
-  });
-  if (!result || !result.value.trim()) { renderYearSelector(); return; }
-  const label = result.value.trim();
+function createNewYear() {
+  const rawLabel = prompt("New year label:", `Year ${Object.keys(state.years).length + 1}`);
+  if (rawLabel === null || !rawLabel.trim()) return;
+  const label = rawLabel.trim();
   const id = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || `year-${Date.now()}`;
   if (state.years[id]) {
-    await showAppNotice("Year already exists", "Choose a different name for this year.");
-    renderYearSelector();
+    alert("That year already exists.");
     return;
   }
   state.years[id] = {
     id,
     label,
-    store: createYearStore(result.checked ? MODULES : [])
+    store: createYearStore(confirm("Use the current year's modules as a starting template?") ? MODULES : [])
   };
   state.ui.currentYearId = id;
   refreshActiveYear();
@@ -4376,7 +4689,6 @@ async function createNewYear() {
   renderStickyExams();
   updateGlobal();
 }
-
 
 function archiveCurrentYear() {
   const year = getCurrentYear();
@@ -4407,7 +4719,7 @@ function closeModuleForm() {
   document.getElementById("module-form-modal").classList.add("hidden");
 }
 
-async function saveModuleForm() {
+function saveModuleForm() {
   const codeInput = document.getElementById("module-code-input");
   const nameInput = document.getElementById("module-name-input");
   const shortInput = document.getElementById("module-short-input");
@@ -4417,7 +4729,7 @@ async function saveModuleForm() {
   const code = (codeInput.value || "").trim();
   const name = (nameInput.value || "").trim();
   if (!code || !name) {
-    await showAppNotice("Missing module details", "Please enter both module code and module name.");
+    alert("Please enter both module code and module name.");
     return;
   }
   const credits = parseFloat(creditsInput.value || "");
@@ -4464,18 +4776,12 @@ function shiftTopicsAfterModuleDelete(topics, deletedIndex) {
   return shifted;
 }
 
-async function deleteModuleFromCurrentYear(mi, event) {
+function deleteModuleFromCurrentYear(mi, event) {
   if (event) event.stopPropagation();
   const mod = MODULES[mi];
   if (!mod) return;
-  const confirmed = await appConfirm({
-    label: "Delete module",
-    title: `Delete ${mod.kanji || mod.short || mod.name}?`,
-    message: "This removes the module, its topics, progress, marks, notes, and related links.",
-    confirmText: "Delete",
-    danger: true
-  });
-  if (!confirmed) return;
+  const confirmation = confirm(`Delete ${mod.kanji || mod.short || mod.name}?`);
+  if (!confirmation) return;
 
   const store = getStore();
   MODULES.splice(mi, 1);
@@ -4495,20 +4801,12 @@ async function deleteModuleFromCurrentYear(mi, event) {
   updateGlobal();
 }
 
-
-async function editModuleTitle(mi, event) {
+function editModuleTitle(mi, event) {
   if (event) event.stopPropagation();
   const mod = MODULES[mi];
   if (!mod) return;
-  const result = await appPrompt({
-    label: "Module",
-    title: "Rename module",
-    inputLabel: "Module title",
-    defaultValue: mod.name || "",
-    confirmText: "Save"
-  });
-  const title = result?.value;
-  if (!title || !title.trim()) return;
+  const title = prompt("Module title:", mod.name || "");
+  if (title === null || !title.trim()) return;
   mod.name = title.trim();
   if (!mod.short || mod.short === mod.kanji) mod.short = title.trim();
   save();
@@ -4516,20 +4814,13 @@ async function editModuleTitle(mi, event) {
   updateGlobal();
 }
 
-async function editModuleCode(mi, event) {
+function editModuleCode(mi, event) {
   if (event) event.stopPropagation();
   const mod = MODULES[mi];
   if (!mod) return;
   const previousCode = mod.kanji || "";
-  const result = await appPrompt({
-    label: "Module",
-    title: "Edit module code",
-    inputLabel: "Module code",
-    defaultValue: previousCode,
-    confirmText: "Save"
-  });
-  const code = result?.value;
-  if (!code || !code.trim()) return;
+  const code = prompt("Module code:", previousCode);
+  if (code === null || !code.trim()) return;
   mod.kanji = code.trim().toUpperCase();
   if (!mod.short || mod.short === previousCode) mod.short = mod.kanji;
   save();
@@ -4556,7 +4847,7 @@ function closeCourseworkComponentForm() {
   courseworkFormModuleIndex = null;
 }
 
-async function saveCourseworkComponentForm() {
+function saveCourseworkComponentForm() {
   const mi = courseworkFormModuleIndex;
   if (mi === null || mi === undefined || !MODULES[mi]) return;
   const nameInput = document.getElementById("cw-component-name-input");
@@ -4564,7 +4855,7 @@ async function saveCourseworkComponentForm() {
   const weightInput = document.getElementById("cw-component-weight-input");
   const input = (nameInput?.value || "").trim();
   if (!input) {
-    await showAppNotice("Missing component name", "Please enter a coursework component name.");
+    alert("Please enter a coursework component name.");
     return;
   }
 
@@ -4639,22 +4930,12 @@ function updateCourseworkSummary(mi) {
   summary.textContent = `No coursework mark yet. Add components, or use the Coursework % input above.`;
 }
 
-async function addTopicToModule(mi, event) {
+function addTopicToModule(mi, event) {
   if (event) event.stopPropagation();
   const draftInput = document.getElementById(`topic-add-${mi}`);
-  let input = draftInput ? draftInput.value : "";
-
-  if (!input || !input.trim()) {
-    const result = await appPrompt({
-      label: "Topic",
-      title: "Add topic",
-      message: "Use quotation marks to add multiple topics at once.",
-      inputLabel: "Topic name",
-      placeholder: '"Topic 1" "Topic 2"',
-      confirmText: "Add"
-    });
-    input = result?.value || "";
-  }
+  const input = draftInput
+    ? draftInput.value
+    : prompt('Add topic(s).\n\nSingle topic: Aerodynamics intro\nMultiple topics: "Topic 1" "Topic 2" "Topic 3"');
 
   if (!input || !input.trim()) return;
 
@@ -4674,19 +4955,12 @@ async function addTopicToModule(mi, event) {
   updateGlobal();
 }
 
-
-async function deleteTopicFromModule(mi, ti, event) {
+function deleteTopicFromModule(mi, ti, event) {
   if (event) event.stopPropagation();
   const title = MODULES[mi].topics[ti];
   if (!title) return;
-  const confirmed = await appConfirm({
-    label: "Delete topic",
-    title: "Delete this topic?",
-    message: title,
-    confirmText: "Delete",
-    danger: true
-  });
-  if (!confirmed) return;
+  const confirmation = prompt(`Type yes to delete topic:\n${title}`, "");
+  if (confirmation !== "yes") return;
 
   const store = getStore();
   MODULES[mi].topics.splice(ti, 1);
@@ -4712,20 +4986,12 @@ async function deleteTopicFromModule(mi, ti, event) {
   updateGlobal();
 }
 
-
-async function editTopicInModule(mi, ti, event) {
+function editTopicInModule(mi, ti, event) {
   if (event) event.stopPropagation();
   const topic = MODULES[mi]?.topics[ti];
   if (!topic) return;
-  const result = await appPrompt({
-    label: "Topic",
-    title: "Rename topic",
-    inputLabel: "Topic name",
-    defaultValue: topic,
-    confirmText: "Save"
-  });
-  const updated = result?.value;
-  if (!updated || !updated.trim()) return;
+  const updated = prompt("Topic name:", topic);
+  if (updated === null || !updated.trim()) return;
   MODULES[mi].topics[ti] = updated.trim();
   save();
   buildModules();
@@ -4864,7 +5130,7 @@ function closeDeadlineForm() {
   editingDeadlineIndex = null;
 }
 
-async function saveDeadlineForm() {
+function saveDeadlineForm() {
   const titleInput = document.getElementById("deadline-title-input");
   const dateInput = document.getElementById("deadline-date-input");
   const timeInput = document.getElementById("deadline-time-input");
@@ -4873,16 +5139,16 @@ async function saveDeadlineForm() {
   const date = dateInput.value;
   const time = timeInput.value || "09:00";
   if (!mod) {
-    await showAppNotice("Missing deadline title", "Please enter a deadline title.");
+    alert("Please enter a deadline title.");
     return;
   }
   if (!date) {
-    await showAppNotice("Missing date", "Please choose a date.");
+    alert("Please choose a date.");
     return;
   }
   const parsed = new Date(`${date}T${time}`);
   if (Number.isNaN(parsed.getTime())) {
-    await showAppNotice("Invalid date", "Please enter a valid date and time.");
+    alert("Please enter a valid date and time.");
     return;
   }
 
@@ -4900,23 +5166,15 @@ async function saveDeadlineForm() {
   closeDeadlineForm();
 }
 
-async function removeExam(index) {
+function removeExam(index) {
   const store = getStore();
   if (!store.customExams[index]) return;
-  const confirmed = await appConfirm({
-    label: "Delete deadline",
-    title: `Remove ${store.customExams[index].mod} deadline?`,
-    message: "This removes the deadline from your tracker timeline.",
-    confirmText: "Remove",
-    danger: true
-  });
-  if (!confirmed) return;
+  if (!confirm(`Remove ${store.customExams[index].mod} deadline?`)) return;
   store.customExams.splice(index, 1);
   save();
   renderStickyExams();
   renderDeadlineTimeline();
 }
-
 
 function setupDeadlineBarScrolling() {
   const bar = document.getElementById("live-exam-bar");
@@ -5526,7 +5784,7 @@ function openOnboardingModal() {
     } else if (isNewUser && profileName) {
       title.textContent = `Welcome, ${escapeHtml(profileName)}`;
     } else {
-      title.textContent = "Welcome to unitrack";
+      title.textContent = "Welcome to UniTrack";
     }
   }
   onboardingStepIndex = 0;
@@ -6200,12 +6458,12 @@ function openAppDialog(options = {}) {
   if (title) title.textContent = options.title || "Are you sure?";
   if (message) message.textContent = options.message || "";
 
-  const needsInput = appDialogMode === "prompt";
+  const needsInput = appDialogMode === "prompt" || appDialogRequireYes;
   if (field) field.classList.toggle("hidden", !needsInput);
-  if (inputLabel) inputLabel.textContent = options.inputLabel || "Value";
+  if (inputLabel) inputLabel.textContent = appDialogRequireYes ? "Type yes to confirm" : (options.inputLabel || "Value");
   if (input) {
-    input.value = options.defaultValue || "";
-    input.placeholder = options.placeholder || "";
+    input.value = appDialogRequireYes ? "" : (options.defaultValue || "");
+    input.placeholder = options.placeholder || (appDialogRequireYes ? "yes" : "");
   }
 
   if (checkWrap) checkWrap.classList.toggle("hidden", !options.checkboxLabel);
@@ -6245,6 +6503,11 @@ function resolveAppDialog(confirmed) {
 
   if (!confirmed) {
     resolver(null);
+    return;
+  }
+
+  if (appDialogRequireYes && (input?.value || "").trim().toLowerCase() !== "yes") {
+    resolver(false);
     return;
   }
 
@@ -6641,6 +6904,8 @@ async function removeExam(index) {
   setInterval(renderStickyExams, 1000);
 })();
 </script>
+
+  <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
 
