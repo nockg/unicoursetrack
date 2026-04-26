@@ -761,6 +761,9 @@ h1 {
   gap: 8px;
   flex-wrap: wrap;
 }
+.module-edit-primary {
+  margin-left: auto;
+}
 .bb-link, .bb-edit-btn, .formula-btn, .formula-edit-btn, .mini-btn {
   background: rgba(26,22,18,0.04);
   border: 1px solid var(--border2);
@@ -1252,9 +1255,9 @@ body.theme-dark-offwhite .material-library-empty {
 }
 .coursework-empty {
   font-family: "Cormorant Garamond", serif;
-  font-size: 14px;
-  color: var(--muted);
-  line-height: 1.5;
+  font-size: 15px;
+  color: var(--sumi);
+  line-height: 1.55;
 }
 .coursework-component-delete {
   height: 32px;
@@ -1334,16 +1337,19 @@ body.theme-dark-offwhite .material-library-empty {
 }
 .topic-label {
   font-family: "Cormorant Garamond", serif;
-  font-size: 15px;
+  font-size: 17px;
+  font-weight: 600;
   color: var(--sumi);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 .topic-label.done {
   color: var(--faint);
   text-decoration: line-through;
   text-decoration-color: var(--faint);
 }
-.subtopic-toggle {
+.subtopic-toggle,
+.topic-edit-btn,
+.topic-options-summary {
   border: 1px solid var(--border2);
   background: rgba(26,22,18,0.04);
   color: var(--sumi);
@@ -1355,32 +1361,18 @@ body.theme-dark-offwhite .material-library-empty {
   padding: 6px 10px;
   text-transform: uppercase;
 }
-.subtopic-toggle:hover { color: var(--gold); border-color: var(--gold); }
+.subtopic-toggle:hover,
+.topic-edit-btn:hover,
+.topic-options-summary:hover,
+.topic-options-menu[open] .topic-options-summary { color: var(--gold); border-color: var(--gold); }
 .subtopic-list.hidden { display: none; }
 .topic-options-menu {
   position: relative;
   margin-left: auto;
 }
-.topic-options-summary {
-  list-style: none;
-  border: none;
-  background: rgba(26,22,18,0.045);
-  color: var(--sumi);
-  font-family: "Segoe UI", Arial, sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  padding: 6px 10px;
-  border: 1px solid var(--border2);
-  text-transform: uppercase;
-}
+.topic-options-summary { list-style: none; }
 .topic-options-summary::-webkit-details-marker {
   display: none;
-}
-.topic-options-summary:hover,
-.topic-options-menu[open] .topic-options-summary {
-  color: var(--gold);
 }
 .topic-options-panel {
   position: absolute;
@@ -1456,26 +1448,19 @@ body.theme-dark-offwhite .topic-options-action.danger {
 }
 .topic-delete-btn:hover { color: var(--vermillion); }
 
-.topic-edit-btn {
-  border: 1px solid var(--border2);
-  background: rgba(26,22,18,0.04);
-  color: var(--sumi);
-  font-family: "Segoe UI", Arial, sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  padding: 6px 10px;
-  text-transform: uppercase;
-}
-.topic-edit-btn:hover { color: var(--gold); border-color: var(--gold); }
 body.theme-dark .subtopic-toggle,
 body.theme-dark .topic-edit-btn,
+body.theme-dark .topic-options-summary,
 body.theme-dark-offwhite .subtopic-toggle,
-body.theme-dark-offwhite .topic-edit-btn {
+body.theme-dark-offwhite .topic-edit-btn,
+body.theme-dark-offwhite .topic-options-summary {
   background: rgba(255,255,255,0.06);
   color: #ece7dc;
   border-color: rgba(255,255,255,0.1);
+}
+body.theme-dark .coursework-empty,
+body.theme-dark-offwhite .coursework-empty {
+  color: #ece7dc;
 }
 
 .topic-drag-handle {
@@ -2509,6 +2494,14 @@ body.theme-dark-offwhite .b6::before {
 }
 .module-form-weights {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+#module-options-fields {
+  display: grid;
+  gap: 16px;
+}
+#module-colour-field {
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
 }
 
 .deadline-form-actions {
@@ -4341,8 +4334,6 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
         <div class="field"><label for="module-cw-input">Coursework %</label><input class="input" id="module-cw-input" type="number" min="0" max="100" step="0.1" value="50"></div>
         <div class="field"><label for="module-exam-input">Exam %</label><input class="input" id="module-exam-input" type="number" min="0" max="100" step="0.1" value="50"></div>
       </div>
-      <div class="field"><label for="module-components-input">Coursework Calculator Setup (Optional)</label><input class="input" id="module-components-input" placeholder='"Lab 1" "Quiz" "Project"'></div>
-      <div class="coursework-form-help">If you already know the coursework pieces, add them here now so the calculator is ready from the start.</div>
       <div id="module-options-fields" class="hidden">
         <div class="field"><label for="module-blackboard-input">Blackboard Link</label><input class="input" id="module-blackboard-input" placeholder="https://..."></div>
         <div class="field hidden" id="module-colour-field">
@@ -6080,7 +6071,6 @@ function addModuleToCurrentYear() {
   const credits = document.getElementById("module-credits-input");
   const cw = document.getElementById("module-cw-input");
   const exam = document.getElementById("module-exam-input");
-  const components = document.getElementById("module-components-input");
   const blackboard = document.getElementById("module-blackboard-input");
   const optionsFields = document.getElementById("module-options-fields");
   const colourField = document.getElementById("module-colour-field");
@@ -6090,7 +6080,6 @@ function addModuleToCurrentYear() {
   if (credits) credits.value = "15";
   if (cw) cw.value = "50";
   if (exam) exam.value = "50";
-  if (components) components.value = "";
   if (blackboard) blackboard.value = "";
   if (optionsFields) optionsFields.classList.add("hidden");
   if (colourField) colourField.classList.add("hidden");
@@ -6156,7 +6145,6 @@ function editModuleWeights(mi, event) {
   const credits = document.getElementById("module-credits-input");
   const cw = document.getElementById("module-cw-input");
   const exam = document.getElementById("module-exam-input");
-  const components = document.getElementById("module-components-input");
   const blackboard = document.getElementById("module-blackboard-input");
   const colourField = document.getElementById("module-colour-field");
   const colourInput = document.getElementById("module-colour-input");
@@ -6167,7 +6155,6 @@ function editModuleWeights(mi, event) {
   if (credits) credits.value = mod.credits ?? 15;
   if (cw) cw.value = mod.cw ?? 0;
   if (exam) exam.value = mod.exam ?? 0;
-  if (components) components.value = "";
   if (blackboard) blackboard.value = getBlackboardLink(mi) || "";
   if (optionsFields) optionsFields.classList.remove("hidden");
   if (colourField) colourField.classList.toggle("hidden", !isColourCustomisableTheme());
@@ -6187,7 +6174,6 @@ function saveModuleForm() {
   const creditsInput = document.getElementById("module-credits-input");
   const cwInput = document.getElementById("module-cw-input");
   const examInput = document.getElementById("module-exam-input");
-  const componentsInput = document.getElementById("module-components-input");
   const blackboardInput = document.getElementById("module-blackboard-input");
   const colourInput = document.getElementById("module-colour-input");
   const code = (codeInput.value || "").trim();
@@ -6228,13 +6214,6 @@ function saveModuleForm() {
       const current = store.moduleColors[targetIndex] || {};
       store.moduleColors[targetIndex] = Object.assign({}, current, { [family]: normaliseHexColour(colourInput.value) });
     }
-  }
-  const componentNames = parseQuotedList(componentsInput?.value || "");
-  if (componentNames.length) {
-    const store = getStore();
-    const existingComponents = getCourseworkComponents(targetIndex);
-    componentNames.forEach((componentName) => existingComponents.push({ name: componentName, mark: "", weight: "" }));
-    store.courseworkComponents[targetIndex] = existingComponents;
   }
   save();
   refreshActiveYear();
@@ -6439,10 +6418,11 @@ function renderStickyExams() {
   const store = getStore();
   const now = Date.now();
   const upcoming = (store.customExams || [])
+    .map((exam, originalIndex) => ({ ...exam, originalIndex }))
     .filter((exam) => !exam.completed)
     .sort((a, b) => new Date(a.date) - new Date(b.date));
   host.innerHTML = "";
-  upcoming.forEach((exam, index) => {
+  upcoming.forEach((exam) => {
     const target = new Date(exam.date);
     const isUrgent = target.getTime() <= now;
     const card = document.createElement("div");
@@ -6454,10 +6434,10 @@ function renderStickyExams() {
     `;
     card.addEventListener("contextmenu", (event) => {
       event.preventDefault();
-      removeExam(index);
+      removeExam(exam.originalIndex);
     });
-    card.addEventListener("dblclick", () => removeExam(index));
-    card.addEventListener("click", () => openDeadlineTimeline());
+    card.addEventListener("dblclick", () => removeExam(exam.originalIndex));
+    card.addEventListener("click", () => openDeadlineForm(exam.originalIndex));
     host.appendChild(card);
   });
   const button = document.createElement("button");
@@ -6861,10 +6841,10 @@ function buildModules() {
     moduleEditTools.className = "module-edit-tools";
     moduleEditTools.innerHTML = `
       <div class="module-edit-primary">
-        <button class="bb-edit-btn" type="button" onclick="clearModuleMarks(${mi}, event)">Clear Marks</button>
+        <button class="bb-edit-btn weight-edit-btn" type="button" onclick="editModuleWeights(${mi}, event)">Module Options</button>
       </div>
       <div class="module-edit-secondary">
-        <button class="bb-edit-btn weight-edit-btn" type="button" onclick="editModuleWeights(${mi}, event)">Module Options</button>
+        <button class="bb-edit-btn" type="button" onclick="clearModuleMarks(${mi}, event)">Clear Marks</button>
       </div>
     `;
     list.appendChild(moduleEditTools);
@@ -6885,7 +6865,7 @@ function buildModules() {
     list.appendChild(notesWrap);
 
     if (mod.cw > 0) {
-      const courseworkSection = createModuleSection(mi, "coursework", "Coursework Calculator", `<button class="mini-btn" type="button" onclick="addCourseworkComponent(${mi}, event)">Add Component</button>`);
+      const courseworkSection = createModuleSection(mi, "coursework", "Coursework Calculator", `<button class="mini-btn" type="button" onclick="addCourseworkComponent(${mi}, event)">No overall CW mark? Add Components</button>`);
       const courseworkWrap = courseworkSection.body;
       const components = getCourseworkComponents(mi);
       courseworkWrap.innerHTML = `
@@ -6899,7 +6879,7 @@ function buildModules() {
       `;
       const componentsHost = courseworkWrap.querySelector(`#cw-components-${mi}`);
       if (!components.length) {
-        componentsHost.innerHTML = `<div class="coursework-empty">Add coursework components if you do not know your overall coursework mark yet. Blank weights are automatically split across unweighted components.</div>`;
+        componentsHost.innerHTML = `<div class="coursework-empty">Know your overall coursework mark? Type it above. If not, use this calculator to add each coursework component here instead.</div>`;
       } else {
         components.forEach((component, ci) => {
           const componentRow = document.createElement("div");
@@ -7032,10 +7012,6 @@ function buildModules() {
       });
       const toggleSubtopicsButton = document.createElement("button");
       const addSubtopicButton = document.createElement("button");
-      toggleSubtopicsButton.type = "button";
-      toggleSubtopicsButton.className = "subtopic-toggle";
-      toggleSubtopicsButton.textContent = topic.subtopics.length ? (topic.collapsed ? "Show" : "Hide") : "";
-      toggleSubtopicsButton.addEventListener("click", (event) => toggleTopicSubtopics(mi, ti, event));
       addSubtopicButton.type = "button";
       addSubtopicButton.className = "topic-edit-btn";
       addSubtopicButton.textContent = "Add Subtopic";
@@ -7072,7 +7048,13 @@ function buildModules() {
       main.appendChild(checkbox);
       main.appendChild(label);
       row.appendChild(main);
-      row.appendChild(toggleSubtopicsButton);
+      if (topic.subtopics.length) {
+        toggleSubtopicsButton.type = "button";
+        toggleSubtopicsButton.className = "subtopic-toggle";
+        toggleSubtopicsButton.textContent = topic.collapsed ? "Show" : "Hide";
+        toggleSubtopicsButton.addEventListener("click", (event) => toggleTopicSubtopics(mi, ti, event));
+        row.appendChild(toggleSubtopicsButton);
+      }
       row.appendChild(addSubtopicButton);
       row.appendChild(optionsMenu);
       list.appendChild(row);
