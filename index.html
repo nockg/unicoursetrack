@@ -1129,15 +1129,19 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  background: rgba(26,22,18,0.035);
 }
 .coursework-calc-title {
   font-family: "Shippori Mincho", serif;
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 800;
   letter-spacing: 0;
   color: var(--ink);
   text-transform: none;
+  line-height: 1.15;
 }
 .coursework-calc-summary {
   font-family: "DM Mono", monospace;
@@ -1169,6 +1173,12 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
   .coursework-calc-wrap {
     padding-left: 18px;
     padding-right: 12px;
+  }
+  .coursework-calc-head {
+    padding: 9px 12px;
+  }
+  .coursework-calc-title {
+    font-size: 20px;
   }
   .coursework-component-row {
     grid-template-columns: 1fr;
@@ -1254,15 +1264,59 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
 }
 .subtopic-toggle:hover { color: var(--gold); }
 .subtopic-list.hidden { display: none; }
-.deadline-complete-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+.topic-options-menu {
+  position: relative;
+  margin-left: auto;
+}
+.topic-options-summary {
+  list-style: none;
+  border: none;
+  background: none;
+  color: var(--muted);
   font-family: "DM Mono", monospace;
   font-size: 10px;
-  letter-spacing: 0.08em;
+  cursor: pointer;
+  padding: 2px 4px;
   text-transform: uppercase;
-  color: var(--muted);
+}
+.topic-options-summary::-webkit-details-marker {
+  display: none;
+}
+.topic-options-summary:hover,
+.topic-options-menu[open] .topic-options-summary {
+  color: var(--gold);
+}
+.topic-options-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  min-width: 170px;
+  padding: 8px;
+  border: 1px solid var(--border2);
+  background: var(--paper3);
+  box-shadow: var(--shadow2);
+  display: grid;
+  gap: 4px;
+}
+.topic-options-action {
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: rgba(26,22,18,0.025);
+  color: var(--sumi);
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+.topic-options-action:hover {
+  border-color: var(--border2);
+  background: rgba(26,22,18,0.06);
+}
+.topic-options-action.danger {
+  color: var(--vermillion);
 }
 .timeline-item.completing {
   opacity: 0;
@@ -2120,6 +2174,22 @@ body.theme-dark-offwhite .b6::before {
   position: relative;
   z-index: 1;
 }
+.timeline-dot.complete-toggle {
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+.timeline-dot.complete-toggle:hover {
+  transform: scale(1.06);
+  border-color: var(--gold3);
+}
+.timeline-dot.complete-toggle:focus-visible {
+  outline: 2px solid var(--gold2);
+  outline-offset: 2px;
+}
+.timeline-item.completing .timeline-dot.complete-toggle {
+  background: var(--gold2);
+  border-color: var(--gold2);
+}
 
 .timeline-card {
   background: var(--paper2);
@@ -2867,7 +2937,7 @@ body.theme-dark .auth-gate-tab.active {
   .topic-row input[type=checkbox] { width: 20px; height: 20px; margin-top: 1px; }
   .topic-row input[type=checkbox]:checked::after { left: 6px; top: 2px; width: 5px; height: 10px; }
   .topic-label { font-size: 16px; line-height: 1.35; }
-  .topic-delete-btn, .topic-edit-btn, .topic-drag-handle { min-height: 32px; min-width: 32px; }
+  .topic-delete-btn, .topic-edit-btn, .topic-drag-handle, .topic-options-summary { min-height: 32px; min-width: 32px; }
   .coursework-component-row {
     grid-template-columns: 1fr !important; gap: 8px; padding: 10px;
     border: 1px solid var(--border); border-radius: 8px; background: rgba(255,255,255,0.18);
@@ -3760,11 +3830,15 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
 
   .topic-edit-btn,
   .topic-delete-btn,
-  .topic-drag-handle {
+  .topic-drag-handle,
+  .topic-options-summary {
     min-width: 26px !important;
     min-height: 26px !important;
     font-size: 8px !important;
     padding: 2px 4px !important;
+  }
+  .topic-options-panel {
+    min-width: 138px;
   }
 }
 
@@ -4130,11 +4204,12 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
       <div class="field"><label for="module-name-input">Module Name</label><input class="input" id="module-name-input" placeholder="New Module"></div>
       <div class="deadline-form-row">
         <div class="field"><label for="module-credits-input">Credits</label><input class="input" id="module-credits-input" type="number" min="0" step="1" value="15"></div>
-        <div class="field"><label for="module-cw-input">Coursework % (1-100)</label><input class="input" id="module-cw-input" type="number" min="0" max="100" step="0.1" value="50"></div>
+        <div class="field"><label for="module-cw-input">Coursework %</label><input class="input" id="module-cw-input" type="number" min="0" max="100" step="0.1" value="50"></div>
       </div>
-      <div class="field"><label for="module-exam-input">Exam % (0-100)</label><input class="input" id="module-exam-input" type="number" min="0" max="100" step="0.1" value="50"></div>
-      <div class="field"><label for="module-components-input">Coursework Components (Optional)</label><input class="input" id="module-components-input" placeholder='"Lab 1" "Quiz" "Project"'></div>
-      <div class="coursework-form-help">Add coursework components here if you already know the assessments. If not, you can still use the overall coursework mark later as usual.</div>
+      <div class="field"><label for="module-exam-input">Exam %</label><input class="input" id="module-exam-input" type="number" min="0" max="100" step="0.1" value="50"></div>
+      <div class="coursework-form-help">Enter either coursework or exam and the other side balances automatically to 100%.</div>
+      <div class="field"><label for="module-components-input">Coursework Calculator Setup (Optional)</label><input class="input" id="module-components-input" placeholder='"Lab 1" "Quiz" "Project"'></div>
+      <div class="coursework-form-help">If you already know the coursework pieces, add them here now so the calculator is ready from the start.</div>
       <div class="deadline-form-actions"><button class="nav-btn" type="button" onclick="closeModuleForm()">Cancel</button><button class="nav-btn" type="button" onclick="saveModuleForm()">Add Module</button></div>
     </div>
   </div>
@@ -5464,9 +5539,27 @@ function openFormulaLink(mi, event) {
     window.open(items[0].url, "_blank", "noopener");
     return;
   }
-  openModules.add(mi);
-  openModuleSections[`${mi}:module-material`] = true;
-  buildModules();
+  chooseFormulaLink(mi);
+}
+
+async function chooseFormulaLink(mi) {
+  const items = getFormulaLinks(mi);
+  if (!items.length) return;
+  const list = items.map((item, index) => `${index + 1}. ${item.name}`).join("  ");
+  const result = await appPrompt({
+    label: "Module Material",
+    title: `${MODULES[mi]?.kanji || "Module"} material`,
+    message: `Pick which item to open. ${list}`,
+    inputLabel: "Material number",
+    placeholder: "1",
+    confirmText: "Open Material"
+  });
+  const selected = parseInt(result?.value || "", 10);
+  if (!Number.isFinite(selected) || selected < 1 || selected > items.length) {
+    if (result) await showAppNotice("Choose a material", "Enter one of the material numbers shown in the list.");
+    return;
+  }
+  window.open(items[selected - 1].url, "_blank", "noopener");
 }
 
 function renderFormulaLinks(mi) {
@@ -5812,7 +5905,7 @@ function addModuleToCurrentYear() {
   if (cw) cw.value = "50";
   if (exam) exam.value = "50";
   if (components) components.value = "";
-  syncModuleWeightInputs();
+  syncModuleWeightInputs("cw");
   const title = document.querySelector("#module-form-modal .dashboard-title");
   const saveBtn = document.querySelector("#module-form-modal .deadline-form-actions .nav-btn:last-child");
   if (title) title.textContent = "Add Module";
@@ -5826,18 +5919,32 @@ function closeModuleForm() {
   editingModuleIndex = null;
 }
 
-function syncModuleWeightInputs() {
+function formatWeightInputValue(value) {
+  const rounded = Math.round(value * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+}
+
+function syncModuleWeightInputs(source = "cw") {
   const cwInput = document.getElementById("module-cw-input");
   const examInput = document.getElementById("module-exam-input");
   if (!cwInput || !examInput) return;
-  const cw = parseFloat(cwInput.value || "");
+  if (source === "cw") {
+    const cw = parseFloat(cwInput.value || "");
+    if (!Number.isFinite(cw)) return;
+    const safeCw = Math.min(100, Math.max(0, cw));
+    if (safeCw !== cw) cwInput.value = formatWeightInputValue(safeCw);
+    examInput.value = formatWeightInputValue(100 - safeCw);
+    return;
+  }
   const exam = parseFloat(examInput.value || "");
-  if (Number.isFinite(cw) && cw >= 100) examInput.value = "0";
-  if (Number.isFinite(exam) && exam >= 100) cwInput.value = "0";
+  if (!Number.isFinite(exam)) return;
+  const safeExam = Math.min(100, Math.max(0, exam));
+  if (safeExam !== exam) examInput.value = formatWeightInputValue(safeExam);
+  cwInput.value = formatWeightInputValue(100 - safeExam);
 }
 
-document.getElementById("module-cw-input")?.addEventListener("input", syncModuleWeightInputs);
-document.getElementById("module-exam-input")?.addEventListener("input", syncModuleWeightInputs);
+document.getElementById("module-cw-input")?.addEventListener("input", () => syncModuleWeightInputs("cw"));
+document.getElementById("module-exam-input")?.addEventListener("input", () => syncModuleWeightInputs("exam"));
 
 function parseQuotedList(input) {
   const text = String(input || "").trim();
@@ -5863,7 +5970,7 @@ function editModuleWeights(mi, event) {
   if (cw) cw.value = mod.cw ?? 0;
   if (exam) exam.value = mod.exam ?? 0;
   if (components) components.value = "";
-  syncModuleWeightInputs();
+  syncModuleWeightInputs("cw");
   const title = document.querySelector("#module-form-modal .dashboard-title");
   const saveBtn = document.querySelector("#module-form-modal .deadline-form-actions .nav-btn:last-child");
   if (title) title.textContent = "Edit Module Weights";
@@ -6388,17 +6495,15 @@ function renderDeadlineTimeline() {
     const isUrgent = target.getTime() <= now;
     return `
       <div class="timeline-item">
-        <div class="timeline-rail"><div class="timeline-dot"></div></div>
+        <div class="timeline-rail">
+          <button class="timeline-dot complete-toggle" type="button" onclick="toggleDeadlineComplete(${exam.originalIndex}, event)" title="Mark deadline complete" aria-label="Mark deadline complete"></button>
+        </div>
         <div class="timeline-card">
           <div class="timeline-title">${escapeHtml(exam.mod)}</div>
           <div class="timeline-meta">
             <span class="timeline-badge countdown ${isUrgent ? "urgent" : ""}" data-deadline-countdown="${escapeHtml(exam.date)}">${escapeHtml(formatCountdown(exam.date))}</span>
             <span class="timeline-badge">${escapeHtml(target.toLocaleString([], { dateStyle: "full", timeStyle: "short" }))}</span>
           </div>
-          <label class="deadline-complete-toggle">
-            <input type="checkbox" ${exam.completed ? "checked" : ""} onchange="toggleDeadlineComplete(${exam.originalIndex}, this.checked, event)">
-            <span>Completed</span>
-          </label>
           <div class="timeline-notes-label">Notes</div>
           <textarea class="timeline-notes" data-deadline-note-index="${exam.originalIndex}" placeholder="Add context, room, prep checklist, what to bring...">${escapeHtml(exam.note || "")}</textarea>
           <div class="timeline-actions">
@@ -6425,25 +6530,23 @@ function updateDeadlineNote(index, value) {
   save();
 }
 
-function toggleDeadlineComplete(index, checked, event) {
+function toggleDeadlineComplete(index, event) {
   if (event) event.stopPropagation();
   const store = getStore();
   if (!store.customExams[index]) return;
-  const applyState = () => {
-    store.customExams[index].completed = checked;
+  const removeDeadline = () => {
+    store.customExams.splice(index, 1);
     save();
     renderStickyExams();
     renderDeadlineTimeline();
   };
-  if (checked) {
-    const row = event?.target?.closest(".timeline-item");
-    if (row) {
-      row.classList.add("completing");
-      setTimeout(applyState, 280);
-      return;
-    }
+  const row = event?.target?.closest(".timeline-item");
+  if (row) {
+    row.classList.add("completing");
+    setTimeout(removeDeadline, 280);
+    return;
   }
-  applyState();
+  removeDeadline();
 }
 
 function openDeadlineTimeline() {
@@ -6599,6 +6702,9 @@ function buildModules() {
       const components = getCourseworkComponents(mi);
       courseworkWrap.innerHTML = `
         <div class="coursework-calc-wrap">
+          <div class="coursework-calc-head">
+            <div class="coursework-calc-title">Coursework Calculator</div>
+          </div>
           <div class="coursework-calc-summary" id="cw-calc-summary-${mi}"></div>
           <div id="cw-components-${mi}"></div>
         </div>
@@ -6712,7 +6818,7 @@ function buildModules() {
         setTopicCheckbox(checkbox, mi, ti, dragTopicValue);
       });
       row.addEventListener("click", (event) => {
-        if (event.target.closest("button") || event.target.closest("input")) return;
+        if (event.target.closest("button") || event.target.closest("input") || event.target.closest("details") || event.target.closest("summary")) return;
         setTopicCheckbox(checkbox, mi, ti, !checkbox.checked);
       });
       row.addEventListener("dragover", (event) => allowTopicDrop(mi, ti, event));
@@ -6732,34 +6838,54 @@ function buildModules() {
         row.classList.remove("reordering");
         endTopicReorder();
       });
-      const deleteButton = document.createElement("button");
-      const editButton = document.createElement("button");
-      const addSubtopicButton = document.createElement("button");
       const toggleSubtopicsButton = document.createElement("button");
-      editButton.type = "button";
-      editButton.className = "topic-edit-btn";
-      editButton.textContent = "Edit";
-      editButton.addEventListener("click", (event) => editTopicInModule(mi, ti, event));
-      addSubtopicButton.type = "button";
-      addSubtopicButton.className = "topic-edit-btn";
-      addSubtopicButton.textContent = "Subtopic";
-      addSubtopicButton.addEventListener("click", (event) => addSubtopicToTopic(mi, ti, event));
       toggleSubtopicsButton.type = "button";
       toggleSubtopicsButton.className = "subtopic-toggle";
       toggleSubtopicsButton.textContent = topic.subtopics.length ? (topic.collapsed ? "Show" : "Hide") : "";
       toggleSubtopicsButton.addEventListener("click", (event) => toggleTopicSubtopics(mi, ti, event));
+      const optionsMenu = document.createElement("details");
+      optionsMenu.className = "topic-options-menu";
+      optionsMenu.addEventListener("click", (event) => event.stopPropagation());
+      const optionsSummary = document.createElement("summary");
+      optionsSummary.className = "topic-options-summary";
+      optionsSummary.textContent = "Options";
+      const optionsPanel = document.createElement("div");
+      optionsPanel.className = "topic-options-panel";
+      const addSubtopicButton = document.createElement("button");
+      addSubtopicButton.type = "button";
+      addSubtopicButton.className = "topic-options-action";
+      addSubtopicButton.textContent = "Add Subtopics";
+      addSubtopicButton.addEventListener("click", async (event) => {
+        optionsMenu.removeAttribute("open");
+        await addSubtopicToTopic(mi, ti, event);
+      });
+      const editButton = document.createElement("button");
+      editButton.type = "button";
+      editButton.className = "topic-options-action";
+      editButton.textContent = "Edit Topic";
+      editButton.addEventListener("click", async (event) => {
+        optionsMenu.removeAttribute("open");
+        await editTopicInModule(mi, ti, event);
+      });
+      const deleteButton = document.createElement("button");
       deleteButton.type = "button";
-      deleteButton.className = "topic-delete-btn";
-      deleteButton.textContent = "Delete";
-      deleteButton.addEventListener("click", (event) => deleteTopicFromModule(mi, ti, event));
+      deleteButton.className = "topic-options-action danger";
+      deleteButton.textContent = "Delete Topic";
+      deleteButton.addEventListener("click", async (event) => {
+        optionsMenu.removeAttribute("open");
+        await deleteTopicFromModule(mi, ti, event);
+      });
+      optionsPanel.appendChild(addSubtopicButton);
+      optionsPanel.appendChild(editButton);
+      optionsPanel.appendChild(deleteButton);
+      optionsMenu.appendChild(optionsSummary);
+      optionsMenu.appendChild(optionsPanel);
       row.appendChild(dragHandle);
       main.appendChild(checkbox);
       main.appendChild(label);
       row.appendChild(main);
       row.appendChild(toggleSubtopicsButton);
-      row.appendChild(addSubtopicButton);
-      row.appendChild(editButton);
-      row.appendChild(deleteButton);
+      row.appendChild(optionsMenu);
       list.appendChild(row);
 
       if (topic.subtopics.length) {
@@ -8077,10 +8203,17 @@ async function addTopicToModule(mi, event) {
 async function addSubtopicToTopic(mi, ti, event) {
   if (event) event.stopPropagation();
   const topic = getTopicEntry(mi, ti);
-  const result = await appPrompt({ label: "Subtopic", title: `Add subtopic under ${topic.title}`, inputLabel: "Subtopic name", confirmText: "Add Subtopic" });
-  const value = result?.value?.trim();
-  if (!value) return;
-  MODULES[mi].topics[ti] = Object.assign({}, topic, { subtopics: [...topic.subtopics, value], collapsed: false });
+  const result = await appPrompt({
+    label: "Subtopics",
+    title: `Add subtopics under ${topic.title}`,
+    message: 'Add one subtopic, or wrap several in quotes: "Definition" "Worked Example" "Past Paper"',
+    inputLabel: "Subtopics",
+    placeholder: '"Definition" "Worked Example"',
+    confirmText: "Add Subtopics"
+  });
+  const values = parseQuotedList(result?.value || "");
+  if (!values.length) return;
+  MODULES[mi].topics[ti] = Object.assign({}, topic, { subtopics: [...topic.subtopics, ...values], collapsed: false });
   save();
   buildModules();
   updateGlobal();
