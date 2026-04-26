@@ -614,15 +614,17 @@ h1 {
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  background: rgba(255,255,255,0.14);
-  border-color: rgba(255,255,255,0.2);
-  transition: transform 0.28s ease, background 0.28s ease, border-color 0.28s ease;
+  background: rgba(17,18,21,0.72);
+  border-color: rgba(255,255,255,0.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: transform 0.28s ease, background 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
 }
 
 .dash-launch:hover {
   transform: translateY(-2px);
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.28);
+  background: rgba(17,18,21,0.84);
+  border-color: rgba(255,255,255,0.16);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 24px rgba(0,0,0,0.16);
 }
 
 .dash-launch::after {
@@ -1271,15 +1273,18 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
 .prefs-panel {
   position: fixed;
   top: 120px;
-  right: 0;
+  right: 12px;
   left: auto;
   z-index: 1200;
-  width: min(320px, calc(100vw - 24px));
+  width: min(360px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 140px);
+  overflow: auto;
   background: var(--paper3);
   border: 1px solid var(--border2);
-  border-radius: 6px 0 0 6px;
+  border-radius: 10px;
   box-shadow: var(--shadow);
-  padding: 16px;
+  padding: 18px;
 }
 .prefs-panel.hidden { display: none; }
 .prefs-head {
@@ -1287,14 +1292,26 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  position: sticky;
+  top: -18px;
+  background: var(--paper3);
+  padding-bottom: 8px;
+  z-index: 2;
 }
 .prefs-title {
+  font-family: "Shippori Mincho", serif;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--ink);
+}
+.prefs-subtitle {
   font-family: "DM Mono", monospace;
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
+  margin-top: 4px;
 }
 .prefs-close {
   width: 28px;
@@ -1316,6 +1333,92 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
 }
 .prefs-grid .field label {
   margin-bottom: 6px;
+}
+.prefs-card {
+  border: 1px solid var(--border);
+  background: rgba(26,22,18,0.025);
+  border-radius: 8px;
+  padding: 12px;
+}
+.prefs-card-copy {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+.prefs-input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: end;
+}
+.prefs-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.prefs-actions .nav-btn {
+  flex: 1 1 150px;
+}
+.account-card {
+  border: 1px solid var(--border);
+  background: rgba(26,22,18,0.03);
+  border-radius: 8px;
+  padding: 14px;
+}
+.account-title {
+  font-family: "Shippori Mincho", serif;
+  font-size: 22px;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.account-copy {
+  color: var(--muted);
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+.account-meta {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.account-meta-row {
+  display: grid;
+  gap: 3px;
+}
+.account-meta-label {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.account-meta-value {
+  color: var(--ink);
+  word-break: break-word;
+}
+.account-section {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  margin-top: 12px;
+}
+.account-section-title {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.account-actions {
+  display: grid;
+  gap: 8px;
+}
+body.theme-dark .prefs-card,
+body.theme-dark .account-card,
+body.theme-dark-offwhite .prefs-card,
+body.theme-dark-offwhite .account-card {
+  background: rgba(255,255,255,0.03);
 }
 .compact-marks-wrap {
   display: none;
@@ -2614,6 +2717,8 @@ body.theme-dark .auth-gate-tab.active {
   .inputs-grid { grid-template-columns: 1fr 1fr !important; gap: 8px; }
   .field label { font-size: 9px; letter-spacing: 0.08em; }
   .input, textarea, select, button { font-size: 16px; }
+  .prefs-input-row { grid-template-columns: 1fr; }
+  .prefs-input-row .nav-btn { width: 100%; }
   .input { min-height: 40px; border-radius: 8px; padding: 9px 10px; }
   .final-col {
     text-align: left !important; display: flex; align-items: center; justify-content: space-between;
@@ -2703,6 +2808,8 @@ body.theme-dark .auth-gate-tab.active {
   .hero { padding-left: 12px; padding-right: 12px; }
   .content { padding-left: 8px; padding-right: 8px; }
   .mod-name { font-size: 17px; }
+  .prefs-title { font-size: 20px; }
+  .prefs-subtitle { line-height: 1.35; }
 }
 
 
@@ -3682,7 +3789,7 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
   <div class="year-controls">
     <select class="nav-select" id="year-select" onchange="handleYearDropdown(this.value)"></select>
   </div>
-  <button class="nav-btn calendar-btn" onclick="window.open('https://calendar.google.com/calendar/u/0/r','_blank','noopener')">Open Google Calendar</button>
+  <button class="nav-btn calendar-btn" onclick="openPreferredCalendar()">Open Calendar</button>
   <button class="nav-btn" onclick="addModuleToCurrentYear()">Add Module</button>
   <button class="nav-btn" onclick="openDeadlineTimeline()">Deadlines</button>
   <button class="nav-btn prefs-toggle-btn" onclick="togglePreferences()">Preferences</button>
@@ -3692,7 +3799,10 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
 
 <div class="prefs-panel hidden" id="prefs-panel">
   <div class="prefs-head">
-    <div class="prefs-title">Preferences</div>
+    <div>
+      <div class="prefs-title">Preferences</div>
+      <div class="prefs-subtitle">Theme, layout, backgrounds, and calendar</div>
+    </div>
     <button class="mini-btn prefs-close" type="button" onclick="togglePreferences()" aria-label="Close preferences">x</button>
   </div>
   <div class="prefs-grid">
@@ -3720,33 +3830,34 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
         <option value="mono">Mono Study</option>
       </select>
     </div>
-    <div class="field custom-bg-field">
-      <label for="custom-bg-url">Add Background URL</label>
-      <input class="input" id="custom-bg-url" placeholder="Paste image link">
-      <button class="nav-btn" type="button" onclick="addCustomBackground()">
-    Add Background
-      </button>
+    <div class="field">
+      <label for="pref-calendar">Calendar Service</label>
+      <select class="nav-select" id="pref-calendar" onchange="setPreference('calendarProvider', this.value)">
+        <option value="google">Google Calendar</option>
+        <option value="apple">Apple Calendar</option>
+        <option value="outlook">Outlook Calendar</option>
+      </select>
     </div>
-    <div class="field custom-bg-field">
-      <label for="body-bg-url">Page Background URL</label>
-      <input class="input" id="body-bg-url" placeholder="Paste page background image link">
-      <button class="nav-btn" type="button" onclick="setBodyBackground()">
-    Set Page Background
-      </button>
+    <div class="field prefs-card custom-bg-field">
+      <label for="custom-bg-url">Hero Image</label>
+      <div class="prefs-card-copy">Use your own image for the top hero section.</div>
+      <div class="prefs-input-row">
+        <input class="input" id="custom-bg-url" placeholder="Paste image URL">
+        <button class="nav-btn" type="button" onclick="addCustomBackground()">Add</button>
+      </div>
+    </div>
+    <div class="field prefs-card custom-bg-field">
+      <label for="body-bg-url">Page Background Image</label>
+      <div class="prefs-card-copy">Set a full-page image behind the tracker. Leave blank to remove it.</div>
+      <div class="prefs-input-row">
+        <input class="input" id="body-bg-url" placeholder="Paste background image URL">
+        <button class="nav-btn" type="button" onclick="setBodyBackground()">Apply</button>
+      </div>
     </div>
 
     <div class="field">
       <label>Hero Background</label>
       <div class="bg-picker" id="bg-picker"></div>
-    </div>
-    <div class="field">
-      <label>Storage</label>
-      <button class="nav-btn" type="button" onclick="editCourseProfile()">
-        Edit Course Setup
-      </button>
-      <button class="nav-btn danger-btn" type="button" onclick="clearTrackerStorage()">
-        Clear Saved Data
-      </button>
     </div>
   </div>
 </div>
@@ -4118,10 +4229,14 @@ const HERO_BACKGROUNDS = {
   bg4: "https://media.defense.gov/2021/May/25/2002727568/2000/2000/0/180108-F-KX404-9002.JPG",
   bg5: "https://www.bremont.com/cdn/shop/articles/Concorde_G-BOAA_4_bc1e1d5d-4ac4-42bf-9608-73925821dc1d.jpg?v=1634534775&width=1500",
   bg6: "https://nafc.org.au/wp-content/uploads/2021/07/Q400drop_QFES-image-1-scaled-e1627614915571.jpeg",
-  bg7: "https://www.flightradar24.com/blog/wp-content/uploads/2025/09/737-NG-Landing-Gear-Lever-1024x693.jpg",
   bg8: "https://images.squarespace-cdn.com/content/v1/564d14dfe4b0290681184a82/1479853193364-00HU0OCI0KNVLZQRKMCX/20160819-JI-Lake+Clark+National+Park-_DSF2859.jpg?format=1500w",
-  bg9: "https://cdn.mos.cms.futurecdn.net/fnfyE7cDwV9JWCopNK8Ycb-1024-80.jpg",
-  bg10: "https://www.geaerospace.com/news/sites/default/files/t901%20blog%20hero.png"
+  bg9: "https://cdn.mos.cms.futurecdn.net/fnfyE7cDwV9JWCopNK8Ycb-1024-80.jpg"
+};
+
+const CALENDAR_PROVIDERS = {
+  google: { label: "Google Calendar", url: "https://calendar.google.com/calendar/u/0/r" },
+  apple: { label: "Apple Calendar", url: "https://www.icloud.com/calendar/" },
+  outlook: { label: "Outlook Calendar", url: "https://outlook.live.com/calendar/" }
 };
 
 let deadlineSplashInterval = null;
@@ -4285,7 +4400,7 @@ const defaultState = {
 
 let MODULES = [];
 let TOTAL_CREDITS = 0;
-const DEFAULT_PREFERENCES = { theme: "dark-offwhite", density: "comfortable", font: "japanese", hero: "bg8", bodyBackground: "" };
+const DEFAULT_PREFERENCES = { theme: "dark-offwhite", density: "comfortable", font: "japanese", hero: "bg8", bodyBackground: "", calendarProvider: "google" };
 const preferences = Object.assign(
   {},
   DEFAULT_PREFERENCES,
@@ -4660,6 +4775,7 @@ refreshActiveYear();
 
 function applyPreferences() {
   if (preferences.font === "classic") preferences.font = "mono";
+  if (!CALENDAR_PROVIDERS[preferences.calendarProvider]) preferences.calendarProvider = DEFAULT_PREFERENCES.calendarProvider;
   document.body.classList.toggle("theme-dark", preferences.theme === "dark");
   document.body.classList.toggle("theme-quiet", preferences.theme === "quiet");
   document.body.classList.toggle("theme-dark-offwhite", preferences.theme === "dark-offwhite");
@@ -4669,9 +4785,12 @@ function applyPreferences() {
   const themeSelect = document.getElementById("pref-theme");
   const densitySelect = document.getElementById("pref-density");
   const fontSelect = document.getElementById("pref-font");
+  const calendarSelect = document.getElementById("pref-calendar");
+  const customBgInput = document.getElementById("custom-bg-url");
   const bodyBgInput = document.getElementById("body-bg-url");
   const hero = document.querySelector(".hero");
   const allBackgrounds = { ...HERO_BACKGROUNDS, ...(preferences.customBackgrounds || {}) };
+  if (!allBackgrounds[preferences.hero]) preferences.hero = DEFAULT_PREFERENCES.hero;
 
   if (hero && allBackgrounds[preferences.hero]) {
     hero.style.setProperty("--hero-bg", `url("${allBackgrounds[preferences.hero]}")`);
@@ -4686,6 +4805,8 @@ function applyPreferences() {
   if (themeSelect) themeSelect.value = preferences.theme;
   if (densitySelect) densitySelect.value = preferences.density;
   if (fontSelect) fontSelect.value = preferences.font || "japanese";
+  if (calendarSelect) calendarSelect.value = preferences.calendarProvider || "google";
+  if (customBgInput) customBgInput.value = "";
   if (bodyBgInput) bodyBgInput.value = preferences.bodyBackground || "";
 
   renderBackgroundPicker();
@@ -4730,6 +4851,11 @@ function setBodyBackground() {
 
 function togglePreferences() {
   document.getElementById("prefs-panel").classList.toggle("hidden");
+}
+
+function openPreferredCalendar() {
+  const provider = CALENDAR_PROVIDERS[preferences.calendarProvider] || CALENDAR_PROVIDERS.google;
+  window.open(provider.url, "_blank", "noopener");
 }
 
 function clearLocalTrackerStorage() {
@@ -6545,18 +6671,51 @@ function renderAuthModal(mode = "login") {
   if (!body) return;
 
   if (currentUser) {
+    const syncStatus = cloudLoadSucceeded ? "Synced to cloud" : (cloudReady ? "Signed in, sync catching up" : "Signed in locally");
     body.innerHTML = `
-      <div class="deadline-splash-title">Signed in</div>
-      <div class="auth-signed-card">
-        <div class="template-splash-copy">Your tracker is connected to:</div>
-        <div class="auth-email">${escapeHtml(currentUser.email || "Cloud account")}</div>
-        <div class="deadline-form-actions">
-          <button class="nav-btn danger-btn" type="button" onclick="logoutCloud()">Logout</button>
+      <div class="account-card">
+        <div class="account-title">Account</div>
+        <div class="account-copy">Check account settings, sync status, and saved data controls here.</div>
+        <div class="account-meta">
+          <div class="account-meta-row">
+            <div class="account-meta-label">Signed In As</div>
+            <div class="account-meta-value auth-email">${escapeHtml(currentUser.email || "Cloud account")}</div>
+          </div>
+          <div class="account-meta-row">
+            <div class="account-meta-label">Status</div>
+            <div class="account-meta-value">${escapeHtml(syncStatus)}</div>
+          </div>
+        </div>
+        <div class="account-section">
+          <div class="account-section-title">Tracker</div>
+          <div class="account-actions">
+            <button class="nav-btn" type="button" onclick="editCourseProfile()">Edit Course Setup</button>
+            <button class="nav-btn danger-btn" type="button" onclick="clearTrackerStorage()">Clear Saved Data</button>
+          </div>
+        </div>
+        <div class="account-section">
+          <div class="account-section-title">Account</div>
+          <div class="account-actions">
+            <button class="nav-btn danger-btn" type="button" onclick="requestAccountDeletion()">Delete Account</button>
+            <button class="nav-btn" type="button" onclick="logoutCloud()">Logout</button>
+          </div>
         </div>
       </div>
     `;
     return;
   }
+}
+
+async function requestAccountDeletion() {
+  const confirmed = await appConfirm({
+    label: "Account",
+    title: "Delete account?",
+    message: "Tracker data can be cleared here, but full account deletion still needs to be completed in Supabase or your auth backend.",
+    confirmText: "Understood",
+    danger: true
+  });
+  if (!confirmed) return;
+  await showAppNotice("Delete account", "The option is now in Account settings, but full sign-in account deletion is not available from this client alone. Clear Saved Data removes marks, notes, deadlines, links, preferences, and cloud tracker data.");
 }
 
 function setAuthError(message) {
