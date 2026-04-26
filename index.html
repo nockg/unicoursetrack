@@ -4895,6 +4895,30 @@ function getTopicEntry(mi, ti) {
   return normalizeTopicEntry(MODULES[mi]?.topics?.[ti]);
 }
 
+function getModuleTopicStateSnapshot(mi) {
+  const store = getStore();
+  return MODULES[mi].topics.map((_, ti) => {
+    const topic = getTopicEntry(mi, ti);
+    return {
+      main: !!store.topics[topicKey(mi, ti)],
+      subs: topic.subtopics.map((_, si) => !!store.topics[subtopicKey(mi, ti, si)])
+    };
+  });
+}
+
+function applyModuleTopicStateSnapshot(mi, snapshot) {
+  const store = getStore();
+  Object.keys(store.topics).forEach((key) => {
+    if (key.startsWith(`t_${mi}_`) || key.startsWith(`s_${mi}_`)) delete store.topics[key];
+  });
+  snapshot.forEach((value, ti) => {
+    if (value.main) store.topics[topicKey(mi, ti)] = true;
+    value.subs.forEach((isDone, si) => {
+      if (isDone) store.topics[subtopicKey(mi, ti, si)] = true;
+    });
+  });
+}
+
 function subtopicKey(mi, ti, si) {
   return `s_${mi}_${ti}_${si}`;
 }
@@ -6347,27 +6371,10 @@ function updateCourseworkSummary(mi) {
 }
 
 function remapTopicStateForReorder(mi, fromIndex, toIndex) {
-  const store = getStore();
-  const topicCount = MODULES[mi].topics.length;
-  const checked = [];
-  for (let i = 0; i < topicCount; i++) {
-    const topic = getTopicEntry(mi, i);
-    checked.push({
-      main: !!store.topics[topicKey(mi, i)],
-      subs: topic.subtopics.map((_, si) => !!store.topics[subtopicKey(mi, i, si)])
-    });
-  }
+  const checked = getModuleTopicStateSnapshot(mi);
   const [moved] = checked.splice(fromIndex, 1);
   checked.splice(toIndex, 0, moved);
-  Object.keys(store.topics).forEach((key) => {
-    if (key.startsWith(`t_${mi}_`) || key.startsWith(`s_${mi}_`)) delete store.topics[key];
-  });
-  checked.forEach((value, index) => {
-    if (value.main) store.topics[topicKey(mi, index)] = true;
-    value.subs.forEach((isDone, si) => {
-      if (isDone) store.topics[subtopicKey(mi, index, si)] = true;
-    });
-  });
+  applyModuleTopicStateSnapshot(mi, checked);
 }
 
 function moveTopicInModule(mi, fromIndex, toIndex) {
@@ -6381,8 +6388,42 @@ function moveTopicInModule(mi, fromIndex, toIndex) {
   updateGlobal();
 }
 
+async function nestTopicUnderTopic(mi, sourceIndex, parentIndex) {
+  const topics = MODULES[mi]?.topics;
+  if (!topics || sourceIndex === parentIndex || sourceIndex < 0 || parentIndex < 0 || sourceIndex >= topics.length || parentIndex >= topics.length) return;
+  const sourceTopic = getTopicEntry(mi, sourceIndex);
+  if (sourceTopic.subtopics.length) {
+    await showAppNotice("Drag a simpler topic", "Only plain topics can be nested right now. Move or clear that topic's own subtopics first.");
+    return;
+  }
+
+  const stateSnapshot = getModuleTopicStateSnapshot(mi);
+  const sourceState = stateSnapshot[sourceIndex];
+  const [movedTopic] = topics.splice(sourceIndex, 1);
+  stateSnapshot.splice(sourceIndex, 1);
+
+  let nextParentIndex = parentIndex;
+  if (sourceIndex < parentIndex) nextParentIndex -= 1;
+
+  const parentTopic = getTopicEntry(mi, nextParentIndex);
+  topics[nextParentIndex] = Object.assign({}, parentTopic, {
+    subtopics: [...parentTopic.subtopics, movedTopic.title],
+    collapsed: false
+  });
+
+  const parentState = stateSnapshot[nextParentIndex] || { main: false, subs: [] };
+  parentState.subs = [...parentState.subs, !!sourceState?.main];
+  parentState.main = parentState.main && parentState.subs.every(Boolean);
+  stateSnapshot[nextParentIndex] = parentState;
+
+  applyModuleTopicStateSnapshot(mi, stateSnapshot);
+  save();
+  buildModules();
+  updateGlobal();
+}
+
 function startTopicReorder(mi, ti, event) {
-  draggedTopic = { mi, ti };
+  draggedTopic = { mi, ti, startX: event.clientX || 0 };
   event.dataTransfer.effectAllowed = "move";
   event.dataTransfer.setData("text/plain", `${mi}:${ti}`);
 }
@@ -6401,6 +6442,12 @@ function dropTopicReorder(mi, ti, event) {
   event.preventDefault();
   event.currentTarget.classList.remove("reordering");
   if (!draggedTopic || draggedTopic.mi !== mi) return;
+  const indentDelta = (event.clientX || 0) - (draggedTopic.startX || 0);
+  if (indentDelta > 56) {
+    nestTopicUnderTopic(mi, draggedTopic.ti, ti);
+    draggedTopic = null;
+    return;
+  }
   moveTopicInModule(mi, draggedTopic.ti, ti);
   draggedTopic = null;
 }
@@ -6951,7 +6998,7 @@ function buildModules() {
         <input class="input" id="topic-add-${mi}" placeholder='Add one topic, or "Topic 1" "Topic 2"'>
         <button class="mini-btn" type="button" onclick="addTopicToModule(${mi}, event)">Add Topic</button>
       </div>
-      <div class="topic-entry-help">Use quotes for several topics. Subtopics can be added under each main topic.</div>
+      <div class="topic-entry-help">Use quotes for several topics. Drag a topic onto another topic, then drop slightly to the right to turn it into a subtopic.</div>
     `;
     list.appendChild(topicTools);
     const topicAddInput = topicTools.querySelector(`#topic-add-${mi}`);
@@ -7005,7 +7052,7 @@ function buildModules() {
       dragHandle.type = "button";
       dragHandle.className = "topic-drag-handle";
       dragHandle.textContent = ":::";
-      dragHandle.title = "Drag to reorder";
+      dragHandle.title = "Drag to reorder, or drop to the right on another topic to nest it";
       dragHandle.draggable = true;
       dragHandle.addEventListener("dragstart", (event) => {
         row.classList.add("reordering");
@@ -7016,11 +7063,6 @@ function buildModules() {
         endTopicReorder();
       });
       const toggleSubtopicsButton = document.createElement("button");
-      const addSubtopicButton = document.createElement("button");
-      addSubtopicButton.type = "button";
-      addSubtopicButton.className = "topic-edit-btn";
-      addSubtopicButton.textContent = "Add Subtopic";
-      addSubtopicButton.addEventListener("click", (event) => addSubtopicToTopic(mi, ti, event));
       const optionsMenu = document.createElement("details");
       optionsMenu.className = "topic-options-menu";
       optionsMenu.addEventListener("click", (event) => event.stopPropagation());
@@ -7060,7 +7102,6 @@ function buildModules() {
         toggleSubtopicsButton.addEventListener("click", (event) => toggleTopicSubtopics(mi, ti, event));
         row.appendChild(toggleSubtopicsButton);
       }
-      row.appendChild(addSubtopicButton);
       row.appendChild(optionsMenu);
       list.appendChild(row);
 
