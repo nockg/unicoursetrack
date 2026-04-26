@@ -1618,6 +1618,14 @@ body.theme-quiet .mod-stripe,
 body.theme-quiet .classification-badge {
   filter: grayscale(100%) sepia(14%);
 }
+body.theme-quiet .prog-fill,
+body.theme-quiet .progress-fill {
+  background: linear-gradient(90deg, #a69480, #c1b19f) !important;
+}
+body.theme-quiet .module::before,
+body.theme-quiet .mod-stripe {
+  background: #a69480 !important;
+}
 body.theme-quiet .c0,
 body.theme-quiet .c1,
 body.theme-quiet .c2,
@@ -1792,7 +1800,7 @@ body.theme-dark-offwhite .ticker-mod {
 
 body.theme-dark-offwhite .progress-fill,
 body.theme-dark-offwhite .prog-fill {
-  color: var(--indigo);
+  background: linear-gradient(90deg, var(--indigo), var(--indigo)) !important;
 }
 
 body.theme-dark-offwhite .classification-badge {
@@ -1806,7 +1814,11 @@ body.theme-dark-offwhite .fc3,
 body.theme-dark-offwhite .fc4,
 body.theme-dark-offwhite .fc5,
 body.theme-dark-offwhite .fc6 {
-  color: var(--indigo);
+  color: #d8c8b0;
+}
+body.theme-dark-offwhite .module::before,
+body.theme-dark-offwhite .mod-stripe {
+  background: var(--indigo) !important;
 }
 
 body.theme-dark-offwhite .f0,
@@ -6317,7 +6329,8 @@ function buildModules() {
             value="${escapeHtml(getStoredModuleColourHex(mi))}"
             aria-label="Pick module colour"
             onclick="event.stopPropagation()"
-            oninput="setModuleColour(${mi}, this.value, event)">
+            onpointerdown="event.stopPropagation()"
+            onchange="setModuleColour(${mi}, this.value, event)">
           <div class="module-colour-preview" style="background:${moduleColours.fill};"></div>
         </div>
       ` : `
