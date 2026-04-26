@@ -120,7 +120,7 @@ body.has-body-background::before {
 }
 body.theme-dark.has-body-background::before {
   background:
-    linear-gradient(rgba(21,18,15,0.84), rgba(21,18,15,0.84)),
+    linear-gradient(rgba(11,16,25,0.84), rgba(11,16,25,0.84)),
     var(--page-bg);
   background-size: cover;
   background-repeat: no-repeat;
@@ -856,15 +856,19 @@ h1 {
 .cls-s-22 { background: rgba(26,44,74,0.1); color: var(--indigo); border: 1px solid rgba(26,44,74,0.25); }
 .cls-s-third { background: rgba(74,85,104,0.1); color: var(--slate); border: 1px solid var(--border2); }
 .chevron {
+  color: var(--faint);
+  transition: transform 0.25s ease;
+}
+.chevron::before {
+  content: "";
+  display: block;
   width: 9px;
   height: 9px;
   border-right: 1.5px solid currentColor;
   border-bottom: 1.5px solid currentColor;
-  color: var(--faint);
   transform: rotate(-45deg);
-  transition: transform 0.25s ease;
 }
-.chevron.open { transform: rotate(45deg); }
+.chevron.open::before { transform: rotate(45deg); }
 .module-actions {
   display: flex;
   gap: 6px;
@@ -995,17 +999,21 @@ h1 {
   text-transform: uppercase;
 }
 .module-section-chevron {
-  width: 9px;
-  height: 9px;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
   color: var(--faint);
-  transform: rotate(-45deg);
   transition: transform 0.2s ease;
   flex: 0 0 auto;
   margin-top: 1px;
 }
-.module-section-chevron.open {
+.module-section-chevron::before {
+  content: "";
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+}
+.module-section-chevron.open::before {
   transform: rotate(45deg);
 }
 .module-section-controls {
@@ -1266,13 +1274,32 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
   padding: 16px;
 }
 .prefs-panel.hidden { display: none; }
+.prefs-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
 .prefs-title {
   font-family: "DM Mono", monospace;
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 12px;
+}
+.prefs-close {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  border-radius: 50%;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
 }
 
 .prefs-grid {
@@ -1461,30 +1488,30 @@ body.theme-quiet .fc6 {
 }
 
 body.theme-dark {
-  --ink: #f4ede4;
-  --paper: #15120f;
-  --paper2: #1d1915;
-  --paper3: #211c17;
-  --washi: #31281f;
-  --sumi: #0f0d0b;
-  --slate: #d9cfc2;
-  --muted: #af9f8b;
-  --faint: #7e7163;
-  --border: rgba(255,255,255,0.1);
-  --border2: rgba(255,255,255,0.18);
+  --ink: #eef2fb;
+  --paper: #0f1723;
+  --paper2: #151f2d;
+  --paper3: #1a2535;
+  --washi: #233247;
+  --sumi: #0a1019;
+  --slate: #cbd5e1;
+  --muted: #92a0b5;
+  --faint: #66758b;
+  --border: rgba(148,163,184,0.14);
+  --border2: rgba(148,163,184,0.24);
   --shadow: 0 8px 28px rgba(0,0,0,0.34);
   --shadow2: 0 4px 10px rgba(0,0,0,0.24);
 }
 body.theme-dark .nav-btn,
 body.theme-dark .nav-select,
 body.theme-dark .input {
-  background: #241f1a;
+  background: #182334;
 }
 body.theme-dark .dashboard-chart-wrap {
   background: rgba(255,255,255,0.04);
 }
 body.theme-dark .topic-label {
-  color: #e8ddd0;
+  color: #dde7f5;
 }
 body.theme-dark .topic-row:hover {
   background: rgba(255,255,255,0.04);
@@ -1508,14 +1535,14 @@ body.theme-dark .field label,
 body.theme-dark .topic-tools-title,
 body.theme-dark .formula-links-title,
 body.theme-dark .timeline-notes-label {
-  color: #bfae99;
+  color: #92a0b5;
 }
 body.theme-dark .topic-entry-help {
-  color: #bfae99;
+  color: #92a0b5;
 }
 body.theme-dark .setup-copy,
 body.theme-dark .setup-choice-detail {
-  color: #d9cbb9;
+  color: #cbd5e1;
 }
 body.theme-dark .setup-choice {
   background: rgba(255,255,255,0.04);
@@ -1525,19 +1552,19 @@ body.theme-dark .setup-choice:hover {
   border-color: rgba(255,255,255,0.2);
 }
 body.theme-dark .setup-choice.active {
-  background: rgba(212,160,23,0.12);
-  border-color: #d4a017;
+  background: rgba(96,165,250,0.12);
+  border-color: #60a5fa;
 }
 body.theme-dark .setup-choice-title {
-  color: #f5f0e8;
+  color: #eef2fb;
 }
 body.theme-dark .timeline-notes {
-  background: rgba(255,255,255,0.08);
-  color: #f5f0e8;
-  border-color: rgba(255,255,255,0.16);
+  background: rgba(148,163,184,0.1);
+  color: #eef2fb;
+  border-color: rgba(148,163,184,0.22);
 }
 body.theme-dark .timeline-notes::placeholder {
-  color: rgba(245,240,232,0.45);
+  color: rgba(238,242,251,0.45);
 }
 body.theme-dark .timeline-badge.countdown {
   background: rgba(245,240,232,0.12);
@@ -1550,9 +1577,9 @@ body.theme-dark .timeline-badge.countdown.urgent {
   border-color: rgba(192,57,43,0.34);
 }
 body.theme-dark .timeline-badge:not(.countdown) {
-  background: rgba(255,255,255,0.08);
-  color: #f5f0e8;
-  border-color: rgba(255,255,255,0.16);
+  background: rgba(148,163,184,0.1);
+  color: #eef2fb;
+  border-color: rgba(148,163,184,0.2);
 }
 body.theme-dark .ticker-time {
   color: #fff;
@@ -1569,7 +1596,7 @@ body.theme-dark .formula-btn:hover,
 body.theme-dark .formula-edit-btn:hover,
 body.theme-dark .mini-btn:hover,
 body.theme-dark .nav-btn:hover {
-  background: #2b241e;
+  background: #223146;
 }
 
 body.theme-dark-offwhite .c0,
@@ -2687,16 +2714,16 @@ body.theme-dark .auth-gate-tab.active {
   }
 
   .module-delete-corner {
-    top: 12px;
-    right: 14px;
+    top: 10px;
+    right: 10px;
     width: 34px;
     height: 34px;
     z-index: 8;
   }
 
   .module-header .chevron {
-    top: 12px;
-    right: 58px;
+    top: 10px;
+    right: 48px;
     width: 34px;
     height: 34px;
     border: 1px solid var(--border2);
@@ -3378,8 +3405,8 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
 
   .module-header .chevron {
     position: absolute !important;
-    top: 12px;
-    right: 58px;
+    top: 10px;
+    right: 46px;
     width: 34px;
     height: 34px;
     display: inline-flex !important;
@@ -3389,8 +3416,8 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
   }
 
   .module-delete-corner {
-    top: 12px;
-    right: 12px;
+    top: 10px;
+    right: 10px;
   }
 }
 
@@ -3638,7 +3665,10 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
 </div>
 
 <div class="prefs-panel hidden" id="prefs-panel">
-  <div class="prefs-title">Preferences</div>
+  <div class="prefs-head">
+    <div class="prefs-title">Preferences</div>
+    <button class="mini-btn prefs-close" type="button" onclick="togglePreferences()" aria-label="Close preferences">x</button>
+  </div>
   <div class="prefs-grid">
     <div class="field">
       <label for="pref-theme">Colour Scheme</label>
@@ -3652,7 +3682,7 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
     <div class="field">
       <label for="pref-density">Density</label>
       <select class="nav-select" id="pref-density" onchange="setPreference('density', this.value)">
-        <option value="comfortable">Comfortable</option>
+        <option value="comfortable">Balanced</option>
         <option value="compact">Compact</option>
       </select>
     </div>
@@ -6867,18 +6897,18 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     return;
   }
   if (currentUser) {
-    setAuthLoading(true, "Loading your tracker...", isPendingNewAccount(currentUser?.email)
-      ? "Preparing your setup so the first screen feels like yours."
-      : "Pulling your saved modules, marks, deadlines, and preferences.");
-    cloudReady = false;
-    pendingFirstRunSetup = false;
+    const shouldBlockUi = authScreenLoading;
+    if (shouldBlockUi) {
+      cloudReady = false;
+      pendingFirstRunSetup = false;
+    }
     await loadCloudSave();
     pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
-    if (pendingFirstRunSetup) {
+    if (pendingFirstRunSetup && shouldBlockUi) {
       resetLocalAppState();
       cloudReady = true;
     }
-    setAuthLoading(false);
+    if (shouldBlockUi) setAuthLoading(false);
     updateAuthLock();
     refreshAppAfterAuth();
     return;
