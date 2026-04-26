@@ -1045,6 +1045,10 @@ body.theme-dark-offwhite .weight-edit-btn:hover {
   letter-spacing: 0.16em;
   color: var(--sumi);
 }
+body.theme-dark .module-section.coursework-section .module-section-title,
+body.theme-dark-offwhite .module-section.coursework-section .module-section-title {
+  color: #f1ede4;
+}
 .module-section-chevron {
   color: var(--faint);
   transition: transform 0.2s ease;
@@ -1152,6 +1156,58 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
   font-family: "Cormorant Garamond", serif;
   font-size: 14px;
   color: var(--muted);
+}
+.material-library {
+  display: grid;
+  gap: 10px;
+}
+.material-library-list {
+  display: grid;
+  gap: 8px;
+}
+.material-library-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--border);
+  background: rgba(26,22,18,0.03);
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+.material-library-name {
+  color: var(--sumi);
+  font-family: "Shippori Mincho", serif;
+  font-size: 18px;
+  line-height: 1.2;
+}
+.material-library-url {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.material-library-empty {
+  color: var(--muted);
+  line-height: 1.5;
+}
+body.theme-dark .material-library-item,
+body.theme-dark-offwhite .material-library-item {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.08);
+}
+body.theme-dark .material-library-name,
+body.theme-dark-offwhite .material-library-name {
+  color: #f1ede4;
+}
+body.theme-dark .material-library-url,
+body.theme-dark-offwhite .material-library-url,
+body.theme-dark .material-library-empty,
+body.theme-dark-offwhite .material-library-empty {
+  color: rgba(241,237,228,0.72);
 }
 
 .coursework-calc-wrap {
@@ -1291,8 +1347,10 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
   border: 1px solid var(--border2);
   background: rgba(26,22,18,0.04);
   color: var(--sumi);
-  font-family: "DM Mono", monospace;
-  font-size: 10px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   cursor: pointer;
   padding: 6px 10px;
   text-transform: uppercase;
@@ -1308,8 +1366,10 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
   border: none;
   background: rgba(26,22,18,0.045);
   color: var(--sumi);
-  font-family: "DM Mono", monospace;
-  font-size: 10px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   cursor: pointer;
   padding: 6px 10px;
   border: 1px solid var(--border2);
@@ -1400,8 +1460,10 @@ body.theme-dark-offwhite .topic-options-action.danger {
   border: 1px solid var(--border2);
   background: rgba(26,22,18,0.04);
   color: var(--sumi);
-  font-family: "DM Mono", monospace;
-  font-size: 10px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   cursor: pointer;
   padding: 6px 10px;
   text-transform: uppercase;
@@ -4281,6 +4343,16 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
       </div>
       <div class="field"><label for="module-components-input">Coursework Calculator Setup (Optional)</label><input class="input" id="module-components-input" placeholder='"Lab 1" "Quiz" "Project"'></div>
       <div class="coursework-form-help">If you already know the coursework pieces, add them here now so the calculator is ready from the start.</div>
+      <div id="module-options-fields" class="hidden">
+        <div class="field"><label for="module-blackboard-input">Blackboard Link</label><input class="input" id="module-blackboard-input" placeholder="https://..."></div>
+        <div class="field hidden" id="module-colour-field">
+          <label for="module-colour-input">Module Colour</label>
+          <div class="module-colour-picker">
+            <input class="module-colour-input" id="module-colour-input" type="color" value="#1a2c4a">
+            <div class="module-colour-preview" id="module-colour-preview"></div>
+          </div>
+        </div>
+      </div>
       <div class="deadline-form-actions"><button class="nav-btn" type="button" onclick="closeModuleForm()">Cancel</button><button class="nav-btn" type="button" onclick="saveModuleForm()">Add Module</button></div>
     </div>
   </div>
@@ -4295,6 +4367,21 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
       <div class="field" id="link-name-field"><label for="link-name-input">Name</label><input class="input" id="link-name-input" placeholder="Module Material"></div>
       <div class="field"><label for="link-url-input">URL</label><input class="input" id="link-url-input" placeholder="https://..."></div>
       <div class="deadline-form-actions"><button class="nav-btn" type="button" onclick="closeLinkForm()">Cancel</button><button class="nav-btn" type="button" onclick="saveLinkForm()" id="link-save-btn">Save Link</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="material-library-modal" class="dashboard-modal hidden">
+  <div class="dashboard-content deadline-form-content">
+    <button class="dashboard-close" onclick="closeMaterialLibrary()">X</button>
+    <div class="timeline-subtitle">Module Material</div>
+    <div class="dashboard-title" id="material-library-title">Module Material</div>
+    <div class="material-library">
+      <div class="material-library-list" id="material-library-list"></div>
+      <div class="deadline-form-actions">
+        <button class="nav-btn" type="button" onclick="closeMaterialLibrary()">Close</button>
+        <button class="nav-btn" type="button" id="material-library-add-btn">Add Material</button>
+      </div>
     </div>
   </div>
 </div>
@@ -4538,6 +4625,7 @@ let editingDeadlineIndex = null;
 let courseworkFormModuleIndex = null;
 let linkFormContext = null;
 let editingModuleIndex = null;
+let materialLibraryModuleIndex = null;
 let isDraggingTopics = false;
 let dragTopicValue = null;
 let draggedTopic = null;
@@ -5591,6 +5679,52 @@ function setFormulaLink(mi, event) {
   openLinkForm({ type: "formula", mi });
 }
 
+function openMaterialLibrary(mi, event) {
+  if (event) event.stopPropagation();
+  materialLibraryModuleIndex = mi;
+  const mod = MODULES[mi];
+  const title = document.getElementById("material-library-title");
+  const addBtn = document.getElementById("material-library-add-btn");
+  if (title) title.textContent = `${mod?.kanji || mod?.name || "Module"} Material`;
+  if (addBtn) addBtn.onclick = () => {
+    closeMaterialLibrary();
+    setFormulaLink(mi);
+  };
+  renderMaterialLibrary();
+  document.getElementById("material-library-modal").classList.remove("hidden");
+}
+
+function closeMaterialLibrary() {
+  document.getElementById("material-library-modal").classList.add("hidden");
+  materialLibraryModuleIndex = null;
+}
+
+function renderMaterialLibrary() {
+  const host = document.getElementById("material-library-list");
+  if (!host || materialLibraryModuleIndex === null) return;
+  const items = getFormulaLinks(materialLibraryModuleIndex);
+  if (!items.length) {
+    host.innerHTML = `<div class="material-library-empty">No module material added yet. Add lecture notes, formula sheets, worked examples, or anything else you want quick access to.</div>`;
+    return;
+  }
+  host.innerHTML = items.map((item, index) => `
+    <div class="material-library-item">
+      <div class="material-library-name">${escapeHtml(item.name)}</div>
+      <button class="mini-btn" type="button" onclick="openMaterialLibraryItem(${materialLibraryModuleIndex}, ${index}, event)">Open</button>
+      <button class="mini-btn module-delete-btn" type="button" onclick="deleteFormulaLink(${materialLibraryModuleIndex}, ${index}, event); renderMaterialLibrary();" title="Delete module material" aria-label="Delete module material">x</button>
+      <div class="material-library-url">${escapeHtml(item.url)}</div>
+    </div>
+  `).join("");
+}
+
+function openMaterialLibraryItem(mi, index, event) {
+  if (event) event.stopPropagation();
+  const items = getFormulaLinks(mi);
+  const item = items[index];
+  if (!item?.url) return;
+  window.open(item.url, "_blank", "noopener");
+}
+
 function deleteFormulaLink(mi, index, event) {
   if (event) event.stopPropagation();
   const items = getFormulaLinks(mi).slice();
@@ -5600,37 +5734,11 @@ function deleteFormulaLink(mi, index, event) {
   if (items.length) store.formulas[mi] = items; else delete store.formulas[mi];
   save();
   updateFormulaButton(mi);
+  if (materialLibraryModuleIndex === mi) renderMaterialLibrary();
 }
 
 function openFormulaLink(mi, event) {
-  if (event) event.stopPropagation();
-  const items = getFormulaLinks(mi);
-  if (!items.length) return setFormulaLink(mi);
-  if (items.length === 1) {
-    window.open(items[0].url, "_blank", "noopener");
-    return;
-  }
-  chooseFormulaLink(mi);
-}
-
-async function chooseFormulaLink(mi) {
-  const items = getFormulaLinks(mi);
-  if (!items.length) return;
-  const list = items.map((item, index) => `${index + 1}. ${item.name}`).join("  ");
-  const result = await appPrompt({
-    label: "Module Material",
-    title: `${MODULES[mi]?.kanji || "Module"} material`,
-    message: `Pick which item to open. ${list}`,
-    inputLabel: "Material number",
-    placeholder: "1",
-    confirmText: "Open Material"
-  });
-  const selected = parseInt(result?.value || "", 10);
-  if (!Number.isFinite(selected) || selected < 1 || selected > items.length) {
-    if (result) await showAppNotice("Choose a material", "Enter one of the material numbers shown in the list.");
-    return;
-  }
-  window.open(items[selected - 1].url, "_blank", "noopener");
+  openMaterialLibrary(mi, event);
 }
 
 function renderFormulaLinks(mi) {
@@ -5831,6 +5939,10 @@ document.getElementById("deadline-form-modal").addEventListener("click", (event)
   if (event.target.id === "deadline-form-modal") closeDeadlineForm();
 });
 
+document.getElementById("material-library-modal").addEventListener("click", (event) => {
+  if (event.target.id === "material-library-modal") closeMaterialLibrary();
+});
+
 document.getElementById("course-setup-modal").addEventListener("click", (event) => {
   if (event.target.id === "course-setup-modal") closeCourseSetupModal();
 });
@@ -5969,6 +6081,9 @@ function addModuleToCurrentYear() {
   const cw = document.getElementById("module-cw-input");
   const exam = document.getElementById("module-exam-input");
   const components = document.getElementById("module-components-input");
+  const blackboard = document.getElementById("module-blackboard-input");
+  const optionsFields = document.getElementById("module-options-fields");
+  const colourField = document.getElementById("module-colour-field");
   editingModuleIndex = null;
   if (code) code.value = "NEW201";
   if (name) name.value = "New Module";
@@ -5976,6 +6091,9 @@ function addModuleToCurrentYear() {
   if (cw) cw.value = "50";
   if (exam) exam.value = "50";
   if (components) components.value = "";
+  if (blackboard) blackboard.value = "";
+  if (optionsFields) optionsFields.classList.add("hidden");
+  if (colourField) colourField.classList.add("hidden");
   syncModuleWeightInputs("cw");
   const title = document.querySelector("#module-form-modal .dashboard-title");
   const saveBtn = document.querySelector("#module-form-modal .deadline-form-actions .nav-btn:last-child");
@@ -6016,6 +6134,10 @@ function syncModuleWeightInputs(source = "cw") {
 
 document.getElementById("module-cw-input")?.addEventListener("input", () => syncModuleWeightInputs("cw"));
 document.getElementById("module-exam-input")?.addEventListener("input", () => syncModuleWeightInputs("exam"));
+document.getElementById("module-colour-input")?.addEventListener("input", (event) => {
+  const preview = document.getElementById("module-colour-preview");
+  if (preview) preview.style.background = event.target.value;
+});
 
 function parseQuotedList(input) {
   const text = String(input || "").trim();
@@ -6035,16 +6157,26 @@ function editModuleWeights(mi, event) {
   const cw = document.getElementById("module-cw-input");
   const exam = document.getElementById("module-exam-input");
   const components = document.getElementById("module-components-input");
+  const blackboard = document.getElementById("module-blackboard-input");
+  const colourField = document.getElementById("module-colour-field");
+  const colourInput = document.getElementById("module-colour-input");
+  const colourPreview = document.getElementById("module-colour-preview");
+  const optionsFields = document.getElementById("module-options-fields");
   if (code) code.value = mod.kanji || "";
   if (name) name.value = mod.name || "";
   if (credits) credits.value = mod.credits ?? 15;
   if (cw) cw.value = mod.cw ?? 0;
   if (exam) exam.value = mod.exam ?? 0;
   if (components) components.value = "";
+  if (blackboard) blackboard.value = getBlackboardLink(mi) || "";
+  if (optionsFields) optionsFields.classList.remove("hidden");
+  if (colourField) colourField.classList.toggle("hidden", !isColourCustomisableTheme());
+  if (colourInput) colourInput.value = getStoredModuleColourHex(mi);
+  if (colourPreview) colourPreview.style.background = getModuleColourSet(mi).fill;
   syncModuleWeightInputs("cw");
   const title = document.querySelector("#module-form-modal .dashboard-title");
   const saveBtn = document.querySelector("#module-form-modal .deadline-form-actions .nav-btn:last-child");
-  if (title) title.textContent = "Edit Module Weights";
+  if (title) title.textContent = "Module Options";
   if (saveBtn) saveBtn.textContent = "Save Module";
   document.getElementById("module-form-modal").classList.remove("hidden");
 }
@@ -6056,6 +6188,8 @@ function saveModuleForm() {
   const cwInput = document.getElementById("module-cw-input");
   const examInput = document.getElementById("module-exam-input");
   const componentsInput = document.getElementById("module-components-input");
+  const blackboardInput = document.getElementById("module-blackboard-input");
+  const colourInput = document.getElementById("module-colour-input");
   const code = (codeInput.value || "").trim();
   const name = (nameInput.value || "").trim();
   if (!code || !name) {
@@ -6083,6 +6217,18 @@ function saveModuleForm() {
     MODULES.push(moduleData);
   }
   const targetIndex = editingModuleIndex !== null ? editingModuleIndex : MODULES.length - 1;
+  if (editingModuleIndex !== null) {
+    const blackboardUrl = (blackboardInput?.value || "").trim();
+    const store = getStore();
+    if (blackboardUrl) store.blackboard[targetIndex] = safeUrl(blackboardUrl);
+    else delete store.blackboard[targetIndex];
+    if (isColourCustomisableTheme() && colourInput?.value) {
+      if (!store.moduleColors) store.moduleColors = {};
+      const family = preferences.theme === "dark" ? "dark" : "light";
+      const current = store.moduleColors[targetIndex] || {};
+      store.moduleColors[targetIndex] = Object.assign({}, current, { [family]: normaliseHexColour(colourInput.value) });
+    }
+  }
   const componentNames = parseQuotedList(componentsInput?.value || "");
   if (componentNames.length) {
     const store = getStore();
@@ -6715,38 +6861,13 @@ function buildModules() {
     moduleEditTools.className = "module-edit-tools";
     moduleEditTools.innerHTML = `
       <div class="module-edit-primary">
-        <button class="bb-edit-btn" type="button" onclick="toggleModuleSection(${mi}, 'module-options', event)">Options</button>
+        <button class="bb-edit-btn" type="button" onclick="clearModuleMarks(${mi}, event)">Clear Marks</button>
       </div>
       <div class="module-edit-secondary">
-        <button class="bb-edit-btn weight-edit-btn" type="button" onclick="editModuleWeights(${mi}, event)">Edit Weights</button>
+        <button class="bb-edit-btn weight-edit-btn" type="button" onclick="editModuleWeights(${mi}, event)">Module Options</button>
       </div>
     `;
     list.appendChild(moduleEditTools);
-
-    const moduleOptionsSection = createModuleSection(mi, "module-options", "Module Options", "");
-    moduleOptionsSection.body.innerHTML = `
-      <div class="module-edit-primary">
-        <button class="bb-edit-btn" type="button" onclick="editModuleTitle(${mi}, event)">Edit Title</button>
-        <button class="bb-edit-btn" type="button" onclick="editModuleCode(${mi}, event)">Edit Code</button>
-        <button class="bb-edit-btn" type="button" onclick="setBlackboardLink(${mi}, event)">Edit Blackboard Link</button>
-        <button class="bb-edit-btn" type="button" onclick="clearModuleMarks(${mi}, event)">Clear Marks</button>
-      </div>
-      ${customisableTheme ? `
-      <div class="module-colour-meta" style="margin-top:12px;">${themeFamilyLabel} Module Colour</div>
-      <div class="module-colour-copy">Pick the accent for this module in the current theme.</div>
-      <div class="module-colour-picker">
-        <input
-          class="module-colour-input"
-          type="color"
-          value="${escapeHtml(getStoredModuleColourHex(mi))}"
-          aria-label="Pick module colour"
-          onclick="event.stopPropagation()"
-          onpointerdown="event.stopPropagation()"
-          onchange="setModuleColour(${mi}, this.value, event)">
-        <div class="module-colour-preview" style="background:${moduleColours.fill};"></div>
-      </div>` : ""}
-    `;
-    list.appendChild(moduleOptionsSection.wrap);
 
     const notesWrap = document.createElement("div");
     notesWrap.className = "notes-area-wrap";
