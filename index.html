@@ -3430,7 +3430,8 @@ function showDeadlineSplash(options = {}) {
 }
 
 function closeDeadlineSplash() {
-  document.getElementById("deadline-splash").classList.add("hidden");
+  const splash = document.getElementById("deadline-splash");
+  if (splash) splash.classList.add("hidden");
 
   if (deadlineSplashInterval) {
     clearInterval(deadlineSplashInterval);
@@ -3553,6 +3554,44 @@ function createYearStore(modules) {
     archived: false
   };
 }
+function hasMeaningfulLocalState() {
+  const profile = state?.profile || {};
+  if ((profile.name || "").trim() || (profile.university || "").trim() || (profile.course || "").trim()) return true;
+
+  const years = Object.values(state?.years || {});
+  return years.some((year) => {
+    const store = year?.store || {};
+    return (store.modules?.length || 0) > 0 ||
+      Object.keys(store.topics || {}).length > 0 ||
+      Object.keys(store.coursework || {}).length > 0 ||
+      Object.keys(store.courseworkComponents || {}).length > 0 ||
+      Object.keys(store.exams || {}).length > 0 ||
+      Object.keys(store.notes || {}).length > 0 ||
+      Object.keys(store.blackboard || {}).length > 0 ||
+      Object.keys(store.formulas || {}).length > 0 ||
+      Object.keys(store.relevantLinks || {}).length > 0 ||
+      (store.customExams?.length || 0) > 0;
+  });
+}
+
+function finalizePostCloudLoad() {
+  const hasLocalState = hasMeaningfulLocalState();
+  const hasCloudState = cloudHadSave;
+
+  if (!hasCloudState && hasLocalState) {
+    pendingFirstRunSetup = false;
+    cloudReady = true;
+    saveCloudDebounced();
+    return;
+  }
+
+  pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
+  if (pendingFirstRunSetup) {
+    resetLocalAppState();
+    cloudReady = cloudLoadSucceeded;
+  }
+}
+
 
 function migrateLegacyState() {
   const migrated = deepClone(defaultState);
@@ -4859,7 +4898,8 @@ function updateDeadlineCountdowns() {
 }
 
 function closeDeadlineTimeline() {
-  document.getElementById("timeline-modal").classList.add("hidden");
+  const modal = document.getElementById("timeline-modal");
+  if (modal) modal.classList.add("hidden");
   if (deadlineTimelineInterval) {
     clearInterval(deadlineTimelineInterval);
     deadlineTimelineInterval = null;
@@ -5812,11 +5852,7 @@ async function loginFromModal() {
     currentUser = data.session?.user || data.user || null;
     clearLogoutFlagForSignedInUser();
     await loadCloudSave();
-    pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
-    if (pendingFirstRunSetup) {
-      resetLocalAppState();
-      cloudReady = cloudLoadSucceeded;
-    }
+    finalizePostCloudLoad();
     updateAuthButton();
     updateAuthLock();
     refreshAppAfterAuth();
@@ -5828,6 +5864,8 @@ async function loginFromModal() {
 async function logoutCloud() {
   if (!ensureCloudAuthReady()) return;
   sessionStorage.setItem("justLoggedOut", "true");
+  closeDeadlineSplash();
+  closeDeadlineTimeline();
   closeAuthModal(true);
 
   await supabaseClient.auth.signOut();
@@ -5989,11 +6027,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     refreshAppAfterAuth();
 
     await loadCloudSave();
-    pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
-    if (pendingFirstRunSetup) {
-      resetLocalAppState();
-      cloudReady = cloudLoadSucceeded;
-    }
+    finalizePostCloudLoad();
     updateAuthLock();
     refreshAppAfterAuth();
     return;
@@ -6464,11 +6498,7 @@ async function removeExam(index) {
   refreshAppAfterAuth();
 
   await loadCloudSave();
-  pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
-  if (pendingFirstRunSetup) {
-      resetLocalAppState();
-      cloudReady = cloudLoadSucceeded;
-    }
+    finalizePostCloudLoad();
 
   updateAuthLock();
   refreshAppAfterAuth();
@@ -6486,6 +6516,9 @@ async function removeExam(index) {
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
+
+
+
 
 
 
