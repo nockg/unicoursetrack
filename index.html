@@ -982,6 +982,11 @@ body.theme-dark-offwhite .weight-edit-btn:hover {
   gap: 12px;
   margin-bottom: 10px;
 }
+.topic-tools-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .topic-tools-title {
   font-family: "DM Mono", monospace;
   font-size: 10px;
@@ -1286,9 +1291,12 @@ body.theme-dark-offwhite .material-library-empty {
   transition: background 0.15s;
   cursor: grab;
 }
+.topic-row.selected {
+  background: rgba(26,44,74,0.08);
+}
 .topic-row.subtopic-row {
-  margin-left: 40px;
-  padding-left: 14px;
+  margin-left: 0;
+  padding-left: 74px;
   border-left: 1px solid var(--border);
 }
 .topic-row:hover { background: rgba(26,22,18,0.03); }
@@ -1319,7 +1327,7 @@ body.theme-dark-offwhite .material-library-empty {
   bottom: 0;
 }
 .topic-row.drop-subtopic::before {
-  left: 78px;
+  left: 110px;
 }
 .topic-row.drop-subtopic {
   background: rgba(26,44,74,0.07);
@@ -1338,6 +1346,9 @@ body.theme-dark-offwhite .material-library-empty {
   width: 18px;
   min-width: 18px;
   margin-top: 1px;
+}
+.subtopic-list {
+  margin-left: 22px;
 }
 .topic-row input[type=checkbox] {
   appearance: none;
@@ -1474,6 +1485,10 @@ body.theme-dark-offwhite .topic-options-summary {
   background: rgba(255,255,255,0.06);
   color: #ece7dc;
   border-color: rgba(255,255,255,0.1);
+}
+body.theme-dark .topic-row.selected,
+body.theme-dark-offwhite .topic-row.selected {
+  background: rgba(255,255,255,0.08);
 }
 body.theme-dark .topic-options-panel,
 body.theme-dark-offwhite .topic-options-panel {
@@ -4683,6 +4698,9 @@ let materialLibraryModuleIndex = null;
 let isDraggingTopics = false;
 let dragTopicValue = null;
 let draggedTopic = null;
+let draggedTopicStartX = 0;
+let selectedTopicKeys = new Set();
+let lastSelectedTopicKey = null;
 let courseSetupInitial = false;
 let selectedSetupTemplate = "blank";
 const openModules = new Set();
@@ -4986,6 +5004,86 @@ function applyModuleTopicStateSnapshot(mi, snapshot) {
 
 function subtopicKey(mi, ti, si) {
   return `s_${mi}_${ti}_${si}`;
+}
+
+function topicSelectionKey(mi, ti, si = null) {
+  return si === null || si === undefined ? `m:${mi}:${ti}` : `s:${mi}:${ti}:${si}`;
+}
+
+function parseTopicSelectionKey(key) {
+  const parts = String(key || "").split(":");
+  if (parts[0] === "m" && parts.length === 3) {
+    return { kind: "main", mi: Number(parts[1]), ti: Number(parts[2]), si: null };
+  }
+  if (parts[0] === "s" && parts.length === 4) {
+    return { kind: "sub", mi: Number(parts[1]), ti: Number(parts[2]), si: Number(parts[3]) };
+  }
+  return null;
+}
+
+function getTopicSelectionOrder(mi) {
+  const order = [];
+  MODULES[mi]?.topics?.forEach((_, ti) => {
+    order.push(topicSelectionKey(mi, ti));
+    getTopicEntry(mi, ti).subtopics.forEach((__, si) => order.push(topicSelectionKey(mi, ti, si)));
+  });
+  return order;
+}
+
+function isTopicSelected(mi, ti, si = null) {
+  return selectedTopicKeys.has(topicSelectionKey(mi, ti, si));
+}
+
+function getSelectedTopicCount(mi) {
+  let count = 0;
+  selectedTopicKeys.forEach((key) => {
+    const parsed = parseTopicSelectionKey(key);
+    if (parsed?.mi === mi) count += 1;
+  });
+  return count;
+}
+
+function clearTopicSelection(mi = null) {
+  if (mi === null || mi === undefined) {
+    selectedTopicKeys = new Set();
+    lastSelectedTopicKey = null;
+    return;
+  }
+  selectedTopicKeys = new Set([...selectedTopicKeys].filter((key) => parseTopicSelectionKey(key)?.mi !== mi));
+  if (parseTopicSelectionKey(lastSelectedTopicKey)?.mi === mi) lastSelectedTopicKey = null;
+}
+
+function selectTopicRow(mi, ti, si = null, event = null) {
+  const key = topicSelectionKey(mi, ti, si);
+  if (event?.shiftKey) {
+    const anchor = parseTopicSelectionKey(lastSelectedTopicKey);
+    if (anchor && anchor.mi === mi) {
+      const order = getTopicSelectionOrder(mi);
+      const start = order.indexOf(lastSelectedTopicKey);
+      const end = order.indexOf(key);
+      if (start !== -1 && end !== -1) {
+        const from = Math.min(start, end);
+        const to = Math.max(start, end);
+        clearTopicSelection(mi);
+        order.slice(from, to + 1).forEach((entryKey) => selectedTopicKeys.add(entryKey));
+        buildModules();
+        return;
+      }
+    }
+  }
+
+  if (event?.ctrlKey || event?.metaKey) {
+    if (selectedTopicKeys.has(key)) selectedTopicKeys.delete(key);
+    else selectedTopicKeys.add(key);
+    lastSelectedTopicKey = key;
+    buildModules();
+    return;
+  }
+
+  clearTopicSelection();
+  selectedTopicKeys.add(key);
+  lastSelectedTopicKey = key;
+  buildModules();
 }
 
 function isColourCustomisableTheme() {
@@ -6493,7 +6591,7 @@ async function nestTopicUnderTopic(mi, sourceIndex, parentIndex) {
 }
 
 function startTopicReorder(mi, ti, event) {
-  draggedTopic = { mi, ti, startX: event.clientX || 0 };
+  draggedTopic = { mi, ti, startX: draggedTopicStartX || event.clientX || 0 };
   event.dataTransfer.effectAllowed = "move";
   event.dataTransfer.setData("text/plain", `${mi}:${ti}`);
 }
@@ -6504,7 +6602,7 @@ function allowTopicDrop(mi, ti, event) {
   const indentDelta = (event.clientX || 0) - (draggedTopic.startX || 0);
   const rect = event.currentTarget.getBoundingClientRect();
   const dropAfter = (event.clientY || rect.top) > rect.top + (rect.height / 2);
-  const canNestHere = indentDelta > 56 && !dropAfter && ti > 0;
+  const canNestHere = indentDelta > 34 && !dropAfter && ti > 0;
   document.querySelectorAll(".topic-row.drop-before, .topic-row.drop-after, .topic-row.drop-subtopic").forEach((row) => {
     if (row !== event.currentTarget) row.classList.remove("drop-before", "drop-after", "drop-subtopic");
   });
@@ -6527,18 +6625,21 @@ function dropTopicReorder(mi, ti, event) {
   const indentDelta = (event.clientX || 0) - (draggedTopic.startX || 0);
   const rect = event.currentTarget.getBoundingClientRect();
   const dropAfter = (event.clientY || rect.top) > rect.top + (rect.height / 2);
-  const canNestHere = indentDelta > 56 && !dropAfter && ti > 0;
+  const canNestHere = indentDelta > 34 && !dropAfter && ti > 0;
   if (canNestHere) {
     nestTopicUnderTopic(mi, draggedTopic.ti, ti - 1);
     draggedTopic = null;
+    draggedTopicStartX = 0;
     return;
   }
   moveTopicInModule(mi, draggedTopic.ti, ti, dropAfter ? "after" : "before");
   draggedTopic = null;
+  draggedTopicStartX = 0;
 }
 
 function endTopicReorder() {
   draggedTopic = null;
+  draggedTopicStartX = 0;
   document.querySelectorAll(".topic-row.reordering, .topic-row.drop-before, .topic-row.drop-after, .topic-row.drop-subtopic").forEach((row) => row.classList.remove("reordering", "drop-before", "drop-after", "drop-subtopic"));
 }
 
@@ -7082,15 +7183,19 @@ function buildModules() {
 
     const topicTools = document.createElement("div");
     topicTools.className = "notes-area-wrap";
+    const selectedTopicCount = getSelectedTopicCount(mi);
     topicTools.innerHTML = `
       <div class="topic-tools">
         <div class="topic-tools-title">Topics</div>
+        <div class="topic-tools-actions">
+          ${selectedTopicCount ? `<button class="mini-btn" type="button" onclick="deleteSelectedTopicsInModule(${mi}, event)">Delete Selected (${selectedTopicCount})</button>` : ""}
+        </div>
       </div>
       <div class="topic-entry-row">
         <input class="input" id="topic-add-${mi}" placeholder='Add one topic, or "Topic 1" "Topic 2"'>
         <button class="mini-btn" type="button" onclick="addTopicToModule(${mi}, event)">Add Topic</button>
       </div>
-      <div class="topic-entry-help">Use quotes for several topics. Drag between topics to reorder. To make a subtopic, place the row in the gap below a parent topic and move slightly right before dropping.</div>
+      <div class="topic-entry-help">Use quotes for several topics. Click a row to select it, shift-click to select a range, double-click to rename, and drag the row into the gap under a topic then move right to nest it.</div>
     `;
     list.appendChild(topicTools);
     const topicAddInput = topicTools.querySelector(`#topic-add-${mi}`);
@@ -7105,11 +7210,12 @@ function buildModules() {
     mod.topics.forEach((topicValue, ti) => {
       const topic = getTopicEntry(mi, ti);
       const row = document.createElement("div");
-      row.className = "topic-row";
+      row.className = "topic-row" + (isTopicSelected(mi, ti) ? " selected" : "");
       row.draggable = true;
+      row.dataset.topicKey = topicSelectionKey(mi, ti);
       const prefix = document.createElement("span");
       prefix.className = "topic-prefix";
-      const main = document.createElement("label");
+      const main = document.createElement("div");
       main.className = "topic-main";
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
@@ -7136,9 +7242,19 @@ function buildModules() {
         if (!isDraggingTopics) return;
         setTopicCheckbox(checkbox, mi, ti, dragTopicValue);
       });
+      row.addEventListener("pointerdown", (event) => {
+        if (event.target.closest("button") || event.target.closest("input") || event.target.closest("details") || event.target.closest("summary")) return;
+        draggedTopicStartX = event.clientX || 0;
+      });
       row.addEventListener("click", (event) => {
         if (event.target.closest("button") || event.target.closest("input") || event.target.closest("details") || event.target.closest("summary")) return;
-        setTopicCheckbox(checkbox, mi, ti, !checkbox.checked);
+        event.preventDefault();
+        selectTopicRow(mi, ti, null, event);
+      });
+      row.addEventListener("dblclick", (event) => {
+        if (event.target.closest("button") || event.target.closest("input") || event.target.closest("details") || event.target.closest("summary")) return;
+        event.preventDefault();
+        editTopicInModule(mi, ti, event);
       });
       row.addEventListener("dragover", (event) => allowTopicDrop(mi, ti, event));
       row.addEventListener("dragleave", clearTopicDropState);
@@ -7164,14 +7280,6 @@ function buildModules() {
       optionsSummary.textContent = "Options";
       const optionsPanel = document.createElement("div");
       optionsPanel.className = "topic-options-panel";
-      const editButton = document.createElement("button");
-      editButton.type = "button";
-      editButton.className = "topic-options-action";
-      editButton.textContent = "Edit Topic";
-      editButton.addEventListener("click", async (event) => {
-        optionsMenu.removeAttribute("open");
-        await editTopicInModule(mi, ti, event);
-      });
       const deleteButton = document.createElement("button");
       deleteButton.type = "button";
       deleteButton.className = "topic-options-action danger";
@@ -7180,7 +7288,6 @@ function buildModules() {
         optionsMenu.removeAttribute("open");
         await deleteTopicFromModule(mi, ti, event);
       });
-      optionsPanel.appendChild(editButton);
       optionsPanel.appendChild(deleteButton);
       optionsMenu.appendChild(optionsSummary);
       optionsMenu.appendChild(optionsPanel);
@@ -7206,8 +7313,9 @@ function buildModules() {
         subtopicList.className = "subtopic-list" + (topic.collapsed ? " hidden" : "");
         topic.subtopics.forEach((subtopic, si) => {
           const subRow = document.createElement("div");
-          subRow.className = "topic-row subtopic-row";
-          const subMain = document.createElement("label");
+          subRow.className = "topic-row subtopic-row" + (isTopicSelected(mi, ti, si) ? " selected" : "");
+          subRow.dataset.topicKey = topicSelectionKey(mi, ti, si);
+          const subMain = document.createElement("div");
           subMain.className = "topic-main";
           const subCheckbox = document.createElement("input");
           subCheckbox.type = "checkbox";
@@ -7221,7 +7329,13 @@ function buildModules() {
           });
           subRow.addEventListener("click", (event) => {
             if (event.target.closest("button") || event.target.closest("input")) return;
-            setSubtopicCheckbox(mi, ti, si, !subCheckbox.checked);
+            event.preventDefault();
+            selectTopicRow(mi, ti, si, event);
+          });
+          subRow.addEventListener("dblclick", (event) => {
+            if (event.target.closest("button") || event.target.closest("input")) return;
+            event.preventDefault();
+            editSubtopicInModule(mi, ti, si, event);
           });
           subCheckbox.addEventListener("mousedown", (event) => {
             event.preventDefault();
@@ -8532,6 +8646,38 @@ async function addSubtopicToTopic(mi, ti, event) {
   updateGlobal();
 }
 
+function removeSubtopicFromModule(mi, ti, si) {
+  const store = getStore();
+  const topic = getTopicEntry(mi, ti);
+  if (!topic.subtopics[si]) return;
+  MODULES[mi].topics[ti] = Object.assign({}, topic, {
+    subtopics: topic.subtopics.filter((_, index) => index !== si)
+  });
+
+  const nextTopics = {};
+  Object.keys(store.topics).forEach((key) => {
+    const match = /^s_(\d+)_(\d+)_(\d+)$/.exec(key);
+    if (!match) {
+      nextTopics[key] = store.topics[key];
+      return;
+    }
+    const moduleIndex = Number(match[1]);
+    const topicIndex = Number(match[2]);
+    const subIndex = Number(match[3]);
+    if (moduleIndex !== mi || topicIndex !== ti) {
+      nextTopics[key] = store.topics[key];
+      return;
+    }
+    if (subIndex < si) nextTopics[key] = store.topics[key];
+    if (subIndex > si) nextTopics[`s_${mi}_${ti}_${subIndex - 1}`] = store.topics[key];
+  });
+  const nextTopic = getTopicEntry(mi, ti);
+  const allDone = nextTopic.subtopics.length > 0 && nextTopic.subtopics.every((_, index) => !!nextTopics[subtopicKey(mi, ti, index)]);
+  if (allDone) nextTopics[topicKey(mi, ti)] = true;
+  else delete nextTopics[topicKey(mi, ti)];
+  store.topics = nextTopics;
+}
+
 function toggleTopicSubtopics(mi, ti, event) {
   if (event) event.stopPropagation();
   const topic = getTopicEntry(mi, ti);
@@ -8569,6 +8715,7 @@ async function deleteTopicFromModule(mi, ti, event) {
     if (topicIndex > ti) nextTopics[`s_${mi}_${topicIndex - 1}_${subIndex}`] = store.topics[key];
   });
   store.topics = nextTopics;
+  clearTopicSelection(mi);
   save();
   buildModules();
   updateGlobal();
@@ -8582,6 +8729,81 @@ async function editTopicInModule(mi, ti, event) {
   const updated = result?.value;
   if (updated === undefined || updated === null || !updated.trim()) return;
   MODULES[mi].topics[ti] = Object.assign({}, topic, { title: updated.trim() });
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+async function editSubtopicInModule(mi, ti, si, event) {
+  if (event) event.stopPropagation();
+  const topic = getTopicEntry(mi, ti);
+  const current = topic.subtopics?.[si];
+  if (!current) return;
+  const result = await appPrompt({ label: "Subtopic", title: "Edit subtopic", inputLabel: "Subtopic name", defaultValue: current, confirmText: "Save" });
+  const updated = result?.value;
+  if (updated === undefined || updated === null || !updated.trim()) return;
+  const subtopics = [...topic.subtopics];
+  subtopics[si] = updated.trim();
+  MODULES[mi].topics[ti] = Object.assign({}, topic, { subtopics });
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+async function deleteSelectedTopicsInModule(mi, event) {
+  if (event) event.stopPropagation();
+  const selected = [...selectedTopicKeys]
+    .map(parseTopicSelectionKey)
+    .filter((entry) => entry?.mi === mi)
+    .sort((a, b) => {
+      if (a.ti !== b.ti) return b.ti - a.ti;
+      const aDepth = a.kind === "sub" ? 1 : 0;
+      const bDepth = b.kind === "sub" ? 1 : 0;
+      if (aDepth !== bDepth) return bDepth - aDepth;
+      return (b.si || 0) - (a.si || 0);
+    });
+  if (!selected.length) return;
+
+  const confirmed = await appConfirm({
+    label: "Delete Topics",
+    title: selected.length === 1 ? "Delete selected topic?" : `Delete ${selected.length} selected topics?`,
+    message: selected.length === 1 ? "This selection will be removed." : "These selected topics will be removed together.",
+    confirmText: selected.length === 1 ? "Delete Topic" : "Delete Topics",
+    danger: true
+  });
+  if (!confirmed) return;
+
+  selected.forEach((entry) => {
+    if (entry.kind === "sub") {
+      removeSubtopicFromModule(mi, entry.ti, entry.si);
+    } else {
+      MODULES[mi].topics.splice(entry.ti, 1);
+      const store = getStore();
+      const nextTopics = {};
+      Object.keys(store.topics).forEach((key) => {
+        const mainMatch = /^t_(\d+)_(\d+)$/.exec(key);
+        if (mainMatch) {
+          const moduleIndex = Number(mainMatch[1]);
+          const topicIndex = Number(mainMatch[2]);
+          if (moduleIndex !== mi) { nextTopics[key] = store.topics[key]; return; }
+          if (topicIndex < entry.ti) nextTopics[key] = store.topics[key];
+          if (topicIndex > entry.ti) nextTopics[`t_${mi}_${topicIndex - 1}`] = store.topics[key];
+          return;
+        }
+        const subMatch = /^s_(\d+)_(\d+)_(\d+)$/.exec(key);
+        if (!subMatch) { nextTopics[key] = store.topics[key]; return; }
+        const moduleIndex = Number(subMatch[1]);
+        const topicIndex = Number(subMatch[2]);
+        const subIndex = Number(subMatch[3]);
+        if (moduleIndex !== mi) { nextTopics[key] = store.topics[key]; return; }
+        if (topicIndex < entry.ti) nextTopics[key] = store.topics[key];
+        if (topicIndex > entry.ti) nextTopics[`s_${mi}_${topicIndex - 1}_${subIndex}`] = store.topics[key];
+      });
+      store.topics = nextTopics;
+    }
+  });
+
+  clearTopicSelection(mi);
   save();
   buildModules();
   updateGlobal();
