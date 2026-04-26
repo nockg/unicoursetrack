@@ -747,11 +747,19 @@ h1 {
 }
 .module-edit-tools {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
   padding: 12px 20px 12px 42px;
   border-bottom: 1px solid var(--border);
   background: rgba(26,22,18,0.025);
+}
+.module-edit-primary,
+.module-edit-secondary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 .bb-link, .bb-edit-btn, .formula-btn, .formula-edit-btn, .mini-btn {
   background: rgba(26,22,18,0.04);
@@ -781,6 +789,28 @@ h1 {
   border-color: var(--vermillion);
   color: var(--vermillion);
   background: var(--paper2);
+}
+.weight-edit-btn {
+  background: rgba(26,44,74,0.08);
+  border-color: rgba(26,44,74,0.18);
+  color: var(--indigo);
+}
+.weight-edit-btn:hover {
+  border-color: var(--indigo);
+  color: var(--indigo);
+  background: rgba(26,44,74,0.12);
+}
+body.theme-dark .weight-edit-btn,
+body.theme-dark-offwhite .weight-edit-btn {
+  background: rgba(111,139,191,0.14);
+  border-color: rgba(111,139,191,0.28);
+  color: #e8edf7;
+}
+body.theme-dark .weight-edit-btn:hover,
+body.theme-dark-offwhite .weight-edit-btn:hover {
+  background: rgba(111,139,191,0.2);
+  border-color: rgba(111,139,191,0.42);
+  color: #ffffff;
 }
 .progress-section { min-width: 0; }
 .prog-header {
@@ -1009,6 +1039,11 @@ h1 {
   letter-spacing: 0.12em;
   color: var(--muted);
   text-transform: uppercase;
+}
+.module-section.coursework-section .module-section-title {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  color: var(--sumi);
 }
 .module-section-chevron {
   color: var(--faint);
@@ -1253,16 +1288,16 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
   text-decoration-color: var(--faint);
 }
 .subtopic-toggle {
-  border: none;
-  background: none;
-  color: var(--muted);
+  border: 1px solid var(--border2);
+  background: rgba(26,22,18,0.04);
+  color: var(--sumi);
   font-family: "DM Mono", monospace;
   font-size: 10px;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 6px 10px;
   text-transform: uppercase;
 }
-.subtopic-toggle:hover { color: var(--gold); }
+.subtopic-toggle:hover { color: var(--gold); border-color: var(--gold); }
 .subtopic-list.hidden { display: none; }
 .topic-options-menu {
   position: relative;
@@ -1271,12 +1306,13 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
 .topic-options-summary {
   list-style: none;
   border: none;
-  background: none;
-  color: var(--muted);
+  background: rgba(26,22,18,0.045);
+  color: var(--sumi);
   font-family: "DM Mono", monospace;
   font-size: 10px;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 6px 10px;
+  border: 1px solid var(--border2);
   text-transform: uppercase;
 }
 .topic-options-summary::-webkit-details-marker {
@@ -1318,6 +1354,31 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
 .topic-options-action.danger {
   color: var(--vermillion);
 }
+body.theme-dark .topic-options-summary,
+body.theme-dark-offwhite .topic-options-summary {
+  background: rgba(255,255,255,0.06);
+  color: #ece7dc;
+  border-color: rgba(255,255,255,0.1);
+}
+body.theme-dark .topic-options-panel,
+body.theme-dark-offwhite .topic-options-panel {
+  background: #1c1c1f;
+  border-color: rgba(255,255,255,0.1);
+}
+body.theme-dark .topic-options-action,
+body.theme-dark-offwhite .topic-options-action {
+  background: rgba(255,255,255,0.04);
+  color: #ece7dc;
+}
+body.theme-dark .topic-options-action:hover,
+body.theme-dark-offwhite .topic-options-action:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.14);
+}
+body.theme-dark .topic-options-action.danger,
+body.theme-dark-offwhite .topic-options-action.danger {
+  color: #f08b80;
+}
 .timeline-item.completing {
   opacity: 0;
   transform: translateX(32px);
@@ -1336,16 +1397,24 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
 .topic-delete-btn:hover { color: var(--vermillion); }
 
 .topic-edit-btn {
-  border: none;
-  background: none;
-  color: var(--muted);
+  border: 1px solid var(--border2);
+  background: rgba(26,22,18,0.04);
+  color: var(--sumi);
   font-family: "DM Mono", monospace;
   font-size: 10px;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 6px 10px;
   text-transform: uppercase;
 }
-.topic-edit-btn:hover { color: var(--gold); }
+.topic-edit-btn:hover { color: var(--gold); border-color: var(--gold); }
+body.theme-dark .subtopic-toggle,
+body.theme-dark .topic-edit-btn,
+body.theme-dark-offwhite .subtopic-toggle,
+body.theme-dark-offwhite .topic-edit-btn {
+  background: rgba(255,255,255,0.06);
+  color: #ece7dc;
+  border-color: rgba(255,255,255,0.1);
+}
 
 .topic-drag-handle {
   border: none;
@@ -2375,6 +2444,9 @@ body.theme-dark-offwhite .b6::before {
   display: grid;
   grid-template-columns: 1fr 160px;
   gap: 12px;
+}
+.module-form-weights {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .deadline-form-actions {
@@ -4202,12 +4274,11 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
     <div class="deadline-form-grid">
       <div class="field"><label for="module-code-input">Module Code</label><input class="input" id="module-code-input" placeholder="NEW201"></div>
       <div class="field"><label for="module-name-input">Module Name</label><input class="input" id="module-name-input" placeholder="New Module"></div>
-      <div class="deadline-form-row">
+      <div class="deadline-form-row module-form-weights">
         <div class="field"><label for="module-credits-input">Credits</label><input class="input" id="module-credits-input" type="number" min="0" step="1" value="15"></div>
         <div class="field"><label for="module-cw-input">Coursework %</label><input class="input" id="module-cw-input" type="number" min="0" max="100" step="0.1" value="50"></div>
+        <div class="field"><label for="module-exam-input">Exam %</label><input class="input" id="module-exam-input" type="number" min="0" max="100" step="0.1" value="50"></div>
       </div>
-      <div class="field"><label for="module-exam-input">Exam %</label><input class="input" id="module-exam-input" type="number" min="0" max="100" step="0.1" value="50"></div>
-      <div class="coursework-form-help">Enter either coursework or exam and the other side balances automatically to 100%.</div>
       <div class="field"><label for="module-components-input">Coursework Calculator Setup (Optional)</label><input class="input" id="module-components-input" placeholder='"Lab 1" "Quiz" "Project"'></div>
       <div class="coursework-form-help">If you already know the coursework pieces, add them here now so the calculator is ready from the start.</div>
       <div class="deadline-form-actions"><button class="nav-btn" type="button" onclick="closeModuleForm()">Cancel</button><button class="nav-btn" type="button" onclick="saveModuleForm()">Add Module</button></div>
@@ -4981,7 +5052,7 @@ function toggleModuleSection(mi, section, event) {
 
 function createModuleSection(mi, section, title, controlHtml = "") {
   const wrap = document.createElement("div");
-  wrap.className = "module-section";
+  wrap.className = "module-section" + (section === "coursework" ? " coursework-section" : "");
   wrap.innerHTML = `
     <div class="module-section-head">
       <button class="module-section-toggle" type="button" onclick="toggleModuleSection(${mi}, '${section}', event)">
@@ -6509,7 +6580,6 @@ function renderDeadlineTimeline() {
           <div class="timeline-actions">
             <button class="mini-btn" type="button" onclick="openDeadlineInCalendarByIndex(${exam.originalIndex}, event)">Calendar</button>
             <button class="mini-btn" type="button" onclick="editDeadline(${exam.originalIndex})">Edit</button>
-            <button class="mini-btn module-delete-btn" type="button" onclick="removeExam(${exam.originalIndex})" title="Delete deadline" aria-label="Delete deadline">x</button>
           </div>
         </div>
       </div>
@@ -6598,7 +6668,7 @@ function buildModules() {
       <div class="mod-stripe c${mi}"></div>
       <div class="module-summary">
         <div class="mod-name">${escapeHtml(mod.name)}</div>
-        <div class="mod-kanji">${escapeHtml(mod.kanji)} · CW ${mod.cw === 0 ? "N/A" : escapeHtml(String(mod.cw ?? 0)) + "%"} · EX ${mod.exam === 0 ? "N/A" : escapeHtml(String(mod.exam ?? 0)) + "%"}</div>
+        <div class="mod-kanji">${escapeHtml(mod.kanji)} · CW ${mod.cw === 0 ? "N/A" : escapeHtml(String(mod.cw ?? 0)) + "%"} · EXAMS ${mod.exam === 0 ? "N/A" : escapeHtml(String(mod.exam ?? 0)) + "%"}</div>
         <div class="module-links">
           <button class="bb-link" id="bb-link-${mi}" type="button" onclick="openBlackboardLink(${mi}, event)">Set Blackboard</button>
           <button class="formula-btn" id="formula-btn-${mi}" type="button" onclick="openFormulaLink(${mi}, event)">Module Material</button>
@@ -6644,38 +6714,39 @@ function buildModules() {
     const moduleEditTools = document.createElement("div");
     moduleEditTools.className = "module-edit-tools";
     moduleEditTools.innerHTML = `
-      <button class="bb-edit-btn" type="button" onclick="editModuleTitle(${mi}, event)">Edit Title</button>
-      <button class="bb-edit-btn" type="button" onclick="editModuleCode(${mi}, event)">Edit Code</button>
-      <button class="bb-edit-btn" type="button" onclick="editModuleWeights(${mi}, event)">Edit Weights</button>
-      <button class="bb-edit-btn" type="button" onclick="setBlackboardLink(${mi}, event)">Edit Blackboard Link</button>
-      <button class="bb-edit-btn" type="button" onclick="clearModuleMarks(${mi}, event)">Clear Marks</button>
+      <div class="module-edit-primary">
+        <button class="bb-edit-btn" type="button" onclick="toggleModuleSection(${mi}, 'module-options', event)">Options</button>
+      </div>
+      <div class="module-edit-secondary">
+        <button class="bb-edit-btn weight-edit-btn" type="button" onclick="editModuleWeights(${mi}, event)">Edit Weights</button>
+      </div>
     `;
     list.appendChild(moduleEditTools);
 
-    if (customisableTheme) {
-      const colourSection = createModuleSection(
-        mi,
-        "colour",
-        "Module Colour",
-        "",
-      );
-      colourSection.body.innerHTML = `
-        <div class="module-colour-meta">${themeFamilyLabel}</div>
-        <div class="module-colour-copy">Pick the accent for this module in the current theme.</div>
-        <div class="module-colour-picker">
-          <input
-            class="module-colour-input"
-            type="color"
-            value="${escapeHtml(getStoredModuleColourHex(mi))}"
-            aria-label="Pick module colour"
-            onclick="event.stopPropagation()"
-            onpointerdown="event.stopPropagation()"
-            onchange="setModuleColour(${mi}, this.value, event)">
-          <div class="module-colour-preview" style="background:${moduleColours.fill};"></div>
-        </div>
-      `;
-      list.appendChild(colourSection.wrap);
-    }
+    const moduleOptionsSection = createModuleSection(mi, "module-options", "Module Options", "");
+    moduleOptionsSection.body.innerHTML = `
+      <div class="module-edit-primary">
+        <button class="bb-edit-btn" type="button" onclick="editModuleTitle(${mi}, event)">Edit Title</button>
+        <button class="bb-edit-btn" type="button" onclick="editModuleCode(${mi}, event)">Edit Code</button>
+        <button class="bb-edit-btn" type="button" onclick="setBlackboardLink(${mi}, event)">Edit Blackboard Link</button>
+        <button class="bb-edit-btn" type="button" onclick="clearModuleMarks(${mi}, event)">Clear Marks</button>
+      </div>
+      ${customisableTheme ? `
+      <div class="module-colour-meta" style="margin-top:12px;">${themeFamilyLabel} Module Colour</div>
+      <div class="module-colour-copy">Pick the accent for this module in the current theme.</div>
+      <div class="module-colour-picker">
+        <input
+          class="module-colour-input"
+          type="color"
+          value="${escapeHtml(getStoredModuleColourHex(mi))}"
+          aria-label="Pick module colour"
+          onclick="event.stopPropagation()"
+          onpointerdown="event.stopPropagation()"
+          onchange="setModuleColour(${mi}, this.value, event)">
+        <div class="module-colour-preview" style="background:${moduleColours.fill};"></div>
+      </div>` : ""}
+    `;
+    list.appendChild(moduleOptionsSection.wrap);
 
     const notesWrap = document.createElement("div");
     notesWrap.className = "notes-area-wrap";
@@ -6691,10 +6762,6 @@ function buildModules() {
     notes.addEventListener("click", (event) => event.stopPropagation());
     notesWrap.appendChild(notes);
     list.appendChild(notesWrap);
-
-    const relevantLinksSection = createModuleSection(mi, "relevant-links", "Relevant Links", `<button class="mini-btn" type="button" onclick="addRelevantLink(${mi}, event)">Add Link</button>`);
-    relevantLinksSection.body.innerHTML = `<div class="relevant-links-list" id="relevant-links-${mi}"></div>`;
-    list.appendChild(relevantLinksSection.wrap);
 
     if (mod.cw > 0) {
       const courseworkSection = createModuleSection(mi, "coursework", "Coursework Calculator", `<button class="mini-btn" type="button" onclick="addCourseworkComponent(${mi}, event)">Add Component</button>`);
@@ -6740,6 +6807,10 @@ function buildModules() {
       }
       list.appendChild(courseworkSection.wrap);
     }
+
+    const relevantLinksSection = createModuleSection(mi, "relevant-links", "Relevant Links", `<button class="mini-btn" type="button" onclick="addRelevantLink(${mi}, event)">Add Link</button>`);
+    relevantLinksSection.body.innerHTML = `<div class="relevant-links-list" id="relevant-links-${mi}"></div>`;
+    list.appendChild(relevantLinksSection.wrap);
 
     const compactMarksWrap = document.createElement("div");
     compactMarksWrap.className = "notes-area-wrap compact-marks-wrap";
@@ -6839,10 +6910,15 @@ function buildModules() {
         endTopicReorder();
       });
       const toggleSubtopicsButton = document.createElement("button");
+      const addSubtopicButton = document.createElement("button");
       toggleSubtopicsButton.type = "button";
       toggleSubtopicsButton.className = "subtopic-toggle";
       toggleSubtopicsButton.textContent = topic.subtopics.length ? (topic.collapsed ? "Show" : "Hide") : "";
       toggleSubtopicsButton.addEventListener("click", (event) => toggleTopicSubtopics(mi, ti, event));
+      addSubtopicButton.type = "button";
+      addSubtopicButton.className = "topic-edit-btn";
+      addSubtopicButton.textContent = "Add Subtopic";
+      addSubtopicButton.addEventListener("click", (event) => addSubtopicToTopic(mi, ti, event));
       const optionsMenu = document.createElement("details");
       optionsMenu.className = "topic-options-menu";
       optionsMenu.addEventListener("click", (event) => event.stopPropagation());
@@ -6851,14 +6927,6 @@ function buildModules() {
       optionsSummary.textContent = "Options";
       const optionsPanel = document.createElement("div");
       optionsPanel.className = "topic-options-panel";
-      const addSubtopicButton = document.createElement("button");
-      addSubtopicButton.type = "button";
-      addSubtopicButton.className = "topic-options-action";
-      addSubtopicButton.textContent = "Add Subtopics";
-      addSubtopicButton.addEventListener("click", async (event) => {
-        optionsMenu.removeAttribute("open");
-        await addSubtopicToTopic(mi, ti, event);
-      });
       const editButton = document.createElement("button");
       editButton.type = "button";
       editButton.className = "topic-options-action";
@@ -6875,7 +6943,6 @@ function buildModules() {
         optionsMenu.removeAttribute("open");
         await deleteTopicFromModule(mi, ti, event);
       });
-      optionsPanel.appendChild(addSubtopicButton);
       optionsPanel.appendChild(editButton);
       optionsPanel.appendChild(deleteButton);
       optionsMenu.appendChild(optionsSummary);
@@ -6885,6 +6952,7 @@ function buildModules() {
       main.appendChild(label);
       row.appendChild(main);
       row.appendChild(toggleSubtopicsButton);
+      row.appendChild(addSubtopicButton);
       row.appendChild(optionsMenu);
       list.appendChild(row);
 
