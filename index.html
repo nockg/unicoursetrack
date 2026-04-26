@@ -31,6 +31,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
+.hidden { display: none !important; }
 
 body {
   background-color: var(--paper);
@@ -1419,6 +1420,24 @@ body.theme-dark .account-card,
 body.theme-dark-offwhite .prefs-card,
 body.theme-dark-offwhite .account-card {
   background: rgba(255,255,255,0.03);
+}
+#auth-modal .account-card {
+  background: rgba(255,255,255,0.035);
+  border-color: rgba(255,255,255,0.08);
+}
+#auth-modal .account-title,
+#auth-modal .account-meta-value {
+  color: #f3efe7;
+}
+#auth-modal .account-copy {
+  color: rgba(243,239,231,0.74);
+}
+#auth-modal .account-meta-label,
+#auth-modal .account-section-title {
+  color: rgba(243,239,231,0.46);
+}
+#auth-modal .account-section {
+  border-top-color: rgba(255,255,255,0.08);
 }
 .compact-marks-wrap {
   display: none;
@@ -6694,9 +6713,8 @@ function renderAuthModal(mode = "login") {
           </div>
         </div>
         <div class="account-section">
-          <div class="account-section-title">Account</div>
+          <div class="account-section-title">Session</div>
           <div class="account-actions">
-            <button class="nav-btn danger-btn" type="button" onclick="requestAccountDeletion()">Delete Account</button>
             <button class="nav-btn" type="button" onclick="logoutCloud()">Logout</button>
           </div>
         </div>
@@ -6704,18 +6722,6 @@ function renderAuthModal(mode = "login") {
     `;
     return;
   }
-}
-
-async function requestAccountDeletion() {
-  const confirmed = await appConfirm({
-    label: "Account",
-    title: "Delete account?",
-    message: "Tracker data can be cleared here, but full account deletion still needs to be completed in Supabase or your auth backend.",
-    confirmText: "Understood",
-    danger: true
-  });
-  if (!confirmed) return;
-  await showAppNotice("Delete account", "The option is now in Account settings, but full sign-in account deletion is not available from this client alone. Clear Saved Data removes marks, notes, deadlines, links, preferences, and cloud tracker data.");
 }
 
 function setAuthError(message) {
