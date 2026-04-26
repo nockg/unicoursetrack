@@ -1297,10 +1297,12 @@ body.theme-dark-offwhite .material-library-empty {
   background: rgba(26,44,74,0.06);
 }
 .topic-row.drop-before,
+.topic-row.drop-after,
 .topic-row.drop-subtopic {
   position: relative;
 }
 .topic-row.drop-before::before,
+.topic-row.drop-after::before,
 .topic-row.drop-subtopic::before {
   content: "";
   position: absolute;
@@ -1311,6 +1313,10 @@ body.theme-dark-offwhite .material-library-empty {
   background: var(--gold2);
   border-radius: 999px;
   pointer-events: none;
+}
+.topic-row.drop-after::before {
+  top: auto;
+  bottom: 0;
 }
 .topic-row.drop-subtopic::before {
   left: 78px;
@@ -1383,6 +1389,32 @@ body.theme-dark-offwhite .material-library-empty {
   padding: 5px 9px;
   border-radius: 2px;
   text-transform: uppercase;
+}
+.subtopic-toggle {
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+  min-height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  position: relative;
+  color: var(--muted);
+}
+.subtopic-toggle::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translate(-50%, -62%) rotate(45deg);
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+.subtopic-toggle.collapsed::before {
+  transform: translate(-62%, -50%) rotate(-45deg);
 }
 .subtopic-toggle:hover,
 .topic-edit-btn:hover,
@@ -6402,12 +6434,17 @@ function remapTopicStateForReorder(mi, fromIndex, toIndex) {
   applyModuleTopicStateSnapshot(mi, checked);
 }
 
-function moveTopicInModule(mi, fromIndex, toIndex) {
+function moveTopicInModule(mi, fromIndex, toIndex, placement = "before") {
   const topics = MODULES[mi]?.topics;
-  if (!topics || fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= topics.length || toIndex >= topics.length) return;
+  if (!topics || fromIndex < 0 || toIndex < 0 || fromIndex >= topics.length || toIndex >= topics.length) return;
+  if (fromIndex === toIndex && placement === "before") return;
   const [moved] = topics.splice(fromIndex, 1);
-  topics.splice(toIndex, 0, moved);
-  remapTopicStateForReorder(mi, fromIndex, toIndex);
+  let insertIndex = toIndex;
+  if (fromIndex < toIndex) insertIndex -= 1;
+  if (placement === "after") insertIndex += 1;
+  insertIndex = Math.max(0, Math.min(topics.length, insertIndex));
+  topics.splice(insertIndex, 0, moved);
+  remapTopicStateForReorder(mi, fromIndex, insertIndex);
   save();
   buildModules();
   updateGlobal();
@@ -6457,38 +6494,42 @@ function allowTopicDrop(mi, ti, event) {
   if (!draggedTopic || draggedTopic.mi !== mi || draggedTopic.ti === ti) return;
   event.preventDefault();
   const indentDelta = (event.clientX || 0) - (draggedTopic.startX || 0);
-  document.querySelectorAll(".topic-row.drop-before, .topic-row.drop-subtopic").forEach((row) => {
-    if (row !== event.currentTarget) row.classList.remove("drop-before", "drop-subtopic");
+  const rect = event.currentTarget.getBoundingClientRect();
+  const dropAfter = (event.clientY || rect.top) > rect.top + (rect.height / 2);
+  document.querySelectorAll(".topic-row.drop-before, .topic-row.drop-after, .topic-row.drop-subtopic").forEach((row) => {
+    if (row !== event.currentTarget) row.classList.remove("drop-before", "drop-after", "drop-subtopic");
   });
-  event.currentTarget.classList.remove("reordering", "drop-before", "drop-subtopic");
+  event.currentTarget.classList.remove("reordering", "drop-before", "drop-after", "drop-subtopic");
   if (indentDelta > 56) {
     event.currentTarget.classList.add("drop-subtopic");
   } else {
-    event.currentTarget.classList.add("drop-before");
+    event.currentTarget.classList.add(dropAfter ? "drop-after" : "drop-before");
   }
 }
 
 function clearTopicDropState(event) {
-  event.currentTarget.classList.remove("reordering", "drop-before", "drop-subtopic");
+  event.currentTarget.classList.remove("reordering", "drop-before", "drop-after", "drop-subtopic");
 }
 
 function dropTopicReorder(mi, ti, event) {
   event.preventDefault();
-  event.currentTarget.classList.remove("reordering", "drop-before", "drop-subtopic");
+  event.currentTarget.classList.remove("reordering", "drop-before", "drop-after", "drop-subtopic");
   if (!draggedTopic || draggedTopic.mi !== mi) return;
   const indentDelta = (event.clientX || 0) - (draggedTopic.startX || 0);
+  const rect = event.currentTarget.getBoundingClientRect();
+  const dropAfter = (event.clientY || rect.top) > rect.top + (rect.height / 2);
   if (indentDelta > 56) {
     nestTopicUnderTopic(mi, draggedTopic.ti, ti);
     draggedTopic = null;
     return;
   }
-  moveTopicInModule(mi, draggedTopic.ti, ti);
+  moveTopicInModule(mi, draggedTopic.ti, ti, dropAfter ? "after" : "before");
   draggedTopic = null;
 }
 
 function endTopicReorder() {
   draggedTopic = null;
-  document.querySelectorAll(".topic-row.reordering, .topic-row.drop-before, .topic-row.drop-subtopic").forEach((row) => row.classList.remove("reordering", "drop-before", "drop-subtopic"));
+  document.querySelectorAll(".topic-row.reordering, .topic-row.drop-before, .topic-row.drop-after, .topic-row.drop-subtopic").forEach((row) => row.classList.remove("reordering", "drop-before", "drop-after", "drop-subtopic"));
 }
 
 function renderStickyExams() {
@@ -7047,6 +7088,7 @@ function buildModules() {
       const topic = getTopicEntry(mi, ti);
       const row = document.createElement("div");
       row.className = "topic-row";
+      row.draggable = true;
       const main = document.createElement("label");
       main.className = "topic-main";
       const checkbox = document.createElement("input");
@@ -7081,20 +7123,24 @@ function buildModules() {
       row.addEventListener("dragover", (event) => allowTopicDrop(mi, ti, event));
       row.addEventListener("dragleave", clearTopicDropState);
       row.addEventListener("drop", (event) => dropTopicReorder(mi, ti, event));
+      row.addEventListener("dragstart", (event) => {
+        if (event.target.closest("button") || event.target.closest("input") || event.target.closest("textarea") || event.target.closest("summary")) {
+          event.preventDefault();
+          return;
+        }
+        row.classList.add("reordering");
+        startTopicReorder(mi, ti, event);
+      });
+      row.addEventListener("dragend", () => {
+        row.classList.remove("reordering");
+        endTopicReorder();
+      });
       const dragHandle = document.createElement("button");
       dragHandle.type = "button";
       dragHandle.className = "topic-drag-handle";
       dragHandle.textContent = ":::";
       dragHandle.title = "Drag to reorder, or drop to the right on another topic to nest it";
-      dragHandle.draggable = true;
-      dragHandle.addEventListener("dragstart", (event) => {
-        row.classList.add("reordering");
-        startTopicReorder(mi, ti, event);
-      });
-      dragHandle.addEventListener("dragend", () => {
-        row.classList.remove("reordering");
-        endTopicReorder();
-      });
+      dragHandle.draggable = false;
       const toggleSubtopicsButton = document.createElement("button");
       const optionsMenu = document.createElement("details");
       optionsMenu.className = "topic-options-menu";
@@ -7131,7 +7177,9 @@ function buildModules() {
       if (topic.subtopics.length) {
         toggleSubtopicsButton.type = "button";
         toggleSubtopicsButton.className = "subtopic-toggle";
-        toggleSubtopicsButton.textContent = topic.collapsed ? "Show" : "Hide";
+        toggleSubtopicsButton.classList.toggle("collapsed", !!topic.collapsed);
+        toggleSubtopicsButton.setAttribute("aria-label", topic.collapsed ? "Expand subtopics" : "Collapse subtopics");
+        toggleSubtopicsButton.title = topic.collapsed ? "Expand subtopics" : "Collapse subtopics";
         toggleSubtopicsButton.addEventListener("click", (event) => toggleTopicSubtopics(mi, ti, event));
         row.appendChild(toggleSubtopicsButton);
       }
