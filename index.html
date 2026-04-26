@@ -63,6 +63,49 @@ body.auth-required #auth-modal {
 body.auth-required #auth-gate {
   display: flex;
 }
+body.auth-loading {
+  padding-top: 0;
+}
+body.auth-loading .sticky-exams,
+body.auth-loading .nav-bar,
+body.auth-loading .hero,
+body.auth-loading .content,
+body.auth-loading #dashboard-modal,
+body.auth-loading #onboarding-modal,
+body.auth-loading #timeline-modal,
+body.auth-loading #deadline-form-modal,
+body.auth-loading #course-setup-modal,
+body.auth-loading #deadline-splash,
+body.auth-loading #template-splash,
+body.auth-loading #auth-modal {
+  display: none !important;
+}
+body.auth-loading #auth-gate {
+  display: flex;
+}
+body.setup-required {
+  padding-top: 0;
+}
+body.setup-required .sticky-exams,
+body.setup-required .nav-bar,
+body.setup-required .hero,
+body.setup-required .content,
+body.setup-required #dashboard-modal,
+body.setup-required #onboarding-modal,
+body.setup-required #timeline-modal,
+body.setup-required #deadline-form-modal,
+body.setup-required #deadline-splash,
+body.setup-required #template-splash,
+body.setup-required #auth-modal,
+body.setup-required #auth-gate {
+  display: none !important;
+}
+body.setup-required #course-setup-modal {
+  display: flex !important;
+  background: var(--paper);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
 body.has-body-background::before {
   content: "";
   position: fixed;
@@ -910,6 +953,56 @@ h1 {
   letter-spacing: 0.12em;
   color: var(--muted);
   text-transform: uppercase;
+}
+.module-section {
+  border-bottom: 1px solid var(--border);
+}
+.module-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 20px 12px 42px;
+}
+.module-section-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 0;
+  min-width: 0;
+}
+.module-section-title {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.module-section-chevron {
+  font-size: 10px;
+  color: var(--faint);
+  transition: transform 0.2s ease;
+}
+.module-section-chevron.open {
+  transform: rotate(90deg);
+}
+.module-section-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.module-section-body {
+  display: none;
+  padding: 0 20px 12px 42px;
+}
+.module-section-body.open {
+  display: block;
 }
 .formula-links-list, .relevant-links-list {
   display: flex;
@@ -2441,10 +2534,16 @@ body.theme-dark .auth-gate-tab.active {
   .module-edit-tools, .notes-area-wrap, .formula-links-wrap, .relevant-links-wrap, .coursework-calc-wrap {
     padding: 12px 14px !important;
   }
+  .module-section-head {
+    padding: 12px 14px !important;
+  }
+  .module-section-body {
+    padding: 0 14px 12px !important;
+  }
   .topic-tools, .formula-links-head, .relevant-links-head, .coursework-calc-head {
     align-items: flex-start; flex-direction: column; gap: 8px;
   }
-  .topic-entry-row { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .topic-entry-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: start; }
   .topic-row { padding: 12px 14px !important; gap: 10px; align-items: center; }
   .topic-main { gap: 10px; }
   .topic-row input[type=checkbox] { width: 20px; height: 20px; margin-top: 1px; }
@@ -3288,13 +3387,20 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
   .module-edit-tools .formula-edit-btn,
   .module-edit-tools .mini-btn,
   .formula-links-head .formula-edit-btn,
-  .relevant-links-head .formula-edit-btn,
-  .topic-tools .mini-btn {
+  .relevant-links-head .mini-btn,
+  .coursework-calc-head .mini-btn,
+  .topic-tools .mini-btn,
+  .topic-entry-row .mini-btn,
+  .module-section-controls .mini-btn,
+  .module-section-controls .formula-edit-btn {
     min-height: 28px !important;
     padding: 4px 7px !important;
     font-size: 8px !important;
     letter-spacing: 0.05em;
     border-radius: 999px;
+    width: auto !important;
+    align-self: flex-start;
+    white-space: nowrap;
   }
 
   .formula-links-head,
@@ -3333,16 +3439,21 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
   .module-edit-tools .formula-edit-btn,
   .module-edit-tools .mini-btn,
   .formula-links-head .formula-edit-btn,
-  .relevant-links-head .formula-edit-btn,
-  .topic-tools .mini-btn {
+  .relevant-links-head .mini-btn,
+  .coursework-calc-head .mini-btn,
+  .topic-tools .mini-btn,
+  .topic-entry-row .mini-btn,
+  .module-section-controls .mini-btn,
+  .module-section-controls .formula-edit-btn {
     min-height: 26px !important;
     padding: 4px 6px !important;
     font-size: 7.6px !important;
+    width: auto !important;
   }
 }
 </style>
 </head>
-<body class="auth-required">
+<body class="auth-required auth-loading">
 
 <div id="auth-gate">
   <div class="auth-gate-shell">
@@ -3884,6 +3995,10 @@ let draggedTopic = null;
 let courseSetupInitial = false;
 let selectedSetupTemplate = "blank";
 const openModules = new Set();
+const openModuleSections = {};
+let authScreenLoading = true;
+let authLoadingTitle = "Restoring your session...";
+let authLoadingMessage = "Checking whether you are already signed in before showing anything.";
 
 function setTopicCheckbox(checkbox, mi, ti, value) {
   const store = getStore();
@@ -4039,9 +4154,17 @@ const preferences = Object.assign(
 );
 
 function updateAuthLock() {
-  const requiresAuth = !currentUser || isRecoveryFlow();
+  const requiresAuth = authScreenLoading || !currentUser || isRecoveryFlow();
   document.body.classList.toggle("auth-required", requiresAuth);
+  document.body.classList.toggle("auth-loading", authScreenLoading);
   if (requiresAuth) renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
+}
+
+function setAuthLoading(loading, title = "Restoring your session...", message = "Checking whether you are already signed in before showing anything.") {
+  authScreenLoading = !!loading;
+  authLoadingTitle = title;
+  authLoadingMessage = message;
+  updateAuthLock();
 }
 
 function deepClone(value) {
@@ -4211,6 +4334,50 @@ function isPendingNewAccount(email) {
   return !!email && localStorage.getItem(PENDING_NEW_ACCOUNT_EMAIL_KEY) === normalizeEmail(email);
 }
 
+function getModuleSectionStateKey(mi, section) {
+  return `${state.ui?.currentYearId || "year1"}:${mi}:${section}`;
+}
+
+function isModuleSectionOpen(mi, section) {
+  const key = getModuleSectionStateKey(mi, section);
+  if (openModuleSections[key] === undefined) return false;
+  return !!openModuleSections[key];
+}
+
+function setModuleSectionOpen(mi, section, open) {
+  const key = getModuleSectionStateKey(mi, section);
+  openModuleSections[key] = !!open;
+  const body = document.getElementById(`module-section-body-${mi}-${section}`);
+  const chevron = document.getElementById(`module-section-chevron-${mi}-${section}`);
+  if (body) body.classList.toggle("open", !!open);
+  if (chevron) chevron.classList.toggle("open", !!open);
+}
+
+function toggleModuleSection(mi, section, event) {
+  if (event) event.stopPropagation();
+  setModuleSectionOpen(mi, section, !isModuleSectionOpen(mi, section));
+}
+
+function createModuleSection(mi, section, title, controlHtml = "") {
+  const wrap = document.createElement("div");
+  wrap.className = "module-section";
+  wrap.innerHTML = `
+    <div class="module-section-head">
+      <button class="module-section-toggle" type="button" onclick="toggleModuleSection(${mi}, '${section}', event)">
+        <span class="module-section-title">${title}</span>
+        <span class="module-section-chevron" id="module-section-chevron-${mi}-${section}">&#9654;</span>
+      </button>
+      <div class="module-section-controls">${controlHtml}</div>
+    </div>
+    <div class="module-section-body" id="module-section-body-${mi}-${section}"></div>
+  `;
+  setTimeout(() => setModuleSectionOpen(mi, section, isModuleSectionOpen(mi, section)), 0);
+  return {
+    wrap,
+    body: wrap.querySelector(`#module-section-body-${mi}-${section}`)
+  };
+}
+
 function isFreshSupabaseUser(user) {
   const createdAt = user?.created_at ? Date.parse(user.created_at) : NaN;
   return Number.isFinite(createdAt) && Date.now() - createdAt < 20 * 60 * 1000;
@@ -4246,6 +4413,7 @@ function openCourseSetupModal(isInitialSetup = false) {
   } else {
     selectSetupTemplate("blank");
   }
+  document.body.classList.toggle("setup-required", isInitialSetup);
   document.getElementById("course-setup-modal").classList.remove("hidden");
   if (!isEditingExisting && isInitialSetup) {
     document.getElementById("setup-name-input").focus();
@@ -4254,6 +4422,7 @@ function openCourseSetupModal(isInitialSetup = false) {
 
 function closeCourseSetupModal() {
   if (courseSetupInitial) return;
+  document.body.classList.remove("setup-required");
   document.getElementById("course-setup-modal").classList.add("hidden");
 }
 
@@ -4292,6 +4461,7 @@ function saveCourseSetup() {
   buildModules();
   renderStickyExams();
   updateGlobal();
+  document.body.classList.remove("setup-required");
   document.getElementById("course-setup-modal").classList.add("hidden");
   courseSetupInitial = false;
   if (pendingFirstRunSetup) {
@@ -5597,28 +5767,19 @@ function buildModules() {
     notesWrap.appendChild(notes);
     list.appendChild(notesWrap);
 
-    const relevantLinksWrap = document.createElement("div");
-    relevantLinksWrap.className = "relevant-links-wrap";
-    relevantLinksWrap.innerHTML = `
-      <div class="relevant-links-head">
-        <div class="relevant-links-title">Relevant Links</div>
-        <button class="mini-btn" type="button" onclick="addRelevantLink(${mi}, event)">Add Link</button>
-      </div>
-      <div class="relevant-links-list" id="relevant-links-${mi}"></div>
-    `;
-    list.appendChild(relevantLinksWrap);
+    const relevantLinksSection = createModuleSection(mi, "relevant-links", "Relevant Links", `<button class="mini-btn" type="button" onclick="addRelevantLink(${mi}, event)">Add Link</button>`);
+    relevantLinksSection.body.innerHTML = `<div class="relevant-links-list" id="relevant-links-${mi}"></div>`;
+    list.appendChild(relevantLinksSection.wrap);
 
     if (mod.cw > 0) {
-      const courseworkWrap = document.createElement("div");
-      courseworkWrap.className = "coursework-calc-wrap";
+      const courseworkSection = createModuleSection(mi, "coursework", "Coursework Calculator", `<button class="mini-btn" type="button" onclick="addCourseworkComponent(${mi}, event)">Add Component</button>`);
+      const courseworkWrap = courseworkSection.body;
       const components = getCourseworkComponents(mi);
       courseworkWrap.innerHTML = `
-        <div class="coursework-calc-head">
-          <div class="coursework-calc-title">Coursework Calculator</div>
-          <button class="mini-btn" type="button" onclick="addCourseworkComponent(${mi}, event)">Add Component</button>
+        <div class="coursework-calc-wrap">
+          <div class="coursework-calc-summary" id="cw-calc-summary-${mi}"></div>
+          <div id="cw-components-${mi}"></div>
         </div>
-        <div class="coursework-calc-summary" id="cw-calc-summary-${mi}"></div>
-        <div id="cw-components-${mi}"></div>
       `;
       const componentsHost = courseworkWrap.querySelector(`#cw-components-${mi}`);
       if (!components.length) {
@@ -5649,7 +5810,7 @@ function buildModules() {
           componentsHost.appendChild(componentRow);
         });
       }
-      list.appendChild(courseworkWrap);
+      list.appendChild(courseworkSection.wrap);
     }
 
     const compactMarksWrap = document.createElement("div");
@@ -5671,16 +5832,9 @@ function buildModules() {
     `;
     list.appendChild(compactMarksWrap);
 
-    const formulaWrap = document.createElement("div");
-    formulaWrap.className = "formula-links-wrap";
-    formulaWrap.innerHTML = `
-      <div class="formula-links-head">
-        <div class="formula-links-title">Reference Sheets</div>
-        <button class="formula-edit-btn" type="button" onclick="setFormulaLink(${mi}, event)">Add Sheet</button>
-      </div>
-      <div class="formula-links-list" id="formula-links-${mi}"></div>
-    `;
-    list.appendChild(formulaWrap);
+    const formulaSection = createModuleSection(mi, "reference-sheets", "Reference Sheets", `<button class="formula-edit-btn" type="button" onclick="setFormulaLink(${mi}, event)">Add Sheet</button>`);
+    formulaSection.body.innerHTML = `<div class="formula-links-list" id="formula-links-${mi}"></div>`;
+    list.appendChild(formulaSection.wrap);
 
     const topicTools = document.createElement("div");
     topicTools.className = "notes-area-wrap";
@@ -6071,6 +6225,17 @@ function renderAuthGate(mode = authViewMode) {
   const profileName = escapeHtml((state.profile?.name || "").trim());
   const loginTitle = profileName ? `Welcome back, ${profileName}` : "Welcome back!";
 
+  if (authScreenLoading && !isRecovery) {
+    host.innerHTML = `
+      <div class="auth-gate-card">
+        <div class="deadline-splash-title" style="color: var(--ink);">${escapeHtml(authLoadingTitle)}</div>
+        <div class="auth-gate-message">${escapeHtml(authLoadingMessage)}</div>
+        <div id="auth-gate-feedback" class="auth-success"></div>
+      </div>
+    `;
+    return;
+  }
+
   host.innerHTML = isRecovery ? `
     <div class="auth-gate-card">
       <div class="auth-gate-label">Password Recovery</div>
@@ -6419,6 +6584,7 @@ async function signUpFromModal() {
   }
   accountCreationInProgress = false;
   authViewMode = "login";
+  setAuthLoading(false);
   updateAuthLock();
   setAuthMessage(data?.session
     ? "Account created. Please sign in now to set up your tracker."
@@ -6437,6 +6603,7 @@ async function loginFromModal() {
   }
 
   setAuthMessage("Signing in...", "success");
+  setAuthLoading(true, "Signing you in...", "Pulling your tracker and preferences now.");
 
   try {
     const { data, error } = await withCloudTimeout(supabaseClient.auth.signInWithPassword({
@@ -6445,22 +6612,15 @@ async function loginFromModal() {
     }), "Sign in");
 
     if (error) {
+      setAuthLoading(false);
       setAuthError(error.message);
       return;
     }
 
     currentUser = data.session?.user || data.user || null;
     clearLogoutFlagForSignedInUser();
-    await loadCloudSave();
-    pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
-    if (pendingFirstRunSetup) {
-      resetLocalAppState();
-      cloudReady = true;
-    }
-    updateAuthButton();
-    updateAuthLock();
-    refreshAppAfterAuth();
   } catch (error) {
+    setAuthLoading(false);
     setAuthError(error?.message || "Sign in failed. Please check your connection and try again.");
   }
 }
@@ -6483,6 +6643,7 @@ async function logoutCloud() {
   localStorage.removeItem(KEY);
   localStorage.removeItem(PREFS_KEY);
 
+  setAuthLoading(false);
   updateAuthButton();
   updateAuthLock();
   resetLocalAppState();
@@ -6596,9 +6757,10 @@ async function saveCloud() {
 
 if (supabaseClient) {
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
-  // Supabase can briefly emit a null INITIAL_SESSION while it is still restoring
-  // the saved login. Do not show the sign-in screen until getSession() has finished.
-  if (!authStateKnown && !session) return;
+  if (event === "INITIAL_SESSION") {
+    markAuthStateKnown();
+    return;
+  }
 
   currentUser = session?.user || null;
   markAuthStateKnown();
@@ -6611,29 +6773,31 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (event === "PASSWORD_RECOVERY" || isRecoveryFlow()) {
     recoveryModeActive = true;
     authViewMode = "recovery";
+    setAuthLoading(false);
     updateAuthLock();
     openAuthModal("recovery");
     return;
   }
   if (currentUser) {
-    // Do not block the UI on the cloud database. Show the local/cached dashboard first,
-    // then replace it with cloud data as soon as it arrives.
-    cloudReady = true;
+    setAuthLoading(true, "Loading your tracker...", isPendingNewAccount(currentUser?.email)
+      ? "Preparing your setup so the first screen feels like yours."
+      : "Pulling your saved modules, marks, deadlines, and preferences.");
+    cloudReady = false;
     pendingFirstRunSetup = false;
-    updateAuthLock();
-    refreshAppAfterAuth();
-
     await loadCloudSave();
     pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
     if (pendingFirstRunSetup) {
       resetLocalAppState();
       cloudReady = true;
     }
+    setAuthLoading(false);
     updateAuthLock();
     refreshAppAfterAuth();
     return;
   }
   pendingFirstRunSetup = false;
+  cloudHadSave = false;
+  setAuthLoading(false);
   updateAuthLock();
   renderAuthGate("login");
 });
@@ -7080,9 +7244,11 @@ async function removeExam(index) {
 
 // Wait for Supabase to check/restore the session before showing login or the dashboard.
 (async function bootApp() {
+  setAuthLoading(true, "Restoring your session...", "Checking whether you are already signed in before showing anything.");
   await waitForInitialAuth();
 
   if (!currentUser) {
+    setAuthLoading(false);
     updateAuthLock();
     renderAuthGate("login");
     setInterval(renderStickyExams, 1000);
@@ -7091,13 +7257,11 @@ async function removeExam(index) {
 
   clearLogoutFlagForSignedInUser();
 
-  // Fast path for returning users: unlock immediately using the cached local state.
-  // Cloud data then syncs in without trapping the user on the sign-in screen.
-  cloudReady = true;
+  setAuthLoading(true, "Loading your tracker...", isPendingNewAccount(currentUser?.email)
+    ? "Preparing your setup so the first screen feels like yours."
+    : "Pulling your saved modules, marks, deadlines, and preferences.");
+  cloudReady = false;
   pendingFirstRunSetup = false;
-  updateAuthLock();
-  refreshAppAfterAuth();
-
   await loadCloudSave();
   pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
   if (pendingFirstRunSetup) {
@@ -7105,6 +7269,7 @@ async function removeExam(index) {
     cloudReady = true;
   }
 
+  setAuthLoading(false);
   updateAuthLock();
   refreshAppAfterAuth();
 
