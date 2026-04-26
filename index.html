@@ -5024,6 +5024,160 @@ body.theme-dark-offwhite button.weight-edit-btn:hover {
   border-color: rgba(216,200,176,0.45) !important;
   color: #ffffff !important;
 }
+
+
+/* v1.6 — contrast audit + compact mobile library/deadline pass */
+.module-library-section-collapsible .module-library-collapse {
+  color: var(--ink) !important;
+  min-height: 0;
+}
+.module-library-section-collapsible.is-collapsed .module-library-collapse {
+  background: linear-gradient(180deg, rgba(255,255,255,0.58), rgba(255,255,255,0.26)) !important;
+  border-bottom: 0 !important;
+}
+.module-library-section-collapsible.is-collapsed .module-library-section-copy {
+  color: var(--sumi) !important;
+  opacity: 0.9 !important;
+  font-weight: 600;
+}
+.module-library-section-collapsible.is-collapsed .module-library-section-label::after {
+  content: " · collapsed";
+  font-weight: 400;
+  opacity: 0.72;
+}
+body.theme-quiet .youtube-btn {
+  background: rgba(255,255,255,0.82) !important;
+  border-color: rgba(42,34,26,0.22) !important;
+  color: #2a221a !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.4), 0 2px 8px rgba(42,34,26,0.08);
+}
+body.theme-quiet .youtube-btn:hover {
+  background: rgba(192,57,43,0.13) !important;
+  border-color: rgba(192,57,43,0.42) !important;
+  color: #a42b22 !important;
+}
+body.theme-quiet .dash-hero-btn,
+body.theme-quiet .dash-library-launch {
+  background: rgba(24,20,17,0.72) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+  color: #fff7ed !important;
+}
+body.theme-quiet .dash-hero-btn .dash-launch-icon,
+body.theme-quiet .dash-hero-btn .dash-launch-copy,
+body.theme-quiet .dash-library-launch .dash-launch-icon,
+body.theme-quiet .dash-library-launch .dash-launch-copy {
+  color: #fff7ed !important;
+}
+body.theme-quiet .dash-hero-btn:hover,
+body.theme-quiet .dash-library-launch:hover {
+  background: rgba(24,20,17,0.84) !important;
+  border-color: rgba(255,255,255,0.32) !important;
+}
+body.theme-quiet .module-section.coursework-section .module-section-toggle,
+body.theme-quiet .module-section.coursework-section .module-section-title,
+body.theme-quiet .module-section-toggle,
+body.theme-quiet .module-section-title {
+  color: #241d16 !important;
+}
+body.theme-quiet .module-section-head,
+body.theme-quiet .coursework-calc-head,
+body.theme-quiet .module-library-toolbar,
+body.theme-quiet .module-library-section,
+body.theme-quiet .module-library-card {
+  color: #241d16 !important;
+}
+body.theme-quiet .module-library-section-label,
+body.theme-quiet .module-library-card-title,
+body.theme-quiet .module-library-pill,
+body.theme-quiet .module-library-empty,
+body.theme-quiet .module-library-section-copy,
+body.theme-quiet .module-library-card-notes {
+  color: #241d16 !important;
+}
+body.theme-quiet .module-library-pill {
+  background: rgba(255,255,255,0.64) !important;
+  border-color: rgba(42,34,26,0.18) !important;
+}
+body.theme-quiet .module-library-top-actions .nav-btn,
+body.theme-quiet .module-library-view-toggle .nav-btn,
+body.theme-quiet .module-library-toolbar .nav-select,
+body.theme-quiet .module-library-toolbar .input {
+  background: rgba(255,255,255,0.82) !important;
+  color: #241d16 !important;
+  border-color: rgba(42,34,26,0.2) !important;
+}
+body.theme-quiet .module-library-view-toggle .nav-btn.calendar-btn {
+  background: #2a221a !important;
+  color: #fff7ed !important;
+  border-color: #2a221a !important;
+}
+body.theme-quiet .module-library-card-actions .mini-btn {
+  background: rgba(255,255,255,0.78) !important;
+  color: #241d16 !important;
+  border-color: rgba(42,34,26,0.18) !important;
+}
+body.theme-quiet .module-library-card-actions .module-delete-btn {
+  color: #9f2f26 !important;
+  border-color: rgba(159,47,38,0.36) !important;
+}
+body.theme-dark .module-library-section-collapsible.is-collapsed .module-library-section-copy,
+body.theme-dark-offwhite .module-library-section-collapsible.is-collapsed .module-library-section-copy {
+  color: #f3eadc !important;
+}
+body.theme-dark .module-section.coursework-section .module-section-title,
+body.theme-dark-offwhite .module-section.coursework-section .module-section-title {
+  color: #fff2df !important;
+}
+@media (max-width: 760px) {
+  body:not(.auth-required):not(.auth-loading):not(.setup-required) { padding-top: 98px !important; }
+  .sticky-exams { height: 48px !important; padding: 0 8px !important; }
+  .exam-ticker { min-width: 190px !important; padding: 0 14px !important; }
+  .ticker-mod { font-size: 8px !important; margin-bottom: 1px !important; }
+  .ticker-time { font-size: 13px !important; line-height: 1.05 !important; }
+  .ticker-date { font-size: 7.5px !important; }
+  .add-exam-btn { font-size: 8px !important; padding: 0 12px !important; }
+  .nav-bar { top: 48px !important; min-height: 50px !important; padding: 8px 10px !important; gap: 6px !important; overflow-x: auto; scrollbar-width: none; }
+  .nav-bar::-webkit-scrollbar { display: none; }
+  .hero { margin-top: 0 !important; }
+  #module-library-modal.dashboard-modal { align-items: stretch !important; justify-content: stretch !important; padding: 0 !important; }
+  .module-library-content { width: 100vw !important; max-width: 100vw !important; min-height: 100vh !important; max-height: 100vh !important; padding: 12px 9px 16px !important; border-radius: 0 !important; }
+  .module-library-topline { gap: 7px !important; padding-right: 34px !important; }
+  .module-library-topline .timeline-page-title { font-size: clamp(24px, 8vw, 34px) !important; line-height: 1 !important; }
+  .module-library-top-actions { grid-template-columns: 1fr 1fr !important; gap: 6px !important; }
+  .module-library-top-actions .nav-btn { min-height: 30px !important; padding: 5px 6px !important; font-size: 7.8px !important; letter-spacing: 0.055em !important; border-radius: 3px !important; }
+  .module-library-toolbar { gap: 6px !important; padding: 7px !important; margin: 9px 0 !important; border-radius: 4px !important; }
+  .module-library-toolbar .input, .module-library-toolbar .nav-select { min-height: 31px !important; padding: 5px 7px !important; font-size: 10px !important; border-radius: 3px !important; }
+  .module-library-view-toggle { padding: 3px !important; gap: 4px !important; border-radius: 3px !important; }
+  .module-library-view-toggle .nav-btn { min-height: 28px !important; padding: 4px 6px !important; font-size: 8px !important; border-radius: 2px !important; }
+  .module-library-stack { gap: 7px !important; }
+  .module-library-collapse, .module-library-section-head { padding: 8px 9px !important; gap: 8px !important; }
+  .module-library-section-label { font-size: 8px !important; margin-bottom: 3px !important; }
+  .module-library-section-copy { font-size: 12px !important; line-height: 1.22 !important; }
+  .module-library-collapse-chevron { width: 9px !important; height: 9px !important; margin-right: 2px !important; }
+  .module-library-list, .module-library-list.cards { gap: 6px !important; padding: 7px !important; }
+  .module-library-card, .module-library-list.cards .module-library-card, .module-library-list:not(.cards) .module-library-card { grid-template-columns: 4px minmax(0, 1fr) !important; gap: 7px !important; padding: 8px 9px !important; border-radius: 3px !important; box-shadow: none !important; }
+  .module-library-module-accent { width: 4px !important; min-width: 4px !important; }
+  .module-library-card-head { gap: 7px !important; }
+  .module-library-card-title { font-size: 14px !important; line-height: 1.12 !important; }
+  .module-library-card-meta { margin-top: 4px !important; gap: 4px !important; }
+  .module-library-pill { min-height: 18px !important; padding: 2px 5px !important; font-size: 7.2px !important; letter-spacing: 0.055em !important; border-radius: 2px !important; }
+  .module-library-card-notes { font-size: 11.5px !important; line-height: 1.22 !important; }
+  .module-library-card-actions { grid-template-columns: 1fr 1fr !important; gap: 5px !important; }
+  .module-library-card-actions .mini-btn, .module-library-card-actions .module-delete-btn { height: 27px !important; min-height: 27px !important; padding: 3px 6px !important; font-size: 7.4px !important; border-radius: 2px !important; }
+  .module-library-empty { font-size: 13px !important; padding: 6px 2px !important; }
+}
+@media (max-width: 480px) {
+  body:not(.auth-required):not(.auth-loading):not(.setup-required) { padding-top: 92px !important; }
+  .sticky-exams { height: 44px !important; }
+  .nav-bar { top: 44px !important; min-height: 48px !important; }
+  .exam-ticker { min-width: 168px !important; padding: 0 10px !important; }
+  .ticker-time { font-size: 12px !important; }
+  .module-library-content { padding: 10px 8px 14px !important; }
+  .module-library-top-actions .nav-btn { min-height: 28px !important; font-size: 7.2px !important; }
+  .module-library-toolbar .input, .module-library-toolbar .nav-select { min-height: 29px !important; font-size: 9.4px !important; }
+  .module-library-collapse, .module-library-section-head { padding: 7px 8px !important; }
+}
+
 </style>
 </head>
 <body class="auth-required auth-loading">
@@ -10273,6 +10427,36 @@ document.addEventListener("keydown", (event) => {
   }
   handleSelectedTopicDeleteFromKeyboard(event);
 });
+
+
+
+// v1.6 — keep collapsed module library sections explicit + avoid blank-looking dropdowns
+(function enhanceModuleLibraryCollapsedState(){
+  const originalRenderModuleLibrary = renderModuleLibrary;
+  renderModuleLibrary = function patchedRenderModuleLibrary() {
+    originalRenderModuleLibrary.apply(this, arguments);
+    const materials = getModuleLibraryItems("formula", moduleLibraryScopeMi);
+    const links = getModuleLibraryItems("relevant", moduleLibraryScopeMi);
+    const materialsSection = document.querySelector(".module-library-materials-section");
+    const linksSection = document.querySelector("#module-library-links")?.closest(".module-library-section");
+    const materialsCopy = materialsSection?.querySelector(".module-library-section-copy");
+    const linksCopy = linksSection?.querySelector(".module-library-section-copy");
+    const materialWord = materials.length === 1 ? "item" : "items";
+    const linkWord = links.length === 1 ? "link" : "links";
+    if (materialsSection) materialsSection.classList.toggle("is-collapsed", !moduleLibraryMaterialsOpen);
+    if (linksSection) linksSection.classList.toggle("is-collapsed", !moduleLibraryLinksOpen);
+    if (materialsCopy) {
+      materialsCopy.textContent = moduleLibraryMaterialsOpen
+        ? `Formula sheets, worked examples, reference pages, and quick-access study material. ${materials.length} saved ${materialWord}.`
+        : `Collapsed — ${materials.length} saved material ${materialWord}. Tap to expand.`;
+    }
+    if (linksCopy) {
+      linksCopy.textContent = moduleLibraryLinksOpen
+        ? `Useful URLs, portals, videos, docs, and external resources. ${links.length} saved ${linkWord}.`
+        : `Collapsed — ${links.length} saved relevant ${linkWord}. Tap to expand.`;
+    }
+  };
+})();
 
 // Wait for Supabase to check/restore the session before showing login or the dashboard.
 (async function bootApp() {
