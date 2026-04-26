@@ -1324,9 +1324,6 @@ body.theme-dark-offwhite .material-library-empty {
 .topic-row.drop-subtopic {
   background: rgba(26,44,74,0.07);
 }
-.topic-row.drop-subtopic .topic-main {
-  transform: translateX(16px);
-}
 .topic-main {
   display: flex;
   align-items: flex-start;
@@ -1400,6 +1397,9 @@ body.theme-dark-offwhite .material-library-empty {
   background: transparent;
   position: relative;
   color: var(--muted);
+}
+.subtopic-toggle.topic-disclosure {
+  margin-top: 1px;
 }
 .subtopic-toggle::before {
   content: "";
@@ -6496,11 +6496,12 @@ function allowTopicDrop(mi, ti, event) {
   const indentDelta = (event.clientX || 0) - (draggedTopic.startX || 0);
   const rect = event.currentTarget.getBoundingClientRect();
   const dropAfter = (event.clientY || rect.top) > rect.top + (rect.height / 2);
+  const canNestHere = indentDelta > 56 && !dropAfter && ti > 0;
   document.querySelectorAll(".topic-row.drop-before, .topic-row.drop-after, .topic-row.drop-subtopic").forEach((row) => {
     if (row !== event.currentTarget) row.classList.remove("drop-before", "drop-after", "drop-subtopic");
   });
   event.currentTarget.classList.remove("reordering", "drop-before", "drop-after", "drop-subtopic");
-  if (indentDelta > 56) {
+  if (canNestHere) {
     event.currentTarget.classList.add("drop-subtopic");
   } else {
     event.currentTarget.classList.add(dropAfter ? "drop-after" : "drop-before");
@@ -6518,8 +6519,9 @@ function dropTopicReorder(mi, ti, event) {
   const indentDelta = (event.clientX || 0) - (draggedTopic.startX || 0);
   const rect = event.currentTarget.getBoundingClientRect();
   const dropAfter = (event.clientY || rect.top) > rect.top + (rect.height / 2);
-  if (indentDelta > 56) {
-    nestTopicUnderTopic(mi, draggedTopic.ti, ti);
+  const canNestHere = indentDelta > 56 && !dropAfter && ti > 0;
+  if (canNestHere) {
+    nestTopicUnderTopic(mi, draggedTopic.ti, ti - 1);
     draggedTopic = null;
     return;
   }
@@ -7072,7 +7074,7 @@ function buildModules() {
         <input class="input" id="topic-add-${mi}" placeholder='Add one topic, or "Topic 1" "Topic 2"'>
         <button class="mini-btn" type="button" onclick="addTopicToModule(${mi}, event)">Add Topic</button>
       </div>
-      <div class="topic-entry-help">Use quotes for several topics. Drag a topic to reorder it. Drag onto another topic and move slightly right until the indented guide appears to turn it into a subtopic.</div>
+      <div class="topic-entry-help">Use quotes for several topics. Drag a topic between two topics to reorder it. Drag slightly right in the gap below a parent topic to turn it into that topic's subtopic.</div>
     `;
     list.appendChild(topicTools);
     const topicAddInput = topicTools.querySelector(`#topic-add-${mi}`);
@@ -7135,12 +7137,6 @@ function buildModules() {
         row.classList.remove("reordering");
         endTopicReorder();
       });
-      const dragHandle = document.createElement("button");
-      dragHandle.type = "button";
-      dragHandle.className = "topic-drag-handle";
-      dragHandle.textContent = ":::";
-      dragHandle.title = "Drag to reorder, or drop to the right on another topic to nest it";
-      dragHandle.draggable = false;
       const toggleSubtopicsButton = document.createElement("button");
       const optionsMenu = document.createElement("details");
       optionsMenu.className = "topic-options-menu";
@@ -7170,19 +7166,19 @@ function buildModules() {
       optionsPanel.appendChild(deleteButton);
       optionsMenu.appendChild(optionsSummary);
       optionsMenu.appendChild(optionsPanel);
-      row.appendChild(dragHandle);
-      main.appendChild(checkbox);
-      main.appendChild(label);
-      row.appendChild(main);
+      row.title = "Drag to reorder. Move right in the gap below a topic to nest under it.";
       if (topic.subtopics.length) {
         toggleSubtopicsButton.type = "button";
-        toggleSubtopicsButton.className = "subtopic-toggle";
+        toggleSubtopicsButton.className = "subtopic-toggle topic-disclosure";
         toggleSubtopicsButton.classList.toggle("collapsed", !!topic.collapsed);
         toggleSubtopicsButton.setAttribute("aria-label", topic.collapsed ? "Expand subtopics" : "Collapse subtopics");
         toggleSubtopicsButton.title = topic.collapsed ? "Expand subtopics" : "Collapse subtopics";
         toggleSubtopicsButton.addEventListener("click", (event) => toggleTopicSubtopics(mi, ti, event));
-        row.appendChild(toggleSubtopicsButton);
+        main.appendChild(toggleSubtopicsButton);
       }
+      main.appendChild(checkbox);
+      main.appendChild(label);
+      row.appendChild(main);
       row.appendChild(optionsMenu);
       list.appendChild(row);
 
