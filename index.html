@@ -1445,22 +1445,24 @@ body.theme-dark-offwhite .account-card {
   border-top-color: rgba(255,255,255,0.08);
 }
 .module-colour-picker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: center;
 }
-.module-colour-swatch {
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12);
+.module-colour-input {
+  width: 44px;
+  height: 32px;
+  border: 1px solid var(--border2);
+  border-radius: 999px;
+  background: transparent;
+  padding: 2px;
   cursor: pointer;
 }
-.module-colour-swatch.active {
-  outline: 2px solid var(--ink);
-  outline-offset: 2px;
+.module-colour-preview {
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
 }
 .module-colour-meta {
   font-family: "DM Mono", monospace;
@@ -1469,6 +1471,11 @@ body.theme-dark-offwhite .account-card {
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 8px;
+}
+.module-colour-copy {
+  color: var(--muted);
+  line-height: 1.4;
+  margin-bottom: 10px;
 }
 .compact-marks-wrap {
   display: none;
@@ -3860,10 +3867,10 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
     <div class="field">
       <label for="pref-theme">Colour Scheme</label>
       <select class="nav-select" id="pref-theme" onchange="setPreference('theme', this.value)">
-        <option value="light">Light</option>
-        <option value="quiet">Off-White</option>
-        <option value="dark">Dark</option>
-        <option value="dark-offwhite">Dark Off-White</option>
+        <option value="light">Ivory Light</option>
+        <option value="quiet">Soft Beige</option>
+        <option value="dark">Charcoal Dark</option>
+        <option value="dark-offwhite">Ink and Parchment</option>
       </select>
     </div>
     <div class="field">
@@ -4015,6 +4022,7 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
       <div class="deadline-form-actions">
         <button class="nav-btn" type="button" onclick="closeDeadlineForm()">Cancel</button>
         <button class="nav-btn" type="button" onclick="saveDeadlineForm()" id="deadline-save-btn">Save Deadline</button>
+        <button class="nav-btn calendar-btn" type="button" onclick="saveDeadlineForm(true)" id="deadline-calendar-btn">Save + Calendar</button>
       </div>
     </div>
   </div>
@@ -4308,6 +4316,14 @@ const DARK_MODULE_COLOURS = [
   { stripe: "#be8a58", fill: "linear-gradient(90deg, #8b5a2b, #d29a66)", text: "#e4bb94" }
 ];
 
+const QUIET_MODULE_COLOURS = [
+  { stripe: "#988775", fill: "linear-gradient(90deg, #a69480, #c1b19f)", text: "#786857" }
+];
+
+const DARK_OFFWHITE_MODULE_COLOURS = [
+  { stripe: "#1a2c4a", fill: "linear-gradient(90deg, #1a2c4a, #1a2c4a)", text: "#1a2c4a" }
+];
+
 let deadlineSplashInterval = null;
 let deadlineTimelineInterval = null;
 let editingDeadlineIndex = null;
@@ -4546,19 +4562,23 @@ function createYearStore(modules) {
   };
 }
 
-function isDarkThemeFamily() {
-  return preferences.theme === "dark" || preferences.theme === "dark-offwhite";
+function isColourCustomisableTheme() {
+  return preferences.theme === "light" || preferences.theme === "dark";
 }
 
 function getModuleColourPalette() {
-  return isDarkThemeFamily() ? DARK_MODULE_COLOURS : LIGHT_MODULE_COLOURS;
+  if (preferences.theme === "dark") return DARK_MODULE_COLOURS;
+  if (preferences.theme === "light") return LIGHT_MODULE_COLOURS;
+  if (preferences.theme === "quiet") return QUIET_MODULE_COLOURS;
+  return DARK_OFFWHITE_MODULE_COLOURS;
 }
 
 function getModuleColourChoice(mi) {
   const store = getStore();
   if (!store.moduleColors) store.moduleColors = {};
+  if (!isColourCustomisableTheme()) return 0;
   const chosen = store.moduleColors[mi] || {};
-  const family = isDarkThemeFamily() ? "dark" : "light";
+  const family = preferences.theme === "dark" ? "dark" : "light";
   const palette = getModuleColourPalette();
   const fallback = ((mi % palette.length) + palette.length) % palette.length;
   const index = Number.isInteger(chosen[family]) ? chosen[family] : fallback;
@@ -4567,16 +4587,65 @@ function getModuleColourChoice(mi) {
 
 function getModuleColourSet(mi) {
   const palette = getModuleColourPalette();
+  if (!isColourCustomisableTheme()) return palette[0];
+  const store = getStore();
+  const chosen = store.moduleColors?.[mi] || {};
+  const family = preferences.theme === "dark" ? "dark" : "light";
+  const customHex = chosen[family];
+  if (typeof customHex === "string") return buildModuleColourFromHex(customHex);
   return palette[getModuleColourChoice(mi)] || palette[0];
 }
 
-function setModuleColour(mi, colourIndex, event) {
+function clampColourChannel(value) {
+  return Math.max(0, Math.min(255, Math.round(value)));
+}
+
+function normaliseHexColour(value, fallback = "#c0392b") {
+  const text = String(value || "").trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(text)) return text.toLowerCase();
+  if (/^#[0-9a-fA-F]{3}$/.test(text)) {
+    return "#" + text.slice(1).split("").map((ch) => ch + ch).join("").toLowerCase();
+  }
+  return fallback;
+}
+
+function adjustHexColour(hex, amount) {
+  const clean = normaliseHexColour(hex).slice(1);
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+  const next = [r, g, b]
+    .map((channel) => clampColourChannel(channel + amount))
+    .map((channel) => channel.toString(16).padStart(2, "0"))
+    .join("");
+  return `#${next}`;
+}
+
+function buildModuleColourFromHex(hex) {
+  const base = normaliseHexColour(hex);
+  const start = adjustHexColour(base, -18);
+  const end = adjustHexColour(base, 26);
+  const text = preferences.theme === "dark" ? adjustHexColour(base, 72) : adjustHexColour(base, -8);
+  return { stripe: base, fill: `linear-gradient(90deg, ${start}, ${end})`, text };
+}
+
+function getStoredModuleColourHex(mi) {
+  const palette = getModuleColourPalette();
+  const fallback = (palette[getModuleColourChoice(mi)] || palette[0] || LIGHT_MODULE_COLOURS[0]).stripe;
+  const store = getStore();
+  const chosen = store.moduleColors?.[mi] || {};
+  const family = preferences.theme === "dark" ? "dark" : "light";
+  return normaliseHexColour(chosen[family] || fallback, fallback);
+}
+
+function setModuleColour(mi, colourValue, event) {
   if (event) event.stopPropagation();
+  if (!isColourCustomisableTheme()) return;
   const store = getStore();
   if (!store.moduleColors) store.moduleColors = {};
-  const family = isDarkThemeFamily() ? "dark" : "light";
+  const family = preferences.theme === "dark" ? "dark" : "light";
   const current = store.moduleColors[mi] || {};
-  store.moduleColors[mi] = Object.assign({}, current, { [family]: colourIndex });
+  store.moduleColors[mi] = Object.assign({}, current, { [family]: normaliseHexColour(colourValue) });
   save();
   buildModules();
   if (!document.getElementById("dashboard-modal").classList.contains("hidden")) renderDashboardChart();
@@ -5896,7 +5965,7 @@ function closeDeadlineForm() {
   editingDeadlineIndex = null;
 }
 
-function saveDeadlineForm() {
+function buildDeadlineFromForm() {
   const titleInput = document.getElementById("deadline-title-input");
   const dateInput = document.getElementById("deadline-date-input");
   const timeInput = document.getElementById("deadline-time-input");
@@ -5915,10 +5984,102 @@ function saveDeadlineForm() {
   const parsed = new Date(`${date}T${time}`);
   if (Number.isNaN(parsed.getTime())) {
     alert("Please enter a valid date and time.");
+    return null;
+  }
+  return { mod, date: toDeadlineStorageString(parsed), note: noteInput.value || "" };
+}
+
+function getDeadlineCalendarDetails(deadline) {
+  const profile = Object.assign({}, defaultProfile, state.profile || {});
+  const parts = [];
+  if (deadline.note) parts.push(deadline.note.trim());
+  if (profile.course) parts.push(`Course: ${profile.course}`);
+  if (profile.university) parts.push(`University: ${profile.university}`);
+  return parts.filter(Boolean).join("\n\n");
+}
+
+function formatCalendarStamp(date) {
+  const pad = (value) => String(value).padStart(2, "0");
+  return `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}T${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}${pad(date.getUTCSeconds())}Z`;
+}
+
+function buildCalendarWindow(deadline) {
+  const start = new Date(deadline.date);
+  const end = new Date(start.getTime() + 60 * 60 * 1000);
+  return { start, end };
+}
+
+function downloadCalendarIcs(deadline) {
+  const { start, end } = buildCalendarWindow(deadline);
+  const details = getDeadlineCalendarDetails(deadline).replace(/\n/g, "\\n");
+  const safeTitle = (deadline.mod || "Deadline").replace(/\n/g, " ").replace(/,/g, "\\,").replace(/;/g, "\\;");
+  const content = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//UniTrack//Deadline Export//EN",
+    "BEGIN:VEVENT",
+    `UID:${Date.now()}-${Math.random().toString(16).slice(2)}@unitrack`,
+    `DTSTAMP:${formatCalendarStamp(new Date())}`,
+    `DTSTART:${formatCalendarStamp(start)}`,
+    `DTEND:${formatCalendarStamp(end)}`,
+    `SUMMARY:${safeTitle}`,
+    `DESCRIPTION:${details}`,
+    "END:VEVENT",
+    "END:VCALENDAR"
+  ].join("\r\n");
+  const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${(deadline.mod || "deadline").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "deadline"}.ics`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+}
+
+function openDeadlineInCalendar(deadline) {
+  if (!deadline?.date || !deadline?.mod) return;
+  const providerKey = preferences.calendarProvider || "google";
+  const provider = CALENDAR_PROVIDERS[providerKey] || CALENDAR_PROVIDERS.google;
+  const { start, end } = buildCalendarWindow(deadline);
+  const title = deadline.mod;
+  const details = getDeadlineCalendarDetails(deadline);
+  if (providerKey === "apple") {
+    downloadCalendarIcs(deadline);
     return;
   }
+  if (providerKey === "outlook") {
+    const params = new URLSearchParams({
+      path: "/calendar/action/compose",
+      rru: "addevent",
+      subject: title,
+      startdt: start.toISOString(),
+      enddt: end.toISOString(),
+      body: details
+    });
+    window.open(`https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`, "_blank", "noopener");
+    return;
+  }
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: title,
+    dates: `${formatCalendarStamp(start)}/${formatCalendarStamp(end)}`,
+    details
+  });
+  window.open(`https://calendar.google.com/calendar/render?${params.toString()}`, "_blank", "noopener");
+}
 
-  const deadlineData = { mod, date: toDeadlineStorageString(parsed), note: noteInput.value || "" };
+function openDeadlineInCalendarByIndex(index, event) {
+  if (event) event.stopPropagation();
+  const deadline = getStore().customExams[index];
+  if (!deadline) return;
+  openDeadlineInCalendar(deadline);
+}
+
+function saveDeadlineForm(openCalendar = false) {
+  const deadlineData = buildDeadlineFromForm();
+  if (!deadlineData) return;
   const store = getStore();
   if (editingDeadlineIndex !== null && store.customExams[editingDeadlineIndex]) {
     store.customExams[editingDeadlineIndex] = deadlineData;
@@ -5930,6 +6091,7 @@ function saveDeadlineForm() {
   renderStickyExams();
   renderDeadlineTimeline();
   closeDeadlineForm();
+  if (openCalendar) openDeadlineInCalendar(deadlineData);
 }
 
 
@@ -6013,6 +6175,7 @@ function renderDeadlineTimeline() {
           <div class="timeline-notes-label">Notes</div>
           <textarea class="timeline-notes" data-deadline-note-index="${exam.originalIndex}" placeholder="Add context, room, prep checklist, what to bring...">${escapeHtml(exam.note || "")}</textarea>
           <div class="timeline-actions">
+            <button class="mini-btn" type="button" onclick="openDeadlineInCalendarByIndex(${exam.originalIndex}, event)">Calendar</button>
             <button class="mini-btn" type="button" onclick="editDeadline(${exam.originalIndex})">Edit</button>
             <button class="mini-btn module-delete-btn" type="button" onclick="removeExam(${exam.originalIndex})" title="Delete deadline" aria-label="Delete deadline">x</button>
           </div>
@@ -6064,7 +6227,8 @@ function buildModules() {
   const store = getStore();
   MODULES.forEach((mod, mi) => {
     const moduleColours = getModuleColourSet(mi);
-    const themeFamilyLabel = isDarkThemeFamily() ? "Dark theme colours" : "Light theme colours";
+    const customisableTheme = isColourCustomisableTheme();
+    const themeFamilyLabel = preferences.theme === "dark" ? "Dark theme colour" : "Light theme colour";
     const wrap = document.createElement("div");
     wrap.className = `module b${mi}`;
     wrap.style.setProperty("--module-accent", moduleColours.stripe);
@@ -6143,19 +6307,24 @@ function buildModules() {
       "",
     );
     colourSection.body.innerHTML = `
-      <div class="module-colour-meta">${themeFamilyLabel}</div>
-      <div class="module-colour-picker">
-        ${getModuleColourPalette().map((colour, index) => `
-          <button
-            class="module-colour-swatch ${getModuleColourChoice(mi) === index ? "active" : ""}"
-            type="button"
-            title="Set module colour"
-            aria-label="Set module colour"
-            style="background:${colour.fill};"
-            onclick="setModuleColour(${mi}, ${index}, event)">
-          </button>
-        `).join("")}
-      </div>
+      ${customisableTheme ? `
+        <div class="module-colour-meta">${themeFamilyLabel}</div>
+        <div class="module-colour-copy">Pick the accent for this module in the current theme.</div>
+        <div class="module-colour-picker">
+          <input
+            class="module-colour-input"
+            type="color"
+            value="${escapeHtml(getStoredModuleColourHex(mi))}"
+            aria-label="Pick module colour"
+            onclick="event.stopPropagation()"
+            oninput="setModuleColour(${mi}, this.value, event)">
+          <div class="module-colour-preview" style="background:${moduleColours.fill};"></div>
+        </div>
+      ` : `
+        <div class="module-colour-meta">Theme controlled</div>
+        <div class="module-colour-copy">Custom module colours are available only in Light and Dark themes.</div>
+        <div class="module-colour-preview" style="background:${moduleColours.fill};"></div>
+      `}
     `;
     list.appendChild(colourSection.wrap);
 
