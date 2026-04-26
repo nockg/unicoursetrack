@@ -2555,6 +2555,141 @@ body.theme-dark .auth-gate-tab.active {
   }
 }
 
+
+/* ===== Style polish: darker auth page, clearer walkthrough, slight font lift ===== */
+html { font-size: 16.6px; }
+body { font-size: 17px; }
+.nav-btn, .nav-select, .mini-btn, .bb-link, .bb-edit-btn, .formula-btn, .formula-edit-btn { font-size: 10.5px; }
+.field label, .card-label, .timeline-subtitle, .deadline-splash-label, .auth-gate-label, .topic-tools-title, .formula-links-title, .relevant-links-title { font-size: 10.5px; }
+.input { font-size: 14px; }
+.topic-label { font-size: 15.8px; }
+.mod-name { font-size: 18px; }
+.mod-kanji, .prog-of, .prog-pct { font-size: 10.5px; }
+.hero-summary, .dashboard-subtitle, .setup-copy { font-size: 18px; }
+
+body.auth-required {
+  background:
+    radial-gradient(circle at 20% 18%, rgba(212,160,23,0.10), transparent 34%),
+    radial-gradient(circle at 86% 78%, rgba(192,57,43,0.10), transparent 38%),
+    linear-gradient(145deg, #08101f 0%, var(--indigo) 46%, #070b14 100%);
+  color: #f5f0e8;
+}
+body.auth-required::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at center, black, transparent 78%);
+}
+body.auth-required .auth-gate-shell {
+  background: rgba(245,240,232,0.08);
+  border-color: rgba(245,240,232,0.16);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.42);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+body.auth-required .auth-gate-aside {
+  background: linear-gradient(160deg, rgba(245,240,232,0.12), rgba(245,240,232,0.04));
+  border-right-color: rgba(245,240,232,0.12);
+}
+body.auth-required .auth-gate-panel { background: rgba(245,240,232,0.94); }
+body.auth-required .auth-gate-title { color: #fff; }
+body.auth-required .auth-gate-copy { color: rgba(245,240,232,0.74); }
+body.auth-required .auth-gate-label { color: rgba(245,240,232,0.58); }
+
+.onboarding-stage { gap: 12px; }
+.onboarding-step-copy {
+  font-size: 18px;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.onboarding-preview { gap: 10px; padding: 16px; }
+.onboarding-preview-row {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 19px;
+  line-height: 1.28;
+  color: var(--ink);
+  align-items: start;
+}
+.onboarding-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 8px;
+  background: var(--gold2);
+}
+.onboarding-step-tab { font-size: 11px; padding: 12px 13px; }
+
+.app-dialog-card { width: min(460px, calc(100vw - 32px)); }
+.app-dialog-message {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 18px;
+  line-height: 1.45;
+  color: rgba(255,255,255,0.72);
+  margin: 10px 0 16px;
+}
+.app-dialog-field { margin: 12px 0 6px; }
+.app-dialog-field label {
+  display: block;
+  font-family: "DM Mono", monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.48);
+  margin-bottom: 6px;
+}
+.app-dialog-input {
+  width: 100%;
+  background: rgba(255,255,255,0.10);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 4px;
+  padding: 11px 12px;
+  font-family: "DM Mono", monospace;
+  font-size: 15px;
+  outline: none;
+}
+.app-dialog-input:focus { border-color: rgba(216,200,176,0.62); }
+.app-dialog-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  color: rgba(255,255,255,0.74);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 17px;
+}
+.app-dialog-check input { width: 16px; height: 16px; }
+.app-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+.app-dialog-actions .nav-btn {
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.18);
+  color: #fff;
+}
+.app-dialog-actions .nav-btn:hover { border-color: rgba(216,200,176,0.62); color: #f8ead5; }
+.app-dialog-actions .danger-action {
+  background: rgba(192,57,43,0.22);
+  border-color: rgba(231,76,60,0.42);
+  color: #fff;
+}
+
+@media (max-width: 760px) {
+  html { font-size: 16.4px; }
+  body { font-size: 16.8px; }
+  .nav-btn, .nav-select, .mini-btn { font-size: 10.8px; }
+  .topic-label { font-size: 16.2px; }
+  .onboarding-step-copy { font-size: 17px; }
+  .onboarding-preview-row { font-size: 18px; }
+}
+
 </style>
 </head>
 <body class="auth-required">
@@ -2600,7 +2735,7 @@ body.theme-dark .auth-gate-tab.active {
     </div>
     <div class="template-actions">
       <button class="template-choice primary" type="button" onclick="loadAeroTemplate()">
-        <div class="template-choice-title">Y1 Aero Template</div>
+        <div class="template-choice-title">Year 1 Aero Template</div>
         <div class="template-choice-detail">Loads the Sheffield Year 1 Aerospace module list, credits, coursework/exam weights, and topic checklist.</div>
       </button>
       <button class="template-choice" type="button" onclick="dismissTemplateSplash()">
@@ -2616,6 +2751,28 @@ body.theme-dark .auth-gate-tab.active {
     <button class="deadline-splash-close" type="button" onclick="closeAuthModal()">X</button>
     <div class="deadline-splash-label">Cloud Account</div>
     <div id="auth-modal-body"></div>
+  </div>
+</div>
+
+
+<div id="app-dialog-modal" class="deadline-splash hidden" role="dialog" aria-modal="true" aria-labelledby="app-dialog-title">
+  <div class="deadline-splash-card app-dialog-card">
+    <button class="deadline-splash-close" type="button" onclick="resolveAppDialog(false)">X</button>
+    <div class="deadline-splash-label" id="app-dialog-label">Confirm</div>
+    <div class="deadline-splash-title" id="app-dialog-title">Are you sure?</div>
+    <div class="app-dialog-message" id="app-dialog-message"></div>
+    <div class="app-dialog-field hidden" id="app-dialog-field">
+      <label for="app-dialog-input" id="app-dialog-input-label">Input</label>
+      <input class="app-dialog-input" id="app-dialog-input" type="text">
+    </div>
+    <label class="app-dialog-check hidden" id="app-dialog-check-wrap">
+      <input id="app-dialog-check" type="checkbox">
+      <span id="app-dialog-check-label"></span>
+    </label>
+    <div class="app-dialog-actions">
+      <button class="nav-btn" type="button" id="app-dialog-cancel" onclick="resolveAppDialog(false)">Cancel</button>
+      <button class="nav-btn calendar-btn" type="button" id="app-dialog-confirm" onclick="resolveAppDialog(true)">Continue</button>
+    </div>
   </div>
 </div>
 
@@ -2902,7 +3059,7 @@ body.theme-dark .auth-gate-tab.active {
             <div class="setup-choice-detail">Begin with an empty Year 1 so you can add your own modules, weights, topics, and deadlines from scratch.</div>
           </button>
           <button class="setup-choice" id="setup-choice-aero" type="button" onclick="selectSetupTemplate('aero')">
-            <div class="setup-choice-title">Y1 Aero Template</div>
+            <div class="setup-choice-title">Year 1 Aero Template</div>
             <div class="setup-choice-detail">Load the Sheffield Year 1 Aerospace module list as a ready-made starting point that you can still edit afterwards.</div>
           </button>
         </div>
@@ -2997,41 +3154,41 @@ const ONBOARDING_STEPS = [
   {
     label: "Modules",
     title: "Build your year",
-    copy: "Start with Add Module, then open a module card to edit titles, codes, topics, links, and marks.",
+    copy: "Start simple. Add modules, then open each card when you want more detail.",
     preview: [
-      "Use Add Module in the top bar",
-      "Open a module card for details",
-      "Drag topics into the order you prefer"
+      "Add or edit modules",
+      "Tick topics as you finish them",
+      "Drag topics into your preferred order"
     ]
   },
   {
     label: "Marks",
-    title: "Track marks clearly",
-    copy: "Use coursework and exam fields for quick marks, or open the coursework calculator when a module has several components.",
+    title: "Track your marks",
+    copy: "Enter coursework and exam estimates. UniTrack updates the prediction automatically.",
     preview: [
-      "Coursework and exam marks update predictions",
-      "Clear marks works per module",
-      "Coursework components can override manual input"
+      "Coursework + exam marks feed the final score",
+      "Use components for multi-part coursework",
+      "Clear marks per module when needed"
     ]
   },
   {
     label: "Deadlines",
-    title: "Keep deadlines visible",
-    copy: "Add deadlines from the top bar, then use the timeline for larger titles, notes, and countdowns.",
+    title: "Stay ahead of deadlines",
+    copy: "Add deadlines once. The nearest one stays easy to see.",
     preview: [
-      "Deadline bar stays at the top",
-      "Timeline shows every upcoming deadline",
-      "Notes save with each deadline"
+      "Top bar shows upcoming deadlines",
+      "Timeline gives notes and larger countdowns",
+      "Nearest deadline is prioritised"
     ]
   },
   {
-    label: "Personalise",
-    title: "Make it feel like yours",
-    copy: "Open Preferences to change colour scheme, font style, backgrounds, and course setup.",
+    label: "Style",
+    title: "Make it yours",
+    copy: "Use Preferences for themes, fonts, backgrounds, and course details.",
     preview: [
-      "Themes and font styles",
-      "Hero and page backgrounds",
-      "Edit course setup any time"
+      "Switch themes and font styles",
+      "Change hero and page backgrounds",
+      "Edit your course setup anytime"
     ]
   }
 ];
@@ -3541,7 +3698,7 @@ function loadAeroTemplate() {
   const currentYear = getCurrentYear();
   if (!currentYear) return;
   if (currentYear.store.modules.length) {
-    const replace = confirm("Replace the current year's modules with the Y1 Aerospace Engineering template?");
+    const replace = confirm("Replace the current year's modules with the Year 1 Aerospace Engineering template?");
     if (!replace) return;
   }
   currentYear.store = createYearStore(BASE_MODULES);
@@ -4351,7 +4508,7 @@ function renderYearSelector() {
     : `${university} · ${currentYear.label} · ${startYear}-${String(endYear).slice(2)}`;
 
   const title = document.getElementById("hero-title");
-  if (title) title.textContent = `Y${yearNumber} ${course}`;
+  if (title) title.textContent = `Year ${yearNumber} ${course}`;
 
   const footer = document.getElementById("footer-label");
   if (footer) footer.textContent = `${university} ${currentYear.label} · Progress Tracker`;
@@ -6156,6 +6313,444 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   setTimeout(() => setAuthError("Cloud sign-in did not load. Refresh the page and check your internet connection."), 0);
 }
 
+
+
+/* ===== Professional in-app dialog helpers + prompt/confirm replacements ===== */
+let appDialogResolver = null;
+let appDialogMode = "confirm";
+let appDialogRequireYes = false;
+
+function openAppDialog(options = {}) {
+  const modal = document.getElementById("app-dialog-modal");
+  if (!modal) return Promise.resolve(null);
+
+  const label = document.getElementById("app-dialog-label");
+  const title = document.getElementById("app-dialog-title");
+  const message = document.getElementById("app-dialog-message");
+  const field = document.getElementById("app-dialog-field");
+  const input = document.getElementById("app-dialog-input");
+  const inputLabel = document.getElementById("app-dialog-input-label");
+  const checkWrap = document.getElementById("app-dialog-check-wrap");
+  const check = document.getElementById("app-dialog-check");
+  const checkLabel = document.getElementById("app-dialog-check-label");
+  const confirmBtn = document.getElementById("app-dialog-confirm");
+  const cancelBtn = document.getElementById("app-dialog-cancel");
+
+  appDialogMode = options.mode || "confirm";
+  appDialogRequireYes = !!options.requireYes;
+
+  if (label) label.textContent = options.label || (options.danger ? "Delete" : "Confirm");
+  if (title) title.textContent = options.title || "Are you sure?";
+  if (message) message.textContent = options.message || "";
+
+  const needsInput = appDialogMode === "prompt" || appDialogRequireYes;
+  if (field) field.classList.toggle("hidden", !needsInput);
+  if (inputLabel) inputLabel.textContent = appDialogRequireYes ? "Type yes to confirm" : (options.inputLabel || "Value");
+  if (input) {
+    input.value = appDialogRequireYes ? "" : (options.defaultValue || "");
+    input.placeholder = options.placeholder || (appDialogRequireYes ? "yes" : "");
+  }
+
+  if (checkWrap) checkWrap.classList.toggle("hidden", !options.checkboxLabel);
+  if (checkLabel) checkLabel.textContent = options.checkboxLabel || "";
+  if (check) check.checked = !!options.checkboxDefault;
+
+  if (confirmBtn) {
+    confirmBtn.textContent = options.confirmText || (options.danger ? "Delete" : "Continue");
+    confirmBtn.classList.toggle("danger-action", !!options.danger);
+  }
+  if (cancelBtn) cancelBtn.textContent = options.cancelText || "Cancel";
+
+  modal.classList.remove("hidden");
+  setTimeout(() => {
+    if (needsInput && input) {
+      input.focus();
+      input.select();
+    } else if (confirmBtn) {
+      confirmBtn.focus();
+    }
+  }, 0);
+
+  return new Promise(resolve => {
+    appDialogResolver = resolve;
+  });
+}
+
+function resolveAppDialog(confirmed) {
+  const modal = document.getElementById("app-dialog-modal");
+  const input = document.getElementById("app-dialog-input");
+  const check = document.getElementById("app-dialog-check");
+  if (modal) modal.classList.add("hidden");
+
+  if (!appDialogResolver) return;
+  const resolver = appDialogResolver;
+  appDialogResolver = null;
+
+  if (!confirmed) {
+    resolver(null);
+    return;
+  }
+
+  if (appDialogRequireYes && (input?.value || "").trim().toLowerCase() !== "yes") {
+    resolver(false);
+    return;
+  }
+
+  if (appDialogMode === "prompt") {
+    resolver({ value: input?.value || "", checked: !!check?.checked });
+    return;
+  }
+
+  resolver(true);
+}
+
+document.addEventListener("keydown", (event) => {
+  const modal = document.getElementById("app-dialog-modal");
+  if (!modal || modal.classList.contains("hidden")) return;
+  if (event.key === "Escape") resolveAppDialog(false);
+  if (event.key === "Enter" && !event.shiftKey) resolveAppDialog(true);
+});
+
+async function appConfirm({ title, message, label = "Confirm", confirmText = "Continue", danger = false, requireYes = false } = {}) {
+  const result = await openAppDialog({ mode: "confirm", title, message, label, confirmText, danger, requireYes });
+  return result === true;
+}
+
+async function appPrompt({ title, message, label = "Input", inputLabel = "Value", defaultValue = "", placeholder = "", confirmText = "Save", checkboxLabel = "", checkboxDefault = false } = {}) {
+  const result = await openAppDialog({ mode: "prompt", title, message, label, inputLabel, defaultValue, placeholder, confirmText, checkboxLabel, checkboxDefault });
+  if (!result) return null;
+  return result;
+}
+
+function showAppNotice(title, message = "") {
+  return openAppDialog({ mode: "confirm", label: "Notice", title, message, confirmText: "Okay", cancelText: "Close" });
+}
+
+async function deleteCustomBackground(key) {
+  if (!preferences.customBackgrounds || !preferences.customBackgrounds[key]) return;
+  const confirmed = await appConfirm({
+    label: "Background",
+    title: "Delete custom background?",
+    message: "This removes the saved background from this tracker.",
+    confirmText: "Delete",
+    danger: true
+  });
+  if (!confirmed) return;
+  delete preferences.customBackgrounds[key];
+  if (preferences.hero === key) preferences.hero = "bg1";
+  savePreferences();
+  applyPreferences();
+}
+
+async function loadAeroTemplate() {
+  const currentYear = getCurrentYear();
+  if (!currentYear) return;
+  if (currentYear.store.modules.length) {
+    const replace = await appConfirm({
+      label: "Template",
+      title: "Replace current modules?",
+      message: "This will replace the current year's modules with the Year 1 Aerospace Engineering template.",
+      confirmText: "Replace",
+      danger: true
+    });
+    if (!replace) return;
+  }
+  currentYear.store = createYearStore(BASE_MODULES);
+  if (!state.profile.course || state.profile.course === "Course" || state.profile.course === "Your Course") state.profile.course = "Aerospace Engineering";
+  if (!state.profile.university || state.profile.university === "University") state.profile.university = "University of Sheffield";
+  if (!state.setup) state.setup = {};
+  state.setup.templateChoiceMade = true;
+  refreshActiveYear();
+  save();
+  document.getElementById("template-splash").classList.add("hidden");
+  renderYearSelector();
+  buildModules();
+  renderStickyExams();
+  updateGlobal();
+}
+
+async function clearModuleMarks(mi, event) {
+  if (event) event.stopPropagation();
+  const store = getStore();
+  const mod = MODULES[mi];
+  if (!mod) return;
+  const confirmed = await appConfirm({
+    label: "Marks",
+    title: "Clear marks?",
+    message: `Clear coursework and exam marks for ${mod.kanji || mod.name}?`,
+    confirmText: "Clear",
+    danger: true
+  });
+  if (!confirmed) return;
+  delete store.coursework[mi];
+  delete store.exams[mi];
+  if (store.courseworkComponents) delete store.courseworkComponents[mi];
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+async function clearTrackerStorage() {
+  const confirmClear = await appConfirm({
+    label: "Reset Tracker",
+    title: "Reset everything?",
+    message: "This will reset progress, marks, notes, links, and cloud saves for this account.",
+    confirmText: "Reset",
+    danger: true,
+    requireYes: true
+  });
+  if (!confirmClear) return;
+  clearTimeout(cloudSaveTimer);
+  cloudReady = false;
+  cloudHadSave = false;
+  cloudLoadSucceeded = false;
+  const blankState = createInitialState();
+  const blankPrefs = { ...DEFAULT_PREFERENCES };
+  if (currentUser) {
+    const { error } = await supabaseClient
+      .from("tracker_profiles")
+      .upsert({ user_id: currentUser.id, data: blankState, prefs: blankPrefs, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+    if (error) {
+      await showAppNotice("Could not clear cloud storage", error.message);
+      cloudReady = true;
+      return;
+    }
+  }
+  clearLocalTrackerStorage();
+  state = blankState;
+  Object.keys(preferences).forEach((key) => delete preferences[key]);
+  Object.assign(preferences, blankPrefs);
+  localStorage.setItem(KEY, JSON.stringify(state));
+  localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
+  ensureYearsState();
+  refreshActiveYear();
+  applyPreferences();
+  renderYearSelector();
+  buildModules();
+  renderStickyExams();
+  updateGlobal();
+  await showAppNotice("Tracker reset", "Local and cloud tracker data were cleared successfully.");
+  if (currentUser) setupCourseIfNeeded();
+}
+
+function renderYearSelector() {
+  const select = document.getElementById("year-select");
+  if (!select) return;
+  const currentYear = getCurrentYear();
+  const yearOptions = Object.values(state.years)
+    .sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true }))
+    .map((year) => `<option value="${escapeHtml(year.id)}">${escapeHtml(year.label)}${year.store.archived ? " (Archived)" : ""}</option>`);
+  const actionOptions = [
+    '<option value="__new__">+ New Year</option>',
+    `<option value="__archive__">${currentYear.store.archived ? "Unarchive Current Year" : "Archive Current Year"}</option>`,
+    '<option value="__delete__">Delete Current Year</option>'
+  ];
+  select.innerHTML = yearOptions.join("") + actionOptions.join("");
+  select.value = state.ui.currentYearId;
+  const profile = Object.assign({}, defaultProfile, state.profile || {});
+  const yearNumber = parseInt(currentYear.label.match(/\d+/)?.[0] || "1", 10);
+  const profileStartYear = parseInt(profile.startYear, 10);
+  const startYear = (Number.isFinite(profileStartYear) ? profileStartYear : new Date().getFullYear()) + (yearNumber - 1);
+  const endYear = startYear + 1;
+  const userName = (profile.name || "").trim();
+  const university = profile.university || "University";
+  const course = profile.course || "Course";
+  const eyebrow = document.getElementById("hero-eyebrow");
+  if (eyebrow) eyebrow.textContent = userName
+    ? `${userName} · ${university} · ${currentYear.label} · ${startYear}-${String(endYear).slice(2)}`
+    : `${university} · ${currentYear.label} · ${startYear}-${String(endYear).slice(2)}`;
+  const title = document.getElementById("hero-title");
+  if (title) title.textContent = `Year ${yearNumber} ${course}`;
+  const footer = document.getElementById("footer-label");
+  if (footer) footer.textContent = `${university} ${currentYear.label} · Progress Tracker`;
+  document.title = `${course} ${currentYear.label} Tracker`;
+}
+
+async function deleteCurrentYear() {
+  const year = getCurrentYear();
+  if (!year) return;
+  if (Object.keys(state.years).length === 1) {
+    await showAppNotice("Cannot delete year", "You need at least one year in the tracker.");
+    return;
+  }
+  const confirmed = await appConfirm({
+    label: "Delete Year",
+    title: `Delete ${year.label}?`,
+    message: "This removes the year, its modules, marks, topics, and deadlines from this tracker.",
+    confirmText: "Delete Year",
+    danger: true,
+    requireYes: true
+  });
+  if (!confirmed) return;
+  delete state.years[year.id];
+  state.ui.currentYearId = Object.keys(state.years)[0];
+  refreshActiveYear();
+  save();
+  renderYearSelector();
+  buildModules();
+  renderStickyExams();
+  updateGlobal();
+}
+
+async function createNewYear() {
+  const nextNumber = Object.keys(state.years).length + 1;
+  const result = await appPrompt({
+    label: "New Year",
+    title: "Add a new academic year",
+    message: "Name the year. You can start blank or copy the current year's modules.",
+    inputLabel: "Year name",
+    defaultValue: `Year ${nextNumber}`,
+    placeholder: "Year 2",
+    confirmText: "Create Year",
+    checkboxLabel: "Use current year's modules as a starting template",
+    checkboxDefault: false
+  });
+  if (!result || !result.value.trim()) return;
+  const label = result.value.trim().replace(/^Y(\d+)\b/i, "Year $1");
+  const id = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || `year-${Date.now()}`;
+  if (state.years[id]) {
+    await showAppNotice("Year already exists", "Choose a different year name.");
+    return;
+  }
+  state.years[id] = { id, label, store: createYearStore(result.checked ? MODULES : []) };
+  state.ui.currentYearId = id;
+  refreshActiveYear();
+  save();
+  renderYearSelector();
+  buildModules();
+  renderStickyExams();
+  updateGlobal();
+}
+
+async function deleteModuleFromCurrentYear(mi, event) {
+  if (event) event.stopPropagation();
+  const mod = MODULES[mi];
+  if (!mod) return;
+  const confirmed = await appConfirm({ label: "Delete Module", title: `Delete ${mod.kanji || mod.short || mod.name}?`, message: "This removes the module, its topics, marks, notes, and links.", confirmText: "Delete Module", danger: true });
+  if (!confirmed) return;
+  const store = getStore();
+  MODULES.splice(mi, 1);
+  store.topics = shiftTopicsAfterModuleDelete(store.topics, mi);
+  store.coursework = shiftIndexedObjectAfterDelete(store.coursework, mi);
+  store.courseworkComponents = shiftIndexedObjectAfterDelete(store.courseworkComponents, mi);
+  store.exams = shiftIndexedObjectAfterDelete(store.exams, mi);
+  store.notes = shiftIndexedObjectAfterDelete(store.notes, mi);
+  store.blackboard = shiftIndexedObjectAfterDelete(store.blackboard, mi);
+  store.formulas = shiftIndexedObjectAfterDelete(store.formulas, mi);
+  store.relevantLinks = shiftIndexedObjectAfterDelete(store.relevantLinks, mi);
+  save();
+  refreshActiveYear();
+  buildModules();
+  renderStickyExams();
+  updateGlobal();
+}
+
+async function editModuleTitle(mi, event) {
+  if (event) event.stopPropagation();
+  const mod = MODULES[mi];
+  if (!mod) return;
+  const result = await appPrompt({ label: "Module", title: "Edit module title", inputLabel: "Module title", defaultValue: mod.name || "", confirmText: "Save" });
+  const title = result?.value;
+  if (title === undefined || title === null || !title.trim()) return;
+  mod.name = title.trim();
+  if (!mod.short || mod.short === mod.kanji) mod.short = title.trim();
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+async function editModuleCode(mi, event) {
+  if (event) event.stopPropagation();
+  const mod = MODULES[mi];
+  if (!mod) return;
+  const previousCode = mod.kanji || "";
+  const result = await appPrompt({ label: "Module", title: "Edit module code", inputLabel: "Module code", defaultValue: previousCode, confirmText: "Save" });
+  const code = result?.value;
+  if (code === undefined || code === null || !code.trim()) return;
+  mod.kanji = code.trim().toUpperCase();
+  if (!mod.short || mod.short === previousCode) mod.short = mod.kanji;
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+async function addTopicToModule(mi, event) {
+  if (event) event.stopPropagation();
+  const draftInput = document.getElementById(`topic-add-${mi}`);
+  let input = draftInput ? draftInput.value : "";
+  if (!input) {
+    const result = await appPrompt({ label: "Topic", title: "Add topic", message: 'For multiple topics, wrap each one in quotes: "Topic 1" "Topic 2"', inputLabel: "Topic name", defaultValue: "", confirmText: "Add Topic" });
+    input = result?.value || "";
+  }
+  if (!input || !input.trim()) return;
+  const quotedTopics = [...input.matchAll(/"([^"]+)"/g)].map(match => match[1].trim()).filter(Boolean);
+  const topicsToAdd = quotedTopics.length ? quotedTopics : [input.trim()];
+  MODULES[mi].topics.push(...topicsToAdd);
+  if (draftInput) draftInput.value = "";
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+async function deleteTopicFromModule(mi, ti, event) {
+  if (event) event.stopPropagation();
+  const title = MODULES[mi].topics[ti];
+  if (!title) return;
+  const confirmed = await appConfirm({ label: "Delete Topic", title: "Delete this topic?", message: title, confirmText: "Delete Topic", danger: true });
+  if (!confirmed) return;
+  const store = getStore();
+  MODULES[mi].topics.splice(ti, 1);
+  const nextTopics = {};
+  Object.keys(store.topics).forEach((key) => {
+    const match = /^t_(\d+)_(\d+)$/.exec(key);
+    if (!match) { nextTopics[key] = store.topics[key]; return; }
+    const moduleIndex = Number(match[1]);
+    const topicIndex = Number(match[2]);
+    if (moduleIndex !== mi) { nextTopics[key] = store.topics[key]; return; }
+    if (topicIndex < ti) nextTopics[key] = store.topics[key];
+    if (topicIndex > ti) nextTopics[`t_${mi}_${topicIndex - 1}`] = store.topics[key];
+  });
+  store.topics = nextTopics;
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+async function editTopicInModule(mi, ti, event) {
+  if (event) event.stopPropagation();
+  const topic = MODULES[mi]?.topics[ti];
+  if (!topic) return;
+  const result = await appPrompt({ label: "Topic", title: "Edit topic", inputLabel: "Topic name", defaultValue: topic, confirmText: "Save" });
+  const updated = result?.value;
+  if (updated === undefined || updated === null || !updated.trim()) return;
+  MODULES[mi].topics[ti] = updated.trim();
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+async function deleteCourseworkComponent(mi, ci, event) {
+  if (event) event.stopPropagation();
+  const components = getCourseworkComponents(mi);
+  if (!components[ci]) return;
+  const confirmed = await appConfirm({ label: "Coursework", title: "Delete coursework component?", message: components[ci].name || "This component will be removed.", confirmText: "Delete", danger: true });
+  if (!confirmed) return;
+  components.splice(ci, 1);
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+async function removeExam(index) {
+  const store = getStore();
+  if (!store.customExams[index]) return;
+  const confirmed = await appConfirm({ label: "Deadline", title: "Remove deadline?", message: store.customExams[index].mod || "This deadline will be removed.", confirmText: "Remove", danger: true });
+  if (!confirmed) return;
+  store.customExams.splice(index, 1);
+  save();
+  renderStickyExams();
+  renderDeadlineTimeline();
+}
 
 // Wait for Supabase to check/restore the session before showing login or the dashboard.
 (async function bootApp() {
