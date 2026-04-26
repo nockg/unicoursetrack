@@ -2849,32 +2849,36 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
   .nav-bar {
     top: 52px;
     padding: 8px 10px;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: stretch;
-    overflow-x: visible;
+    gap: 6px;
+    flex-wrap: nowrap;
+    align-items: center;
+    overflow-x: auto;
+    white-space: nowrap;
   }
 
   .nav-brand {
     width: 32px;
     height: 32px;
     flex-basis: 32px;
+    flex-shrink: 0;
   }
 
   .year-controls {
-    width: 100%;
-    gap: 8px;
+    width: auto;
+    gap: 6px;
+    flex: 0 0 auto;
   }
 
   .nav-btn,
   .nav-select {
     font-size: 11px;
     padding: 8px 10px;
+    flex-shrink: 0;
   }
 
   .nav-select {
-    min-width: 0;
-    width: 100%;
+    min-width: 124px;
+    width: auto;
   }
 
   .hero {
@@ -3057,6 +3061,8 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
   .nav-bar {
     padding: 8px;
     gap: 6px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
   }
 
   .nav-btn,
