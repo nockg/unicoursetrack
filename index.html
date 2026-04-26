@@ -1306,8 +1306,12 @@ body.theme-dark-offwhite .material-library-empty {
   scrollbar-width: none;
 }
 .module-library-list::-webkit-scrollbar { display: none; }
+.module-library-section-collapsible .module-library-list {
+  overflow: visible;
+}
 .module-library-list.cards {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
 }
 .module-library-card {
   border: 1px solid var(--border2);
@@ -1317,15 +1321,24 @@ body.theme-dark-offwhite .material-library-empty {
   gap: 8px;
   cursor: pointer;
   position: relative;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+.module-library-card:hover {
+  transform: translateY(-1px);
+  border-color: var(--gold2);
+  box-shadow: 0 12px 24px rgba(26,22,18,0.08);
 }
 .module-library-list:not(.cards) .module-library-card {
   grid-template-columns: 10px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  padding: 9px 10px;
+  background: rgba(255,255,255,0.52);
 }
 .module-library-list.cards .module-library-card {
   grid-template-columns: 10px minmax(0, 1fr);
   align-items: start;
+  padding: 14px 16px;
 }
 .module-library-list:not(.cards) .module-library-card-head {
   align-items: center;
@@ -1337,11 +1350,18 @@ body.theme-dark-offwhite .material-library-empty {
   grid-column: 2;
 }
 .module-library-list:not(.cards) .module-library-card-meta {
-  margin-top: 4px;
+  margin-top: 2px;
+  gap: 6px;
 }
 .module-library-list:not(.cards) .module-library-card-notes {
   grid-column: 2 / -1;
-  margin-top: -2px;
+  margin-top: -3px;
+  font-size: 12px;
+  opacity: 0.9;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .module-library-list:not(.cards) .module-library-card-actions {
   grid-column: 3;
@@ -1357,6 +1377,9 @@ body.theme-dark-offwhite .material-library-empty {
   font-weight: 600;
   color: var(--sumi);
   line-height: 1.1;
+}
+.module-library-list:not(.cards) .module-library-card-title {
+  font-size: 16px;
 }
 .module-library-card-meta {
   display: flex;
@@ -1385,6 +1408,16 @@ body.theme-dark-offwhite .material-library-empty {
   gap: 8px;
   align-items: center;
   justify-content: flex-end;
+}
+.module-library-card-actions .module-delete-btn {
+  min-width: 34px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
 }
 .module-library-empty {
   font-family: "Cormorant Garamond", serif;
@@ -1425,6 +1458,12 @@ body.theme-dark .module-library-card,
 body.theme-dark-offwhite .module-library-card {
   background: rgba(255,255,255,0.04);
   border-color: rgba(255,255,255,0.09);
+}
+body.theme-dark .module-library-card:hover,
+body.theme-dark-offwhite .module-library-card:hover {
+  border-color: rgba(216,200,176,0.44);
+  background: rgba(255,255,255,0.065);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.18);
 }
 body.theme-dark .module-library-card-title,
 body.theme-dark-offwhite .module-library-card-title {
@@ -6395,12 +6434,13 @@ function renderModuleLibrary() {
   if (searchInput && searchInput.value !== moduleLibrarySearch) searchInput.value = moduleLibrarySearch;
   document.getElementById("module-library-view-list")?.classList.toggle("calendar-btn", moduleLibraryViewMode === "list");
   document.getElementById("module-library-view-cards")?.classList.toggle("calendar-btn", moduleLibraryViewMode === "cards");
-  materialsHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "");
-  linksHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "") + (moduleLibraryLinksOpen ? "" : " hidden");
-  document.getElementById("module-library-links-chevron")?.classList.toggle("open", moduleLibraryLinksOpen);
 
   const materials = getModuleLibraryItems("formula", moduleLibraryScopeMi);
   const links = getModuleLibraryItems("relevant", moduleLibraryScopeMi);
+  if (moduleLibrarySearch.trim() && links.length) moduleLibraryLinksOpen = true;
+  materialsHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "");
+  linksHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "") + (moduleLibraryLinksOpen ? "" : " hidden");
+  document.getElementById("module-library-links-chevron")?.classList.toggle("open", moduleLibraryLinksOpen);
   materialsHost.innerHTML = materials.length
     ? materials.map(buildModuleLibraryCard).join("")
     : `<div class="module-library-empty">No module material saved yet.</div>`;
