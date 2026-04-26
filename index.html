@@ -3088,6 +3088,181 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
     padding: 14px !important;
   }
 }
+
+@media (max-width: 760px) {
+  .module-header,
+  body.compact-ui .module-header {
+    grid-template-columns: minmax(0, 1fr) minmax(92px, 108px) !important;
+    grid-template-areas:
+      "summary summary"
+      "progress final"
+      "inputs inputs"
+      "actions actions" !important;
+    gap: 10px 10px !important;
+    padding: 48px 12px 12px !important;
+    align-items: stretch !important;
+  }
+
+  .module-header > *,
+  .module-header > *:not(.mod-stripe),
+  body.compact-ui .module-header > * {
+    min-width: 0;
+  }
+
+  .mod-stripe {
+    display: none !important;
+  }
+
+  .module-summary {
+    grid-area: summary;
+    min-width: 0;
+  }
+
+  .mod-name {
+    font-size: 16px !important;
+    line-height: 1.08;
+    margin-bottom: 4px;
+    max-width: 100%;
+    word-break: break-word;
+  }
+
+  .mod-kanji {
+    font-size: 10px;
+    margin-bottom: 8px;
+  }
+
+  .module-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .module-links .bb-link,
+  .module-links .formula-btn {
+    width: 100%;
+    min-height: 38px;
+    padding: 8px 10px;
+    font-size: 9.5px;
+    line-height: 1.15;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .progress-section,
+  .inputs-grid,
+  .final-col,
+  .module-actions {
+    width: 100%;
+  }
+
+  .progress-section {
+    order: 2;
+    grid-area: progress;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.22);
+  }
+
+  .prog-header {
+    margin-bottom: 6px;
+    align-items: baseline;
+  }
+
+  .prog-done {
+    font-size: 16px;
+  }
+
+  .prog-pct,
+  .prog-of {
+    font-size: 9px;
+    line-height: 1.25;
+  }
+
+  .inputs-grid {
+    order: 3;
+    grid-area: inputs;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px;
+  }
+
+  .final-col {
+    order: 4;
+    grid-area: final;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+    text-align: left !important;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.22);
+  }
+
+  .final-mark {
+    font-size: 22px;
+    margin-bottom: 2px;
+  }
+
+  .final-cls {
+    font-size: 9px;
+    line-height: 1.2;
+  }
+
+  .module-actions {
+    order: 5;
+    grid-area: actions;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .module-header .chevron {
+    position: absolute !important;
+    top: 12px;
+    right: 58px;
+    width: 34px;
+    height: 34px;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .module-delete-corner {
+    top: 12px;
+    right: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .module-header,
+  body.compact-ui .module-header {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "summary"
+      "progress"
+      "final"
+      "inputs"
+      "actions" !important;
+    gap: 8px !important;
+    padding: 48px 10px 10px !important;
+  }
+
+  .module-links {
+    grid-template-columns: 1fr;
+  }
+
+  .inputs-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .final-col {
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
 </style>
 </head>
 <body class="auth-required">
@@ -5282,7 +5457,7 @@ function buildModules() {
     header.className = "module-header";
     header.innerHTML = `
       <div class="mod-stripe c${mi}"></div>
-      <div>
+      <div class="module-summary">
         <div class="mod-name">${escapeHtml(mod.name)}</div>
         <div class="mod-kanji">${escapeHtml(mod.kanji)}</div>
         <div class="module-links">
