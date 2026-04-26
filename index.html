@@ -4656,6 +4656,65 @@ body.theme-sakura .module-library-content {
   .module-library-content { padding: 18px; border-radius: 18px; }
   .module-library-card-meta { grid-template-columns: 1fr; justify-items: start; }
 }
+
+
+/* V1.2 library naming + dashboard library access */
+.dash-launch {
+  min-height: 132px;
+}
+.dash-library-btn {
+  margin-top: 14px;
+  border: 1px solid rgba(245,240,232,0.22);
+  background: rgba(245,240,232,0.08);
+  color: rgba(245,240,232,0.86);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+.dash-library-btn:hover {
+  background: rgba(245,240,232,0.14);
+  border-color: rgba(245,240,232,0.34);
+  transform: translateY(-1px);
+}
+.module-library-content {
+  border-radius: 14px !important;
+}
+.module-library-toolbar {
+  border-radius: 10px !important;
+}
+.module-library-view-toggle,
+.module-library-view-toggle .nav-btn {
+  border-radius: 8px !important;
+}
+.module-library-section,
+body.theme-dark .module-library-section,
+body.theme-dark-offwhite .module-library-section {
+  border-radius: 12px !important;
+}
+.module-library-card {
+  border-radius: 10px !important;
+}
+.module-library-list:not(.cards) .module-library-card {
+  border-radius: 8px !important;
+}
+.module-library-pill,
+.module-library-card-actions .mini-btn,
+.module-library-card-actions .module-delete-btn {
+  border-radius: 6px !important;
+}
+.module-library-module-accent {
+  border-radius: 999px !important;
+}
+@media (max-width: 760px) {
+  .module-library-content { border-radius: 12px !important; }
+  .dash-library-btn { font-size: 8px; padding: 6px 8px; }
+}
+
 </style>
 </head>
 <body class="auth-required auth-loading">
@@ -4847,6 +4906,7 @@ body.theme-sakura .module-library-content {
         <div>
           <div class="dash-launch-icon">Dashboard</div>
           <div class="dash-launch-copy">Marks, Progress, Credits</div>
+          <button class="dash-library-btn" type="button" onclick="openModuleLibrary(null, 'both', event)">All Modules Library</button>
         </div>
       </div>
 
@@ -6859,8 +6919,13 @@ function updateFormulaButton(mi) {
   if (btn) {
     const count = getFormulaLinks(mi).length;
     const compact = document.body.classList.contains("compact-ui");
-    btn.textContent = compact ? "Material" : (count ? `Module Material (${count})` : "Module Material");
-    btn.style.opacity = count ? "1" : "0.55";
+    const mod = MODULES[mi] || {};
+    const labelBase = mod.short || mod.name || mod.kanji || "Module";
+    btn.textContent = compact
+      ? "Library"
+      : (count ? `${labelBase} Library (${count})` : `${labelBase} Library`);
+    btn.title = `${mod.name || labelBase} Library`;
+    btn.style.opacity = count ? "1" : "0.65";
   }
   renderFormulaLinks(mi);
 }
@@ -7981,7 +8046,7 @@ function buildModules() {
         <div class="mod-kanji">${escapeHtml(mod.kanji)} · CW ${mod.cw === 0 ? "N/A" : escapeHtml(String(mod.cw ?? 0)) + "%"} · EXAMS ${mod.exam === 0 ? "N/A" : escapeHtml(String(mod.exam ?? 0)) + "%"}</div>
         <div class="module-links">
           <button class="bb-link" id="bb-link-${mi}" type="button" onclick="openBlackboardLink(${mi}, event)">Set Blackboard</button>
-          <button class="formula-btn" id="formula-btn-${mi}" type="button" onclick="openFormulaLink(${mi}, event)">Module Material</button>
+          <button class="formula-btn" id="formula-btn-${mi}" type="button" onclick="openFormulaLink(${mi}, event)">${escapeHtml(mod.short || mod.name || "Module")} Library</button>
         </div>
       </div>
       <div class="progress-section">
