@@ -4715,6 +4715,101 @@ body.theme-dark-offwhite .module-library-section {
   .dash-library-btn { font-size: 8px; padding: 6px 8px; }
 }
 
+
+
+/* V1.3 library button cleanup + dashboard split actions */
+.youtube-btn {
+  background: rgba(255,255,255,0.58) !important;
+  border-color: var(--border) !important;
+  color: var(--slate) !important;
+}
+.youtube-btn:hover {
+  background: rgba(192,57,43,0.12) !important;
+  border-color: rgba(192,57,43,0.36) !important;
+  color: var(--vermillion) !important;
+}
+body.theme-dark .youtube-btn,
+body.theme-dark-offwhite .youtube-btn {
+  background: rgba(255,255,255,0.055) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #ece7dc !important;
+}
+body.theme-dark .youtube-btn:hover,
+body.theme-dark-offwhite .youtube-btn:hover {
+  background: rgba(240,139,128,0.13) !important;
+  border-color: rgba(240,139,128,0.34) !important;
+  color: #f08b80 !important;
+}
+.dash-actions-card {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+  min-height: 132px;
+}
+.dash-hero-btn {
+  width: 100%;
+  min-height: 0;
+  text-align: left;
+  border-radius: 8px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.dash-hero-btn .dash-launch-icon,
+.dash-hero-btn .dash-launch-copy {
+  display: block;
+}
+.dash-library-launch {
+  background: rgba(17,18,21,0.58);
+  border-color: rgba(255,255,255,0.12);
+}
+.dash-library-launch .dash-launch-icon {
+  font-size: 20px;
+  max-width: none;
+}
+.dash-library-launch .dash-launch-copy {
+  font-size: 14px;
+}
+.dash-library-btn {
+  display: none !important;
+}
+.module-library-content {
+  border-radius: 10px !important;
+}
+.module-library-toolbar {
+  border-radius: 8px !important;
+}
+.module-library-view-toggle,
+.module-library-view-toggle .nav-btn {
+  border-radius: 6px !important;
+}
+.module-library-section,
+body.theme-dark .module-library-section,
+body.theme-dark-offwhite .module-library-section {
+  border-radius: 9px !important;
+}
+.module-library-card {
+  border-radius: 7px !important;
+}
+.module-library-list:not(.cards) .module-library-card {
+  border-radius: 6px !important;
+}
+.module-library-pill,
+.module-library-card-actions .mini-btn,
+.module-library-card-actions .module-delete-btn {
+  border-radius: 4px !important;
+}
+@media (max-width: 760px) {
+  .dash-actions-card {
+    min-height: 150px;
+  }
+  .dash-hero-btn {
+    padding: 14px;
+  }
+}
+
 </style>
 </head>
 <body class="auth-required auth-loading">
@@ -4902,12 +4997,15 @@ body.theme-dark-offwhite .module-library-section {
         </div>
       </div>
 
-      <div class="washi-card dash-launch" onclick="openDashboard()">
-        <div>
-          <div class="dash-launch-icon">Dashboard</div>
-          <div class="dash-launch-copy">Marks, Progress, Credits</div>
-          <button class="dash-library-btn" type="button" onclick="openModuleLibrary(null, 'both', event)">All Modules Library</button>
-        </div>
+      <div class="dash-actions-card">
+        <button class="washi-card dash-launch dash-hero-btn" type="button" onclick="openDashboard()">
+          <span class="dash-launch-icon">Dashboard</span>
+          <span class="dash-launch-copy">Marks, Progress, Credits</span>
+        </button>
+        <button class="washi-card dash-launch dash-hero-btn dash-library-launch" type="button" onclick="openModuleLibrary(null, 'both', event)">
+          <span class="dash-launch-icon">All Modules Library</span>
+          <span class="dash-launch-copy">Materials, notes, and useful links</span>
+        </button>
       </div>
 
       <div class="washi-card">
@@ -6923,7 +7021,7 @@ function updateFormulaButton(mi) {
     const labelBase = mod.short || mod.name || mod.kanji || "Module";
     btn.textContent = compact
       ? "Library"
-      : (count ? `${labelBase} Library (${count})` : `${labelBase} Library`);
+      : `${labelBase} Library`;
     btn.title = `${mod.name || labelBase} Library`;
     btn.style.opacity = count ? "1" : "0.65";
   }
