@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -10686,9 +10686,90 @@ document.addEventListener("keydown", (event) => {
 })();
 </script>
 
+
+<!-- v1.8 — Ink & Parchment hierarchy + readability pass -->
+<style>
+.dash-actions-card .dash-hero-btn { border-radius: 4px !important; }
+.dash-actions-card .dash-hero-btn .dash-launch-icon,
+.dash-actions-card .dash-library-launch .dash-launch-icon { font-size: 22px !important; line-height: 1.05 !important; font-weight: 700 !important; max-width: none !important; }
+.dash-actions-card .dash-hero-btn .dash-launch-copy,
+.dash-actions-card .dash-library-launch .dash-launch-copy { font-size: 14px !important; line-height: 1.25 !important; letter-spacing: 0 !important; }
+body.theme-dark-offwhite .dash-actions-card .dash-hero-btn,
+body.theme-dark-offwhite .dash-actions-card .dash-library-launch { background: rgba(250,247,242,0.92) !important; border-color: rgba(36,29,22,0.22) !important; color: #1b140f !important; }
+body.theme-dark-offwhite .dash-actions-card .dash-hero-btn:hover,
+body.theme-dark-offwhite .dash-actions-card .dash-library-launch:hover { background: rgba(255,252,245,0.98) !important; border-color: rgba(36,29,22,0.34) !important; }
+body.theme-dark-offwhite .dash-actions-card .dash-hero-btn .dash-launch-icon,
+body.theme-dark-offwhite .dash-actions-card .dash-hero-btn .dash-launch-copy,
+body.theme-dark-offwhite .dash-actions-card .dash-library-launch .dash-launch-icon,
+body.theme-dark-offwhite .dash-actions-card .dash-library-launch .dash-launch-copy { color: #1b140f !important; }
+body.theme-dark-offwhite .module-library-content,
+body.theme-dark-offwhite .module-library-toolbar,
+body.theme-dark-offwhite .module-library-section,
+body.theme-dark-offwhite .module-library-card,
+body.theme-dark-offwhite .module-library-section-head,
+body.theme-dark-offwhite .module-library-collapse { color: #1b140f !important; }
+body.theme-dark-offwhite .module-library-section-label { color: rgba(27,20,15,0.66) !important; font-weight: 600 !important; }
+body.theme-dark-offwhite .module-library-section-copy,
+body.theme-dark-offwhite .module-library-empty,
+body.theme-dark-offwhite .module-library-card-notes,
+body.theme-dark-offwhite .module-library-card-title,
+body.theme-dark-offwhite .module-library-pill { color: #1b140f !important; }
+body.theme-dark-offwhite .module-library-section-copy { opacity: 1 !important; font-weight: 650 !important; }
+body.theme-dark-offwhite .module-library-section-collapsible.is-collapsed .module-library-section-copy { display: inline-flex !important; align-items: center !important; width: fit-content !important; max-width: 100% !important; padding: 4px 8px !important; margin-top: 2px !important; border-radius: 3px !important; background: rgba(27,20,15,0.075) !important; color: #1b140f !important; border: 1px solid rgba(27,20,15,0.12) !important; }
+body.theme-dark-offwhite .module-library-section-collapsible.is-collapsed .module-library-collapse { background: linear-gradient(180deg, rgba(255,255,255,0.76), rgba(245,240,232,0.64)) !important; }
+body.theme-dark-offwhite .module-library-top-actions .nav-btn,
+body.theme-dark-offwhite .module-library-view-toggle .nav-btn,
+body.theme-dark-offwhite .module-library-toolbar .nav-select,
+body.theme-dark-offwhite .module-library-toolbar .input,
+body.theme-dark-offwhite .module-library-card-actions .mini-btn { color: #1b140f !important; background: rgba(255,255,255,0.9) !important; }
+body.theme-dark-offwhite .module-library-view-toggle .nav-btn.calendar-btn { color: #fff7ed !important; background: #1a2c4a !important; }
+.module-section-title,
+.module-section.coursework-section .module-section-title,
+.module-section.notes-section .module-section-title,
+.topic-tools-title,
+.formula-links-title,
+.relevant-links-title,
+.coursework-calc-summary,
+.module-library-section-label,
+.card-label,
+.field label { font-size: 10px !important; letter-spacing: 0.12em !important; line-height: 1.25 !important; }
+.module-section.coursework-section .module-section-title { color: var(--muted) !important; font-weight: 600 !important; }
+body.theme-dark .module-section.coursework-section .module-section-title { color: #fff2df !important; }
+body.theme-dark-offwhite .module-section.coursework-section .module-section-title { color: #241d16 !important; }
+.module-library-card-title { font-size: 17px !important; line-height: 1.12 !important; }
+.module-library-card-notes { font-size: 13.5px !important; line-height: 1.32 !important; }
+.module-library-pill { font-size: 8.2px !important; min-height: 20px !important; }
+@media (max-width: 760px) {
+  .dash-actions-card .dash-hero-btn .dash-launch-icon, .dash-actions-card .dash-library-launch .dash-launch-icon { font-size: 18px !important; }
+  .dash-actions-card .dash-hero-btn .dash-launch-copy, .dash-actions-card .dash-library-launch .dash-launch-copy { font-size: 12px !important; }
+  .module-section-title, .module-section.coursework-section .module-section-title, .module-section.notes-section .module-section-title, .topic-tools-title, .formula-links-title, .relevant-links-title, .module-library-section-label, .field label { font-size: 8.5px !important; letter-spacing: 0.095em !important; }
+  body.theme-dark-offwhite .module-library-section-collapsible.is-collapsed .module-library-section-copy { padding: 3px 6px !important; font-size: 11px !important; }
+}
+</style>
+<script>
+(function patchModuleLibraryCopyV18(){
+  if (typeof renderModuleLibrary !== "function") return;
+  const previousRenderModuleLibrary = renderModuleLibrary;
+  renderModuleLibrary = function patchedRenderModuleLibraryV18() {
+    previousRenderModuleLibrary.apply(this, arguments);
+    if (typeof getModuleLibraryItems !== "function") return;
+    const materials = getModuleLibraryItems("formula", moduleLibraryScopeMi);
+    const links = getModuleLibraryItems("relevant", moduleLibraryScopeMi);
+    const materialsSection = document.querySelector(".module-library-materials-section");
+    const linksSection = document.querySelector("#module-library-links")?.closest(".module-library-section");
+    const materialsCopy = materialsSection?.querySelector(".module-library-section-copy");
+    const linksCopy = linksSection?.querySelector(".module-library-section-copy");
+    const materialWord = materials.length === 1 ? "item" : "items";
+    const linkWord = links.length === 1 ? "link" : "links";
+    if (materialsCopy) materialsCopy.textContent = moduleLibraryMaterialsOpen ? `Formula sheets, worked examples, reference pages, and quick-access study material. ${materials.length} saved ${materialWord}.` : (materials.length ? `${materials.length} saved material ${materialWord}` : "No saved material yet");
+    if (linksCopy) linksCopy.textContent = moduleLibraryLinksOpen ? `Useful URLs, portals, videos, docs, and external resources. ${links.length} saved ${linkWord}.` : (links.length ? `${links.length} saved relevant ${linkWord}` : "No saved relevant links yet");
+  };
+})();
+</script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
+
 
 
 
