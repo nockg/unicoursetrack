@@ -1287,7 +1287,7 @@ body.theme-dark-offwhite .material-library-empty {
   cursor: grab;
 }
 .topic-row.subtopic-row {
-  margin-left: 28px;
+  margin-left: 40px;
   padding-left: 14px;
   border-left: 1px solid var(--border);
 }
@@ -1330,6 +1330,14 @@ body.theme-dark-offwhite .material-library-empty {
   gap: 12px;
   flex: 1;
   cursor: pointer;
+}
+.topic-prefix {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  min-width: 18px;
+  margin-top: 1px;
 }
 .topic-row input[type=checkbox] {
   appearance: none;
@@ -1399,7 +1407,7 @@ body.theme-dark-offwhite .material-library-empty {
   color: var(--muted);
 }
 .subtopic-toggle.topic-disclosure {
-  margin-top: 1px;
+  margin-top: 0;
 }
 .subtopic-toggle::before {
   content: "";
@@ -6559,7 +6567,6 @@ function renderStickyExams() {
       event.preventDefault();
       removeExam(exam.originalIndex);
     });
-    card.addEventListener("click", () => openDeadlineForm(exam.originalIndex));
     host.appendChild(card);
   });
   const button = document.createElement("button");
@@ -6753,6 +6760,7 @@ function setupDeadlineBarScrolling() {
   let startX = 0;
   let startScrollLeft = 0;
   let moved = false;
+  let pressedDeadlineIndex = null;
 
   bar.addEventListener("wheel", (event) => {
     if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
@@ -6765,6 +6773,7 @@ function setupDeadlineBarScrolling() {
     if (event.target.closest("button")) return;
     isDown = true;
     moved = false;
+    pressedDeadlineIndex = event.target.closest(".exam-ticker")?.dataset?.deadlineIndex ?? null;
     startX = event.clientX;
     startScrollLeft = bar.scrollLeft;
     bar.classList.add("dragging");
@@ -6780,21 +6789,28 @@ function setupDeadlineBarScrolling() {
 
   function endDrag(event) {
     if (!isDown) return;
+    const releasedDeadlineIndex = event.target.closest(".exam-ticker")?.dataset?.deadlineIndex ?? null;
+    const shouldOpen = !moved && pressedDeadlineIndex !== null && pressedDeadlineIndex === releasedDeadlineIndex;
     isDown = false;
     bar.classList.remove("dragging");
     if (bar.hasPointerCapture(event.pointerId)) bar.releasePointerCapture(event.pointerId);
+    if (shouldOpen) {
+      const index = Number(releasedDeadlineIndex);
+      if (Number.isFinite(index)) openDeadlineForm(index);
+    }
+    pressedDeadlineIndex = null;
   }
 
   bar.addEventListener("pointerup", endDrag);
   bar.addEventListener("pointercancel", endDrag);
-  bar.addEventListener("pointerup", (event) => {
-    const card = event.target.closest(".exam-ticker");
-    if (!card || moved) return;
-    const index = Number(card.dataset.deadlineIndex);
-    if (Number.isFinite(index)) openDeadlineForm(index);
-  });
   bar.addEventListener("click", (event) => {
-    if (!moved) return;
+    if (!moved) {
+      if (event.target.closest(".exam-ticker")) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
     moved = false;
@@ -7074,7 +7090,7 @@ function buildModules() {
         <input class="input" id="topic-add-${mi}" placeholder='Add one topic, or "Topic 1" "Topic 2"'>
         <button class="mini-btn" type="button" onclick="addTopicToModule(${mi}, event)">Add Topic</button>
       </div>
-      <div class="topic-entry-help">Use quotes for several topics. Drag a topic between two topics to reorder it. Drag slightly right in the gap below a parent topic to turn it into that topic's subtopic.</div>
+      <div class="topic-entry-help">Use quotes for several topics. Drag between topics to reorder. To make a subtopic, place the row in the gap below a parent topic and move slightly right before dropping.</div>
     `;
     list.appendChild(topicTools);
     const topicAddInput = topicTools.querySelector(`#topic-add-${mi}`);
@@ -7091,6 +7107,8 @@ function buildModules() {
       const row = document.createElement("div");
       row.className = "topic-row";
       row.draggable = true;
+      const prefix = document.createElement("span");
+      prefix.className = "topic-prefix";
       const main = document.createElement("label");
       main.className = "topic-main";
       const checkbox = document.createElement("input");
@@ -7174,8 +7192,9 @@ function buildModules() {
         toggleSubtopicsButton.setAttribute("aria-label", topic.collapsed ? "Expand subtopics" : "Collapse subtopics");
         toggleSubtopicsButton.title = topic.collapsed ? "Expand subtopics" : "Collapse subtopics";
         toggleSubtopicsButton.addEventListener("click", (event) => toggleTopicSubtopics(mi, ti, event));
-        main.appendChild(toggleSubtopicsButton);
+        prefix.appendChild(toggleSubtopicsButton);
       }
+      row.appendChild(prefix);
       main.appendChild(checkbox);
       main.appendChild(label);
       row.appendChild(main);
