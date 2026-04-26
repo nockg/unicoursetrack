@@ -713,6 +713,7 @@ h1 {
   left: 0;
   width: 2px;
   height: 100%;
+  background: var(--module-accent, #c0392b);
 }
 .module-header {
   display: grid;
@@ -1332,26 +1333,30 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
   display: grid;
   gap: 12px;
 }
+.prefs-grid-compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
 .prefs-grid .field label {
   margin-bottom: 6px;
-}
-.prefs-card {
-  border: 1px solid var(--border);
-  background: rgba(26,22,18,0.025);
-  border-radius: 8px;
-  padding: 12px;
-}
-.prefs-card-copy {
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.4;
-  margin-bottom: 10px;
 }
 .prefs-input-row {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 8px;
   align-items: end;
+}
+.prefs-input-row .nav-btn {
+  white-space: nowrap;
+}
+.prefs-span-2 {
+  grid-column: 1 / -1;
+}
+.prefs-inline-field {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(26,22,18,0.025);
 }
 .prefs-actions {
   display: flex;
@@ -1415,9 +1420,9 @@ body.auth-loading #auth-gate-body .deadline-splash-title {
   display: grid;
   gap: 8px;
 }
-body.theme-dark .prefs-card,
+body.theme-dark .prefs-inline-field,
 body.theme-dark .account-card,
-body.theme-dark-offwhite .prefs-card,
+body.theme-dark-offwhite .prefs-inline-field,
 body.theme-dark-offwhite .account-card {
   background: rgba(255,255,255,0.03);
 }
@@ -1438,6 +1443,32 @@ body.theme-dark-offwhite .account-card {
 }
 #auth-modal .account-section {
   border-top-color: rgba(255,255,255,0.08);
+}
+.module-colour-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.module-colour-swatch {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12);
+  cursor: pointer;
+}
+.module-colour-swatch.active {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.module-colour-meta {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
 }
 .compact-marks-wrap {
   display: none;
@@ -2736,6 +2767,7 @@ body.theme-dark .auth-gate-tab.active {
   .inputs-grid { grid-template-columns: 1fr 1fr !important; gap: 8px; }
   .field label { font-size: 9px; letter-spacing: 0.08em; }
   .input, textarea, select, button { font-size: 16px; }
+  .prefs-grid-compact { grid-template-columns: 1fr; }
   .prefs-input-row { grid-template-columns: 1fr; }
   .prefs-input-row .nav-btn { width: 100%; }
   .input { min-height: 40px; border-radius: 8px; padding: 9px 10px; }
@@ -3824,7 +3856,7 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
     </div>
     <button class="mini-btn prefs-close" type="button" onclick="togglePreferences()" aria-label="Close preferences">x</button>
   </div>
-  <div class="prefs-grid">
+  <div class="prefs-grid prefs-grid-compact">
     <div class="field">
       <label for="pref-theme">Colour Scheme</label>
       <select class="nav-select" id="pref-theme" onchange="setPreference('theme', this.value)">
@@ -3857,24 +3889,22 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
         <option value="outlook">Outlook Calendar</option>
       </select>
     </div>
-    <div class="field prefs-card custom-bg-field">
+    <div class="field prefs-inline-field prefs-span-2 custom-bg-field">
       <label for="custom-bg-url">Hero Image</label>
-      <div class="prefs-card-copy">Use your own image for the top hero section.</div>
       <div class="prefs-input-row">
         <input class="input" id="custom-bg-url" placeholder="Paste image URL">
-        <button class="nav-btn" type="button" onclick="addCustomBackground()">Add</button>
+        <button class="nav-btn" type="button" onclick="addCustomBackground()">Add Hero Image</button>
       </div>
     </div>
-    <div class="field prefs-card custom-bg-field">
+    <div class="field prefs-inline-field prefs-span-2 custom-bg-field">
       <label for="body-bg-url">Page Background Image</label>
-      <div class="prefs-card-copy">Set a full-page image behind the tracker. Leave blank to remove it.</div>
       <div class="prefs-input-row">
         <input class="input" id="body-bg-url" placeholder="Paste background image URL">
-        <button class="nav-btn" type="button" onclick="setBodyBackground()">Apply</button>
+        <button class="nav-btn" type="button" onclick="setBodyBackground()">Apply Background</button>
       </div>
     </div>
 
-    <div class="field">
+    <div class="field prefs-span-2">
       <label>Hero Background</label>
       <div class="bg-picker" id="bg-picker"></div>
     </div>
@@ -4258,6 +4288,26 @@ const CALENDAR_PROVIDERS = {
   outlook: { label: "Outlook Calendar", url: "https://outlook.live.com/calendar/" }
 };
 
+const LIGHT_MODULE_COLOURS = [
+  { stripe: "#9c3a2e", fill: "linear-gradient(90deg, #c0392b, #e74c3c)", text: "#c0392b" },
+  { stripe: "#7a5c1e", fill: "linear-gradient(90deg, #b8860b, #d4a017)", text: "#b8860b" },
+  { stripe: "#1a4a6e", fill: "linear-gradient(90deg, #1a5c8c, #2980b9)", text: "#1a5c8c" },
+  { stripe: "#2d5a27", fill: "linear-gradient(90deg, #2d5a27, #4a8c42)", text: "#2d5a27" },
+  { stripe: "#5a2d7a", fill: "linear-gradient(90deg, #6c3483, #8e44ad)", text: "#6c3483" },
+  { stripe: "#1a4a4a", fill: "linear-gradient(90deg, #0e6655, #1abc9c)", text: "#0e6655" },
+  { stripe: "#4a2d1a", fill: "linear-gradient(90deg, #784212, #a04000)", text: "#784212" }
+];
+
+const DARK_MODULE_COLOURS = [
+  { stripe: "#db5c4e", fill: "linear-gradient(90deg, #cf5246, #f07b6f)", text: "#f0a196" },
+  { stripe: "#d6a33a", fill: "linear-gradient(90deg, #b8860b, #e5b64c)", text: "#e6c97a" },
+  { stripe: "#4d93cf", fill: "linear-gradient(90deg, #357ab7, #63a7df)", text: "#8fc4ef" },
+  { stripe: "#63a35f", fill: "linear-gradient(90deg, #3f7040, #75bb72)", text: "#9bd49a" },
+  { stripe: "#9a78d1", fill: "linear-gradient(90deg, #6c3483, #a783db)", text: "#c2a8ec" },
+  { stripe: "#4fb0a5", fill: "linear-gradient(90deg, #24786f, #59c1b5)", text: "#93ddd5" },
+  { stripe: "#be8a58", fill: "linear-gradient(90deg, #8b5a2b, #d29a66)", text: "#e4bb94" }
+];
+
 let deadlineSplashInterval = null;
 let deadlineTimelineInterval = null;
 let editingDeadlineIndex = null;
@@ -4490,9 +4540,46 @@ function createYearStore(modules) {
     blackboard: {},
     formulas: {},
     relevantLinks: {},
+    moduleColors: {},
     customExams: [],
     archived: false
   };
+}
+
+function isDarkThemeFamily() {
+  return preferences.theme === "dark" || preferences.theme === "dark-offwhite";
+}
+
+function getModuleColourPalette() {
+  return isDarkThemeFamily() ? DARK_MODULE_COLOURS : LIGHT_MODULE_COLOURS;
+}
+
+function getModuleColourChoice(mi) {
+  const store = getStore();
+  if (!store.moduleColors) store.moduleColors = {};
+  const chosen = store.moduleColors[mi] || {};
+  const family = isDarkThemeFamily() ? "dark" : "light";
+  const palette = getModuleColourPalette();
+  const fallback = ((mi % palette.length) + palette.length) % palette.length;
+  const index = Number.isInteger(chosen[family]) ? chosen[family] : fallback;
+  return ((index % palette.length) + palette.length) % palette.length;
+}
+
+function getModuleColourSet(mi) {
+  const palette = getModuleColourPalette();
+  return palette[getModuleColourChoice(mi)] || palette[0];
+}
+
+function setModuleColour(mi, colourIndex, event) {
+  if (event) event.stopPropagation();
+  const store = getStore();
+  if (!store.moduleColors) store.moduleColors = {};
+  const family = isDarkThemeFamily() ? "dark" : "light";
+  const current = store.moduleColors[mi] || {};
+  store.moduleColors[mi] = Object.assign({}, current, { [family]: colourIndex });
+  save();
+  buildModules();
+  if (!document.getElementById("dashboard-modal").classList.contains("hidden")) renderDashboardChart();
 }
 
 function migrateLegacyState() {
@@ -4703,6 +4790,7 @@ function closeCourseSetupModal() {
 }
 
 function editCourseProfile() {
+  closeAuthModal(true);
   openCourseSetupModal(false);
 }
 
@@ -5427,11 +5515,10 @@ function renderDashboardChart() {
       ? "'DM Mono', Consolas, monospace"
       : "'Shippori Mincho', serif";
 
-  const colors = darkOffwhite
-    ? ["#1a2c4a", "#1a2c4a", "#1a2c4a", "#1a2c4a", "#1a2c4a", "#1a2c4a", "#1a2c4a"]
-    : quiet
-      ? ["#aa9a88","#b7a895","#a99986","#b4a38f","#9f8e7a","#bcae9d","#907f6d"]
-      : ["#c0392b","#c99818","#2d6d9f","#3f7040","#764b97","#24786f","#8b5a2b"];
+  const colors = MODULES.map((_, mi) => {
+    const choice = getModuleColourSet(mi);
+    return choice.text || "#c0392b";
+  });
 
   ctx.strokeStyle = dark ? "rgba(255,255,255,0.12)" : "rgba(26,22,18,0.09)";
   ctx.lineWidth = 1;
@@ -5976,8 +6063,11 @@ function buildModules() {
   container.innerHTML = "";
   const store = getStore();
   MODULES.forEach((mod, mi) => {
+    const moduleColours = getModuleColourSet(mi);
+    const themeFamilyLabel = isDarkThemeFamily() ? "Dark theme colours" : "Light theme colours";
     const wrap = document.createElement("div");
     wrap.className = `module b${mi}`;
+    wrap.style.setProperty("--module-accent", moduleColours.stripe);
 
     const moduleDeleteButton = document.createElement("button");
     moduleDeleteButton.className = "mini-btn module-delete-btn module-delete-corner";
@@ -6025,6 +6115,13 @@ function buildModules() {
       <div class="chevron" id="chev-${mi}" aria-hidden="true"></div>
     `;
 
+    const stripeEl = header.querySelector(".mod-stripe");
+    const progDoneEl = header.querySelector(".prog-done");
+    const progFillEl = header.querySelector(".prog-fill");
+    if (stripeEl) stripeEl.style.background = moduleColours.stripe;
+    if (progDoneEl) progDoneEl.style.color = moduleColours.text;
+    if (progFillEl) progFillEl.style.background = moduleColours.fill;
+
     const list = document.createElement("div");
     list.className = "topic-list";
     list.id = `topics-${mi}`;
@@ -6038,6 +6135,29 @@ function buildModules() {
       <button class="bb-edit-btn" type="button" onclick="clearModuleMarks(${mi}, event)">Clear Marks</button>
     `;
     list.appendChild(moduleEditTools);
+
+    const colourSection = createModuleSection(
+      mi,
+      "colour",
+      "Module Colour",
+      "",
+    );
+    colourSection.body.innerHTML = `
+      <div class="module-colour-meta">${themeFamilyLabel}</div>
+      <div class="module-colour-picker">
+        ${getModuleColourPalette().map((colour, index) => `
+          <button
+            class="module-colour-swatch ${getModuleColourChoice(mi) === index ? "active" : ""}"
+            type="button"
+            title="Set module colour"
+            aria-label="Set module colour"
+            style="background:${colour.fill};"
+            onclick="setModuleColour(${mi}, ${index}, event)">
+          </button>
+        `).join("")}
+      </div>
+    `;
+    list.appendChild(colourSection.wrap);
 
     const notesWrap = document.createElement("div");
     notesWrap.className = "notes-area-wrap";
@@ -6722,6 +6842,10 @@ function renderAuthModal(mode = "login") {
     `;
     return;
   }
+}
+
+function shiftModuleColourMapAfterDelete(map, deletedIndex) {
+  return shiftIndexedObjectAfterDelete(map, deletedIndex);
 }
 
 function setAuthError(message) {
@@ -7432,6 +7556,7 @@ async function deleteModuleFromCurrentYear(mi, event) {
   store.blackboard = shiftIndexedObjectAfterDelete(store.blackboard, mi);
   store.formulas = shiftIndexedObjectAfterDelete(store.formulas, mi);
   store.relevantLinks = shiftIndexedObjectAfterDelete(store.relevantLinks, mi);
+  store.moduleColors = shiftModuleColourMapAfterDelete(store.moduleColors, mi);
   save();
   refreshActiveYear();
   buildModules();
