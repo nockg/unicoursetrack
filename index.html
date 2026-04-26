@@ -2690,6 +2690,121 @@ body.auth-required .auth-gate-label { color: rgba(245,240,232,0.58); }
   .onboarding-preview-row { font-size: 18px; }
 }
 
+
+/* ===== Style refinement v2: simpler auth background + paper-like glass ===== */
+body.auth-required {
+  background:
+    linear-gradient(135deg, #07101d 0%, #1a2c4a 58%, #090f1b 100%) !important;
+  color: #f5f0e8;
+}
+body.auth-required::before {
+  background:
+    radial-gradient(circle at 28% 18%, rgba(245,240,232,0.055), transparent 34%) !important;
+  background-size: auto !important;
+  mask-image: none !important;
+  opacity: 0.85;
+}
+body.auth-required .auth-gate-shell {
+  background: rgba(245,240,232,0.10) !important;
+  border-color: rgba(245,240,232,0.18) !important;
+  box-shadow: 0 22px 70px rgba(0,0,0,0.36) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+body.auth-required .auth-gate-aside {
+  background: rgba(245,240,232,0.76) !important;
+  border-right-color: rgba(26,44,74,0.12) !important;
+  color: #1a2c4a !important;
+  backdrop-filter: blur(16px) saturate(115%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(115%) !important;
+}
+body.auth-required .auth-gate-panel {
+  background: rgba(250,247,242,0.96) !important;
+}
+body.auth-required .auth-gate-aside .auth-gate-title {
+  color: #1a2c4a !important;
+}
+body.auth-required .auth-gate-aside .auth-gate-copy {
+  color: rgba(26,44,74,0.74) !important;
+}
+body.auth-required .auth-gate-aside .auth-gate-label {
+  color: rgba(26,44,74,0.56) !important;
+}
+body.auth-required .auth-gate-panel .deadline-splash-title,
+body.auth-required .auth-gate-panel .auth-gate-message {
+  color: var(--ink) !important;
+}
+.app-dialog-card .danger-action {
+  background: var(--vermillion) !important;
+  border-color: var(--vermillion) !important;
+  color: #fff !important;
+}
+.app-dialog-card .danger-action:hover {
+  filter: brightness(0.96);
+}
+@media (max-width: 700px) {
+  body.auth-required .auth-gate-aside {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(26,44,74,0.10) !important;
+  }
+}
+
+/* ===== Japanese paper auth polish + stronger brand mark ===== */
+body.auth-required {
+  background:
+    radial-gradient(circle at 18% 16%, rgba(216,200,176,0.10), transparent 30%),
+    linear-gradient(135deg, #07101d 0%, #14243d 58%, #070b14 100%) !important;
+  color: #f5f0e8;
+}
+body.auth-required::before {
+  background-image:
+    linear-gradient(90deg, rgba(245,240,232,0.035), transparent 42%, rgba(245,240,232,0.025)),
+    repeating-linear-gradient(115deg, rgba(245,240,232,0.030) 0 1px, transparent 1px 7px) !important;
+  background-size: auto, 22px 22px !important;
+  opacity: 0.52 !important;
+  mix-blend-mode: screen;
+}
+body.auth-required .auth-gate-shell {
+  background: rgba(245,240,232,0.12) !important;
+  border-color: rgba(216,200,176,0.22) !important;
+  box-shadow: 0 24px 72px rgba(0,0,0,0.38) !important;
+}
+body.auth-required .auth-gate-aside {
+  background: linear-gradient(180deg, rgba(250,247,242,0.90), rgba(232,224,208,0.82)) !important;
+  border-right-color: rgba(26,44,74,0.16) !important;
+  color: #14243d !important;
+  backdrop-filter: blur(18px) saturate(112%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(112%) !important;
+}
+body.auth-required .auth-gate-brand { gap: 12px; align-items: center; }
+body.auth-required .auth-gate-logo {
+  width: 38px; height: 38px; flex-basis: 38px;
+  border-radius: 12px;
+  background: #111a2b;
+  border: 1px solid rgba(26,44,74,0.38);
+  box-shadow: 0 8px 20px rgba(26,44,74,0.22), inset 0 0 0 2px rgba(245,240,232,0.08);
+}
+body.auth-required .auth-gate-logo img { transform: scale(1.08); filter: contrast(1.14) saturate(1.05); }
+body.auth-required .auth-gate-label {
+  color: #14243d !important;
+  font-size: 12px;
+  letter-spacing: 0.20em;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.45);
+}
+body.auth-required .auth-gate-title {
+  font-size: clamp(42px, 4.8vw, 58px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #101c30 !important;
+}
+body.auth-required .auth-gate-copy { color: rgba(20,36,61,0.76) !important; }
+body.auth-required .auth-gate-panel { background: rgba(250,247,242,0.97) !important; }
+@media (max-width: 700px) {
+  body.auth-required .auth-gate-logo { width: 34px; height: 34px; flex-basis: 34px; border-radius: 10px; }
+  body.auth-required .auth-gate-title { font-size: 38px; }
+}
+
 </style>
 </head>
 <body class="auth-required">
@@ -2699,7 +2814,7 @@ body.auth-required .auth-gate-label { color: rgba(245,240,232,0.58); }
     <div class="auth-gate-aside">
       <div class="auth-gate-brand">
         <div class="auth-gate-logo"><img src="sntutors-logo.png" alt="SNTutors logo"></div>
-        <div class="auth-gate-label">SNTutors</div>
+        <div class="auth-gate-label">SNTUTORS</div>
       </div>
       <div class="auth-gate-title">UniTrack</div>
       <div class="auth-gate-copy">Sign in to UniTrack.</div>
@@ -3397,7 +3512,7 @@ const defaultState = {
 
 let MODULES = [];
 let TOTAL_CREDITS = 0;
-const DEFAULT_PREFERENCES = { theme: "light", density: "comfortable", font: "japanese", hero: "bg1", bodyBackground: "" };
+const DEFAULT_PREFERENCES = { theme: "dark-offwhite", density: "comfortable", font: "japanese", hero: "bg8", bodyBackground: "" };
 const preferences = Object.assign(
   {},
   DEFAULT_PREFERENCES,
@@ -6496,8 +6611,7 @@ async function clearTrackerStorage() {
     title: "Reset everything?",
     message: "This will reset progress, marks, notes, links, and cloud saves for this account.",
     confirmText: "Reset",
-    danger: true,
-    requireYes: true
+    danger: true
   });
   if (!confirmClear) return;
   clearTimeout(cloudSaveTimer);
@@ -6578,8 +6692,7 @@ async function deleteCurrentYear() {
     title: `Delete ${year.label}?`,
     message: "This removes the year, its modules, marks, topics, and deadlines from this tracker.",
     confirmText: "Delete Year",
-    danger: true,
-    requireYes: true
+    danger: true
   });
   if (!confirmed) return;
   delete state.years[year.id];
