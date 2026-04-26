@@ -2794,6 +2794,294 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
   }
   body.auth-required .auth-gate-title { font-size: 38px; }
 }
+
+/* ===== Final mobile overrides: preserve desktop, improve phone readability ===== */
+@media (max-width: 760px) {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-size: 16px;
+    padding-top: 124px;
+  }
+
+  input,
+  textarea,
+  select,
+  button,
+  .input,
+  .app-dialog-input {
+    font-size: 16px !important;
+  }
+
+  .input,
+  .nav-btn,
+  .nav-select,
+  .auth-gate-tab,
+  .mini-btn,
+  .bb-link,
+  .bb-edit-btn,
+  .formula-btn,
+  .formula-edit-btn {
+    min-height: 42px;
+  }
+
+  .sticky-exams {
+    height: 52px;
+    padding: 0 8px;
+  }
+
+  .exam-ticker {
+    min-width: 164px;
+    padding: 0 12px;
+  }
+
+  .ticker-mod,
+  .ticker-date {
+    font-size: 10px;
+  }
+
+  .ticker-time {
+    font-size: 15px;
+  }
+
+  .nav-bar {
+    top: 52px;
+    padding: 8px 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: stretch;
+    overflow-x: visible;
+  }
+
+  .nav-brand {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .year-controls {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .nav-btn,
+  .nav-select {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+
+  .nav-select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .hero {
+    padding: 24px 12px 22px;
+  }
+
+  .eyebrow {
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 10px;
+  }
+
+  h1 {
+    font-size: clamp(34px, 11vw, 42px);
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+
+  .hero-grid,
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+
+  .washi-card {
+    padding: 14px;
+  }
+
+  .global-big {
+    font-size: 30px;
+  }
+
+  .predictor-hero-number {
+    font-size: clamp(44px, 15vw, 62px);
+    margin-bottom: 8px;
+  }
+
+  .hero-summary,
+  .dashboard-subtitle,
+  .setup-copy,
+  .auth-gate-copy,
+  .auth-gate-message,
+  .onboarding-step-copy {
+    font-size: 16px !important;
+    line-height: 1.4;
+  }
+
+  .content {
+    padding: 14px 10px 44px;
+  }
+
+  .module {
+    margin-bottom: 10px;
+    border-radius: 8px;
+  }
+
+  .module-header,
+  body.compact-ui .module-header {
+    gap: 10px;
+    padding: 48px 12px 12px !important;
+    grid-template-columns: 16px 1fr !important;
+  }
+
+  .mod-stripe {
+    height: 56px;
+  }
+
+  .mod-name {
+    font-size: 18px !important;
+    line-height: 1.15;
+  }
+
+  .mod-kanji,
+  .prog-of,
+  .prog-pct,
+  .card-label,
+  .field label,
+  .timeline-subtitle,
+  .deadline-splash-label {
+    font-size: 10px;
+  }
+
+  .prog-done {
+    font-size: 18px;
+  }
+
+  .final-col {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .final-mark {
+    font-size: 24px;
+  }
+
+  .notes-area,
+  textarea,
+  .topic-label {
+    font-size: 16px !important;
+    line-height: 1.35;
+  }
+
+  .topic-row,
+  .notes-area-wrap,
+  .formula-links-wrap,
+  .relevant-links-wrap,
+  .coursework-calc-wrap,
+  .module-edit-tools {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .topic-row {
+    align-items: flex-start;
+  }
+
+  .topic-row input[type=checkbox] {
+    width: 18px;
+    height: 18px;
+  }
+
+  .formula-chip,
+  .relevant-link-chip {
+    max-width: 100%;
+  }
+
+  .formula-chip a,
+  .relevant-link-chip a {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .dashboard-content,
+  .timeline-content,
+  .deadline-form-content,
+  .setup-content,
+  .onboarding-content,
+  .deadline-splash-card,
+  .template-splash-card,
+  .app-dialog-card {
+    width: min(100%, calc(100vw - 16px)) !important;
+    max-height: calc(100dvh - 20px);
+    padding: 16px !important;
+  }
+
+  .template-actions,
+  .setup-template-grid,
+  .setup-fields,
+  .deadline-form-row,
+  .onboarding-tour {
+    gap: 10px;
+  }
+
+  .timeline-page-title {
+    font-size: 25px;
+  }
+
+  .timeline-title {
+    font-size: 20px;
+  }
+
+  .timeline-card {
+    padding: 12px;
+  }
+
+  .prefs-panel {
+    top: 62px !important;
+    left: 8px !important;
+    right: 8px !important;
+    max-height: calc(100dvh - 74px);
+  }
+}
+
+@media (max-width: 420px) {
+  body {
+    padding-top: 118px;
+  }
+
+  .nav-bar {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .nav-btn,
+  .nav-select {
+    font-size: 10.5px;
+    padding: 8px;
+  }
+
+  .hero {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .content {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .deadline-splash-card,
+  .template-splash-card,
+  .app-dialog-card {
+    width: min(100%, calc(100vw - 12px)) !important;
+    padding: 14px !important;
+  }
+}
 </style>
 </head>
 <body class="auth-required">
@@ -6338,12 +6626,12 @@ function renderYearSelector() {
   const course = profile.course || "Course";
   const eyebrow = document.getElementById("hero-eyebrow");
   if (eyebrow) eyebrow.textContent = userName
-    ? `${userName} Â· ${university} Â· ${currentYear.label} Â· ${startYear}-${String(endYear).slice(2)}`
-    : `${university} Â· ${currentYear.label} Â· ${startYear}-${String(endYear).slice(2)}`;
+    ? `${userName} - ${university} - ${currentYear.label} - ${startYear}-${String(endYear).slice(2)}`
+    : `${university} - ${currentYear.label} - ${startYear}-${String(endYear).slice(2)}`;
   const title = document.getElementById("hero-title");
   if (title) title.textContent = `Year ${yearNumber} ${course}`;
   const footer = document.getElementById("footer-label");
-  if (footer) footer.textContent = `${university} ${currentYear.label} Â· Progress Tracker`;
+  if (footer) footer.textContent = `${university} ${currentYear.label} - Progress Tracker`;
   document.title = `${course} ${currentYear.label} Tracker`;
 }
 
