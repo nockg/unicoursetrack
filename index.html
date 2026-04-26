@@ -4842,6 +4842,109 @@ function saveDeadlineForm() {
   closeDeadlineForm();
 }
 
+
+function setupDeadlineBarScrolling() {
+  const bar = document.getElementById("live-exam-bar");
+  if (!bar || bar.dataset.scrollReady) return;
+  bar.dataset.scrollReady = "true";
+
+  let isDown = false;
+  let startX = 0;
+  let startScrollLeft = 0;
+  let moved = false;
+
+  bar.addEventListener("wheel", (event) => {
+    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+    event.preventDefault();
+    bar.scrollLeft += event.deltaY;
+  }, { passive: false });
+
+  bar.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    if (event.target.closest("button")) return;
+    isDown = true;
+    moved = false;
+    startX = event.clientX;
+    startScrollLeft = bar.scrollLeft;
+    bar.classList.add("dragging");
+    bar.setPointerCapture(event.pointerId);
+  });
+
+  bar.addEventListener("pointermove", (event) => {
+    if (!isDown) return;
+    const dx = event.clientX - startX;
+    if (Math.abs(dx) > 4) moved = true;
+    bar.scrollLeft = startScrollLeft - dx;
+  });
+
+  function endDrag(event) {
+    if (!isDown) return;
+    isDown = false;
+    bar.classList.remove("dragging");
+    if (bar.hasPointerCapture(event.pointerId)) bar.releasePointerCapture(event.pointerId);
+  }
+
+  bar.addEventListener("pointerup", endDrag);
+  bar.addEventListener("pointercancel", endDrag);
+  bar.addEventListener("click", (event) => {
+    if (!moved) return;
+    event.preventDefault();
+    event.stopPropagation();
+    moved = false;
+  }, true);
+}
+
+function renderDeadlineTimeline() {
+  const host = document.getElementById("timeline-list");
+  if (!host) return;
+  const store = getStore();
+  const now = Date.now();
+  const exams = (store.customExams || [])
+    .map((exam, originalIndex) => ({ ...exam, originalIndex }))
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  if (!exams.length) {
+    host.innerHTML = '<div class="timeline-empty">No deadlines yet. Add one from the top bar or from this timeline.</div>';
+    return;
+  }
+
+  host.innerHTML = exams.map((exam) => {
+    const target = new Date(exam.date);
+    const isUrgent = target.getTime() <= now;
+    return `
+      <div class="timeline-item">
+        <div class="timeline-rail"><div class="timeline-dot"></div></div>
+        <div class="timeline-card">
+          <div class="timeline-title">${escapeHtml(exam.mod)}</div>
+          <div class="timeline-meta">
+            <span class="timeline-badge countdown ${isUrgent ? "urgent" : ""}" data-deadline-countdown="${escapeHtml(exam.date)}">${escapeHtml(formatCountdown(exam.date))}</span>
+            <span class="timeline-badge">${escapeHtml(target.toLocaleString([], { dateStyle: "full", timeStyle: "short" }))}</span>
+          </div>
+          <div class="timeline-notes-label">Notes</div>
+          <textarea class="timeline-notes" data-deadline-note-index="${exam.originalIndex}" placeholder="Add context, room, prep checklist, what to bring...">${escapeHtml(exam.note || "")}</textarea>
+          <div class="timeline-actions">
+            <button class="mini-btn" type="button" onclick="editDeadline(${exam.originalIndex})">Edit</button>
+            <button class="mini-btn module-delete-btn" type="button" onclick="removeExam(${exam.originalIndex})" title="Delete deadline" aria-label="Delete deadline">x</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  host.querySelectorAll("[data-deadline-note-index]").forEach((textarea) => {
+    textarea.addEventListener("input", (event) => {
+      updateDeadlineNote(Number(event.target.dataset.deadlineNoteIndex), event.target.value);
+    });
+  });
+}
+
+function updateDeadlineNote(index, value) {
+  const store = getStore();
+  if (!store.customExams[index]) return;
+  store.customExams[index].note = value;
+  save();
+}
+
 function openDeadlineTimeline() {
   document.getElementById("timeline-modal").classList.remove("hidden");
   renderDeadlineTimeline();
@@ -6472,7 +6575,6 @@ async function removeExam(index) {
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
-
 
 
 
