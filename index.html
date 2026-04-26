@@ -2119,7 +2119,7 @@ body.theme-dark-offwhite .b6::before {
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ink);
 }
 .auth-gate-title {
   font-family: "Shippori Mincho", serif;
@@ -2816,7 +2816,7 @@ body.auth-required .auth-gate-panel { background: rgba(250,247,242,0.97) !import
         <div class="auth-gate-logo"><img src="sntutors-logo.png" alt="SNTutors logo"></div>
         <div class="auth-gate-label">SNTUTORS</div>
       </div>
-      <div class="auth-gate-title">UniTrack</div>
+      <div class="auth-gate-title">UniTrack.</div>
       <div class="auth-gate-copy">Sign in to UniTrack.</div>
     </div>
     <div class="auth-gate-panel">
@@ -5784,7 +5784,7 @@ function openOnboardingModal() {
     } else if (isNewUser && profileName) {
       title.textContent = `Welcome, ${escapeHtml(profileName)}`;
     } else {
-      title.textContent = "Welcome to UniTrack";
+      title.textContent = "Welcome to UniTrack.";
     }
   }
   onboardingStepIndex = 0;
