@@ -2510,6 +2510,51 @@ body.theme-dark .auth-gate-tab.active {
   .content { padding-left: 8px; padding-right: 8px; }
   .mod-name { font-size: 17px; }
 }
+
+
+/* ===== Mobile module header control fix ===== */
+@media (max-width: 760px) {
+  .module {
+    position: relative;
+  }
+
+  .module-header,
+  body.compact-ui .module-header {
+    padding-top: 48px !important;
+  }
+
+  .mod-name {
+    padding-right: 0 !important;
+  }
+
+  .module-delete-corner {
+    top: 12px;
+    right: 14px;
+    width: 34px;
+    height: 34px;
+    z-index: 8;
+  }
+
+  .module-header .chevron {
+    top: 12px;
+    right: 58px;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border2);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.32);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 7;
+    pointer-events: none;
+  }
+
+  body.theme-dark .module-header .chevron {
+    background: rgba(255,255,255,0.08);
+  }
+}
+
 </style>
 </head>
 <body class="auth-required">
