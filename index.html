@@ -1215,7 +1215,7 @@ body.theme-dark-offwhite .material-library-empty {
   color: rgba(241,237,228,0.72);
 }
 .module-library-content {
-  width: min(1160px, calc(100vw - 40px));
+  width: min(1320px, calc(100vw - 28px));
 }
 .module-library-topline {
   align-items: flex-start;
@@ -1238,24 +1238,52 @@ body.theme-dark-offwhite .material-library-empty {
   gap: 8px;
   justify-self: end;
 }
-.module-library-columns {
+.module-library-stack {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 18px;
 }
 .module-library-section {
   border: 1px solid var(--border);
   background: rgba(255,255,255,0.38);
-  min-height: 420px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
+}
+.module-library-materials-section {
+  min-height: 520px;
 }
 .module-library-section-head {
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  padding: 18px 18px 14px;
+  padding: 16px 18px 12px;
   border-bottom: 1px solid var(--border);
+}
+.module-library-collapse {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 18px 12px;
+  cursor: pointer;
+}
+.module-library-collapse-chevron {
+  width: 12px;
+  height: 12px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  color: var(--muted);
+  flex-shrink: 0;
+  margin-right: 4px;
+  transition: transform 0.18s ease;
+}
+.module-library-collapse-chevron.open {
+  transform: rotate(225deg);
 }
 .module-library-section-label {
   font-family: "DM Mono", monospace;
@@ -1272,29 +1300,60 @@ body.theme-dark-offwhite .material-library-empty {
 }
 .module-library-list {
   display: grid;
-  gap: 12px;
-  padding: 18px;
+  gap: 10px;
+  padding: 14px 18px 18px;
   overflow: auto;
+  scrollbar-width: none;
 }
+.module-library-list::-webkit-scrollbar { display: none; }
 .module-library-list.cards {
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 .module-library-card {
   border: 1px solid var(--border2);
   background: rgba(255,255,255,0.74);
-  padding: 14px;
+  padding: 12px 14px;
   display: grid;
-  gap: 10px;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+}
+.module-library-list:not(.cards) .module-library-card {
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+.module-library-list.cards .module-library-card {
+  grid-template-columns: 10px minmax(0, 1fr);
+  align-items: start;
+}
+.module-library-list:not(.cards) .module-library-card-head {
+  align-items: center;
+  grid-column: 2;
+}
+.module-library-list.cards .module-library-card-head,
+.module-library-list.cards .module-library-card-notes,
+.module-library-list.cards .module-library-card-actions {
+  grid-column: 2;
+}
+.module-library-list:not(.cards) .module-library-card-meta {
+  margin-top: 4px;
+}
+.module-library-list:not(.cards) .module-library-card-notes {
+  grid-column: 2 / -1;
+  margin-top: -2px;
+}
+.module-library-list:not(.cards) .module-library-card-actions {
+  grid-column: 3;
 }
 .module-library-card-head {
   display: flex;
-  justify-content: space-between;
   gap: 10px;
   align-items: start;
 }
 .module-library-card-title {
   font-family: "Cormorant Garamond", serif;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--sumi);
   line-height: 1.1;
@@ -1313,24 +1372,37 @@ body.theme-dark-offwhite .material-library-empty {
   text-transform: uppercase;
   color: var(--muted);
 }
-.module-library-card-url,
 .module-library-card-notes {
   font-family: "Cormorant Garamond", serif;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--slate);
   line-height: 1.4;
   word-break: break-word;
 }
 .module-library-card-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
 }
 .module-library-empty {
   font-family: "Cormorant Garamond", serif;
   font-size: 18px;
   color: var(--muted);
   padding: 8px 2px;
+}
+.module-library-module-accent {
+  width: 10px;
+  min-width: 10px;
+  border-radius: 999px;
+  align-self: stretch;
+  grid-row: 1 / -1;
+  grid-column: 1;
+}
+body.theme-dark .module-library-collapse,
+body.theme-dark-offwhite .module-library-collapse {
+  color: #d3cec3;
 }
 body.theme-dark .module-library-section,
 body.theme-dark-offwhite .module-library-section {
@@ -1342,10 +1414,8 @@ body.theme-dark-offwhite .module-library-section-head {
   border-color: rgba(255,255,255,0.08);
 }
 body.theme-dark .module-library-section-copy,
-body.theme-dark .module-library-card-url,
 body.theme-dark .module-library-card-notes,
 body.theme-dark-offwhite .module-library-section-copy,
-body.theme-dark-offwhite .module-library-card-url,
 body.theme-dark-offwhite .module-library-card-notes,
 body.theme-dark .module-library-empty,
 body.theme-dark-offwhite .module-library-empty {
@@ -1375,14 +1445,23 @@ body.theme-dark-offwhite .module-library-pill {
   .module-library-view-toggle {
     justify-self: start;
   }
-  .module-library-columns {
-    grid-template-columns: 1fr;
-  }
   .module-library-section {
     min-height: 0;
   }
   .module-library-list {
     max-height: 42vh;
+  }
+  .module-library-list:not(.cards) .module-library-card {
+    grid-template-columns: 10px minmax(0, 1fr);
+  }
+  .module-library-list:not(.cards) .module-library-card-head,
+  .module-library-list:not(.cards) .module-library-card-notes,
+  .module-library-list:not(.cards) .module-library-card-actions {
+    grid-column: 2;
+  }
+  .module-library-card-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
   .module-library-topline {
     flex-direction: column;
@@ -4639,17 +4718,18 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
         <button class="nav-btn" type="button" id="module-library-view-cards" onclick="setModuleLibraryView('cards')">Cards</button>
       </div>
     </div>
-    <div class="module-library-columns" id="module-library-columns">
-      <section class="module-library-section">
-        <div class="module-library-section-head">
+    <div class="module-library-stack" id="module-library-columns">
+      <section class="module-library-section module-library-section-collapsible">
+        <button class="module-library-collapse" type="button" onclick="toggleModuleLibraryLinks()">
           <div>
             <div class="module-library-section-label">Relevant Links</div>
             <div class="module-library-section-copy">Useful URLs, portals, videos, docs, and external resources.</div>
           </div>
-        </div>
-        <div class="module-library-list" id="module-library-links"></div>
+          <span class="module-library-collapse-chevron" id="module-library-links-chevron"></span>
+        </button>
+        <div class="module-library-list hidden" id="module-library-links"></div>
       </section>
-      <section class="module-library-section">
+      <section class="module-library-section module-library-materials-section">
         <div class="module-library-section-head">
           <div>
             <div class="module-library-section-label">Module Material</div>
@@ -4906,6 +4986,7 @@ let moduleLibraryScopeMi = null;
 let moduleLibraryViewMode = "list";
 let moduleLibrarySearch = "";
 let moduleLibraryFilter = "all";
+let moduleLibraryLinksOpen = false;
 let isDraggingTopics = false;
 let dragTopicValue = null;
 let draggedTopic = null;
@@ -4913,6 +4994,7 @@ let draggedTopicStartX = 0;
 let selectedTopicKeys = new Set();
 let lastSelectedTopicKey = null;
 const undoStack = [];
+const redoStack = [];
 let historyCurrentSnapshot = "";
 let historyLocked = false;
 let courseSetupInitial = false;
@@ -5276,6 +5358,7 @@ function serializeAppSnapshot() {
 
 function syncUndoBaseline() {
   undoStack.length = 0;
+  redoStack.length = 0;
   historyCurrentSnapshot = serializeAppSnapshot();
 }
 
@@ -5287,6 +5370,7 @@ function rememberUndoState() {
     return;
   }
   if (nextSnapshot === historyCurrentSnapshot) return;
+  redoStack.length = 0;
   undoStack.push(historyCurrentSnapshot);
   if (undoStack.length > 80) undoStack.shift();
   historyCurrentSnapshot = nextSnapshot;
@@ -5316,8 +5400,19 @@ function restoreAppSnapshot(snapshotString) {
 function undoLastAction() {
   const previous = undoStack.pop();
   if (!previous) return;
+  redoStack.push(historyCurrentSnapshot);
+  if (redoStack.length > 80) redoStack.shift();
   clearTopicSelection();
   restoreAppSnapshot(previous);
+}
+
+function redoLastAction() {
+  const next = redoStack.pop();
+  if (!next) return;
+  undoStack.push(historyCurrentSnapshot);
+  if (undoStack.length > 80) undoStack.shift();
+  clearTopicSelection();
+  restoreAppSnapshot(next);
 }
 
 function getSelectedTopicModules() {
@@ -6203,22 +6298,29 @@ function getModuleLibraryItems(type, moduleIndex = null) {
   });
 }
 
+function toggleModuleLibraryLinks() {
+  moduleLibraryLinksOpen = !moduleLibraryLinksOpen;
+  renderModuleLibrary();
+}
+
 function buildModuleLibraryCard(item) {
   const notes = item.notes ? `<div class="module-library-card-notes">${escapeHtml(item.notes)}</div>` : "";
   const tag = item.tag ? `<span class="module-library-pill">${escapeHtml(item.tag)}</span>` : "";
+  const accent = getModuleColourStyles(item.mi);
   return `
-    <article class="module-library-card">
+    <article class="module-library-card" onclick="openLibraryItem(${item.mi}, '${item.type}', ${item.index}, event)">
+      <div class="module-library-module-accent" style="background:${accent.stripe};"></div>
       <div class="module-library-card-head">
-        <div class="module-library-card-title">${escapeHtml(item.name)}</div>
-        <div class="module-library-card-meta">
-          <span class="module-library-pill">${escapeHtml(item.moduleCode)}</span>
-          ${tag}
+        <div>
+          <div class="module-library-card-title">${escapeHtml(item.name)}</div>
+          <div class="module-library-card-meta">
+            <span class="module-library-pill">${escapeHtml(item.moduleCode)}</span>
+            ${tag}
+          </div>
         </div>
       </div>
-      <div class="module-library-card-url">${escapeHtml(item.url)}</div>
       ${notes}
       <div class="module-library-card-actions">
-        <button class="mini-btn" type="button" onclick="openLibraryItem(${item.mi}, '${item.type}', ${item.index}, event)">Open</button>
         <button class="mini-btn" type="button" onclick="editLibraryItem(${item.mi}, '${item.type}', ${item.index}, event)">Edit</button>
         <button class="mini-btn module-delete-btn" type="button" onclick="deleteLibraryItem(${item.mi}, '${item.type}', ${item.index}, event)">Delete</button>
       </div>
@@ -6258,7 +6360,8 @@ function renderModuleLibrary() {
   document.getElementById("module-library-view-list")?.classList.toggle("calendar-btn", moduleLibraryViewMode === "list");
   document.getElementById("module-library-view-cards")?.classList.toggle("calendar-btn", moduleLibraryViewMode === "cards");
   materialsHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "");
-  linksHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "");
+  linksHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "") + (moduleLibraryLinksOpen ? "" : " hidden");
+  document.getElementById("module-library-links-chevron")?.classList.toggle("open", moduleLibraryLinksOpen);
 
   const materials = getModuleLibraryItems("formula", moduleLibraryScopeMi);
   const links = getModuleLibraryItems("relevant", moduleLibraryScopeMi);
@@ -6276,9 +6379,9 @@ function openModuleLibrary(mi = null, focus = "both", event) {
   moduleLibraryScopeMi = Number.isInteger(mi) ? mi : null;
   if (moduleLibraryScopeMi === null) moduleLibraryFilter = "all";
   else moduleLibraryFilter = String(moduleLibraryScopeMi);
+  moduleLibraryLinksOpen = focus === "links";
   document.getElementById("module-library-modal").classList.remove("hidden");
   renderModuleLibrary();
-  if (focus === "links") document.getElementById("module-library-links")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
 }
 
 function closeModuleLibrary() {
@@ -7621,10 +7724,6 @@ function buildModules() {
       list.appendChild(courseworkSection.wrap);
     }
 
-    const relevantLinksSection = createModuleSection(mi, "relevant-links", "Relevant Links", `<button class="mini-btn" type="button" onclick="openModuleLibrary(${mi}, 'links', event)">Open Library</button><button class="mini-btn" type="button" onclick="addRelevantLink(${mi}, event)">Add Link</button>`);
-    relevantLinksSection.body.innerHTML = `<div class="relevant-links-list" id="relevant-links-${mi}"></div>`;
-    list.appendChild(relevantLinksSection.wrap);
-
     const compactMarksWrap = document.createElement("div");
     compactMarksWrap.className = "notes-area-wrap compact-marks-wrap";
     compactMarksWrap.innerHTML = `
@@ -7644,10 +7743,6 @@ function buildModules() {
     `;
     list.appendChild(compactMarksWrap);
 
-    const formulaSection = createModuleSection(mi, "module-material", "Module Material", `<button class="formula-edit-btn" type="button" onclick="openModuleLibrary(${mi}, 'materials', event)">Open Library</button><button class="formula-edit-btn" type="button" onclick="setFormulaLink(${mi}, event)">Add Material</button>`);
-    formulaSection.body.innerHTML = `<div class="formula-links-list" id="formula-links-${mi}"></div>`;
-    list.appendChild(formulaSection.wrap);
-
     const notesSection = createModuleSection(mi, "notes", "Notes", "");
     const notesWrap = notesSection.body;
     const notes = document.createElement("textarea");
@@ -7662,6 +7757,18 @@ function buildModules() {
     notes.addEventListener("click", (event) => event.stopPropagation());
     notesWrap.appendChild(notes);
     list.appendChild(notesSection.wrap);
+
+    const moduleLibraryLaunch = document.createElement("div");
+    moduleLibraryLaunch.className = "notes-area-wrap";
+    moduleLibraryLaunch.innerHTML = `
+      <div class="topic-tools">
+        <div class="topic-tools-title">Module Library</div>
+      </div>
+      <div class="topic-entry-row">
+        <button class="nav-btn" type="button" onclick="openModuleLibrary(${mi}, 'materials', event)">Open ${escapeHtml(mod.kanji || mod.short || "Module")} Library</button>
+      </div>
+    `;
+    list.appendChild(moduleLibraryLaunch);
 
     const topicTools = document.createElement("div");
     topicTools.className = "notes-area-wrap";
@@ -9420,9 +9527,16 @@ async function removeExam(index) {
 }
 
 document.addEventListener("keydown", (event) => {
-  if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() === "z") {
-    const activeTag = document.activeElement?.tagName;
-    if (activeTag !== "INPUT" && activeTag !== "TEXTAREA" && !document.activeElement?.isContentEditable) {
+  const activeTag = document.activeElement?.tagName;
+  const canUseHistoryKeys = activeTag !== "INPUT" && activeTag !== "TEXTAREA" && !document.activeElement?.isContentEditable;
+  if ((event.ctrlKey || event.metaKey) && canUseHistoryKeys) {
+    const key = event.key.toLowerCase();
+    if (event.shiftKey && key === "z") {
+      event.preventDefault();
+      redoLastAction();
+      return;
+    }
+    if (!event.shiftKey && key === "z") {
       event.preventDefault();
       undoLastAction();
       return;
