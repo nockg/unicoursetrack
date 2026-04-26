@@ -3221,7 +3221,6 @@ let currentUser = null;
 let cloudReady = false;
 let cloudHadSave = false;
 let cloudLoadSucceeded = false;
-let cloudSyncWarningShown = false;
 let recoveryModeActive = false;
 let authViewMode = "login";
 let authStatusMessage = "";
@@ -3553,81 +3552,6 @@ function createYearStore(modules) {
     customExams: [],
     archived: false
   };
-}
-function hasMeaningfulLocalState() {
-  const profile = state?.profile || {};
-  if ((profile.name || "").trim() || (profile.university || "").trim() || (profile.course || "").trim()) return true;
-
-  const years = Object.values(state?.years || {});
-  return years.some((year) => {
-    const store = year?.store || {};
-    return (store.modules?.length || 0) > 0 ||
-      Object.keys(store.topics || {}).length > 0 ||
-      Object.keys(store.coursework || {}).length > 0 ||
-      Object.keys(store.courseworkComponents || {}).length > 0 ||
-      Object.keys(store.exams || {}).length > 0 ||
-      Object.keys(store.notes || {}).length > 0 ||
-      Object.keys(store.blackboard || {}).length > 0 ||
-      Object.keys(store.formulas || {}).length > 0 ||
-      Object.keys(store.relevantLinks || {}).length > 0 ||
-      (store.customExams?.length || 0) > 0;
-  });
-}
-
-function finalizePostCloudLoad() {
-  const hasLocalState = hasMeaningfulLocalState();
-  const hasCloudState = cloudHadSave;
-
-  if (!hasCloudState && hasLocalState) {
-    pendingFirstRunSetup = false;
-    cloudReady = true;
-    saveCloudDebounced();
-    return;
-  }
-
-  pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
-  if (pendingFirstRunSetup) {
-    resetLocalAppState();
-    cloudReady = cloudLoadSucceeded;
-  }
-}
-
-
-function migrateLegacyState() {
-  const migrated = deepClone(defaultState);
-  const legacy = firstExisting(LEGACY_STATE_KEYS, {});
-  const legacyBoard = firstExisting(LEGACY_BLACKBOARD_KEYS, {});
-  const legacyFormula = firstExisting(LEGACY_FORMULA_KEYS, {});
-  const legacyExams = firstExisting(LEGACY_EXAM_KEYS, []);
-  const yearId = "year1";
-  migrated.years[yearId] = {
-    id: yearId,
-    label: "Year 1",
-    store: createYearStore(BASE_MODULES)
-  };
-  const store = migrated.years[yearId].store;
-
-  BASE_MODULES.forEach((mod, mi) => {
-    mod.topics.forEach((_, ti) => {
-      const key = `t_${mi}_${ti}`;
-      if (legacy[key]) store.topics[key] = true;
-    });
-    const cwKey = `cw_${mi}`;
-    const exKey = `ex_${mi}`;
-    const notesKey = `notes_${mi}`;
-    if (legacy[cwKey] !== undefined) store.coursework[mi] = legacy[cwKey];
-    if (legacy[exKey] !== undefined) store.exams[mi] = legacy[exKey];
-    if (legacy[notesKey] !== undefined) store.notes[mi] = legacy[notesKey];
-    if (legacyBoard && legacyBoard[mi]) store.blackboard[mi] = legacyBoard[mi];
-    if (legacyFormula && legacyFormula[mi]) {
-      store.formulas[mi] = Array.isArray(legacyFormula[mi])
-        ? legacyFormula[mi]
-        : [{ name: mod.short + " Formula Sheet", url: legacyFormula[mi] }];
-    }
-  });
-
-  if (Array.isArray(legacyExams)) store.customExams = legacyExams;
-  return migrated;
 }
 
 let state = loadJson(KEY, null);
@@ -5852,7 +5776,11 @@ async function loginFromModal() {
     currentUser = data.session?.user || data.user || null;
     clearLogoutFlagForSignedInUser();
     await loadCloudSave();
-    finalizePostCloudLoad();
+    pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
+    if (pendingFirstRunSetup) {
+      resetLocalAppState();
+      cloudReady = true;
+    }
     updateAuthButton();
     updateAuthLock();
     refreshAppAfterAuth();
@@ -5864,8 +5792,6 @@ async function loginFromModal() {
 async function logoutCloud() {
   if (!ensureCloudAuthReady()) return;
   sessionStorage.setItem("justLoggedOut", "true");
-  closeDeadlineSplash();
-  closeDeadlineTimeline();
   closeAuthModal(true);
 
   await supabaseClient.auth.signOut();
@@ -5933,22 +5859,17 @@ async function loadCloudSave() {
       .maybeSingle(), "Cloud data load"));
   } catch (cloudError) {
     console.warn("Cloud load error:", cloudError?.message || cloudError);
-    cloudReady = false;
-    cloudSyncWarningShown = true;
-    setAuthMessage("Could not load your cloud tracker. Local cached data is visible, but cloud saving is paused until you sign in again or refresh.", "error");
+    cloudReady = true;
     return;
   }
 
   if (error) {
     console.warn("Cloud load error:", error.message);
-    cloudReady = false;
-    cloudSyncWarningShown = true;
-    setAuthMessage("Could not load your cloud tracker. Local cached data is visible, but cloud saving is paused until you sign in again or refresh.", "error");
+    cloudReady = true;
     return;
   }
 
   cloudLoadSucceeded = true;
-  cloudSyncWarningShown = false;
 
   if (data?.data) {
     cloudHadSave = true;
@@ -6019,15 +5940,19 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     return;
   }
   if (currentUser) {
-    // Show cached local data while remote data loads, but keep cloud writes disabled
-    // until loadCloudSave() confirms the authoritative cloud state.
-    cloudReady = false;
+    // Do not block the UI on the cloud database. Show the local/cached dashboard first,
+    // then replace it with cloud data as soon as it arrives.
+    cloudReady = true;
     pendingFirstRunSetup = false;
     updateAuthLock();
     refreshAppAfterAuth();
 
     await loadCloudSave();
-    finalizePostCloudLoad();
+    pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
+    if (pendingFirstRunSetup) {
+      resetLocalAppState();
+      cloudReady = true;
+    }
     updateAuthLock();
     refreshAppAfterAuth();
     return;
@@ -6490,15 +6415,19 @@ async function removeExam(index) {
 
   clearLogoutFlagForSignedInUser();
 
-  // Show cached local data while remote data loads, but keep cloud writes disabled
-  // until loadCloudSave() confirms the authoritative cloud state.
-  cloudReady = false;
+  // Fast path for returning users: unlock immediately using the cached local state.
+  // Cloud data then syncs in without trapping the user on the sign-in screen.
+  cloudReady = true;
   pendingFirstRunSetup = false;
   updateAuthLock();
   refreshAppAfterAuth();
 
   await loadCloudSave();
-    finalizePostCloudLoad();
+  pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
+  if (pendingFirstRunSetup) {
+    resetLocalAppState();
+    cloudReady = true;
+  }
 
   updateAuthLock();
   refreshAppAfterAuth();
@@ -6516,6 +6445,7 @@ async function removeExam(index) {
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
+
 
 
 
