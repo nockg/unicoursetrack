@@ -5998,15 +5998,51 @@ function getBlackboardLink(mi) {
   const store = getStore();
   return store.blackboard[mi] || "";
 }
+
+function normalizeLibraryItem(item, fallbackName = "Saved item") {
+  if (typeof item === "string") {
+    return { name: fallbackName, url: item, tag: "", notes: "" };
+  }
+  if (!item || typeof item !== "object") {
+    return { name: fallbackName, url: "", tag: "", notes: "" };
+  }
+  return {
+    name: String(item.name || item.title || fallbackName).trim() || fallbackName,
+    url: String(item.url || item.href || "").trim(),
+    tag: String(item.tag || item.category || "").trim(),
+    notes: String(item.notes || item.note || "").trim()
+  };
+}
+
 function getFormulaLinks(mi) {
   const store = getStore();
-  return Array.isArray(store.formulas[mi]) ? store.formulas[mi] : [];
+  const raw = store.formulas?.[mi];
+  if (Array.isArray(raw)) {
+    const mod = MODULES[mi];
+    return raw
+      .map((item) => normalizeLibraryItem(item, `${mod?.short || mod?.kanji || "Module"} Material`))
+      .filter((item) => item.url);
+  }
+  if (typeof raw === "string" && raw.trim()) {
+    const mod = MODULES[mi];
+    return [normalizeLibraryItem(raw, `${mod?.short || mod?.kanji || "Module"} Material`)];
+  }
+  return [];
 }
 
 function getRelevantLinks(mi) {
   const store = getStore();
   if (!store.relevantLinks) store.relevantLinks = {};
-  return Array.isArray(store.relevantLinks[mi]) ? store.relevantLinks[mi] : [];
+  const raw = store.relevantLinks[mi];
+  if (Array.isArray(raw)) {
+    return raw
+      .map((item) => normalizeLibraryItem(item, "Useful resource"))
+      .filter((item) => item.url);
+  }
+  if (typeof raw === "string" && raw.trim()) {
+    return [normalizeLibraryItem(raw, "Useful resource")];
+  }
+  return [];
 }
 
 
@@ -6306,7 +6342,7 @@ function toggleModuleLibraryLinks() {
 function buildModuleLibraryCard(item) {
   const notes = item.notes ? `<div class="module-library-card-notes">${escapeHtml(item.notes)}</div>` : "";
   const tag = item.tag ? `<span class="module-library-pill">${escapeHtml(item.tag)}</span>` : "";
-  const accent = getModuleColourStyles(item.mi);
+  const accent = getModuleColourSet(item.mi);
   return `
     <article class="module-library-card" onclick="openLibraryItem(${item.mi}, '${item.type}', ${item.index}, event)">
       <div class="module-library-module-accent" style="background:${accent.stripe};"></div>
