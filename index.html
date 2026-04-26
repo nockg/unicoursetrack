@@ -5314,6 +5314,93 @@ body.theme-dark-offwhite .module-section-head {
   }
 }
 
+
+
+/* v1.9 — solid library dropdowns + hero button glass + dark dashboard grade readability */
+/* Remove the gradients on All Modules Library collapsible headers; use solid, theme-aware surfaces. */
+.module-library-section-head,
+.module-library-collapse,
+.module-library-section-collapsible.is-collapsed .module-library-collapse {
+  background: rgba(255,255,255,0.54) !important;
+  background-image: none !important;
+}
+body.theme-dark .module-library-section-head,
+body.theme-dark .module-library-collapse,
+body.theme-dark .module-library-section-collapsible.is-collapsed .module-library-collapse {
+  background: rgba(255,255,255,0.045) !important;
+  background-image: none !important;
+}
+body.theme-dark-offwhite .module-library-section-head,
+body.theme-dark-offwhite .module-library-collapse,
+body.theme-dark-offwhite .module-library-section-collapsible.is-collapsed .module-library-collapse {
+  background: rgba(245,240,232,0.78) !important;
+  background-image: none !important;
+  color: #241d16 !important;
+}
+
+/* Keep Ink & Parchment hero buttons glassy like the normal hero cards, not solid opaque blocks. */
+body.theme-dark-offwhite .dash-hero-btn,
+body.theme-dark-offwhite .dash-library-launch {
+  background: rgba(18, 18, 20, 0.54) !important;
+  border-color: rgba(255,255,255,0.16) !important;
+  color: #f5f0e8 !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 24px rgba(0,0,0,0.12) !important;
+}
+body.theme-dark-offwhite .dash-hero-btn .dash-launch-icon,
+body.theme-dark-offwhite .dash-hero-btn .dash-launch-copy,
+body.theme-dark-offwhite .dash-library-launch .dash-launch-icon,
+body.theme-dark-offwhite .dash-library-launch .dash-launch-copy {
+  color: #f5f0e8 !important;
+}
+body.theme-dark-offwhite .dash-hero-btn:hover,
+body.theme-dark-offwhite .dash-library-launch:hover {
+  background: rgba(18, 18, 20, 0.66) !important;
+  border-color: rgba(216,200,176,0.36) !important;
+  transform: translateY(-1px);
+}
+
+/* Dashboard grade badges: make every classification readable on dark surfaces. */
+body.theme-dark .classification-badge.cls-first,
+body.theme-dark .final-cls.cls-s-first {
+  background: rgba(240,139,128,0.16) !important;
+  border-color: rgba(240,139,128,0.46) !important;
+  color: #ffb1a8 !important;
+}
+body.theme-dark .classification-badge.cls-21,
+body.theme-dark .final-cls.cls-s-21 {
+  background: rgba(240,192,64,0.15) !important;
+  border-color: rgba(240,192,64,0.42) !important;
+  color: #f4d888 !important;
+}
+body.theme-dark .classification-badge.cls-22,
+body.theme-dark .final-cls.cls-s-22 {
+  background: rgba(124,158,220,0.18) !important;
+  border-color: rgba(124,158,220,0.46) !important;
+  color: #c2d6ff !important;
+}
+body.theme-dark .classification-badge.cls-third,
+body.theme-dark .final-cls.cls-s-third {
+  background: rgba(210,216,226,0.12) !important;
+  border-color: rgba(210,216,226,0.30) !important;
+  color: #e1e5ec !important;
+}
+body.theme-dark-offwhite .classification-badge.cls-22,
+body.theme-dark-offwhite .final-cls.cls-s-22 {
+  background: rgba(26,44,74,0.12) !important;
+  border-color: rgba(26,44,74,0.30) !important;
+  color: #1a2c4a !important;
+  filter: none !important;
+}
+
+/* Small consistency pass for library collapsed status text on Ink & Parchment. */
+body.theme-dark-offwhite .module-library-section-collapsible.is-collapsed .module-library-section-copy,
+body.theme-dark-offwhite .module-library-section-copy,
+body.theme-dark-offwhite .module-library-section-label {
+  color: #241d16 !important;
+}
+
 </style>
 </head>
 <body class="auth-required auth-loading">
@@ -10745,6 +10832,93 @@ body.theme-dark-offwhite .module-section.coursework-section .module-section-titl
   .module-section-title, .module-section.coursework-section .module-section-title, .module-section.notes-section .module-section-title, .topic-tools-title, .formula-links-title, .relevant-links-title, .module-library-section-label, .field label { font-size: 8.5px !important; letter-spacing: 0.095em !important; }
   body.theme-dark-offwhite .module-library-section-collapsible.is-collapsed .module-library-section-copy { padding: 3px 6px !important; font-size: 11px !important; }
 }
+
+
+/* v1.9 — solid library dropdowns + hero button glass + dark dashboard grade readability */
+/* Remove the gradients on All Modules Library collapsible headers; use solid, theme-aware surfaces. */
+.module-library-section-head,
+.module-library-collapse,
+.module-library-section-collapsible.is-collapsed .module-library-collapse {
+  background: rgba(255,255,255,0.54) !important;
+  background-image: none !important;
+}
+body.theme-dark .module-library-section-head,
+body.theme-dark .module-library-collapse,
+body.theme-dark .module-library-section-collapsible.is-collapsed .module-library-collapse {
+  background: rgba(255,255,255,0.045) !important;
+  background-image: none !important;
+}
+body.theme-dark-offwhite .module-library-section-head,
+body.theme-dark-offwhite .module-library-collapse,
+body.theme-dark-offwhite .module-library-section-collapsible.is-collapsed .module-library-collapse {
+  background: rgba(245,240,232,0.78) !important;
+  background-image: none !important;
+  color: #241d16 !important;
+}
+
+/* Keep Ink & Parchment hero buttons glassy like the normal hero cards, not solid opaque blocks. */
+body.theme-dark-offwhite .dash-hero-btn,
+body.theme-dark-offwhite .dash-library-launch {
+  background: rgba(18, 18, 20, 0.54) !important;
+  border-color: rgba(255,255,255,0.16) !important;
+  color: #f5f0e8 !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 24px rgba(0,0,0,0.12) !important;
+}
+body.theme-dark-offwhite .dash-hero-btn .dash-launch-icon,
+body.theme-dark-offwhite .dash-hero-btn .dash-launch-copy,
+body.theme-dark-offwhite .dash-library-launch .dash-launch-icon,
+body.theme-dark-offwhite .dash-library-launch .dash-launch-copy {
+  color: #f5f0e8 !important;
+}
+body.theme-dark-offwhite .dash-hero-btn:hover,
+body.theme-dark-offwhite .dash-library-launch:hover {
+  background: rgba(18, 18, 20, 0.66) !important;
+  border-color: rgba(216,200,176,0.36) !important;
+  transform: translateY(-1px);
+}
+
+/* Dashboard grade badges: make every classification readable on dark surfaces. */
+body.theme-dark .classification-badge.cls-first,
+body.theme-dark .final-cls.cls-s-first {
+  background: rgba(240,139,128,0.16) !important;
+  border-color: rgba(240,139,128,0.46) !important;
+  color: #ffb1a8 !important;
+}
+body.theme-dark .classification-badge.cls-21,
+body.theme-dark .final-cls.cls-s-21 {
+  background: rgba(240,192,64,0.15) !important;
+  border-color: rgba(240,192,64,0.42) !important;
+  color: #f4d888 !important;
+}
+body.theme-dark .classification-badge.cls-22,
+body.theme-dark .final-cls.cls-s-22 {
+  background: rgba(124,158,220,0.18) !important;
+  border-color: rgba(124,158,220,0.46) !important;
+  color: #c2d6ff !important;
+}
+body.theme-dark .classification-badge.cls-third,
+body.theme-dark .final-cls.cls-s-third {
+  background: rgba(210,216,226,0.12) !important;
+  border-color: rgba(210,216,226,0.30) !important;
+  color: #e1e5ec !important;
+}
+body.theme-dark-offwhite .classification-badge.cls-22,
+body.theme-dark-offwhite .final-cls.cls-s-22 {
+  background: rgba(26,44,74,0.12) !important;
+  border-color: rgba(26,44,74,0.30) !important;
+  color: #1a2c4a !important;
+  filter: none !important;
+}
+
+/* Small consistency pass for library collapsed status text on Ink & Parchment. */
+body.theme-dark-offwhite .module-library-section-collapsible.is-collapsed .module-library-section-copy,
+body.theme-dark-offwhite .module-library-section-copy,
+body.theme-dark-offwhite .module-library-section-label {
+  color: #241d16 !important;
+}
+
 </style>
 <script>
 (function patchModuleLibraryCopyV18(){
