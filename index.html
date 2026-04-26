@@ -1214,6 +1214,181 @@ body.theme-dark .material-library-empty,
 body.theme-dark-offwhite .material-library-empty {
   color: rgba(241,237,228,0.72);
 }
+.module-library-content {
+  width: min(1160px, calc(100vw - 40px));
+}
+.module-library-topline {
+  align-items: flex-start;
+  gap: 16px;
+}
+.module-library-top-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.module-library-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(180px, 0.55fr) auto;
+  gap: 12px;
+  margin: 18px 0 20px;
+  align-items: center;
+}
+.module-library-view-toggle {
+  display: inline-flex;
+  gap: 8px;
+  justify-self: end;
+}
+.module-library-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+}
+.module-library-section {
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.38);
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+}
+.module-library-section-head {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.module-library-section-label {
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.module-library-section-copy {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 16px;
+  color: var(--slate);
+}
+.module-library-list {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  overflow: auto;
+}
+.module-library-list.cards {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.module-library-card {
+  border: 1px solid var(--border2);
+  background: rgba(255,255,255,0.74);
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+.module-library-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: start;
+}
+.module-library-card-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--sumi);
+  line-height: 1.1;
+}
+.module-library-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.module-library-pill {
+  border: 1px solid var(--border2);
+  padding: 4px 7px;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.module-library-card-url,
+.module-library-card-notes {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 15px;
+  color: var(--slate);
+  line-height: 1.4;
+  word-break: break-word;
+}
+.module-library-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.module-library-empty {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 18px;
+  color: var(--muted);
+  padding: 8px 2px;
+}
+body.theme-dark .module-library-section,
+body.theme-dark-offwhite .module-library-section {
+  background: rgba(255,255,255,0.035);
+  border-color: rgba(255,255,255,0.08);
+}
+body.theme-dark .module-library-section-head,
+body.theme-dark-offwhite .module-library-section-head {
+  border-color: rgba(255,255,255,0.08);
+}
+body.theme-dark .module-library-section-copy,
+body.theme-dark .module-library-card-url,
+body.theme-dark .module-library-card-notes,
+body.theme-dark-offwhite .module-library-section-copy,
+body.theme-dark-offwhite .module-library-card-url,
+body.theme-dark-offwhite .module-library-card-notes,
+body.theme-dark .module-library-empty,
+body.theme-dark-offwhite .module-library-empty {
+  color: #d3cec3;
+}
+body.theme-dark .module-library-card,
+body.theme-dark-offwhite .module-library-card {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.09);
+}
+body.theme-dark .module-library-card-title,
+body.theme-dark-offwhite .module-library-card-title {
+  color: #f2ece0;
+}
+body.theme-dark .module-library-pill,
+body.theme-dark-offwhite .module-library-pill {
+  border-color: rgba(255,255,255,0.1);
+  color: #b8b1a4;
+}
+@media (max-width: 760px) {
+  .module-library-content {
+    width: calc(100vw - 18px);
+  }
+  .module-library-toolbar {
+    grid-template-columns: 1fr;
+  }
+  .module-library-view-toggle {
+    justify-self: start;
+  }
+  .module-library-columns {
+    grid-template-columns: 1fr;
+  }
+  .module-library-section {
+    min-height: 0;
+  }
+  .module-library-list {
+    max-height: 42vh;
+  }
+  .module-library-topline {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
 
 .coursework-calc-wrap {
   padding: 16px 20px 16px 42px;
@@ -4190,6 +4365,7 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
   <button class="nav-btn calendar-btn" onclick="openPreferredCalendar()">Open Calendar</button>
   <button class="nav-btn" onclick="addModuleToCurrentYear()">Add Module</button>
   <button class="nav-btn" onclick="openDeadlineTimeline()">Deadlines</button>
+  <button class="nav-btn" onclick="openModuleLibrary(null, 'both')">Module Library</button>
   <button class="nav-btn prefs-toggle-btn" onclick="togglePreferences()">Preferences</button>
   <button class="nav-btn" onclick="openDashboard()">Dashboard</button>
   <button class="nav-btn" id="auth-btn" onclick="openAuthModal()">Account</button>
@@ -4435,22 +4611,53 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
     <div class="deadline-form-grid">
       <div class="field" id="link-name-field"><label for="link-name-input">Name</label><input class="input" id="link-name-input" placeholder="Module Material"></div>
       <div class="field"><label for="link-url-input">URL</label><input class="input" id="link-url-input" placeholder="https://..."></div>
+      <div class="deadline-form-row">
+        <div class="field"><label for="link-tag-input">Tag</label><input class="input" id="link-tag-input" placeholder="Optional"></div>
+        <div class="field"><label for="link-notes-input">Notes</label><input class="input" id="link-notes-input" placeholder="Optional"></div>
+      </div>
       <div class="deadline-form-actions"><button class="nav-btn" type="button" onclick="closeLinkForm()">Cancel</button><button class="nav-btn" type="button" onclick="saveLinkForm()" id="link-save-btn">Save Link</button></div>
     </div>
   </div>
 </div>
 
-<div id="material-library-modal" class="dashboard-modal hidden">
-  <div class="dashboard-content deadline-form-content">
-    <button class="dashboard-close" onclick="closeMaterialLibrary()">X</button>
-    <div class="timeline-subtitle">Module Material</div>
-    <div class="dashboard-title" id="material-library-title">Module Material</div>
-    <div class="material-library">
-      <div class="material-library-list" id="material-library-list"></div>
-      <div class="deadline-form-actions">
-        <button class="nav-btn" type="button" onclick="closeMaterialLibrary()">Close</button>
-        <button class="nav-btn" type="button" id="material-library-add-btn">Add Material</button>
+<div id="module-library-modal" class="dashboard-modal hidden">
+  <div class="dashboard-content module-library-content">
+    <button class="dashboard-close" onclick="closeModuleLibrary()">X</button>
+    <div class="timeline-subtitle">Module Library</div>
+    <div class="timeline-topline module-library-topline">
+      <div class="timeline-page-title" id="module-library-title">Module Library</div>
+      <div class="module-library-top-actions">
+        <button class="nav-btn" type="button" onclick="openLibraryAdd('formula')">Add Material</button>
+        <button class="nav-btn" type="button" onclick="openLibraryAdd('relevant')">Add Link</button>
       </div>
+    </div>
+    <div class="module-library-toolbar">
+      <input class="input" id="module-library-search" placeholder="Search titles, tags, notes, or URLs" oninput="updateModuleLibrarySearch(this.value)">
+      <select class="nav-select" id="module-library-filter" onchange="updateModuleLibraryFilter(this.value)"></select>
+      <div class="module-library-view-toggle">
+        <button class="nav-btn" type="button" id="module-library-view-list" onclick="setModuleLibraryView('list')">List</button>
+        <button class="nav-btn" type="button" id="module-library-view-cards" onclick="setModuleLibraryView('cards')">Cards</button>
+      </div>
+    </div>
+    <div class="module-library-columns" id="module-library-columns">
+      <section class="module-library-section">
+        <div class="module-library-section-head">
+          <div>
+            <div class="module-library-section-label">Relevant Links</div>
+            <div class="module-library-section-copy">Useful URLs, portals, videos, docs, and external resources.</div>
+          </div>
+        </div>
+        <div class="module-library-list" id="module-library-links"></div>
+      </section>
+      <section class="module-library-section">
+        <div class="module-library-section-head">
+          <div>
+            <div class="module-library-section-label">Module Material</div>
+            <div class="module-library-section-copy">Formula sheets, worked examples, reference pages, and quick-access study material.</div>
+          </div>
+        </div>
+        <div class="module-library-list" id="module-library-materials"></div>
+      </section>
     </div>
   </div>
 </div>
@@ -4695,6 +4902,10 @@ let courseworkFormModuleIndex = null;
 let linkFormContext = null;
 let editingModuleIndex = null;
 let materialLibraryModuleIndex = null;
+let moduleLibraryScopeMi = null;
+let moduleLibraryViewMode = "list";
+let moduleLibrarySearch = "";
+let moduleLibraryFilter = "all";
 let isDraggingTopics = false;
 let dragTopicValue = null;
 let draggedTopic = null;
@@ -5847,24 +6058,41 @@ function openLinkForm(context) {
   const nameField = document.getElementById("link-name-field");
   const nameInput = document.getElementById("link-name-input");
   const urlInput = document.getElementById("link-url-input");
+  const tagInput = document.getElementById("link-tag-input");
+  const notesInput = document.getElementById("link-notes-input");
 
   nameInput.value = "";
   urlInput.value = "";
+  tagInput.value = "";
+  notesInput.value = "";
   nameField.style.display = "block";
+
+  const editingItem = context.mode === "edit"
+    ? (context.type === "formula" ? getFormulaLinks(context.mi)[context.index] : getRelevantLinks(context.mi)[context.index])
+    : null;
 
   if (context.type === "blackboard") {
     subtitle.textContent = "Blackboard";
     title.textContent = "Set Blackboard Link";
     nameField.style.display = "none";
     urlInput.value = getBlackboardLink(context.mi) || "";
+    tagInput.closest(".deadline-form-row").style.display = "none";
   } else if (context.type === "formula") {
     subtitle.textContent = "Module Material";
-    title.textContent = "Add Module Material";
-    nameInput.value = MODULES[context.mi].short + " Material";
+    title.textContent = context.mode === "edit" ? "Edit Module Material" : "Add Module Material";
+    nameInput.value = editingItem?.name || (MODULES[context.mi].short + " Material");
+    tagInput.closest(".deadline-form-row").style.display = "grid";
   } else {
     subtitle.textContent = "Relevant Links";
-    title.textContent = "Add Relevant Link";
-    nameInput.value = "Useful resource";
+    title.textContent = context.mode === "edit" ? "Edit Relevant Link" : "Add Relevant Link";
+    nameInput.value = editingItem?.name || "Useful resource";
+    tagInput.closest(".deadline-form-row").style.display = "grid";
+  }
+
+  if (editingItem) {
+    urlInput.value = editingItem.url || "";
+    tagInput.value = editingItem.tag || "";
+    notesInput.value = editingItem.notes || "";
   }
 
   modal.classList.remove("hidden");
@@ -5880,6 +6108,8 @@ function saveLinkForm() {
   if (!linkFormContext) return;
   const nameInput = document.getElementById("link-name-input");
   const urlInput = document.getElementById("link-url-input");
+  const tagInput = document.getElementById("link-tag-input");
+  const notesInput = document.getElementById("link-notes-input");
   const url = (urlInput.value || "").trim();
   const store = getStore();
 
@@ -5893,26 +6123,32 @@ function saveLinkForm() {
   }
 
   const name = (nameInput.value || "").trim();
+  const tag = (tagInput.value || "").trim();
+  const notes = (notesInput.value || "").trim();
   if (!name || !url) {
     alert("Please enter both a name and a URL.");
     return;
   }
+  const payload = { name, url: safeUrl(url), tag, notes };
 
   if (linkFormContext.type === "formula") {
     const items = getFormulaLinks(linkFormContext.mi).slice();
-    items.push({ name, url: safeUrl(url) });
+    if (linkFormContext.mode === "edit" && items[linkFormContext.index]) items[linkFormContext.index] = payload;
+    else items.push(payload);
     store.formulas[linkFormContext.mi] = items;
     save();
     updateFormulaButton(linkFormContext.mi);
   } else if (linkFormContext.type === "relevant") {
     if (!store.relevantLinks) store.relevantLinks = {};
     const items = getRelevantLinks(linkFormContext.mi).slice();
-    items.push({ name, url: safeUrl(url) });
+    if (linkFormContext.mode === "edit" && items[linkFormContext.index]) items[linkFormContext.index] = payload;
+    else items.push(payload);
     store.relevantLinks[linkFormContext.mi] = items;
     save();
     renderRelevantLinks(linkFormContext.mi);
   }
   closeLinkForm();
+  renderModuleLibrary();
 }
 
 function openBlackboardLink(mi, event) {
@@ -5936,50 +6172,163 @@ function setFormulaLink(mi, event) {
   openLinkForm({ type: "formula", mi });
 }
 
-function openMaterialLibrary(mi, event) {
-  if (event) event.stopPropagation();
-  materialLibraryModuleIndex = mi;
-  const mod = MODULES[mi];
-  const title = document.getElementById("material-library-title");
-  const addBtn = document.getElementById("material-library-add-btn");
-  if (title) title.textContent = `${mod?.kanji || mod?.name || "Module"} Material`;
-  if (addBtn) addBtn.onclick = () => {
-    closeMaterialLibrary();
-    setFormulaLink(mi);
-  };
-  renderMaterialLibrary();
-  document.getElementById("material-library-modal").classList.remove("hidden");
+function getModuleLibraryItems(type, moduleIndex = null) {
+  const items = [];
+  MODULES.forEach((mod, mi) => {
+    if (moduleIndex !== null && mi !== moduleIndex) return;
+    const source = type === "formula" ? getFormulaLinks(mi) : getRelevantLinks(mi);
+    source.forEach((item, index) => {
+      items.push({
+        type,
+        mi,
+        index,
+        moduleCode: mod.kanji || mod.short || `Module ${mi + 1}`,
+        moduleName: mod.name || mod.short || `Module ${mi + 1}`,
+        name: item.name || "",
+        url: item.url || "",
+        tag: item.tag || "",
+        notes: item.notes || ""
+      });
+    });
+  });
+  const search = moduleLibrarySearch.trim().toLowerCase();
+  const filter = moduleLibraryScopeMi === null ? moduleLibraryFilter : String(moduleLibraryScopeMi);
+  return items.filter((item) => {
+    if (filter !== "all" && String(item.mi) !== filter) return false;
+    if (!search) return true;
+    return [item.name, item.url, item.tag, item.notes, item.moduleCode, item.moduleName]
+      .join(" ")
+      .toLowerCase()
+      .includes(search);
+  });
 }
 
-function closeMaterialLibrary() {
-  document.getElementById("material-library-modal").classList.add("hidden");
-  materialLibraryModuleIndex = null;
+function buildModuleLibraryCard(item) {
+  const notes = item.notes ? `<div class="module-library-card-notes">${escapeHtml(item.notes)}</div>` : "";
+  const tag = item.tag ? `<span class="module-library-pill">${escapeHtml(item.tag)}</span>` : "";
+  return `
+    <article class="module-library-card">
+      <div class="module-library-card-head">
+        <div class="module-library-card-title">${escapeHtml(item.name)}</div>
+        <div class="module-library-card-meta">
+          <span class="module-library-pill">${escapeHtml(item.moduleCode)}</span>
+          ${tag}
+        </div>
+      </div>
+      <div class="module-library-card-url">${escapeHtml(item.url)}</div>
+      ${notes}
+      <div class="module-library-card-actions">
+        <button class="mini-btn" type="button" onclick="openLibraryItem(${item.mi}, '${item.type}', ${item.index}, event)">Open</button>
+        <button class="mini-btn" type="button" onclick="editLibraryItem(${item.mi}, '${item.type}', ${item.index}, event)">Edit</button>
+        <button class="mini-btn module-delete-btn" type="button" onclick="deleteLibraryItem(${item.mi}, '${item.type}', ${item.index}, event)">Delete</button>
+      </div>
+    </article>
+  `;
 }
 
-function renderMaterialLibrary() {
-  const host = document.getElementById("material-library-list");
-  if (!host || materialLibraryModuleIndex === null) return;
-  const items = getFormulaLinks(materialLibraryModuleIndex);
-  if (!items.length) {
-    host.innerHTML = `<div class="material-library-empty">No module material added yet. Add lecture notes, formula sheets, worked examples, or anything else you want quick access to.</div>`;
+function refreshModuleLibraryFilterOptions() {
+  const filter = document.getElementById("module-library-filter");
+  if (!filter) return;
+  if (moduleLibraryScopeMi !== null) {
+    const mod = MODULES[moduleLibraryScopeMi];
+    filter.innerHTML = `<option value="${moduleLibraryScopeMi}">${escapeHtml(mod?.kanji || mod?.name || "Current Module")}</option>`;
+    filter.value = String(moduleLibraryScopeMi);
+    filter.disabled = true;
     return;
   }
-  host.innerHTML = items.map((item, index) => `
-    <div class="material-library-item">
-      <div class="material-library-name">${escapeHtml(item.name)}</div>
-      <button class="mini-btn" type="button" onclick="openMaterialLibraryItem(${materialLibraryModuleIndex}, ${index}, event)">Open</button>
-      <button class="mini-btn module-delete-btn" type="button" onclick="deleteFormulaLink(${materialLibraryModuleIndex}, ${index}, event); renderMaterialLibrary();" title="Delete module material" aria-label="Delete module material">x</button>
-      <div class="material-library-url">${escapeHtml(item.url)}</div>
-    </div>
-  `).join("");
+  filter.disabled = false;
+  filter.innerHTML = `<option value="all">All Modules</option>` + MODULES.map((mod, mi) => (
+    `<option value="${mi}">${escapeHtml(mod.kanji || mod.name || `Module ${mi + 1}`)}</option>`
+  )).join("");
+  filter.value = moduleLibraryFilter;
 }
 
-function openMaterialLibraryItem(mi, index, event) {
+function renderModuleLibrary() {
+  const materialsHost = document.getElementById("module-library-materials");
+  const linksHost = document.getElementById("module-library-links");
+  if (!materialsHost || !linksHost) return;
+  const title = document.getElementById("module-library-title");
+  const currentModule = moduleLibraryScopeMi !== null ? MODULES[moduleLibraryScopeMi] : null;
+  if (title) title.textContent = currentModule
+    ? `${currentModule.kanji || currentModule.name || "Module"} Library`
+    : "All Modules Library";
+  refreshModuleLibraryFilterOptions();
+  const searchInput = document.getElementById("module-library-search");
+  if (searchInput && searchInput.value !== moduleLibrarySearch) searchInput.value = moduleLibrarySearch;
+  document.getElementById("module-library-view-list")?.classList.toggle("calendar-btn", moduleLibraryViewMode === "list");
+  document.getElementById("module-library-view-cards")?.classList.toggle("calendar-btn", moduleLibraryViewMode === "cards");
+  materialsHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "");
+  linksHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "");
+
+  const materials = getModuleLibraryItems("formula", moduleLibraryScopeMi);
+  const links = getModuleLibraryItems("relevant", moduleLibraryScopeMi);
+  materialsHost.innerHTML = materials.length
+    ? materials.map(buildModuleLibraryCard).join("")
+    : `<div class="module-library-empty">No module material saved yet.</div>`;
+  linksHost.innerHTML = links.length
+    ? links.map(buildModuleLibraryCard).join("")
+    : `<div class="module-library-empty">No relevant links saved yet.</div>`;
+}
+
+function openModuleLibrary(mi = null, focus = "both", event) {
   if (event) event.stopPropagation();
-  const items = getFormulaLinks(mi);
-  const item = items[index];
+  materialLibraryModuleIndex = mi;
+  moduleLibraryScopeMi = Number.isInteger(mi) ? mi : null;
+  if (moduleLibraryScopeMi === null) moduleLibraryFilter = "all";
+  else moduleLibraryFilter = String(moduleLibraryScopeMi);
+  document.getElementById("module-library-modal").classList.remove("hidden");
+  renderModuleLibrary();
+  if (focus === "links") document.getElementById("module-library-links")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+function closeModuleLibrary() {
+  document.getElementById("module-library-modal").classList.add("hidden");
+  materialLibraryModuleIndex = null;
+  moduleLibraryScopeMi = null;
+}
+
+function updateModuleLibrarySearch(value) {
+  moduleLibrarySearch = String(value || "");
+  renderModuleLibrary();
+}
+
+function updateModuleLibraryFilter(value) {
+  moduleLibraryFilter = value;
+  renderModuleLibrary();
+}
+
+function setModuleLibraryView(view) {
+  moduleLibraryViewMode = view === "cards" ? "cards" : "list";
+  renderModuleLibrary();
+}
+
+function openLibraryAdd(type) {
+  if (moduleLibraryScopeMi === null && moduleLibraryFilter === "all") {
+    showAppNotice("Pick a module first", "Choose a module from the filter at the top of the library before adding a new material or link from the all-modules view.");
+    return;
+  }
+  const mi = moduleLibraryScopeMi !== null ? moduleLibraryScopeMi : Number(moduleLibraryFilter);
+  closeModuleLibrary();
+  openLinkForm({ type, mi });
+}
+
+function openLibraryItem(mi, type, index, event) {
+  if (event) event.stopPropagation();
+  const item = (type === "formula" ? getFormulaLinks(mi) : getRelevantLinks(mi))[index];
   if (!item?.url) return;
   window.open(item.url, "_blank", "noopener");
+}
+
+function editLibraryItem(mi, type, index, event) {
+  if (event) event.stopPropagation();
+  closeModuleLibrary();
+  openLinkForm({ type, mi, index, mode: "edit" });
+}
+
+function deleteLibraryItem(mi, type, index, event) {
+  if (type === "formula") deleteFormulaLink(mi, index, event);
+  else deleteRelevantLink(mi, index, event);
+  renderModuleLibrary();
 }
 
 function deleteFormulaLink(mi, index, event) {
@@ -5991,11 +6340,11 @@ function deleteFormulaLink(mi, index, event) {
   if (items.length) store.formulas[mi] = items; else delete store.formulas[mi];
   save();
   updateFormulaButton(mi);
-  if (materialLibraryModuleIndex === mi) renderMaterialLibrary();
+  renderModuleLibrary();
 }
 
 function openFormulaLink(mi, event) {
-  openMaterialLibrary(mi, event);
+  openModuleLibrary(mi, "materials", event);
 }
 
 function renderFormulaLinks(mi) {
@@ -6029,6 +6378,7 @@ function deleteRelevantLink(mi, index, event) {
   if (items.length) store.relevantLinks[mi] = items; else delete store.relevantLinks[mi];
   save();
   renderRelevantLinks(mi);
+  renderModuleLibrary();
 }
 
 function renderRelevantLinks(mi) {
@@ -6196,8 +6546,8 @@ document.getElementById("deadline-form-modal").addEventListener("click", (event)
   if (event.target.id === "deadline-form-modal") closeDeadlineForm();
 });
 
-document.getElementById("material-library-modal").addEventListener("click", (event) => {
-  if (event.target.id === "material-library-modal") closeMaterialLibrary();
+document.getElementById("module-library-modal").addEventListener("click", (event) => {
+  if (event.target.id === "module-library-modal") closeModuleLibrary();
 });
 
 document.getElementById("course-setup-modal").addEventListener("click", (event) => {
@@ -7271,7 +7621,7 @@ function buildModules() {
       list.appendChild(courseworkSection.wrap);
     }
 
-    const relevantLinksSection = createModuleSection(mi, "relevant-links", "Relevant Links", `<button class="mini-btn" type="button" onclick="addRelevantLink(${mi}, event)">Add Link</button>`);
+    const relevantLinksSection = createModuleSection(mi, "relevant-links", "Relevant Links", `<button class="mini-btn" type="button" onclick="openModuleLibrary(${mi}, 'links', event)">Open Library</button><button class="mini-btn" type="button" onclick="addRelevantLink(${mi}, event)">Add Link</button>`);
     relevantLinksSection.body.innerHTML = `<div class="relevant-links-list" id="relevant-links-${mi}"></div>`;
     list.appendChild(relevantLinksSection.wrap);
 
@@ -7294,7 +7644,7 @@ function buildModules() {
     `;
     list.appendChild(compactMarksWrap);
 
-    const formulaSection = createModuleSection(mi, "module-material", "Module Material", `<button class="formula-edit-btn" type="button" onclick="setFormulaLink(${mi}, event)">Add Material</button>`);
+    const formulaSection = createModuleSection(mi, "module-material", "Module Material", `<button class="formula-edit-btn" type="button" onclick="openModuleLibrary(${mi}, 'materials', event)">Open Library</button><button class="formula-edit-btn" type="button" onclick="setFormulaLink(${mi}, event)">Add Material</button>`);
     formulaSection.body.innerHTML = `<div class="formula-links-list" id="formula-links-${mi}"></div>`;
     list.appendChild(formulaSection.wrap);
 
