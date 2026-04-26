@@ -2359,6 +2359,157 @@ body.theme-dark .auth-gate-tab.active {
   border-color: #f5f0e8;
 }
 
+
+/* ===== Mobile usability overhaul v1 ===== */
+@media (max-width: 760px) {
+  html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+  body { padding-top: 116px; font-size: 16px; -webkit-text-size-adjust: 100%; }
+  body.auth-required { padding-top: 0; }
+
+  .sticky-exams { height: 52px; padding: 0 8px; gap: 0; scroll-snap-type: x proximity; }
+  .exam-ticker { min-width: 168px; padding: 0 12px; scroll-snap-align: start; }
+  .ticker-mod { font-size: 9px; letter-spacing: 0.08em; }
+  .ticker-time { font-size: 13px; line-height: 1.1; }
+  .ticker-date { font-size: 8px; }
+  .add-exam-btn { padding: 0 14px; font-size: 9px; }
+
+  .nav-bar {
+    top: 52px; height: 64px; padding: 8px 10px; gap: 8px;
+    overflow-x: auto; overflow-y: hidden; white-space: nowrap; flex-wrap: nowrap;
+    align-items: center; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .nav-bar::-webkit-scrollbar { display: none; }
+  .nav-brand { width: 30px; height: 30px; flex: 0 0 30px; }
+  .year-controls { flex-direction: row; gap: 8px; flex: 0 0 auto; }
+  .nav-btn, .nav-select {
+    min-height: 38px; border-radius: 999px; font-size: 9px;
+    padding: 8px 11px; flex: 0 0 auto;
+  }
+  .nav-select { min-width: 112px; }
+  .prefs-toggle-btn { margin-left: 0; }
+
+  .hero { margin-top: 0; padding: 28px 14px 22px; }
+  .hero-inner { max-width: 100%; }
+  .eyebrow { font-size: 9px; letter-spacing: 0.12em; margin-bottom: 10px; }
+  h1 { font-size: clamp(31px, 10vw, 42px); line-height: 0.98; margin-bottom: 10px; }
+  .h1-jp { font-size: 12px; margin-bottom: 16px; }
+  .hero-grid { grid-template-columns: 1fr !important; gap: 10px; }
+  .washi-card { padding: 15px 16px; border-radius: 8px; }
+  .card-label, .predictor-hero-sub { font-size: 9px; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .global-big { font-size: 30px; }
+  .dash-launch::after { right: 14px; bottom: 12px; }
+  .dash-launch-icon { font-size: 22px; max-width: none; }
+  .dash-launch-copy, .hero-summary { font-size: 15px; }
+  .predictor-hero-number { font-size: clamp(48px, 17vw, 72px); }
+
+  .content { width: 100%; padding: 14px 10px 72px; }
+  .module { margin-bottom: 12px; border-radius: 10px; overflow: hidden; }
+  .module-header, body.compact-ui .module-header {
+    grid-template-columns: 1fr !important; gap: 12px !important;
+    padding: 15px 14px 14px !important; position: relative;
+  }
+  .module-header > *, .module-header > *:not(.mod-stripe), body.compact-ui .module-header > * {
+    grid-column: 1 !important; min-width: 0;
+  }
+  .mod-stripe { display: none; }
+  .mod-name { font-size: 18px; padding-right: 28px; }
+  .mod-kanji { font-size: 10px; letter-spacing: 0.08em; }
+  .module-links { gap: 7px; }
+  .bb-link, .bb-edit-btn, .formula-btn, .formula-edit-btn, .mini-btn {
+    min-height: 34px; padding: 8px 10px; border-radius: 999px; font-size: 9px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .prog-header { margin-bottom: 6px; }
+  .prog-done { font-size: 18px; }
+  .prog-pct { font-size: 11px; }
+  .prog-track, .progress-track { height: 5px; }
+  .inputs-grid { grid-template-columns: 1fr 1fr !important; gap: 8px; }
+  .field label { font-size: 9px; letter-spacing: 0.08em; }
+  .input, textarea, select, button { font-size: 16px; }
+  .input { min-height: 40px; border-radius: 8px; padding: 9px 10px; }
+  .final-col {
+    text-align: left !important; display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
+    background: rgba(255,255,255,0.24);
+  }
+  .final-mark { font-size: 28px; margin: 0; }
+  .final-cls { white-space: nowrap; }
+  .module-actions { justify-content: flex-start; flex-wrap: wrap; }
+  .chevron { position: absolute; top: 16px; right: 15px; font-size: 12px; }
+
+  .module-edit-tools, .notes-area-wrap, .formula-links-wrap, .relevant-links-wrap, .coursework-calc-wrap {
+    padding: 12px 14px !important;
+  }
+  .topic-tools, .formula-links-head, .relevant-links-head, .coursework-calc-head {
+    align-items: flex-start; flex-direction: column; gap: 8px;
+  }
+  .topic-entry-row { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .topic-row { padding: 12px 14px !important; gap: 10px; align-items: center; }
+  .topic-main { gap: 10px; }
+  .topic-row input[type=checkbox] { width: 20px; height: 20px; margin-top: 1px; }
+  .topic-row input[type=checkbox]:checked::after { left: 6px; top: 2px; width: 5px; height: 10px; }
+  .topic-label { font-size: 16px; line-height: 1.35; }
+  .topic-delete-btn, .topic-edit-btn, .topic-drag-handle { min-height: 32px; min-width: 32px; }
+  .coursework-component-row {
+    grid-template-columns: 1fr !important; gap: 8px; padding: 10px;
+    border: 1px solid var(--border); border-radius: 8px; background: rgba(255,255,255,0.18);
+  }
+  .coursework-component-delete { width: fit-content; }
+  .formula-links-list, .relevant-links-list { gap: 7px; }
+  .formula-chip, .relevant-link-chip { max-width: 100%; border-radius: 999px; }
+  .formula-chip a, .relevant-link-chip a {
+    max-width: 72vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  .dashboard-modal, .deadline-splash {
+    align-items: flex-start; justify-content: center; padding: 18px 10px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+  }
+  .dashboard-content, .timeline-content, .deadline-form-content, .setup-content,
+  .onboarding-content, .deadline-splash-card, .template-splash-card {
+    width: min(100%, calc(100vw - 20px)) !important; max-height: calc(100dvh - 36px);
+    overflow-y: auto; border-radius: 12px; padding: 18px !important;
+  }
+  .deadline-splash-time { font-size: clamp(24px, 9vw, 32px); word-break: break-word; }
+  .template-actions, .setup-template-grid, .setup-fields, .deadline-form-row, .onboarding-tour, .auth-gate-shell {
+    grid-template-columns: 1fr !important;
+  }
+  #auth-gate { padding: 12px; align-items: flex-start; }
+  .auth-gate-shell { width: 100%; border-radius: 12px; }
+  .auth-gate-aside, .auth-gate-panel { padding: 20px 16px !important; }
+  .auth-gate-aside { border-right: none; border-bottom: 1px solid var(--border); }
+  .auth-gate-title { font-size: 34px; }
+  .auth-gate-copy, .auth-gate-message, .setup-copy, .onboarding-step-copy { font-size: 17px; }
+  .auth-gate-tabs { gap: 6px; }
+  .auth-gate-tab { flex: 1 1 auto; min-height: 38px; text-align: center; }
+  .setup-actions, .deadline-form-actions, .timeline-actions { justify-content: stretch; flex-wrap: wrap; }
+  .setup-actions .nav-btn, .deadline-form-actions .nav-btn, .timeline-actions .nav-btn { flex: 1 1 140px; }
+  .timeline-page-title { font-size: 28px; }
+  .timeline-title { font-size: 23px; }
+  .timeline-item { grid-template-columns: 12px 1fr; gap: 10px; }
+  .timeline-dot { width: 14px; height: 14px; }
+  .timeline-rail::before { left: 6px; }
+  .timeline-card { padding: 14px; }
+  .timeline-badge.countdown { font-size: 15px; }
+  .prefs-panel {
+    top: 68px !important; left: 10px !important; right: 10px !important; width: auto !important;
+    max-height: calc(100dvh - 84px); border-radius: 12px;
+  }
+  .bg-picker { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 420px) {
+  body { padding-top: 112px; }
+  .sticky-exams { height: 50px; }
+  .nav-bar { top: 50px; height: 62px; }
+  .exam-ticker { min-width: 152px; }
+  .nav-btn, .nav-select { padding-left: 10px; padding-right: 10px; }
+  .inputs-grid { grid-template-columns: 1fr !important; }
+  .final-col { align-items: flex-start; flex-direction: column; }
+  .hero { padding-left: 12px; padding-right: 12px; }
+  .content { padding-left: 8px; padding-right: 8px; }
+  .mod-name { font-size: 17px; }
+}
 </style>
 </head>
 <body class="auth-required">
