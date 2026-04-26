@@ -4701,6 +4701,9 @@ let draggedTopic = null;
 let draggedTopicStartX = 0;
 let selectedTopicKeys = new Set();
 let lastSelectedTopicKey = null;
+const undoStack = [];
+let historyCurrentSnapshot = "";
+let historyLocked = false;
 let courseSetupInitial = false;
 let selectedSetupTemplate = "blank";
 const openModules = new Set();
@@ -5051,6 +5054,59 @@ function clearTopicSelection(mi = null) {
   }
   selectedTopicKeys = new Set([...selectedTopicKeys].filter((key) => parseTopicSelectionKey(key)?.mi !== mi));
   if (parseTopicSelectionKey(lastSelectedTopicKey)?.mi === mi) lastSelectedTopicKey = null;
+}
+
+function serializeAppSnapshot() {
+  return JSON.stringify({
+    state: deepClone(state),
+    preferences: deepClone(preferences)
+  });
+}
+
+function syncUndoBaseline() {
+  undoStack.length = 0;
+  historyCurrentSnapshot = serializeAppSnapshot();
+}
+
+function rememberUndoState() {
+  if (historyLocked) return;
+  const nextSnapshot = serializeAppSnapshot();
+  if (!historyCurrentSnapshot) {
+    historyCurrentSnapshot = nextSnapshot;
+    return;
+  }
+  if (nextSnapshot === historyCurrentSnapshot) return;
+  undoStack.push(historyCurrentSnapshot);
+  if (undoStack.length > 80) undoStack.shift();
+  historyCurrentSnapshot = nextSnapshot;
+}
+
+function restoreAppSnapshot(snapshotString) {
+  const snapshot = JSON.parse(snapshotString);
+  historyLocked = true;
+  state = snapshot.state;
+  Object.keys(preferences).forEach((key) => delete preferences[key]);
+  Object.assign(preferences, snapshot.preferences || DEFAULT_PREFERENCES);
+  ensureYearsState();
+  refreshActiveYear();
+  applyPreferences();
+  renderYearSelector();
+  buildModules();
+  renderStickyExams();
+  renderDeadlineTimeline();
+  updateGlobal();
+  localStorage.setItem(KEY, JSON.stringify(state));
+  localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
+  historyLocked = false;
+  historyCurrentSnapshot = serializeAppSnapshot();
+  saveCloudDebounced();
+}
+
+function undoLastAction() {
+  const previous = undoStack.pop();
+  if (!previous) return;
+  clearTopicSelection();
+  restoreAppSnapshot(previous);
 }
 
 function getSelectedTopicModules() {
@@ -5495,6 +5551,7 @@ function refreshActiveYear() {
 }
 
 refreshActiveYear();
+syncUndoBaseline();
 
 function applyPreferences() {
   if (preferences.font === "classic") preferences.font = "mono";
@@ -5599,11 +5656,13 @@ function clearLocalTrackerStorage() {
 }
 
 function save() {
+  rememberUndoState();
   localStorage.setItem(KEY, JSON.stringify(state));
   saveCloudDebounced();
 }
 
 function savePreferences() {
+  rememberUndoState();
   localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
   saveCloudDebounced();
 }
@@ -6612,10 +6671,10 @@ async function nestTopicUnderTopic(mi, sourceIndex, parentIndex) {
   updateGlobal();
 }
 
-function startTopicReorder(mi, ti, event) {
-  draggedTopic = { mi, ti, startX: draggedTopicStartX || event.clientX || 0 };
+function startTopicReorder(mi, ti, event, si = null) {
+  draggedTopic = { kind: si === null ? "main" : "sub", mi, ti, si, startX: draggedTopicStartX || event.clientX || 0 };
   event.dataTransfer.effectAllowed = "move";
-  event.dataTransfer.setData("text/plain", `${mi}:${ti}`);
+  event.dataTransfer.setData("text/plain", `${mi}:${ti}:${si === null ? "main" : si}`);
 }
 
 function allowTopicDrop(mi, ti, event) {
@@ -6624,6 +6683,15 @@ function allowTopicDrop(mi, ti, event) {
   const indentDelta = (event.clientX || 0) - (draggedTopic.startX || 0);
   const rect = event.currentTarget.getBoundingClientRect();
   const dropAfter = (event.clientY || rect.top) > rect.top + (rect.height / 2);
+  if (draggedTopic.kind === "sub") {
+    document.querySelectorAll(".topic-row.drop-before, .topic-row.drop-after, .topic-row.drop-subtopic").forEach((row) => {
+      if (row !== event.currentTarget) row.classList.remove("drop-before", "drop-after", "drop-subtopic");
+    });
+    event.currentTarget.classList.remove("reordering", "drop-before", "drop-after", "drop-subtopic");
+    if (indentDelta > 34) event.currentTarget.classList.add("drop-subtopic");
+    else event.currentTarget.classList.add(dropAfter ? "drop-after" : "drop-before");
+    return;
+  }
   const canNestBeforeTarget = indentDelta > 34 && !dropAfter && ti > 0;
   const canNestInPlace = indentDelta > 34 && draggedTopic.ti === ti && ti > 0;
   const canNestAfterParent = indentDelta > 34 && dropAfter && draggedTopic.ti !== ti;
@@ -6649,6 +6717,13 @@ function dropTopicReorder(mi, ti, event) {
   const indentDelta = (event.clientX || 0) - (draggedTopic.startX || 0);
   const rect = event.currentTarget.getBoundingClientRect();
   const dropAfter = (event.clientY || rect.top) > rect.top + (rect.height / 2);
+  if (draggedTopic.kind === "sub") {
+    if (indentDelta > 34) moveSubtopicToParent(mi, draggedTopic.ti, draggedTopic.si, ti);
+    else promoteSubtopicToMain(mi, draggedTopic.ti, draggedTopic.si, ti, dropAfter ? "after" : "before");
+    draggedTopic = null;
+    draggedTopicStartX = 0;
+    return;
+  }
   const canNestBeforeTarget = indentDelta > 34 && !dropAfter && ti > 0;
   const canNestInPlace = indentDelta > 34 && draggedTopic.ti === ti && ti > 0;
   const canNestAfterParent = indentDelta > 34 && dropAfter && draggedTopic.ti !== ti;
@@ -6668,6 +6743,34 @@ function endTopicReorder() {
   draggedTopic = null;
   draggedTopicStartX = 0;
   document.querySelectorAll(".topic-row.reordering, .topic-row.drop-before, .topic-row.drop-after, .topic-row.drop-subtopic").forEach((row) => row.classList.remove("reordering", "drop-before", "drop-after", "drop-subtopic"));
+}
+
+function allowSubtopicDrop(mi, parentTi, si, event) {
+  if (!draggedTopic || draggedTopic.mi !== mi) return;
+  if (draggedTopic.kind === "sub" && draggedTopic.ti === parentTi && draggedTopic.si === si) return;
+  event.preventDefault();
+  const rect = event.currentTarget.getBoundingClientRect();
+  const dropAfter = (event.clientY || rect.top) > rect.top + (rect.height / 2);
+  document.querySelectorAll(".topic-row.drop-before, .topic-row.drop-after, .topic-row.drop-subtopic").forEach((row) => {
+    if (row !== event.currentTarget) row.classList.remove("drop-before", "drop-after", "drop-subtopic");
+  });
+  event.currentTarget.classList.remove("reordering", "drop-before", "drop-after", "drop-subtopic");
+  if (draggedTopic.kind === "sub") {
+    event.currentTarget.classList.add(dropAfter ? "drop-after" : "drop-before");
+  }
+}
+
+function dropSubtopicReorder(mi, parentTi, si, event) {
+  event.preventDefault();
+  event.currentTarget.classList.remove("reordering", "drop-before", "drop-after", "drop-subtopic");
+  if (!draggedTopic || draggedTopic.mi !== mi) return;
+  const rect = event.currentTarget.getBoundingClientRect();
+  const dropAfter = (event.clientY || rect.top) > rect.top + (rect.height / 2);
+  if (draggedTopic.kind === "sub") {
+    moveSubtopicInModule(mi, draggedTopic.ti, draggedTopic.si, parentTi, si, dropAfter ? "after" : "before");
+  }
+  draggedTopic = null;
+  draggedTopicStartX = 0;
 }
 
 function renderStickyExams() {
@@ -7297,25 +7400,6 @@ function buildModules() {
         endTopicReorder();
       });
       const toggleSubtopicsButton = document.createElement("button");
-      const optionsMenu = document.createElement("details");
-      optionsMenu.className = "topic-options-menu";
-      optionsMenu.addEventListener("click", (event) => event.stopPropagation());
-      const optionsSummary = document.createElement("summary");
-      optionsSummary.className = "topic-options-summary";
-      optionsSummary.textContent = "Options";
-      const optionsPanel = document.createElement("div");
-      optionsPanel.className = "topic-options-panel";
-      const deleteButton = document.createElement("button");
-      deleteButton.type = "button";
-      deleteButton.className = "topic-options-action danger";
-      deleteButton.textContent = "Delete Topic";
-      deleteButton.addEventListener("click", async (event) => {
-        optionsMenu.removeAttribute("open");
-        await deleteTopicFromModule(mi, ti, event);
-      });
-      optionsPanel.appendChild(deleteButton);
-      optionsMenu.appendChild(optionsSummary);
-      optionsMenu.appendChild(optionsPanel);
       row.title = "Drag to reorder. Move right in the gap below a topic to nest under it.";
       if (topic.subtopics.length) {
         toggleSubtopicsButton.type = "button";
@@ -7330,7 +7414,6 @@ function buildModules() {
       main.appendChild(checkbox);
       main.appendChild(label);
       row.appendChild(main);
-      row.appendChild(optionsMenu);
       list.appendChild(row);
 
       if (topic.subtopics.length) {
@@ -7340,6 +7423,7 @@ function buildModules() {
           const subRow = document.createElement("div");
           subRow.className = "topic-row subtopic-row" + (isTopicSelected(mi, ti, si) ? " selected" : "");
           subRow.dataset.topicKey = topicSelectionKey(mi, ti, si);
+          subRow.draggable = true;
           const subMain = document.createElement("div");
           subMain.className = "topic-main";
           const subCheckbox = document.createElement("input");
@@ -7361,6 +7445,25 @@ function buildModules() {
             if (event.target.closest("button") || event.target.closest("input")) return;
             event.preventDefault();
             editSubtopicInModule(mi, ti, si, event);
+          });
+          subRow.addEventListener("pointerdown", (event) => {
+            if (event.target.closest("button") || event.target.closest("input")) return;
+            draggedTopicStartX = event.clientX || 0;
+          });
+          subRow.addEventListener("dragover", (event) => allowSubtopicDrop(mi, ti, si, event));
+          subRow.addEventListener("dragleave", clearTopicDropState);
+          subRow.addEventListener("drop", (event) => dropSubtopicReorder(mi, ti, si, event));
+          subRow.addEventListener("dragstart", (event) => {
+            if (event.target.closest("button") || event.target.closest("input") || event.target.closest("textarea")) {
+              event.preventDefault();
+              return;
+            }
+            subRow.classList.add("reordering");
+            startTopicReorder(mi, ti, event, si);
+          });
+          subRow.addEventListener("dragend", () => {
+            subRow.classList.remove("reordering");
+            endTopicReorder();
           });
           subCheckbox.addEventListener("mousedown", (event) => {
             event.preventDefault();
@@ -7806,6 +7909,7 @@ function resetLocalAppState() {
   Object.assign(preferences, DEFAULT_PREFERENCES);
   ensureYearsState();
   refreshActiveYear();
+  syncUndoBaseline();
   applyPreferences();
   renderYearSelector();
   buildModules();
@@ -8196,6 +8300,7 @@ async function loadCloudSave() {
   }
 
   cloudReady = true;
+  syncUndoBaseline();
 
 }
 
@@ -8484,6 +8589,7 @@ async function clearTrackerStorage() {
   localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
   ensureYearsState();
   refreshActiveYear();
+  syncUndoBaseline();
   applyPreferences();
   renderYearSelector();
   buildModules();
@@ -8703,6 +8809,112 @@ function removeSubtopicFromModule(mi, ti, si) {
   store.topics = nextTopics;
 }
 
+function moveSubtopicInModule(mi, fromParentTi, fromSi, toParentTi, toSi, placement = "before") {
+  const topics = MODULES[mi]?.topics;
+  if (!topics) return;
+  if (fromParentTi === toParentTi && fromSi === toSi) return;
+  const sourceTopic = getTopicEntry(mi, fromParentTi);
+  const targetTopic = getTopicEntry(mi, toParentTi);
+  if (!sourceTopic?.subtopics?.[fromSi] || !targetTopic) return;
+
+  const stateSnapshot = getModuleTopicStateSnapshot(mi);
+  const movedTitle = sourceTopic.subtopics[fromSi];
+  const movedDone = !!stateSnapshot[fromParentTi]?.subs?.[fromSi];
+
+  const sourceSubtopics = [...sourceTopic.subtopics];
+  sourceSubtopics.splice(fromSi, 1);
+  MODULES[mi].topics[fromParentTi] = Object.assign({}, sourceTopic, { subtopics: sourceSubtopics });
+  stateSnapshot[fromParentTi].subs.splice(fromSi, 1);
+
+  let insertIndex = toSi;
+  if (fromParentTi === toParentTi && fromSi < toSi) insertIndex -= 1;
+  if (placement === "after") insertIndex += 1;
+  insertIndex = Math.max(0, Math.min(getTopicEntry(mi, toParentTi).subtopics.length, insertIndex));
+
+  const nextTargetTopic = getTopicEntry(mi, toParentTi);
+  const targetSubtopics = [...nextTargetTopic.subtopics];
+  targetSubtopics.splice(insertIndex, 0, movedTitle);
+  MODULES[mi].topics[toParentTi] = Object.assign({}, nextTargetTopic, { subtopics: targetSubtopics, collapsed: false });
+  stateSnapshot[toParentTi].subs.splice(insertIndex, 0, movedDone);
+
+  [fromParentTi, toParentTi].forEach((topicIndex) => {
+    const entry = stateSnapshot[topicIndex];
+    if (!entry) return;
+    entry.main = entry.subs.length > 0 && entry.subs.every(Boolean);
+  });
+
+  applyModuleTopicStateSnapshot(mi, stateSnapshot);
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+function moveSubtopicToParent(mi, fromParentTi, fromSi, toParentTi) {
+  const topics = MODULES[mi]?.topics;
+  if (!topics) return;
+  const sourceTopic = getTopicEntry(mi, fromParentTi);
+  const targetTopic = getTopicEntry(mi, toParentTi);
+  if (!sourceTopic?.subtopics?.[fromSi] || !targetTopic) return;
+
+  const stateSnapshot = getModuleTopicStateSnapshot(mi);
+  const movedTitle = sourceTopic.subtopics[fromSi];
+  const movedDone = !!stateSnapshot[fromParentTi]?.subs?.[fromSi];
+
+  MODULES[mi].topics[fromParentTi] = Object.assign({}, sourceTopic, {
+    subtopics: sourceTopic.subtopics.filter((_, index) => index !== fromSi)
+  });
+  stateSnapshot[fromParentTi].subs.splice(fromSi, 1);
+
+  const refreshedTarget = getTopicEntry(mi, toParentTi);
+  MODULES[mi].topics[toParentTi] = Object.assign({}, refreshedTarget, {
+    subtopics: [...refreshedTarget.subtopics, movedTitle],
+    collapsed: false
+  });
+  stateSnapshot[toParentTi].subs.push(movedDone);
+
+  [fromParentTi, toParentTi].forEach((topicIndex) => {
+    const entry = stateSnapshot[topicIndex];
+    if (!entry) return;
+    entry.main = entry.subs.length > 0 && entry.subs.every(Boolean);
+  });
+
+  applyModuleTopicStateSnapshot(mi, stateSnapshot);
+  save();
+  buildModules();
+  updateGlobal();
+}
+
+function promoteSubtopicToMain(mi, fromParentTi, fromSi, toTopicIndex, placement = "before") {
+  const topics = MODULES[mi]?.topics;
+  if (!topics) return;
+  const sourceTopic = getTopicEntry(mi, fromParentTi);
+  if (!sourceTopic?.subtopics?.[fromSi]) return;
+
+  const stateSnapshot = getModuleTopicStateSnapshot(mi);
+  const movedTitle = sourceTopic.subtopics[fromSi];
+  const movedDone = !!stateSnapshot[fromParentTi]?.subs?.[fromSi];
+
+  MODULES[mi].topics[fromParentTi] = Object.assign({}, sourceTopic, {
+    subtopics: sourceTopic.subtopics.filter((_, index) => index !== fromSi)
+  });
+  stateSnapshot[fromParentTi].subs.splice(fromSi, 1);
+
+  let insertIndex = toTopicIndex;
+  if (placement === "after") insertIndex += 1;
+  insertIndex = Math.max(0, Math.min(MODULES[mi].topics.length, insertIndex));
+
+  MODULES[mi].topics.splice(insertIndex, 0, { title: movedTitle, subtopics: [], collapsed: false });
+  stateSnapshot.splice(insertIndex, 0, { main: movedDone, subs: [] });
+
+  const entry = stateSnapshot[fromParentTi];
+  if (entry) entry.main = entry.subs.length > 0 && entry.subs.every(Boolean);
+
+  applyModuleTopicStateSnapshot(mi, stateSnapshot);
+  save();
+  buildModules();
+  updateGlobal();
+}
+
 function toggleTopicSubtopics(mi, ti, event) {
   if (event) event.stopPropagation();
   const topic = getTopicEntry(mi, ti);
@@ -8858,6 +9070,14 @@ async function removeExam(index) {
 }
 
 document.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() === "z") {
+    const activeTag = document.activeElement?.tagName;
+    if (activeTag !== "INPUT" && activeTag !== "TEXTAREA" && !document.activeElement?.isContentEditable) {
+      event.preventDefault();
+      undoLastAction();
+      return;
+    }
+  }
   handleSelectedTopicDeleteFromKeyboard(event);
 });
 
