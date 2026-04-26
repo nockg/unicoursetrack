@@ -757,17 +757,6 @@ h1 {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
-  position: relative;
-}
-.module-links .topic-options-menu {
-  position: relative;
-}
-.module-links .topic-options-panel {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  z-index: 20;
-  min-width: 140px;
 }
 .module-edit-tools {
   display: flex;
@@ -1360,13 +1349,13 @@ body.theme-dark-offwhite .material-library-empty {
 .module-library-card {
   border: 1px solid color-mix(in srgb, var(--border2) 60%, var(--gold2) 40%);
   background: linear-gradient(135deg, color-mix(in srgb, var(--paper) 95%, white 5%), color-mix(in srgb, var(--paper3) 90%, var(--gold) 10%));
-  padding: 16px 18px;
+  padding: 14px 16px;
   display: grid;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
   position: relative;
   transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
-  border-radius: 14px;
+  border-radius: 12px;
   box-shadow: 0 4px 16px rgba(26,22,18,0.06), inset 0 1px 0 rgba(255,255,255,0.4);
 }
 .module-library-card:hover {
@@ -1418,6 +1407,14 @@ body.theme-dark-offwhite .material-library-empty {
   display: flex;
   gap: 10px;
   align-items: start;
+  justify-content: space-between;
+}
+.module-library-list.cards .module-library-card-head {
+  flex-wrap: wrap;
+}
+.module-library-list.cards .module-library-card-head > div {
+  flex: 1;
+  min-width: 0;
 }
 .module-library-card-title {
   font-family: "Cormorant Garamond", serif;
@@ -1452,7 +1449,7 @@ body.theme-dark-offwhite .material-library-empty {
 }
 .module-library-card-notes {
   font-family: "Cormorant Garamond", serif;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--slate);
   line-height: 1.4;
   word-break: break-word;
@@ -1463,6 +1460,7 @@ body.theme-dark-offwhite .material-library-empty {
   gap: 6px;
   align-items: center;
   justify-content: flex-end;
+  flex-shrink: 0;
 }
 .module-library-card-actions .mini-btn {
   min-width: 38px;
@@ -1749,7 +1747,7 @@ body.theme-dark-offwhite .module-library-pill {
 }
 .topic-label {
   font-family: "Cormorant Garamond", serif;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   color: var(--sumi);
   line-height: 1.45;
@@ -1773,11 +1771,6 @@ body.theme-dark-offwhite .module-library-pill {
   padding: 5px 9px;
   border-radius: 2px;
   text-transform: uppercase;
-}
-.module-links .topic-options-summary {
-  background: rgba(26,22,18,0.04);
-  border: 1px solid var(--border2);
-  color: var(--slate);
 }
 .subtopic-toggle {
   width: 20px;
@@ -4564,6 +4557,7 @@ body.auth-required .deadline-form-actions .calendar-btn:hover {
   <button class="nav-btn youtube-btn" onclick="openYouTube()" title="Open YouTube">▶</button>
   <button class="nav-btn" onclick="addModuleToCurrentYear()">Add Module</button>
   <button class="nav-btn" onclick="openDeadlineTimeline()">Deadlines</button>
+  <button class="nav-btn" onclick="openModuleLibrary(null, 'both')">Module Library</button>
   <button class="nav-btn" onclick="openDashboard()">Dashboard</button>
   <button class="nav-btn prefs-toggle-btn" onclick="togglePreferences()">Preferences</button>
   <button class="nav-btn" id="auth-btn" onclick="openAuthModal()">Account</button>
@@ -6074,45 +6068,27 @@ function clearModuleMarks(mi, event) {
   if (event) event.stopPropagation();
   const allOptions = document.querySelectorAll(".topic-options-menu[id^='module-options-']");
   allOptions.forEach(el => el.removeAttribute("open"));
-  // Call the existing clearModuleMarks function that has confirmation dialog
-  const existingFunction = window.clearModuleMarksAsync || clearModuleMarksWithDialog;
-  // For now, we'll defer to the async version defined later in the file
-  setTimeout(() => {
-    const mod = MODULES[mi];
-    if (mod) {
-      appConfirm({
-        label: "Marks",
-        title: "Clear marks?",
-        message: `Clear coursework and exam marks for ${mod.kanji || mod.name}?`,
-        confirmText: "Clear",
-        danger: true
-      }).then(confirmed => {
-        if (confirmed) {
-          const store = getStore();
-          delete store.coursework[mi];
-          delete store.exams[mi];
-          if (store.courseworkComponents) delete store.courseworkComponents[mi];
-          save();
-          buildModules();
-          updateGlobal();
-        }
-      });
+  
+  const mod = MODULES[mi];
+  if (!mod) return;
+  
+  appConfirm({
+    label: "Marks",
+    title: "Clear marks?",
+    message: `Clear coursework and exam marks for ${mod.kanji || mod.name}?`,
+    confirmText: "Clear",
+    danger: true
+  }).then(confirmed => {
+    if (confirmed) {
+      const store = getStore();
+      delete store.coursework[mi];
+      delete store.exams[mi];
+      if (store.courseworkComponents) delete store.courseworkComponents[mi];
+      save();
+      buildModules();
+      updateGlobal();
     }
-  }, 0);
-}
-
-function openModuleNotes(mi, event) {
-  if (event) event.stopPropagation();
-  const allOptions = document.querySelectorAll(".topic-options-menu[id^='module-options-']");
-  allOptions.forEach(el => el.removeAttribute("open"));
-  openModuleLibrary(mi, "notes", event);
-}
-
-function openModuleTopics(mi, event) {
-  if (event) event.stopPropagation();
-  const allOptions = document.querySelectorAll(".topic-options-menu[id^='module-options-']");
-  allOptions.forEach(el => el.removeAttribute("open"));
-  openModuleLibrary(mi, "topics", event);
+  });
 }
 
 function clearLocalTrackerStorage() {
@@ -6523,12 +6499,12 @@ function buildModuleLibraryCard(item) {
             ${tag}
           </div>
         </div>
+        <div class="module-library-card-actions">
+          <button class="mini-btn" type="button" onclick="editLibraryItem(${item.mi}, '${item.type}', ${item.index}, event)">Edit</button>
+          <button class="mini-btn module-delete-btn" type="button" onclick="deleteLibraryItem(${item.mi}, '${item.type}', ${item.index}, event)">Delete</button>
+        </div>
       </div>
       ${notes}
-      <div class="module-library-card-actions">
-        <button class="mini-btn" type="button" onclick="editLibraryItem(${item.mi}, '${item.type}', ${item.index}, event)">Edit</button>
-        <button class="mini-btn module-delete-btn" type="button" onclick="deleteLibraryItem(${item.mi}, '${item.type}', ${item.index}, event)">Delete</button>
-      </div>
     </article>
   `;
 }
@@ -7834,13 +7810,11 @@ function buildModules() {
         <div class="mod-kanji">${escapeHtml(mod.kanji)} · CW ${mod.cw === 0 ? "N/A" : escapeHtml(String(mod.cw ?? 0)) + "%"} · EXAMS ${mod.exam === 0 ? "N/A" : escapeHtml(String(mod.exam ?? 0)) + "%"}</div>
         <div class="module-links">
           <button class="bb-link" id="bb-link-${mi}" type="button" onclick="openBlackboardLink(${mi}, event)">Set Blackboard</button>
-          <button class="formula-btn" id="formula-btn-${mi}" type="button" onclick="openFormulaLink(${mi}, event)">Module Library</button>
+          <button class="formula-btn" id="formula-btn-${mi}" type="button" onclick="openFormulaLink(${mi}, event)">Open ${escapeHtml(mod.code || '')} Library</button>
           <details class="topic-options-menu" id="module-options-${mi}">
             <summary class="topic-options-summary">Module Options</summary>
             <div class="topic-options-panel">
               <button class="topic-options-action" onclick="clearModuleMarks(${mi}, event)">Clear Marks</button>
-              <button class="topic-options-action" onclick="openModuleNotes(${mi}, event)">Notes</button>
-              <button class="topic-options-action" onclick="openModuleTopics(${mi}, event)">Topics</button>
             </div>
           </details>
         </div>
