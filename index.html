@@ -748,7 +748,7 @@ h1 {
 .module-edit-tools {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
   padding: 12px 20px 12px 42px;
   border-bottom: 1px solid var(--border);
@@ -760,9 +760,6 @@ h1 {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-}
-.module-edit-primary {
-  margin-left: auto;
 }
 .bb-link, .bb-edit-btn, .formula-btn, .formula-edit-btn, .mini-btn {
   background: rgba(26,22,18,0.04);
@@ -1352,13 +1349,14 @@ body.theme-dark-offwhite .material-library-empty {
 .topic-options-summary {
   border: 1px solid var(--border2);
   background: rgba(26,22,18,0.04);
-  color: var(--sumi);
-  font-family: "Segoe UI", Arial, sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  color: var(--slate);
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
   cursor: pointer;
-  padding: 6px 10px;
+  padding: 5px 9px;
+  border-radius: 2px;
   text-transform: uppercase;
 }
 .subtopic-toggle:hover,
@@ -6345,7 +6343,7 @@ function updateCourseworkSummary(mi) {
     return;
   }
 
-  summary.textContent = `No coursework mark yet. Add components, or use the Coursework % input above.`;
+  summary.textContent = `Enter an overall coursework mark above, or let this calculator build it from your assessments.`;
 }
 
 function remapTopicStateForReorder(mi, fromIndex, toIndex) {
@@ -6427,6 +6425,7 @@ function renderStickyExams() {
     const isUrgent = target.getTime() <= now;
     const card = document.createElement("div");
     card.className = "exam-ticker";
+    card.dataset.deadlineIndex = String(exam.originalIndex);
     card.innerHTML = `
       <div class="ticker-mod">${escapeHtml(exam.mod)}</div>
       <div class="ticker-time ${isUrgent ? "urgent" : ""}">${formatCountdown(exam.date)}</div>
@@ -6665,6 +6664,12 @@ function setupDeadlineBarScrolling() {
 
   bar.addEventListener("pointerup", endDrag);
   bar.addEventListener("pointercancel", endDrag);
+  bar.addEventListener("pointerup", (event) => {
+    const card = event.target.closest(".exam-ticker");
+    if (!card || moved) return;
+    const index = Number(card.dataset.deadlineIndex);
+    if (Number.isFinite(index)) openDeadlineForm(index);
+  });
   bar.addEventListener("click", (event) => {
     if (!moved) return;
     event.preventDefault();
@@ -6849,23 +6854,8 @@ function buildModules() {
     `;
     list.appendChild(moduleEditTools);
 
-    const notesWrap = document.createElement("div");
-    notesWrap.className = "notes-area-wrap";
-    const notes = document.createElement("textarea");
-    notes.className = "notes-area";
-    notes.rows = 2;
-    notes.placeholder = `Notes, mnemonics, thoughts on ${mod.short}...`;
-    notes.value = store.notes[mi] || "";
-    notes.addEventListener("input", () => {
-      store.notes[mi] = notes.value;
-      save();
-    });
-    notes.addEventListener("click", (event) => event.stopPropagation());
-    notesWrap.appendChild(notes);
-    list.appendChild(notesWrap);
-
     if (mod.cw > 0) {
-      const courseworkSection = createModuleSection(mi, "coursework", "Coursework Calculator", `<button class="mini-btn" type="button" onclick="addCourseworkComponent(${mi}, event)">No overall CW mark? Add Components</button>`);
+      const courseworkSection = createModuleSection(mi, "coursework", "Coursework Calculator", `<button class="mini-btn" type="button" onclick="addCourseworkComponent(${mi}, event)">Build From Assessments</button>`);
       const courseworkWrap = courseworkSection.body;
       const components = getCourseworkComponents(mi);
       courseworkWrap.innerHTML = `
@@ -6935,6 +6925,21 @@ function buildModules() {
     const formulaSection = createModuleSection(mi, "module-material", "Module Material", `<button class="formula-edit-btn" type="button" onclick="setFormulaLink(${mi}, event)">Add Material</button>`);
     formulaSection.body.innerHTML = `<div class="formula-links-list" id="formula-links-${mi}"></div>`;
     list.appendChild(formulaSection.wrap);
+
+    const notesSection = createModuleSection(mi, "notes", "Notes", "");
+    const notesWrap = notesSection.body;
+    const notes = document.createElement("textarea");
+    notes.className = "notes-area";
+    notes.rows = 2;
+    notes.placeholder = `Notes, mnemonics, thoughts on ${mod.short}...`;
+    notes.value = store.notes[mi] || "";
+    notes.addEventListener("input", () => {
+      store.notes[mi] = notes.value;
+      save();
+    });
+    notes.addEventListener("click", (event) => event.stopPropagation());
+    notesWrap.appendChild(notes);
+    list.appendChild(notesSection.wrap);
 
     const topicTools = document.createElement("div");
     topicTools.className = "notes-area-wrap";
