@@ -6074,7 +6074,7 @@ body.theme-dark-offwhite .module-library-pill {
   <div class="year-controls">
     <select class="nav-select" id="year-select" onchange="handleYearDropdown(this.value)"></select>
   </div>
-  <button class="nav-btn calendar-btn" onclick="openCalendarComposer()">Calendar</button>
+  <button class="nav-btn calendar-btn" onclick="openSelectedCalendar()">Calendar</button>
   <button class="nav-btn youtube-btn" type="button" onclick="openYouTube()" title="Open YouTube" aria-label="Open YouTube">
     <span class="youtube-icon" aria-hidden="true"></span>
     <span class="youtube-label">YouTube</span>
@@ -6267,6 +6267,7 @@ body.theme-dark-offwhite .module-library-pill {
     <div class="timeline-subtitle">Deadlines</div>
     <div class="dashboard-title" id="deadline-form-title">Add Deadline</div>
     <div class="deadline-form-grid">
+      <div class="deadline-choice-note">Save it as an on-site countdown, or prepare the same details for your chosen calendar app.</div>
       <div class="field">
         <label for="deadline-title-input">Deadline Title</label>
         <input class="input" id="deadline-title-input" placeholder="Coursework hand-in">
@@ -6283,20 +6284,20 @@ body.theme-dark-offwhite .module-library-pill {
       </div>
       <div class="deadline-form-row">
         <div class="field">
-          <label for="deadline-end-date-input">End Date</label>
+          <label for="deadline-end-date-input">Calendar End Date</label>
           <input class="input" id="deadline-end-date-input" type="date">
         </div>
         <div class="field">
-          <label for="deadline-end-time-input">End Time</label>
+          <label for="deadline-end-time-input">Calendar End Time</label>
           <input class="input" id="deadline-end-time-input" type="time">
         </div>
       </div>
       <div class="deadline-form-row">
         <div class="field">
-          <label for="deadline-all-day-input">Event Type</label>
+          <label for="deadline-all-day-input">Calendar Style</label>
           <select class="nav-select" id="deadline-all-day-input">
-            <option value="false">Timed Event</option>
-            <option value="true">All-Day Event</option>
+            <option value="false">Timed Calendar Slot</option>
+            <option value="true">All-Day Calendar Slot</option>
           </select>
         </div>
         <div class="field">
@@ -6318,8 +6319,8 @@ body.theme-dark-offwhite .module-library-pill {
       </div>
       <div class="deadline-form-actions">
         <button class="nav-btn" type="button" onclick="closeDeadlineForm()">Cancel</button>
-        <button class="nav-btn" type="button" onclick="saveDeadlineForm()" id="deadline-save-btn">Save Deadline</button>
-        <button class="nav-btn calendar-btn" type="button" onclick="saveDeadlineForm(true)" id="deadline-calendar-btn">Save + Calendar</button>
+        <button class="nav-btn" type="button" onclick="saveDeadlineForm()" id="deadline-save-btn">Save Countdown</button>
+        <button class="nav-btn calendar-btn" type="button" onclick="saveDeadlineForm(true)" id="deadline-calendar-btn">Save & Open Calendar</button>
       </div>
     </div>
   </div>
@@ -7737,6 +7738,19 @@ function toDateInputValue(date) {
 
 function toTimeInputValue(date) {
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
+function openSelectedCalendar() {
+  const providerKey = preferences.calendarProvider || "google";
+  if (providerKey === "outlook") {
+    window.open("https://outlook.live.com/calendar/0/view/month", "_blank", "noopener");
+    return;
+  }
+  if (providerKey === "apple") {
+    window.open("https://www.icloud.com/calendar/", "_blank", "noopener");
+    return;
+  }
+  window.open("https://calendar.google.com/calendar/u/0/r", "_blank", "noopener");
 }
 
 function openCalendarComposer(prefill = null) {
@@ -9224,7 +9238,7 @@ function openDeadlineForm(index = null) {
     locationInput.value = "";
     noteInput.value = "";
     if (title) title.textContent = "Add Deadline";
-    if (saveBtn) saveBtn.textContent = "Save Deadline";
+    if (saveBtn) saveBtn.textContent = "Save Countdown";
   }
 
   updateDeadlineFormMode();
@@ -9254,25 +9268,41 @@ function buildDeadlineFromForm() {
   const mod = titleInput.value.trim();
   const date = dateInput.value;
   const time = timeInput.value || "09:00";
-  const endDate = endDateInput.value || date;
-  const endTime = endTimeInput.value || time;
   const allDay = allDayInput.value === "true";
   if (!mod) {
     alert("Please enter a deadline title.");
-    return;
+    return null;
   }
   if (!date) {
     alert("Please choose a date.");
-    return;
-  }
-  const parsed = new Date(`${date}T${allDay ? "00:00" : time}`);
-  const parsedEnd = allDay
-    ? new Date(new Date(`${endDate}T00:00`).getTime() + 24 * 60 * 60 * 1000)
-    : new Date(`${endDate}T${endTime}`);
-  if (Number.isNaN(parsed.getTime()) || Number.isNaN(parsedEnd.getTime()) || parsedEnd <= parsed) {
-    alert("Please enter a valid date and time.");
     return null;
   }
+
+  const parsed = new Date(`${date}T${allDay ? "00:00" : time}`);
+  if (Number.isNaN(parsed.getTime())) {
+    alert("Please enter a valid deadline date and time.");
+    return null;
+  }
+
+  const hasCustomEndDate = !!endDateInput.value;
+  const hasCustomEndTime = !!endTimeInput.value;
+  const calendarEndDate = endDateInput.value || date;
+  const calendarEndTime = endTimeInput.value || "";
+  let parsedEnd;
+  if (allDay) {
+    parsedEnd = new Date(new Date(`${calendarEndDate}T00:00`).getTime() + 24 * 60 * 60 * 1000);
+  } else if (hasCustomEndDate || hasCustomEndTime) {
+    parsedEnd = new Date(`${calendarEndDate}T${calendarEndTime || time}`);
+    if (parsedEnd <= parsed && !hasCustomEndDate) parsedEnd = new Date(parsed.getTime() + 60 * 60 * 1000);
+  } else {
+    parsedEnd = new Date(parsed.getTime() + 60 * 60 * 1000);
+  }
+
+  if (Number.isNaN(parsedEnd.getTime()) || parsedEnd <= parsed) {
+    alert("Please enter a valid calendar end time, or leave it blank to use a one-hour slot.");
+    return null;
+  }
+
   return {
     mod,
     date: toDeadlineStorageString(parsed),
@@ -9314,7 +9344,10 @@ function formatCalendarDateOnly(date) {
 
 function buildCalendarWindow(deadline) {
   const start = new Date(deadline.date);
-  const end = new Date(start.getTime() + 60 * 60 * 1000);
+  const storedEnd = deadline.endDate ? new Date(deadline.endDate) : null;
+  const end = storedEnd && !Number.isNaN(storedEnd.getTime()) && storedEnd > start
+    ? storedEnd
+    : new Date(start.getTime() + 60 * 60 * 1000);
   return { start, end };
 }
 
@@ -9602,21 +9635,25 @@ function getTodoPanelState() {
       locked: false,
       top: null,
       left: null,
-      width: 560,
-      height: 460
+      width: 420,
+      height: 390
     };
   }
   return state.ui.todoPanel;
 }
 
-function applyTodoPanelState() {
+function applyTodoPanelState(forceCenter = false) {
   const panel = document.querySelector("#todo-modal .todo-content");
   if (!panel) return;
   const panelState = getTodoPanelState();
-  const width = panelState.width || 560;
-  const height = panelState.height || 460;
-  const left = panelState.left ?? Math.max(8, Math.round((window.innerWidth - width) / 2));
-  const top = panelState.top ?? Math.max(90, Math.round((window.innerHeight - height) / 2));
+  const maxWidth = Math.min(window.innerWidth - 18, 620);
+  const maxHeight = Math.min(window.innerHeight - 92, 680);
+  const width = Math.max(320, Math.min(panelState.width || 420, maxWidth));
+  const height = Math.max(320, Math.min(panelState.height || 390, maxHeight));
+  const savedLeft = Number.isFinite(panelState.left) ? panelState.left : null;
+  const savedTop = Number.isFinite(panelState.top) ? panelState.top : null;
+  const left = forceCenter || savedLeft === null ? Math.max(8, Math.round((window.innerWidth - width) / 2)) : Math.max(8, Math.min(savedLeft, window.innerWidth - width - 8));
+  const top = forceCenter || savedTop === null ? Math.max(76, Math.round((window.innerHeight - height) / 2)) : Math.max(70, Math.min(savedTop, window.innerHeight - height - 8));
   panel.classList.toggle("is-locked", !!panelState.locked);
   panel.style.top = `${top}px`;
   panel.style.left = `${left}px`;
@@ -9809,7 +9846,7 @@ function openTodoPlanner() {
   document.getElementById("todo-modal").classList.remove("hidden");
   renderTodoModuleOptions();
   setupTodoPanelResizePersistence();
-  applyTodoPanelState();
+  applyTodoPanelState(true);
   renderTodoPlanner();
 }
 
@@ -12147,6 +12184,100 @@ body.theme-dark .module-library-section-copy,
 body.theme-dark-offwhite .module-library-section-copy {
   color: rgba(241,237,228,0.84) !important;
   opacity: 1 !important;
+}
+
+
+/* Sanjeev fixes: calendar/deadline, to-do sizing, and library readability */
+.deadline-choice-note {
+  border: 1px solid var(--border);
+  background: rgba(26,22,18,0.035);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 15px;
+  line-height: 1.35;
+}
+body.theme-dark .deadline-choice-note,
+body.theme-dark-offwhite .deadline-choice-note {
+  background: rgba(255,255,255,0.045);
+  border-color: rgba(255,255,255,0.08);
+  color: rgba(241,237,228,0.76);
+}
+
+#todo-modal .todo-content {
+  width: 420px !important;
+  min-width: 320px !important;
+  min-height: 320px !important;
+  max-width: min(92vw, 620px) !important;
+  max-height: min(82vh, 680px) !important;
+  padding: 18px 18px 14px !important;
+  resize: both !important;
+}
+#todo-modal .todo-panel-controls {
+  top: 12px !important;
+  right: 12px !important;
+  z-index: 5 !important;
+}
+#todo-modal .timeline-head {
+  padding-right: 104px !important;
+}
+#todo-modal .todo-panel-controls .mini-btn {
+  min-width: 44px !important;
+  width: auto !important;
+  padding: 0 10px !important;
+}
+#todo-modal .todo-panel-controls .dashboard-close {
+  min-width: 34px !important;
+  width: 34px !important;
+  height: 34px !important;
+}
+#todo-modal .todo-toolbar {
+  grid-template-columns: 1fr !important;
+}
+#todo-modal .todo-compose-note {
+  min-height: 72px !important;
+}
+
+.module-library-section-copy,
+.module-library-card-notes,
+.module-library-empty,
+.material-library-empty,
+.material-library-url {
+  color: color-mix(in srgb, var(--sumi) 78%, var(--paper) 22%) !important;
+  opacity: 1 !important;
+}
+.module-library-pill {
+  color: color-mix(in srgb, var(--sumi) 72%, var(--paper) 28%) !important;
+  background: rgba(255,255,255,0.58) !important;
+}
+body.theme-dark .module-library-section-copy,
+body.theme-dark .module-library-card-notes,
+body.theme-dark .module-library-empty,
+body.theme-dark .material-library-empty,
+body.theme-dark .material-library-url,
+body.theme-dark-offwhite .module-library-section-copy,
+body.theme-dark-offwhite .module-library-card-notes,
+body.theme-dark-offwhite .module-library-empty,
+body.theme-dark-offwhite .material-library-empty,
+body.theme-dark-offwhite .material-library-url {
+  color: rgba(245,240,232,0.82) !important;
+  opacity: 1 !important;
+}
+body.theme-dark .module-library-pill,
+body.theme-dark-offwhite .module-library-pill {
+  color: rgba(245,240,232,0.82) !important;
+  background: rgba(255,255,255,0.065) !important;
+}
+@media (max-width: 760px) {
+  #todo-modal .todo-content {
+    min-width: 0 !important;
+    width: calc(100vw - 18px) !important;
+    resize: none !important;
+  }
+  #todo-modal .timeline-head {
+    padding-right: 92px !important;
+  }
 }
 </style>
 <script>
