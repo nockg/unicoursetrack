@@ -5401,6 +5401,295 @@ body.theme-dark-offwhite .module-library-section-label {
   color: #241d16 !important;
 }
 
+/* V19 Design system polish: contrast, button coherence, spacing, type, and radius consistency. */
+:root {
+  --ui-radius-control: 4px;
+  --ui-radius-surface: 10px;
+  --ui-radius-soft: 6px;
+  --ui-btn-bg: rgba(26,22,18,0.04);
+  --ui-btn-border: rgba(26,22,18,0.18);
+  --ui-btn-text: #3f4a5d;
+  --ui-btn-hover-bg: rgba(26,22,18,0.08);
+  --ui-btn-hover-border: rgba(26,22,18,0.3);
+  --ui-btn-hover-text: #1a1612;
+  --ui-btn-active-bg: #1a2c4a;
+  --ui-btn-active-border: #1a2c4a;
+  --ui-btn-active-text: #fff7ed;
+  --ui-btn-primary-bg: #111111;
+  --ui-btn-primary-border: #111111;
+  --ui-btn-primary-text: #ffffff;
+}
+
+body.theme-quiet {
+  --ui-btn-bg: rgba(118,98,77,0.08);
+  --ui-btn-border: rgba(118,98,77,0.2);
+  --ui-btn-text: #5f5041;
+  --ui-btn-hover-bg: rgba(118,98,77,0.12);
+  --ui-btn-hover-border: rgba(118,98,77,0.32);
+  --ui-btn-hover-text: #3f3328;
+  --ui-btn-active-bg: #6f5b46;
+  --ui-btn-active-border: #6f5b46;
+  --ui-btn-active-text: #faf5ec;
+  --ui-btn-primary-bg: #5a4736;
+  --ui-btn-primary-border: #5a4736;
+  --ui-btn-primary-text: #fffaf2;
+}
+
+body.theme-dark {
+  --ui-btn-bg: rgba(255,255,255,0.055);
+  --ui-btn-border: rgba(255,255,255,0.11);
+  --ui-btn-text: #d8d3ca;
+  --ui-btn-hover-bg: rgba(255,255,255,0.085);
+  --ui-btn-hover-border: rgba(255,255,255,0.19);
+  --ui-btn-hover-text: #f4efe6;
+  --ui-btn-active-bg: #e8dac5;
+  --ui-btn-active-border: #e8dac5;
+  --ui-btn-active-text: #18181b;
+  --ui-btn-primary-bg: #f1e5d4;
+  --ui-btn-primary-border: #f1e5d4;
+  --ui-btn-primary-text: #18181b;
+}
+
+body.theme-dark-offwhite {
+  --ui-btn-bg: rgba(36,29,22,0.06);
+  --ui-btn-border: rgba(36,29,22,0.18);
+  --ui-btn-text: #241d16;
+  --ui-btn-hover-bg: rgba(36,29,22,0.1);
+  --ui-btn-hover-border: rgba(36,29,22,0.28);
+  --ui-btn-hover-text: #120d09;
+  --ui-btn-active-bg: #1a2c4a;
+  --ui-btn-active-border: #1a2c4a;
+  --ui-btn-active-text: #fff9ef;
+  --ui-btn-primary-bg: #241d16;
+  --ui-btn-primary-border: #241d16;
+  --ui-btn-primary-text: #fff9ef;
+}
+
+.nav-btn,
+.mini-btn,
+.bb-edit-btn,
+.formula-btn,
+.formula-edit-btn,
+.nav-select {
+  border-radius: var(--ui-radius-control) !important;
+}
+
+.nav-btn,
+.mini-btn,
+.bb-edit-btn,
+.formula-btn,
+.formula-edit-btn {
+  min-height: 34px !important;
+  padding: 0 12px !important;
+  background: var(--ui-btn-bg) !important;
+  border: 1px solid var(--ui-btn-border) !important;
+  color: var(--ui-btn-text) !important;
+  font-size: 9px !important;
+  letter-spacing: 0.08em !important;
+  line-height: 1 !important;
+}
+
+.nav-btn:hover,
+.mini-btn:hover,
+.bb-edit-btn:hover,
+.formula-btn:hover,
+.formula-edit-btn:hover {
+  background: var(--ui-btn-hover-bg) !important;
+  border-color: var(--ui-btn-hover-border) !important;
+  color: var(--ui-btn-hover-text) !important;
+}
+
+.bb-link,
+.youtube-btn {
+  min-height: 34px !important;
+  padding: 0 12px !important;
+  border-radius: var(--ui-radius-control) !important;
+  background: var(--ui-btn-primary-bg) !important;
+  border: 1px solid var(--ui-btn-primary-border) !important;
+  color: var(--ui-btn-primary-text) !important;
+}
+
+.calendar-btn,
+.module-library-view-toggle .nav-btn.calendar-btn {
+  background: var(--ui-btn-active-bg) !important;
+  border-color: var(--ui-btn-active-border) !important;
+  color: var(--ui-btn-active-text) !important;
+}
+
+.input,
+.nav-select {
+  border-radius: var(--ui-radius-control) !important;
+  min-height: 36px !important;
+  font-size: 13px !important;
+}
+
+.module,
+.washi-card,
+.dashboard-content,
+.prefs-panel,
+.account-card,
+.setup-grid,
+.auth-gate-shell,
+.module-library-content,
+.module-library-section,
+.module-library-card {
+  border-radius: var(--ui-radius-surface) !important;
+}
+
+.module-section-head,
+.module-library-toolbar,
+.module-library-section-head,
+.module-library-collapse,
+.module-library-list:not(.cards) .module-library-card {
+  border-radius: var(--ui-radius-soft) !important;
+}
+
+.field label,
+.topic-tools-title,
+.formula-links-title,
+.relevant-links-title,
+.module-section-title,
+.module-library-section-label {
+  font-size: 10px !important;
+  letter-spacing: 0.12em !important;
+  line-height: 1.25 !important;
+}
+
+.notes-area,
+.topic-label,
+.topic-row.subtopic-row .topic-label {
+  font-weight: 400 !important;
+}
+
+.notes-area {
+  font-size: 14.5px !important;
+  line-height: 1.55 !important;
+  color: var(--slate) !important;
+}
+
+.topic-label {
+  font-size: 14.5px !important;
+  line-height: 1.4 !important;
+}
+
+.topic-row.subtopic-row .topic-label {
+  font-size: 13.5px !important;
+  line-height: 1.35 !important;
+}
+
+.module-section-body,
+.notes-area-wrap,
+.coursework-calc-wrap,
+.module-edit-tools {
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+.module-library-content {
+  color: var(--sumi) !important;
+}
+
+.module-library-toolbar {
+  padding: 10px !important;
+  background: rgba(255,255,255,0.16) !important;
+  border: 1px solid var(--border) !important;
+}
+
+body.theme-dark .module-library-toolbar,
+body.theme-dark-offwhite .module-library-toolbar {
+  background: rgba(255,255,255,0.03) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+.module-library-card-head {
+  justify-content: space-between !important;
+}
+
+.module-library-card-title {
+  font-size: 17px !important;
+  line-height: 1.14 !important;
+  color: var(--sumi) !important;
+}
+
+.module-library-card-notes,
+.module-library-section-copy,
+.module-library-empty {
+  color: var(--slate) !important;
+  opacity: 1 !important;
+}
+
+.module-library-card-meta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+}
+
+.module-library-pill {
+  min-height: 20px !important;
+  padding: 0 7px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 999px !important;
+  font-size: 8.2px !important;
+  letter-spacing: 0.08em !important;
+}
+
+.module-library-list.cards .module-library-card {
+  gap: 10px !important;
+  padding: 16px !important;
+}
+
+.module-library-list:not(.cards) {
+  gap: 6px !important;
+}
+
+.module-library-list:not(.cards) .module-library-card {
+  min-height: 52px !important;
+  grid-template-columns: 8px minmax(0, 1fr) auto !important;
+  align-items: center !important;
+}
+
+.module-library-list:not(.cards) .module-library-card-title {
+  font-size: 15px !important;
+}
+
+.module-library-list:not(.cards) .module-library-card-notes {
+  display: none !important;
+}
+
+.module-library-card-actions {
+  gap: 6px !important;
+  align-items: center !important;
+}
+
+.module-library-card-actions .mini-btn,
+.module-library-card-actions .module-delete-btn {
+  min-width: 36px !important;
+  width: auto !important;
+  height: 32px !important;
+  padding: 0 10px !important;
+  border-radius: var(--ui-radius-control) !important;
+}
+
+.module-library-card-actions .module-delete-btn {
+  justify-self: auto !important;
+}
+
+body.theme-dark .module-library-card-title,
+body.theme-dark .module-library-card-notes,
+body.theme-dark .module-library-section-copy,
+body.theme-dark .module-library-empty,
+body.theme-dark .module-library-pill,
+body.theme-dark-offwhite .module-library-card-title,
+body.theme-dark-offwhite .module-library-card-notes,
+body.theme-dark-offwhite .module-library-section-copy,
+body.theme-dark-offwhite .module-library-empty,
+body.theme-dark-offwhite .module-library-pill {
+  color: inherit !important;
+}
+
 </style>
 </head>
 <body class="auth-required auth-loading">
@@ -10943,7 +11232,6 @@ body.theme-dark-offwhite .module-library-section-label {
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
-
 
 
 
