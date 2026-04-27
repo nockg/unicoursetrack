@@ -1509,8 +1509,11 @@ body.theme-dark .material-library-empty{
   display: flex;
   flex-direction: column;
 }
-.module-library-materials-section {
-  min-height: 460px;
+.module-library-materials-section:not(.is-collapsed) {
+  min-height: 360px;
+}
+.module-library-section-collapsible.is-collapsed {
+  min-height: 0;
 }
 .module-library-section-head {
   display: flex;
@@ -1931,10 +1934,13 @@ body.theme-dark .module-library-pill{
 }
 .topic-label {
   font-family: "Cormorant Garamond", serif;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--sumi);
-  line-height: 1.45;
+  line-height: 1.35;
+}
+.topic-row.subtopic-row .topic-label {
+  font-size: 14px;
 }
 .topic-label.done {
   color: var(--faint);
@@ -2893,17 +2899,18 @@ body.theme-dark .nav-btn:hover {
   position: fixed;
   top: 128px;
   right: 28px;
-  width: min(760px, calc(100vw - 32px));
-  min-width: 380px;
-  min-height: 360px;
+  width: min(720px, calc(100vw - 32px));
+  min-width: 360px;
+  min-height: 320px;
   max-width: calc(100vw - 18px);
   max-height: calc(100vh - 18px);
   overflow: hidden;
+  overscroll-behavior: contain;
   margin: 0;
   z-index: 1200;
   display: flex;
   flex-direction: column;
-  padding: 24px 24px 20px;
+  padding: 22px 22px 18px;
   background: var(--paper3);
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -2913,11 +2920,13 @@ body.theme-dark .nav-btn:hover {
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+  overscroll-behavior: contain;
 }
 #todo-modal .timeline-head {
   margin-bottom: 0;
   padding-right: 0;
   flex: 0 0 auto;
+  cursor: move;
 }
 #todo-modal .timeline-topline {
   display: grid;
@@ -2926,7 +2935,7 @@ body.theme-dark .nav-btn:hover {
   gap: 14px;
 }
 #todo-modal .timeline-page-title {
-  font-size: 32px;
+  font-size: 31px;
   line-height: 1;
 }
 .todo-header-actions {
@@ -2942,31 +2951,24 @@ body.theme-dark .nav-btn:hover {
   min-width: 32px;
 }
 .todo-drag-handle {
-  cursor: move;
+  cursor: inherit;
   width: fit-content;
 }
+.todo-content.is-locked .timeline-head,
 .todo-content.is-locked .todo-drag-handle {
   cursor: default;
 }
 #todo-modal .todo-toolbar {
   display: grid;
-  grid-template-columns: minmax(190px, 1fr) minmax(150px, 0.45fr) auto;
+  grid-template-columns: minmax(180px, 1fr) minmax(150px, 0.5fr) auto;
   gap: 12px;
   align-items: end;
-  margin-top: 16px;
+  margin-top: 14px;
 }
 #todo-modal .todo-toolbar .field,
 #todo-modal .todo-toolbar .input,
 #todo-modal .todo-toolbar .nav-select {
   min-width: 0;
-}
-#todo-modal .todo-note-field {
-  grid-column: 1 / -1;
-}
-.todo-compose-note {
-  width: 100%;
-  min-height: 96px;
-  resize: vertical;
 }
 #todo-modal .todo-add-btn {
   align-self: end;
@@ -2998,14 +3000,12 @@ body.theme-dark .nav-btn:hover {
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
-  scrollbar-width: none;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
   display: grid;
   align-content: start;
   gap: 10px;
   padding-right: 2px;
-}
-#todo-modal .todo-list::-webkit-scrollbar {
-  display: none;
 }
 .todo-badge {
   display: inline-flex;
@@ -3046,7 +3046,7 @@ body.theme-dark .nav-btn:hover {
 .todo-expanded-title {
   color: var(--sumi);
   font-family: "Shippori Mincho", serif;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   line-height: 1.15;
 }
@@ -3091,6 +3091,8 @@ body.theme-dark .nav-btn:hover {
   margin: 0 9px 9px;
   min-height: 58px;
   resize: vertical;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 .todo-delete-btn {
   min-width: 56px;
@@ -3113,10 +3115,12 @@ body.theme-dark .nav-btn:hover {
   box-shadow: inset 0 0 0 3px var(--paper3);
 }
 #todo-modal.todo-compact-mode .todo-toolbar {
-  display: none;
+  grid-template-columns: minmax(160px, 1fr) minmax(120px, .45fr) auto;
+  gap: 8px;
+  margin-top: 10px;
 }
 #todo-modal.todo-compact-mode .todo-view-row {
-  margin-top: 6px;
+  margin: 8px 0;
 }
 #todo-modal.todo-compact-mode .todo-list {
   gap: 5px;
@@ -3314,12 +3318,12 @@ body.theme-dark .deadline-tab-btn.active { background: rgba(245,240,232,0.9); co
 
 .timeline-list {
   scrollbar-width: none;
-  transition: opacity .18s ease, transform .18s ease;
+  transition: opacity .18s ease;
   overflow: auto;
   -ms-overflow-style: none;
 }
 .timeline-list::-webkit-scrollbar { display: none; }
-.timeline-list.is-switching { opacity: 0; transform: translateY(3px); }
+.timeline-list.is-switching { opacity: 0; }
 .deadline-choice-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3345,42 +3349,65 @@ body.theme-dark .deadline-tab-btn.active { background: rgba(245,240,232,0.9); co
 .deadline-view-shell { display: grid; gap: 22px; }
 .timeline-card.deadline-card-clickable {
   position: relative;
-  border-left: 1px solid var(--border);
+  border: 1px solid var(--border);
   border-bottom: 4px solid var(--deadline-edge-colour, var(--border2));
   border-radius: 12px;
   cursor: pointer;
   overflow: hidden;
-  padding: 18px 20px 18px;
+  padding: 18px 20px 16px;
   margin: 0;
   background: rgba(255,255,255,0.18);
 }
 .timeline-card.deadline-card-clickable::before { content: none !important; display: none !important; }
-.deadline-card-top { display: grid; gap: 7px; }
+.deadline-card-top { display: grid; gap: 6px; }
 .deadline-card-title-line .timeline-title,
 .deadline-card-clickable .timeline-title {
   color: var(--sumi);
-  font-size: 20px;
-  line-height: 1.15;
-  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.18;
+  font-weight: 650;
+  letter-spacing: 0;
 }
 .deadline-card-countdown {
+  width: fit-content;
   font-family: "DM Mono", monospace;
-  font-size: 13px;
-  letter-spacing: .02em;
+  font-size: 11px;
+  letter-spacing: .04em;
   color: var(--muted);
+  text-transform: uppercase;
 }
 .deadline-card-countdown.urgent { color: var(--vermillion); }
 .deadline-meta-line {
   font-family: "DM Mono", monospace;
-  font-size: 10px;
+  font-size: 9.5px;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--muted);
   line-height: 1.45;
 }
-.deadline-card-lower { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; align-items: start; margin-top: 14px; }
-.deadline-details { border: 1px solid var(--border); border-radius: 10px; background: rgba(26,22,18,0.02); padding: 0; }
-.deadline-details summary { cursor: pointer; list-style: none; padding: 8px 10px; font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--sumi); }
+.deadline-card-lower {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 10px;
+  align-items: start;
+  margin-top: 14px;
+}
+.deadline-details {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  padding: 0;
+}
+.deadline-details summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 8px 10px;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--sumi);
+}
 .deadline-detail-grid { display: grid; gap: 5px; padding: 0 10px 10px; color: var(--muted); line-height: 1.35; }
 .deadline-type-badge { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
 .deadline-field-hidden { display: none !important; }
@@ -3392,11 +3419,24 @@ body.theme-dark .deadline-tab-btn.active { background: rgba(245,240,232,0.9); co
 .priority-choice[data-priority="high"] { --priority-colour: #b84a3f; }
 .priority-choice[data-priority="medium"] { --priority-colour: #b38a2f; }
 .priority-choice[data-priority="low"] { --priority-colour: #4f7a53; }
+.deadline-form-content .timeline-notes,
+.calendar-form-content .timeline-notes {
+  min-height: 72px;
+  height: 76px;
+  max-height: 120px;
+  resize: vertical;
+  overflow: hidden;
+}
 body.theme-dark .deadline-choice-card { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.1); color: #f1ede4; }
 body.theme-dark .deadline-choice-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18); }
 body.theme-dark .deadline-choice-title { color: #f1ede4; }
 body.theme-dark .deadline-choice-copy { color: rgba(241,237,228,0.72); }
-body.theme-dark .timeline-card { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.1); }
+body.theme-dark .timeline-card:not(.deadline-card-clickable) { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.1); }
+body.theme-dark .timeline-card.deadline-card-clickable {
+  background: rgba(255,255,255,0.045);
+  border-color: rgba(255,255,255,0.1);
+  border-bottom-color: var(--deadline-edge-colour, rgba(255,255,255,0.18));
+}
 body.theme-dark .timeline-dot.complete-toggle { background: #1c1c1f; }
 body.theme-dark .deadline-card-title-line .timeline-title,
 body.theme-dark .deadline-card-clickable .timeline-title { color: #f1ede4; }
@@ -3404,16 +3444,10 @@ body.theme-dark .deadline-card-countdown,
 body.theme-dark .deadline-meta-line,
 body.theme-dark .deadline-type-badge { color: rgba(241,237,228,0.68); }
 body.theme-dark .deadline-card-countdown.urgent { color: #f08b80; }
-body.theme-dark .deadline-details { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: rgba(245,240,232,0.76); }
+body.theme-dark .deadline-details { background: transparent; border-color: rgba(255,255,255,0.1); color: rgba(245,240,232,0.76); }
 body.theme-dark .deadline-details summary { color: #f1ede4; }
 body.theme-dark .priority-choice { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.1); color: rgba(245,240,232,0.72); }
 body.theme-dark .priority-choice.active { color: #fff; background: rgba(255,255,255,0.08); }
-
-
-
-
-
-
 
 @media(max-width:700px){ .deadline-title-module-row, .deadline-card-lower, .deadline-choice-grid, .deadline-form-row { grid-template-columns:1fr; } .deadline-priority-row { grid-template-columns: repeat(2,minmax(0,1fr)); } .countdown-header-pref { grid-template-columns: 1fr; } }
 
@@ -3700,10 +3734,6 @@ body.theme-quiet .sticky-exams{ border-bottom-color: rgba(245,240,232,0.16) !imp
           <select class="nav-select" id="todo-module-input"></select>
         </div>
         <button class="nav-btn todo-add-btn" type="button" onclick="saveTodoDraft()">Add Task</button>
-        <div class="field todo-note-field">
-          <label for="todo-note-input">Note</label>
-          <textarea class="timeline-notes todo-compose-note" id="todo-note-input" placeholder="Optional note, next step, reminder, or context..." onkeydown="handleTodoInputKeydown(event)"></textarea>
-        </div>
       </div>
     </div>
     <div class="todo-view-row">
@@ -3731,6 +3761,15 @@ body.theme-quiet .sticky-exams{ border-bottom-color: rgba(245,240,232,0.16) !imp
           <select class="nav-select" id="deadline-module-input"></select>
         </div>
       </div>
+      <div class="field" id="deadline-priority-field">
+        <label>Priority</label>
+        <div class="deadline-priority-row" id="deadline-priority-row">
+          <button class="priority-choice active" data-priority="default" type="button" onclick="setDeadlinePriority('default')">Default</button>
+          <button class="priority-choice" data-priority="high" type="button" onclick="setDeadlinePriority('high')">High</button>
+          <button class="priority-choice" data-priority="medium" type="button" onclick="setDeadlinePriority('medium')">Medium</button>
+          <button class="priority-choice" data-priority="low" type="button" onclick="setDeadlinePriority('low')">Low</button>
+        </div>
+      </div>
       <div class="deadline-form-row">
         <div class="field">
           <label for="deadline-date-input">Start Date</label>
@@ -3739,15 +3778,6 @@ body.theme-quiet .sticky-exams{ border-bottom-color: rgba(245,240,232,0.16) !imp
         <div class="field" id="deadline-time-field">
           <label for="deadline-time-input">Time</label>
           <input class="input" id="deadline-time-input" type="time">
-        </div>
-      </div>
-      <div class="field" id="deadline-priority-field">
-        <label>Priority</label>
-        <div class="deadline-priority-row" id="deadline-priority-row">
-          <button class="priority-choice active" data-priority="default" type="button" onclick="setDeadlinePriority('default')">Default</button>
-          <button class="priority-choice" data-priority="high" type="button" onclick="setDeadlinePriority('high')">High</button>
-          <button class="priority-choice" data-priority="medium" type="button" onclick="setDeadlinePriority('medium')">Medium</button>
-          <button class="priority-choice" data-priority="low" type="button" onclick="setDeadlinePriority('low')">Low</button>
         </div>
       </div>
       <div id="deadline-calendar-fields" class="deadline-form-grid deadline-field-hidden">
@@ -3972,7 +4002,7 @@ body.theme-quiet .sticky-exams{ border-bottom-color: rgba(245,240,232,0.16) !imp
             <div class="module-library-section-label">Module Material</div>
             <div class="module-library-section-copy">Formula sheets, worked examples, reference pages, and quick-access study material.</div>
           </div>
-          <span class="module-library-collapse-chevron open" id="module-library-materials-chevron"></span>
+          <span class="module-library-collapse-chevron" id="module-library-materials-chevron"></span>
         </button>
         <div class="module-library-list" id="module-library-materials"></div>
       </section>
@@ -4228,7 +4258,7 @@ let moduleLibraryViewMode = "list";
 let moduleLibrarySearch = "";
 let moduleLibraryFilter = "all";
 let moduleLibraryLinksOpen = false;
-let moduleLibraryMaterialsOpen = true;
+let moduleLibraryMaterialsOpen = false;
 let isDraggingTopics = false;
 let dragTopicValue = null;
 let draggedTopic = null;
@@ -6075,7 +6105,7 @@ document.getElementById("todo-modal").addEventListener("click", (event) => {
   if (event.target.id === "todo-modal") closeTodoPlanner();
 });
 
-document.getElementById("todo-drag-handle")?.addEventListener("pointerdown", startTodoPanelDrag);
+document.querySelector("#todo-modal .timeline-head")?.addEventListener("pointerdown", startTodoPanelDrag);
 document.addEventListener("pointermove", moveTodoPanelDrag);
 document.addEventListener("pointerup", endTodoPanelDrag);
 window.addEventListener("resize", () => {
@@ -6598,14 +6628,12 @@ async function nestTopicUnderTopic(mi, sourceIndex, parentIndex) {
   document.body.classList.add("suppress-topic-refresh");
   if (modulesContainer && stableHeight) modulesContainer.style.minHeight = `${stableHeight}px`;
   save();
+  buildModules();
+  updateGlobal();
+  window.scrollTo(0, scrollYBeforeNest);
   requestAnimationFrame(() => {
-    buildModules();
-    updateGlobal();
-    window.scrollTo(0, scrollYBeforeNest);
-    requestAnimationFrame(() => {
-      if (modulesContainer) modulesContainer.style.minHeight = "";
-      document.body.classList.remove("suppress-topic-refresh");
-    });
+    if (modulesContainer) modulesContainer.style.minHeight = "";
+    document.body.classList.remove("suppress-topic-refresh");
   });
 }
 
@@ -6783,11 +6811,16 @@ function renderDeadlineAddChoice() {
 function swapDeadlineView(render) {
   const host = document.getElementById("timeline-list");
   if (!host) return;
+  const currentHeight = host.offsetHeight;
+  if (currentHeight) host.style.minHeight = currentHeight + "px";
   host.classList.add("is-switching");
   window.setTimeout(() => {
     render();
-    requestAnimationFrame(() => host.classList.remove("is-switching"));
-  }, 90);
+    requestAnimationFrame(() => {
+      host.classList.remove("is-switching");
+      window.setTimeout(() => { host.style.minHeight = ""; }, 180);
+    });
+  }, 70);
 }
 
 function showDeadlineTab(tab = "upcoming") {
@@ -7353,10 +7386,10 @@ function applyTodoPanelState(forceCenter = false) {
   const maxHeight = Math.min(window.innerHeight - 18, 720);
   const width = Math.max(330, Math.min(panelState.width || 460, maxWidth));
 
-  const compactHeight = 132 + Math.min(items.length || 1, 8) * 34;
-  const expandedHeight = 286 + Math.min(items.length || 1, 4) * 112;
-  const preferredHeight = compact ? compactHeight : Math.max(panelState.height || 0, Math.min(expandedHeight, 640));
-  const minHeight = compact ? 176 : 390;
+  const compactHeight = 172 + Math.min(items.length || 1, 8) * 34;
+  const expandedHeight = 238 + Math.min(items.length || 1, 4) * 112;
+  const preferredHeight = compact ? compactHeight : Math.max(panelState.height || 0, Math.min(expandedHeight, 620));
+  const minHeight = compact ? 214 : 340;
   const height = Math.max(minHeight, Math.min(preferredHeight, maxHeight));
 
   const savedLeft = Number.isFinite(panelState.left) ? panelState.left : null;
@@ -7387,6 +7420,26 @@ function persistTodoPanelRect() {
   save();
 }
 
+function trapTodoPanelWheel(event) {
+  const panel = document.querySelector("#todo-modal .todo-content");
+  if (!panel || !panel.contains(event.target)) return;
+  const scrollable = event.target.closest(".todo-list, .todo-inline-note");
+  if (!scrollable) {
+    event.preventDefault();
+    return;
+  }
+  const canScroll = scrollable.scrollHeight > scrollable.clientHeight;
+  if (!canScroll) {
+    event.preventDefault();
+    return;
+  }
+  const goingDown = event.deltaY > 0;
+  const atTop = scrollable.scrollTop <= 0;
+  const atBottom = Math.ceil(scrollable.scrollTop + scrollable.clientHeight) >= scrollable.scrollHeight;
+  if ((goingDown && atBottom) || (!goingDown && atTop)) event.preventDefault();
+  event.stopPropagation();
+}
+
 function setupTodoPanelResizePersistence() {
   const panel = document.querySelector("#todo-modal .todo-content");
   if (!panel || panel.dataset.resizeReady) return;
@@ -7400,6 +7453,7 @@ function setupTodoPanelResizePersistence() {
   });
   panel.addEventListener("mouseup", () => persistTodoPanelRect());
   panel.addEventListener("touchend", () => persistTodoPanelRect(), { passive: true });
+  panel.addEventListener("wheel", trapTodoPanelWheel, { passive: false });
 }
 
 function toggleTodoPanelLock() {
@@ -7481,6 +7535,7 @@ function startTodoPanelDrag(event) {
   const panelState = getTodoPanelState();
   if (panelState.locked) return;
   if (event.target.closest("button, input, textarea, select, option, label")) return;
+  if (!event.target.closest(".timeline-head")) return;
   const panel = document.querySelector("#todo-modal .todo-content");
   if (!panel) return;
   const rect = panel.getBoundingClientRect();
@@ -7531,8 +7586,8 @@ function toggleTodoCompactView() {
   panelState.compact = !panelState.compact;
   const items = getTodoItems();
   panelState.height = panelState.compact
-    ? 132 + Math.min(items.length || 1, 8) * 34
-    : Math.min(window.innerHeight - 18, 286 + Math.min(items.length || 1, 4) * 112);
+    ? 172 + Math.min(items.length || 1, 8) * 34
+    : Math.min(window.innerHeight - 18, 238 + Math.min(items.length || 1, 4) * 112);
   save();
   renderTodoPlanner();
   applyTodoPanelState();
@@ -7609,16 +7664,14 @@ function renderTodoPlanner() {
 
 function saveTodoDraft() {
   const titleInput = document.getElementById("todo-title-input");
-  const noteInput = document.getElementById("todo-note-input");
   const moduleInput = document.getElementById("todo-module-input");
   const title = String(titleInput?.value || "").trim();
-  const note = String(noteInput?.value || "").trim();
+  const note = "";
   if (!title) return;
   const moduleValue = String(moduleInput?.value || "").trim();
   const moduleIndex = moduleValue === "" ? null : Number(moduleValue);
   getTodoItems().unshift({ title, note, moduleIndex: Number.isInteger(moduleIndex) ? moduleIndex : null, completed: false, createdAt: new Date().toISOString() });
   if (titleInput) titleInput.value = "";
-  if (noteInput) noteInput.value = "";
   if (moduleInput) moduleInput.value = "";
   save();
   renderTodoPlanner();
@@ -7626,7 +7679,6 @@ function saveTodoDraft() {
 
 function handleTodoInputKeydown(event) {
   if (event.key !== "Enter") return;
-  if (event.target?.id === "todo-note-input" && !event.ctrlKey && !event.metaKey) return;
   event.preventDefault();
   saveTodoDraft();
 }
