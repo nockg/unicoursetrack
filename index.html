@@ -2476,19 +2476,22 @@ body.theme-dark .timeline-card:hover {
 
 body.theme-dark .timeline-title {
   color: #f1ede4;
+  border-bottom-color: var(--deadline-title-colour, rgba(255,255,255,0.2));
 }
 
 body.theme-dark .timeline-badge.countdown {
-  background: linear-gradient(135deg, rgba(244,238,227,0.15), rgba(232,218,197,0.1));
+  background: rgba(255,255,255,0.08);
   color: #f4eee3;
-  border-color: rgba(244,238,227,0.25);
-  box-shadow: 0 4px 12px rgba(244,238,227,0.1);
+  border-color: rgba(255,255,255,0.14);
+  font-weight: 500;
+  box-shadow: none;
 }
 
 body.theme-dark .timeline-badge.countdown.urgent {
-  background: linear-gradient(135deg, rgba(255,176,167,0.18), rgba(255,176,167,0.12));
+  background: rgba(255,176,167,0.12);
   color: #ffb0a7;
-  border-color: rgba(255,176,167,0.35);
+  border-color: rgba(255,176,167,0.2);
+  font-weight: 500;
 }
 
 body.theme-dark .timeline-badge:not(.countdown) {
@@ -3026,6 +3029,8 @@ body.theme-dark-offwhite .todo-badge {
   margin-bottom: 12px;
   font-weight: 700;
   letter-spacing: -0.3px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid var(--deadline-title-colour, var(--gold2));
 }
 
 .timeline-meta {
@@ -3059,15 +3064,15 @@ body.theme-dark-offwhite .todo-badge {
 }
 
 .timeline-badge.countdown {
-  background: linear-gradient(135deg, var(--sumi) 0%, rgba(26,22,18,0.95) 100%);
-  color: #f5f0e8;
-  border-color: rgba(26,22,18,0.6);
-  font-size: 22px;
-  font-weight: 700;
+  background: rgba(26,22,18,0.12);
+  color: var(--sumi);
+  border-color: var(--border2);
+  font-size: 20px;
+  font-weight: 500;
   letter-spacing: 0;
   padding: 11px 16px;
   text-transform: none;
-  box-shadow: 0 4px 12px rgba(26,22,18,0.15);
+  box-shadow: none;
 }
 
 .timeline-notes-label {
@@ -5069,30 +5074,32 @@ body.theme-dark-offwhite .youtube-btn:hover {
 .dash-library-launch .dash-launch-icon {
   font-size: 20px;
   max-width: none;
-  color: #ffffff;
 }
 
 .dash-library-launch .dash-launch-copy {
   font-size: 14px;
-  color: #ffffff;
 }
 
+/* LAUNCH BUTTON DARK MODE - Black button with white text */
 body.theme-dark .dash-library-launch {
-  background: #000000;
-  border-color: #1a1a1a;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  background: #000000 !important;
+  border-color: #1a1a1a !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
 }
 
 body.theme-dark .dash-library-launch:hover {
-  background: #0d0d0d;
-  border-color: #262626;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  background: #0d0d0d !important;
+  border-color: #262626 !important;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4) !important;
 }
 
-body.theme-dark .dash-library-launch .dash-launch-icon,
+body.theme-dark .dash-library-launch .dash-launch-icon {
+  color: #ffffff !important;
+}
+
 body.theme-dark .dash-library-launch .dash-launch-copy {
-  color: #ffffff;
-  font-weight: 500;
+  color: #ffffff !important;
+  font-weight: 500 !important;
 }
 .dash-library-btn {
   display: none !important;
@@ -12541,7 +12548,7 @@ body.theme-dark-offwhite .module-library-pill {
 .todo-task-row.is-done .todo-expanded-title { text-decoration: line-through; color: var(--muted) !important; }
 .todo-row-title {
   font-family: "Cormorant Garamond", serif !important;
-  font-size: 17px !important;
+  font-size: 22px !important;
   font-weight: 700 !important;
   color: var(--ink) !important;
   min-width: 0 !important;
@@ -12557,15 +12564,15 @@ body.theme-dark-offwhite .module-library-pill {
   border: 1px solid var(--border) !important;
   background: rgba(26,22,18,0.025) !important;
   border-radius: 12px !important;
-  padding: 12px !important;
+  padding: 14px !important;
 }
 .todo-expanded-title {
   font-family: "Shippori Mincho", serif !important;
-  font-size: 20px !important;
+  font-size: 26px !important;
   font-weight: 800 !important;
-  line-height: 1.08 !important;
+  line-height: 1.12 !important;
   color: var(--ink) !important;
-  margin-bottom: 6px !important;
+  margin-bottom: 8px !important;
 }
 .todo-note-details {
   margin-top: 8px !important;
@@ -13518,7 +13525,7 @@ body.theme-dark-offwhite .priority-choice.active[data-priority="low"] {
 @container (max-width:390px){#todo-modal .todo-compose-grid{grid-template-columns:minmax(0,1fr) auto!important}#todo-modal .todo-compose-grid .field:nth-child(2){display:none!important}#todo-modal #todo-title-input{height:30px!important;font-size:12px!important}#todo-modal .todo-window-titlebar{padding:9px 10px!important}#todo-modal .todo-window-name{font-size:18px!important}#todo-modal .todo-expanded-card{grid-template-columns:16px minmax(0,1fr)!important}#todo-modal .todo-expanded-card .todo-delete-btn{grid-column:2;justify-self:start;height:26px!important}}@media(max-width:760px){.deadline-card-lower{grid-template-columns:1fr!important}.deadline-card-actions .mini-btn{height:34px!important}.deadline-priority-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 </style>
 <script id="v22-final-behaviour-patch">
-(function(){const PC={high:'#c0392b',medium:'#b8860b',low:'#2d5a27',default:''};const esc=v=>typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'').replace(/[&<>'\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));const st=()=>typeof getStore==='function'?getStore():{customExams:[]};const ps=()=>typeof getTodoPanelState==='function'?getTodoPanelState():{};const todos=()=>typeof getTodoItems==='function'?getTodoItems():[];function ml(i){return typeof deadlineModuleLabel==='function'?deadlineModuleLabel(i):(Number.isInteger(i?.moduleIndex)&&typeof MODULES!=='undefined'&&MODULES[i.moduleIndex]?(MODULES[i.moduleIndex].kanji||MODULES[i.moduleIndex].short||MODULES[i.moduleIndex].name):'General')}function tmod(i){return Number.isInteger(i?.moduleIndex)&&typeof MODULES!=='undefined'&&MODULES[i.moduleIndex]?(MODULES[i.moduleIndex].kanji||MODULES[i.moduleIndex].short||MODULES[i.moduleIndex].name):'General'}function applyTodoSize(){const p=document.querySelector('#todo-modal .todo-content');if(!p)return;const s=ps(),cmp=!!s.compact,c=todos().length,minW=330,maxW=Math.max(minW,innerWidth-16),minH=cmp?178:420,maxH=Math.max(minH,innerHeight-16);let w=Math.max(minW,Math.min(Number(s.width)||430,maxW)),h=Math.max(minH,Math.min(Number(s.height)||420,maxH));if(cmp){h=Math.max(178,Math.min(280,112+Math.min(c,4)*30));s.height=h;if(w<360){w=360;s.width=w}}else{h=Math.max(260,Number(s.height)||420)}if(typeof save==='function')save();p.style.setProperty('--todo-panel-width',Math.round(w)+'px');p.style.setProperty('--todo-panel-height',Math.round(h)+'px');p.style.width=Math.round(w)+'px';p.style.height=Math.round(h)+'px'}
+(function(){const PC={high:'#c0392b',medium:'#b8860b',low:'#2d5a27',default:''};const esc=v=>typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'').replace(/[&<>'\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));const st=()=>typeof getStore==='function'?getStore():{customExams:[]};const ps=()=>typeof getTodoPanelState==='function'?getTodoPanelState():{};const todos=()=>typeof getTodoItems==='function'?getTodoItems():[];function ml(i){return typeof deadlineModuleLabel==='function'?deadlineModuleLabel(i):(Number.isInteger(i?.moduleIndex)&&typeof MODULES!=='undefined'&&MODULES[i.moduleIndex]?(MODULES[i.moduleIndex].kanji||MODULES[i.moduleIndex].short||MODULES[i.moduleIndex].name):'General')}function tmod(i){return Number.isInteger(i?.moduleIndex)&&typeof MODULES!=='undefined'&&MODULES[i.moduleIndex]?(MODULES[i.moduleIndex].kanji||MODULES[i.moduleIndex].short||MODULES[i.moduleIndex].name):'General'}function applyTodoSize(){const p=document.querySelector('#todo-modal .todo-content');if(!p)return;const s=ps(),cmp=!!s.compact,c=todos().length,minW=330,maxW=Math.max(minW,innerWidth-16),minH=cmp?178:400,maxH=Math.max(minH,innerHeight-16);let w=Math.max(minW,Math.min(Number(s.width)||430,maxW)),h=Math.max(minH,Math.min(Number(s.height)||500,maxH));if(cmp){const itemHeight=56;h=Math.max(200,Math.min(350,140+Math.min(c,5)*itemHeight));s.height=h;if(w<360){w=360;s.width=w}}else{h=Math.max(400,Number(s.height)||500)}if(typeof save==='function')save();p.style.setProperty('--todo-panel-width',Math.round(w)+'px');p.style.setProperty('--todo-panel-height',Math.round(h)+'px');p.style.width=Math.round(w)+'px';p.style.height=Math.round(h)+'px'}
 const oldToggle=window.toggleTodoCompactView;window.toggleTodoCompactView=function(){if(typeof oldToggle==='function')oldToggle.apply(this,arguments);document.getElementById('todo-modal')?.classList.toggle('todo-compact-mode',!!ps().compact);setTimeout(()=>{applyTodoSize();if(typeof renderTodoPlanner==='function')renderTodoPlanner()},0)};const oldOpen=window.openTodoPlanner;window.openTodoPlanner=function(){if(typeof oldOpen==='function')oldOpen.apply(this,arguments);setTimeout(applyTodoSize,20)};const oldRenderTodo=window.renderTodoPlanner;window.renderTodoPlanner=function(){if(typeof oldRenderTodo==='function')oldRenderTodo.apply(this,arguments);const modal=document.getElementById('todo-modal'),host=document.getElementById('todo-list'),summary=document.getElementById('todo-summary'),toggle=document.getElementById('todo-view-toggle'),data=todos(),cmp=!!ps().compact;modal?.classList.toggle('todo-compact-mode',cmp);if(toggle)toggle.textContent=cmp?'Expand':'Simplify';if(summary){const open=data.filter(t=>!t.completed).length;summary.textContent=`${open} open · ${data.length-open} done`}if(!host)return;if(!data.length){host.innerHTML='<div class="timeline-empty todo-empty">No tasks yet. Add one from the top of this widget.</div>';applyTodoSize();return}host.innerHTML=data.map((it,i)=>{const title=esc(it.title||'Untitled task'),note=esc(it.note||''),m=esc(tmod(it)),done=it.completed?'is-done':'';if(cmp)return `<div class="todo-task-row ${done}"><button class="timeline-dot complete-toggle" type="button" aria-label="Toggle task" onclick="toggleTodoComplete(${i},event)"></button><div class="todo-row-title" title="${title}">${title}</div><button class="mini-btn todo-delete-btn" type="button" onclick="deleteTodoItem(${i},event)">Delete</button></div>`;return `<div class="todo-expanded-card ${done}"><button class="timeline-dot complete-toggle" type="button" aria-label="Toggle task" onclick="toggleTodoComplete(${i},event)"></button><div><div class="todo-expanded-title">${title}</div><div class="todo-badge">${m}</div><details class="todo-note-details"><summary>${it.note?'View note':'Add note'}</summary><textarea class="timeline-notes todo-inline-note" data-todo-note-index="${i}" placeholder="Add context, next steps, or anything you need to remember...">${note}</textarea></details></div><button class="mini-btn todo-delete-btn" type="button" onclick="deleteTodoItem(${i},event)">Delete</button></div>`}).join('');host.querySelectorAll('[data-todo-note-index]').forEach(t=>t.addEventListener('input',e=>{if(typeof updateTodoNote==='function')updateTodoNote(Number(e.target.dataset.todoNoteIndex),e.target.value)}));applyTodoSize()};
 function ensureTabs(){const head=document.querySelector('#timeline-modal .timeline-topline');if(!head||document.getElementById('deadline-tab-upcoming'))return;const tabs=document.createElement('div');tabs.className='deadline-tabs';tabs.innerHTML='<button class="deadline-tab-btn active" id="deadline-tab-upcoming" type="button" onclick="showDeadlineTab(\'upcoming\')">Upcoming</button><button class="deadline-tab-btn" id="deadline-tab-add" type="button" onclick="showDeadlineTab(\'add\')">Add new</button>';head.appendChild(tabs)}function ptxt(e){return e.type==='event'?'Calendar Event':((e.priority||'default')==='default'?'Default':String(e.priority).toUpperCase())}window.renderDeadlineTimeline=function(){ensureTabs();const host=document.getElementById('timeline-list');if(!host)return;const data=(st().customExams||[]).map((e,i)=>({...e,originalIndex:i})).filter(e=>!e.completed).sort((a,b)=>new Date(a.date)-new Date(b.date));if(!data.length){host.innerHTML='<div class="timeline-empty">No deadlines yet. Use Add new to create one.</div>';return}host.innerHTML=data.map(e=>{const start=new Date(e.date),end=e.endDate?new Date(e.endDate):null,isEvent=e.type==='event',urgent=start.getTime()<=Date.now(),tc=PC[e.priority]||'',time=e.allDay?start.toLocaleDateString([],{dateStyle:'full'}):start.toLocaleString([],{dateStyle:'full',timeStyle:'short'}),range=isEvent&&end&&!Number.isNaN(end.getTime())?(e.allDay?`${start.toLocaleDateString([],{dateStyle:'medium'})} – ${end.toLocaleDateString([],{dateStyle:'medium'})}`:`${start.toLocaleString([],{dateStyle:'medium',timeStyle:'short'})} – ${end.toLocaleString([],{dateStyle:'medium',timeStyle:'short'})}`):time,cs=tc?` style="color:${tc};--deadline-title-colour:${tc}"`:'';return `<div class="timeline-item"><div class="timeline-rail"><button class="timeline-dot complete-toggle" type="button" onclick="toggleDeadlineComplete(${e.originalIndex},event)"></button></div><div class="timeline-card deadline-card-clickable"${cs} onclick="editDeadline(${e.originalIndex})"><div class="deadline-card-top"><div><div class="deadline-card-title-line"><div class="timeline-title">${esc(e.mod)}</div></div><div class="timeline-meta"><span class="timeline-badge countdown ${urgent?'urgent':''}" data-deadline-countdown="${esc(e.date)}">${esc(formatCountdown(e.date))}</span><span class="timeline-badge">${esc(ml(e))}</span><span class="timeline-badge">${esc(time)}</span></div></div><span class="deadline-type-badge">${esc(ptxt(e))}</span></div><div class="deadline-card-lower"><details class="deadline-details" onclick="event.stopPropagation()"><summary>Details</summary><div class="deadline-detail-grid"><div><strong>When:</strong> ${esc(range)}</div>${isEvent&&e.location?`<div><strong>Location:</strong> ${esc(e.location)}</div>`:''}${isEvent?`<div><strong>Show as:</strong> ${esc(e.availability||'Busy')}</div>`:''}<div><strong>Note:</strong> ${esc(e.note||'None added')}</div></div></details><div class="deadline-card-actions" onclick="event.stopPropagation()"><button class="mini-btn" type="button" onclick="editDeadline(${e.originalIndex})">Edit</button></div></div></div></div>`}).join('')};window.showDeadlineTab=function(tab='upcoming'){ensureTabs();document.getElementById('deadline-tab-upcoming')?.classList.toggle('active',tab==='upcoming');document.getElementById('deadline-tab-add')?.classList.toggle('active',tab==='add');const host=document.getElementById('timeline-list');if(!host)return;if(tab==='add'){host.innerHTML='<div class="deadline-choice-grid"><button class="deadline-choice-card" type="button" onclick="openDeadlineForm(null,\'date\')"><div class="deadline-choice-title">Track a Date</div><div class="deadline-choice-copy">Countdown in UniTrack.</div></button><button class="deadline-choice-card" type="button" onclick="openDeadlineForm(null,\'event\')"><div class="deadline-choice-title">Plan Calendar Event</div><div class="deadline-choice-copy">Calendar-ready entry.</div></button></div>'}else renderDeadlineTimeline()};const oldTimeline=window.openDeadlineTimeline;if(typeof oldTimeline==='function')window.openDeadlineTimeline=function(){oldTimeline.apply(this,arguments);setTimeout(()=>showDeadlineTab('upcoming'),0)};document.addEventListener('DOMContentLoaded',()=>{ensureTabs();if(!document.getElementById('timeline-modal')?.classList.contains('hidden'))showDeadlineTab('upcoming')})})();
 </script>
