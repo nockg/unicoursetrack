@@ -3764,6 +3764,154 @@ body.theme-dark .priority-choice.active { color: #fff; background: rgba(255,255,
 body.theme-quiet .sticky-exams{ border-bottom-color: rgba(245,240,232,0.16) !important; }
 .module-library-section-collapsible.is-collapsed .module-library-list { display: none !important; }
 
+
+
+/* Readability + interaction patch */
+.nav-btn,
+.bb-link,
+.bb-edit-btn,
+.formula-btn,
+.formula-edit-btn,
+.mini-btn,
+.topic-edit-btn,
+.topic-options-summary,
+.topic-options-action,
+.deadline-tab-btn,
+.priority-choice,
+.pref-toggle-pill,
+.auth-gate-tab {
+  font-size: 11.5px;
+  line-height: 1.25;
+  min-height: 36px;
+  padding: 9px 14px;
+}
+
+.mini-btn,
+.topic-edit-btn,
+.topic-options-summary {
+  min-height: 32px;
+  padding: 7px 11px;
+}
+
+.module-delete-btn,
+.subtopic-toggle {
+  min-height: 28px;
+  min-width: 28px;
+}
+
+.nav-bar {
+  gap: 10px;
+}
+
+body.setup-required #course-setup-modal {
+  color: #17120e;
+  background: #f5f0e8;
+}
+
+body.setup-required .setup-content {
+  background: rgba(250,247,242,0.992) !important;
+  color: #17120e !important;
+  border: 1px solid rgba(26,22,18,0.16) !important;
+  box-shadow: 0 26px 70px rgba(14,12,10,0.16) !important;
+}
+
+body.setup-required .setup-content .dashboard-title,
+body.setup-required .setup-content .timeline-subtitle,
+body.setup-required .setup-content .setup-copy,
+body.setup-required .setup-content .setup-choice-title,
+body.setup-required .setup-content .setup-choice-detail,
+body.setup-required .setup-content .field label,
+body.setup-required .setup-content .setup-linked-status {
+  color: #17120e !important;
+}
+
+body.setup-required .setup-content .setup-copy,
+body.setup-required .setup-content .setup-choice-detail,
+body.setup-required .setup-content .setup-linked-status {
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+body.setup-required .setup-content .input {
+  background: #fffdf8 !important;
+  color: #17120e !important;
+  border-color: rgba(26,22,18,0.24) !important;
+  font-size: 16px;
+  min-height: 44px;
+}
+
+body.setup-required .setup-choice {
+  background: #fffaf0 !important;
+  color: #17120e !important;
+  border-color: rgba(26,22,18,0.16) !important;
+}
+
+body.setup-required .setup-choice.active {
+  background: rgba(212,160,23,0.14) !important;
+  border-color: #b8860b !important;
+  box-shadow: inset 0 -3px 0 rgba(184,134,11,0.36);
+}
+
+body.setup-required .setup-actions .nav-btn,
+body.setup-required .dashboard-close {
+  background: #17120e !important;
+  color: #fffaf0 !important;
+  border-color: #17120e !important;
+}
+
+.onboarding-content {
+  width: min(860px, calc(100vw - 32px));
+}
+
+.onboarding-tour {
+  grid-template-columns: minmax(190px, .42fr) minmax(0, 1fr);
+  gap: 22px;
+}
+
+.onboarding-step-tab {
+  font-size: 12px;
+  line-height: 1.35;
+  min-height: 44px;
+  padding: 12px 14px;
+}
+
+.onboarding-kicker,
+.onboarding-progress {
+  font-size: 12px;
+}
+
+.onboarding-step-title {
+  font-size: clamp(32px, 3.8vw, 42px);
+}
+
+.onboarding-step-copy {
+  font-size: 22px;
+  line-height: 1.48;
+}
+
+.onboarding-preview-row {
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.onboarding-actions .nav-btn {
+  min-width: 104px;
+}
+
+@media (max-width: 760px) {
+  .nav-bar {
+    padding: 10px 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-bar::-webkit-scrollbar { display: none; }
+  .onboarding-tour,
+  .setup-fields,
+  .setup-template-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>
 </head>
 <body class="auth-required auth-loading">
@@ -4623,15 +4771,56 @@ function setTopicCheckbox(checkbox, mi, ti, value) {
 
 function setSubtopicCheckbox(mi, ti, si, value) {
   const store = getStore();
-  if (value) store.topics[subtopicKey(mi, ti, si)] = true;
-  else delete store.topics[subtopicKey(mi, ti, si)];
+  const subKey = subtopicKey(mi, ti, si);
+  const parentKey = topicKey(mi, ti);
   const topic = getTopicEntry(mi, ti);
+  if (!topic?.subtopics?.[si]) return;
+
+  if (value) store.topics[subKey] = true;
+  else delete store.topics[subKey];
+
   const allDone = topic.subtopics.length > 0 && topic.subtopics.every((_, index) => !!store.topics[subtopicKey(mi, ti, index)]);
-  if (allDone) store.topics[topicKey(mi, ti)] = true;
-  else delete store.topics[topicKey(mi, ti)];
+  if (allDone) store.topics[parentKey] = true;
+  else delete store.topics[parentKey];
+
+  const subRow = document.querySelector(`[data-topic-key="${topicSelectionKey(mi, ti, si)}"]`);
+  const subCheckbox = subRow?.querySelector('input[type="checkbox"]');
+  const subLabel = subRow?.querySelector(".topic-label");
+  if (subCheckbox) subCheckbox.checked = value;
+  if (subLabel) subLabel.className = "topic-label" + (value ? " done" : "");
+
+  const parentRow = document.querySelector(`[data-topic-key="${topicSelectionKey(mi, ti)}"]`);
+  const parentCheckbox = parentRow?.querySelector('input[type="checkbox"]');
+  const parentLabel = parentRow?.querySelector(".topic-label");
+  if (parentCheckbox) parentCheckbox.checked = allDone;
+  if (parentLabel) parentLabel.className = "topic-label" + (allDone ? " done" : "");
+
+  save();
+  updateModule(mi);
+  updateGlobal();
+}
+
+function refreshTopicStructure(mi) {
+  const modulesContainer = document.getElementById("modules");
+  const scrollYBeforeRefresh = window.scrollY;
+  const stableHeight = modulesContainer?.offsetHeight || 0;
+
+  if (Number.isInteger(mi)) openModules.add(mi);
+  document.body.classList.add("suppress-topic-refresh");
+  if (modulesContainer && stableHeight) modulesContainer.style.minHeight = `${stableHeight}px`;
+
   save();
   buildModules();
   updateGlobal();
+  window.scrollTo(0, scrollYBeforeRefresh);
+
+  requestAnimationFrame(() => {
+    window.scrollTo(0, scrollYBeforeRefresh);
+    requestAnimationFrame(() => {
+      if (modulesContainer) modulesContainer.style.minHeight = "";
+      document.body.classList.remove("suppress-topic-refresh");
+    });
+  });
 }
 
 function startTopicDrag(checkbox) {
@@ -4761,7 +4950,7 @@ const defaultState = {
 
 let MODULES = [];
 let TOTAL_CREDITS = 0;
-const DEFAULT_PREFERENCES = { theme: "dark", density: "comfortable", font: "japanese", hero: "bg8", bodyBackground: "", calendarProvider: "google", showCountdownHeader: true };
+const DEFAULT_PREFERENCES = { theme: "light", density: "comfortable", font: "japanese", hero: "bg8", bodyBackground: "", calendarProvider: "google", showCountdownHeader: true };
 const preferences = Object.assign(
   {},
   DEFAULT_PREFERENCES,
@@ -6903,9 +7092,7 @@ function moveTopicInModule(mi, fromIndex, toIndex, placement = "before") {
   insertIndex = Math.max(0, Math.min(topics.length, insertIndex));
   topics.splice(insertIndex, 0, moved);
   remapTopicStateForReorder(mi, fromIndex, insertIndex);
-  save();
-  buildModules();
-  updateGlobal();
+  refreshTopicStructure(mi);
 }
 
 async function nestTopicUnderTopic(mi, sourceIndex, parentIndex) {
@@ -6937,20 +7124,7 @@ async function nestTopicUnderTopic(mi, sourceIndex, parentIndex) {
   stateSnapshot[nextParentIndex] = parentState;
 
   applyModuleTopicStateSnapshot(mi, stateSnapshot);
-  const scrollYBeforeNest = window.scrollY;
-  const modulesContainer = document.getElementById("modules");
-  const stableHeight = modulesContainer?.offsetHeight || 0;
-  openModules.add(mi);
-  document.body.classList.add("suppress-topic-refresh");
-  if (modulesContainer && stableHeight) modulesContainer.style.minHeight = `${stableHeight}px`;
-  save();
-  buildModules();
-  updateGlobal();
-  window.scrollTo(0, scrollYBeforeNest);
-  requestAnimationFrame(() => {
-    if (modulesContainer) modulesContainer.style.minHeight = "";
-    document.body.classList.remove("suppress-topic-refresh");
-  });
+  refreshTopicStructure(mi);
 }
 
 function startTopicReorder(mi, ti, event, si = null) {
@@ -7130,17 +7304,57 @@ function renderDeadlineAddChoice() {
 function swapDeadlineView(render) {
   const host = document.getElementById("timeline-list");
   if (!host) return;
-  const previousHeight = Math.max(host.getBoundingClientRect().height || 0, 120);
-  host.style.height = previousHeight + "px";
-  host.classList.add("is-switching");
+
   window.clearTimeout(host._deadlineSwitchTimer);
-  host._deadlineSwitchTimer = window.setTimeout(() => {
+  host.getAnimations?.().forEach((animation) => animation.cancel());
+
+  const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const fromHeight = Math.max(host.getBoundingClientRect().height || host.scrollHeight || 0, 120);
+
+  if (reducedMotion) {
     render();
-    const nextHeight = Math.max(host.scrollHeight, 120);
-    host.style.height = nextHeight + "px";
-    requestAnimationFrame(() => host.classList.remove("is-switching"));
-    window.setTimeout(() => { host.style.height = ""; }, 240);
-  }, 110);
+    return;
+  }
+
+  host.style.overflow = "hidden";
+  host.style.height = `${fromHeight}px`;
+
+  const fadeOut = host.animate(
+    [
+      { opacity: 1, transform: "translateY(0)" },
+      { opacity: 0, transform: "translateY(8px)" }
+    ],
+    { duration: 110, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
+  );
+
+  fadeOut.onfinish = () => {
+    render();
+    const toHeight = Math.max(host.scrollHeight || 0, 120);
+    host.style.height = `${toHeight}px`;
+
+    host.animate(
+      [
+        { height: `${fromHeight}px` },
+        { height: `${toHeight}px` }
+      ],
+      { duration: 230, easing: "cubic-bezier(.2,.8,.2,1)" }
+    );
+
+    const fadeIn = host.animate(
+      [
+        { opacity: 0, transform: "translateY(-6px)" },
+        { opacity: 1, transform: "translateY(0)" }
+      ],
+      { duration: 190, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
+    );
+
+    fadeIn.onfinish = () => {
+      host.style.height = "";
+      host.style.overflow = "";
+      host.style.opacity = "";
+      host.style.transform = "";
+    };
+  };
 }
 
 function showDeadlineTab(tab = "upcoming") {
@@ -9768,9 +9982,7 @@ function moveSubtopicInModule(mi, fromParentTi, fromSi, toParentTi, toSi, placem
   });
 
   applyModuleTopicStateSnapshot(mi, stateSnapshot);
-  save();
-  buildModules();
-  updateGlobal();
+  refreshTopicStructure(mi);
 }
 
 function moveSubtopicToParent(mi, fromParentTi, fromSi, toParentTi) {
@@ -9803,9 +10015,7 @@ function moveSubtopicToParent(mi, fromParentTi, fromSi, toParentTi) {
   });
 
   applyModuleTopicStateSnapshot(mi, stateSnapshot);
-  save();
-  buildModules();
-  updateGlobal();
+  refreshTopicStructure(mi);
 }
 
 function promoteSubtopicToMain(mi, fromParentTi, fromSi, toTopicIndex, placement = "before") {
@@ -9834,9 +10044,7 @@ function promoteSubtopicToMain(mi, fromParentTi, fromSi, toTopicIndex, placement
   if (entry) entry.main = entry.subs.length > 0 && entry.subs.every(Boolean);
 
   applyModuleTopicStateSnapshot(mi, stateSnapshot);
-  save();
-  buildModules();
-  updateGlobal();
+  refreshTopicStructure(mi);
 }
 
 function toggleTopicSubtopics(mi, ti, event) {
