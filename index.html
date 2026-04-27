@@ -55,6 +55,7 @@ body.auth-required #dashboard-modal,
 body.auth-required #onboarding-modal,
 body.auth-required #timeline-modal,
 body.auth-required #todo-modal,
+body.auth-required #calendar-modal,
 body.auth-required #deadline-form-modal,
 body.auth-required #course-setup-modal,
 body.auth-required #deadline-splash,
@@ -76,6 +77,7 @@ body.auth-loading #dashboard-modal,
 body.auth-loading #onboarding-modal,
 body.auth-loading #timeline-modal,
 body.auth-loading #todo-modal,
+body.auth-loading #calendar-modal,
 body.auth-loading #deadline-form-modal,
 body.auth-loading #course-setup-modal,
 body.auth-loading #deadline-splash,
@@ -97,6 +99,7 @@ body.setup-required #dashboard-modal,
 body.setup-required #onboarding-modal,
 body.setup-required #timeline-modal,
 body.setup-required #todo-modal,
+body.setup-required #calendar-modal,
 body.setup-required #deadline-form-modal,
 body.setup-required #deadline-splash,
 body.setup-required #template-splash,
@@ -2073,6 +2076,36 @@ body.theme-dark-offwhite .account-card {
 #auth-modal .account-section {
   border-top-color: rgba(255,255,255,0.08);
 }
+body.theme-quiet #auth-modal .account-actions .nav-btn,
+body.theme-quiet #auth-modal .account-actions .danger-btn {
+  background: #efe8dc;
+  color: #2a241c;
+  border-color: rgba(42,36,28,0.18);
+}
+body.theme-quiet #auth-modal .account-actions .nav-btn:hover,
+body.theme-quiet #auth-modal .account-actions .danger-btn:hover {
+  background: #f7f1e8;
+  color: #17120c;
+  border-color: rgba(42,36,28,0.28);
+}
+.setup-linked-status {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(26,22,18,0.035);
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.setup-linked-status strong {
+  color: var(--ink);
+  font-weight: 600;
+}
 .module-colour-picker {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -2672,14 +2705,64 @@ body.theme-dark-offwhite .b6::before {
 }
 .todo-content {
   width: min(880px, calc(100vw - 32px));
+  position: fixed;
+  top: 146px;
+  right: 28px;
+  margin: 0;
+  resize: both;
+  overflow: auto;
+  min-width: 420px;
+  min-height: 360px;
+  max-width: min(920px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  z-index: 1200;
 }
 .todo-toolbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: minmax(0, 1.5fr) minmax(220px, 0.9fr);
+  gap: 12px;
 }
 .todo-toolbar .input {
   min-width: 0;
+}
+.todo-note-field {
+  grid-column: 1 / -1;
+}
+.todo-compose-note {
+  min-height: 112px;
+  resize: vertical;
+}
+.todo-panel-controls {
+  position: absolute;
+  top: 18px;
+  right: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.todo-panel-controls .mini-btn {
+  min-width: 58px;
+}
+.todo-drag-handle {
+  cursor: grab;
+  user-select: none;
+}
+.todo-content.is-locked .todo-drag-handle {
+  cursor: default;
+}
+.todo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(26,22,18,0.04);
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .todo-summary {
   display: inline-flex;
@@ -2761,6 +2844,24 @@ body.theme-dark .todo-item.is-done .timeline-dot.complete-toggle,
 body.theme-dark-offwhite .todo-item.is-done .timeline-dot.complete-toggle {
   background: #7c9edc;
   border-color: #7c9edc;
+}
+body.theme-dark .todo-badge,
+body.theme-dark-offwhite .todo-badge {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.1);
+  color: #d6d1c8;
+}
+
+#todo-modal {
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+#todo-modal .todo-content {
+  pointer-events: auto;
 }
 
 .timeline-empty {
@@ -5857,6 +5958,11 @@ body.theme-dark-offwhite .module-library-pill {
 @media (max-width: 760px) {
   .todo-content {
     width: min(100vw - 16px, 880px);
+    right: 8px;
+    top: 104px;
+    min-width: 0;
+    max-width: calc(100vw - 16px);
+    resize: none;
   }
   .todo-toolbar {
     grid-template-columns: 1fr;
@@ -5968,7 +6074,7 @@ body.theme-dark-offwhite .module-library-pill {
   <div class="year-controls">
     <select class="nav-select" id="year-select" onchange="handleYearDropdown(this.value)"></select>
   </div>
-  <button class="nav-btn calendar-btn" onclick="openPreferredCalendar()">Calendar</button>
+  <button class="nav-btn calendar-btn" onclick="openCalendarComposer()">Calendar</button>
   <button class="nav-btn youtube-btn" type="button" onclick="openYouTube()" title="Open YouTube" aria-label="Open YouTube">
     <span class="youtube-icon" aria-hidden="true"></span>
     <span class="youtube-label">YouTube</span>
@@ -6125,16 +6231,29 @@ body.theme-dark-offwhite .module-library-pill {
 
 <div id="todo-modal" class="dashboard-modal hidden">
   <div class="dashboard-content timeline-content todo-content">
-    <button class="dashboard-close" onclick="closeTodoPlanner()">X</button>
+    <div class="todo-panel-controls">
+      <button class="mini-btn" type="button" id="todo-lock-btn" onclick="toggleTodoPanelLock()">Lock</button>
+      <button class="dashboard-close" onclick="closeTodoPlanner()">X</button>
+    </div>
     <div class="timeline-head">
-      <div class="timeline-subtitle">Planner</div>
+      <div class="timeline-subtitle todo-drag-handle" id="todo-drag-handle">Planner</div>
       <div class="timeline-topline">
         <div class="timeline-page-title">To-Do List</div>
         <button class="nav-btn" type="button" onclick="saveTodoDraft()">Add Task</button>
       </div>
       <div class="todo-toolbar">
-        <input class="input" id="todo-title-input" placeholder="Add a task title" onkeydown="handleTodoInputKeydown(event)">
-        <input class="input" id="todo-note-input" placeholder="Optional note or next step" onkeydown="handleTodoInputKeydown(event)">
+        <div class="field">
+          <label for="todo-title-input">Task Title</label>
+          <input class="input" id="todo-title-input" placeholder="Add a task title" onkeydown="handleTodoInputKeydown(event)">
+        </div>
+        <div class="field">
+          <label for="todo-module-input">Related Module</label>
+          <select class="nav-select" id="todo-module-input"></select>
+        </div>
+        <div class="field todo-note-field">
+          <label for="todo-note-input">Note</label>
+          <textarea class="timeline-notes todo-compose-note" id="todo-note-input" placeholder="Optional note, next step, reminder, or context..." onkeydown="handleTodoInputKeydown(event)"></textarea>
+        </div>
       </div>
     </div>
     <div class="todo-summary" id="todo-summary"></div>
@@ -6170,6 +6289,69 @@ body.theme-dark-offwhite .module-library-pill {
         <button class="nav-btn" type="button" onclick="closeDeadlineForm()">Cancel</button>
         <button class="nav-btn" type="button" onclick="saveDeadlineForm()" id="deadline-save-btn">Save Deadline</button>
         <button class="nav-btn calendar-btn" type="button" onclick="saveDeadlineForm(true)" id="deadline-calendar-btn">Save + Calendar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="calendar-modal" class="dashboard-modal hidden">
+  <div class="dashboard-content deadline-form-content calendar-form-content">
+    <button class="dashboard-close" onclick="closeCalendarComposer()">X</button>
+    <div class="timeline-subtitle">Calendar</div>
+    <div class="dashboard-title" id="calendar-form-title">Add Calendar Event</div>
+    <div class="deadline-form-grid">
+      <div class="field">
+        <label for="calendar-title-input">Title</label>
+        <input class="input" id="calendar-title-input" placeholder="Study session, lecture, office hour...">
+      </div>
+      <div class="deadline-form-row">
+        <div class="field">
+          <label for="calendar-start-date-input">Start Date</label>
+          <input class="input" id="calendar-start-date-input" type="date">
+        </div>
+        <div class="field">
+          <label for="calendar-start-time-input">Start Time</label>
+          <input class="input" id="calendar-start-time-input" type="time">
+        </div>
+      </div>
+      <div class="deadline-form-row">
+        <div class="field">
+          <label for="calendar-end-date-input">End Date</label>
+          <input class="input" id="calendar-end-date-input" type="date">
+        </div>
+        <div class="field">
+          <label for="calendar-end-time-input">End Time</label>
+          <input class="input" id="calendar-end-time-input" type="time">
+        </div>
+      </div>
+      <div class="deadline-form-row">
+        <div class="field">
+          <label for="calendar-all-day-input">All Day</label>
+          <select class="nav-select" id="calendar-all-day-input">
+            <option value="false">Timed Event</option>
+            <option value="true">All-Day Event</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="calendar-show-as-input">Show As</label>
+          <select class="nav-select" id="calendar-show-as-input">
+            <option value="BUSY">Busy</option>
+            <option value="AVAILABLE">Free</option>
+            <option value="BLOCKING">Out of Office</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="calendar-location-input">Location</label>
+        <input class="input" id="calendar-location-input" placeholder="Library, Zoom, engineering building, or leave blank">
+      </div>
+      <div class="field">
+        <label for="calendar-notes-input">Notes</label>
+        <textarea class="timeline-notes" id="calendar-notes-input" placeholder="Agenda, prep notes, links, what to bring..."></textarea>
+      </div>
+      <div class="deadline-form-actions">
+        <button class="nav-btn" type="button" onclick="closeCalendarComposer()">Cancel</button>
+        <button class="nav-btn calendar-btn" type="button" onclick="submitCalendarComposer()">Open in Calendar</button>
       </div>
     </div>
   </div>
@@ -6303,6 +6485,7 @@ body.theme-dark-offwhite .module-library-pill {
     <div class="dashboard-title" id="course-setup-title">Set Up Your Tracker</div>
     <div class="setup-grid">
       <div class="setup-copy" id="course-setup-copy">Tell me a little about the course so the tracker can start off feeling like yours.</div>
+      <div class="setup-linked-status hidden" id="setup-linked-status"></div>
       <div class="setup-fields">
         <div class="field">
           <label for="setup-name-input">Your Name</label>
@@ -6561,6 +6744,8 @@ let authLoadingTitle = "Restoring your session...";
 let authLoadingMessage = "Checking whether you are already signed in before showing anything.";
 let deadlineSplashShownThisLoad = false;
 let welcomeSplashShownThisLoad = false;
+let calendarComposerPrefill = null;
+let todoPanelDrag = null;
 
 function setTopicCheckbox(checkbox, mi, ti, value) {
   const store = getStore();
@@ -7297,10 +7482,18 @@ function openCourseSetupModal(isInitialSetup = false) {
   courseSetupInitial = isInitialSetup;
   const current = Object.assign({}, defaultProfile, state.profile || {});
   const isEditingExisting = !!(current.course && current.university);
+  const linkedStatus = document.getElementById("setup-linked-status");
   document.getElementById("course-setup-title").textContent = isInitialSetup ? "Set Up Your Tracker" : "Edit Course Setup";
   document.getElementById("course-setup-copy").textContent = isInitialSetup
     ? "Tell me a little about you and your course so the tracker starts off personalised from the first screen."
     : "Update your name, course details, and yearly targets here.";
+  if (linkedStatus) {
+    const showLinked = isInitialSetup && !!currentUser;
+    linkedStatus.classList.toggle("hidden", !showLinked);
+    linkedStatus.innerHTML = showLinked
+      ? `Cloud account linked to <strong>${escapeHtml(currentUser.email || "your email")}</strong>`
+      : "";
+  }
   document.getElementById("setup-name-input").value = current.name || "";
   document.getElementById("setup-university-input").value = current.university || "";
   document.getElementById("setup-course-input").value = current.course || "";
@@ -7504,8 +7697,71 @@ function togglePreferences() {
 }
 
 function openPreferredCalendar() {
-  const provider = CALENDAR_PROVIDERS[preferences.calendarProvider] || CALENDAR_PROVIDERS.google;
-  window.open(provider.url, "_blank", "noopener");
+  openCalendarComposer();
+}
+
+function toDateInputValue(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function toTimeInputValue(date) {
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
+function openCalendarComposer(prefill = null) {
+  calendarComposerPrefill = prefill;
+  const now = new Date();
+  const later = new Date(now.getTime() + 60 * 60 * 1000);
+  const start = prefill?.start || now;
+  const end = prefill?.end || later;
+  document.getElementById("calendar-form-title").textContent = prefill?.title ? "Add Calendar Event" : "Open Calendar";
+  document.getElementById("calendar-title-input").value = prefill?.title || "";
+  document.getElementById("calendar-start-date-input").value = toDateInputValue(start);
+  document.getElementById("calendar-start-time-input").value = toTimeInputValue(start);
+  document.getElementById("calendar-end-date-input").value = toDateInputValue(end);
+  document.getElementById("calendar-end-time-input").value = toTimeInputValue(end);
+  document.getElementById("calendar-all-day-input").value = prefill?.allDay ? "true" : "false";
+  document.getElementById("calendar-show-as-input").value = prefill?.availability || "BUSY";
+  document.getElementById("calendar-location-input").value = prefill?.location || "";
+  document.getElementById("calendar-notes-input").value = prefill?.details || "";
+  updateCalendarComposerMode();
+  document.getElementById("calendar-modal").classList.remove("hidden");
+}
+
+function closeCalendarComposer() {
+  document.getElementById("calendar-modal").classList.add("hidden");
+}
+
+function updateCalendarComposerMode() {
+  const allDay = document.getElementById("calendar-all-day-input")?.value === "true";
+  const startTime = document.getElementById("calendar-start-time-input");
+  const endTime = document.getElementById("calendar-end-time-input");
+  if (startTime) startTime.disabled = allDay;
+  if (endTime) endTime.disabled = allDay;
+}
+
+function buildCalendarEventFromComposer() {
+  const title = document.getElementById("calendar-title-input").value.trim();
+  const startDate = document.getElementById("calendar-start-date-input").value;
+  const startTime = document.getElementById("calendar-start-time-input").value || "09:00";
+  const endDate = document.getElementById("calendar-end-date-input").value || startDate;
+  const endTime = document.getElementById("calendar-end-time-input").value || startTime;
+  const allDay = document.getElementById("calendar-all-day-input").value === "true";
+  const availability = document.getElementById("calendar-show-as-input").value || "BUSY";
+  const location = document.getElementById("calendar-location-input").value.trim();
+  const details = document.getElementById("calendar-notes-input").value.trim();
+  if (!title || !startDate || !endDate) return null;
+  const start = allDay ? new Date(`${startDate}T00:00`) : new Date(`${startDate}T${startTime}`);
+  const end = allDay ? new Date(new Date(`${endDate}T00:00`).getTime() + 24 * 60 * 60 * 1000) : new Date(`${endDate}T${endTime}`);
+  if (!(start instanceof Date) || Number.isNaN(start.getTime()) || !(end instanceof Date) || Number.isNaN(end.getTime()) || end <= start) return null;
+  return { title, start, end, allDay, availability, location, details };
+}
+
+function submitCalendarComposer() {
+  const eventData = buildCalendarEventFromComposer();
+  if (!eventData) return;
+  openCalendarEvent(eventData);
+  closeCalendarComposer();
 }
 
 function openYouTube() {
@@ -8265,9 +8521,22 @@ document.getElementById("todo-modal").addEventListener("click", (event) => {
   if (event.target.id === "todo-modal") closeTodoPlanner();
 });
 
+document.getElementById("todo-drag-handle")?.addEventListener("pointerdown", startTodoPanelDrag);
+document.addEventListener("pointermove", moveTodoPanelDrag);
+document.addEventListener("pointerup", endTodoPanelDrag);
+window.addEventListener("resize", () => {
+  if (!document.getElementById("todo-modal")?.classList.contains("hidden")) applyTodoPanelState();
+});
+
 document.getElementById("deadline-form-modal").addEventListener("click", (event) => {
   if (event.target.id === "deadline-form-modal") closeDeadlineForm();
 });
+
+document.getElementById("calendar-modal").addEventListener("click", (event) => {
+  if (event.target.id === "calendar-modal") closeCalendarComposer();
+});
+
+document.getElementById("calendar-all-day-input")?.addEventListener("change", updateCalendarComposerMode);
 
 document.getElementById("module-library-modal").addEventListener("click", (event) => {
   if (event.target.id === "module-library-modal") closeModuleLibrary();
@@ -8962,16 +9231,21 @@ function formatCalendarStamp(date) {
   return `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}T${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}${pad(date.getUTCSeconds())}Z`;
 }
 
+function formatCalendarDateOnly(date) {
+  const pad = (value) => String(value).padStart(2, "0");
+  return `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}`;
+}
+
 function buildCalendarWindow(deadline) {
   const start = new Date(deadline.date);
   const end = new Date(start.getTime() + 60 * 60 * 1000);
   return { start, end };
 }
 
-function downloadCalendarIcs(deadline) {
-  const { start, end } = buildCalendarWindow(deadline);
-  const details = getDeadlineCalendarDetails(deadline).replace(/\n/g, "\\n");
-  const safeTitle = (deadline.mod || "Deadline").replace(/\n/g, " ").replace(/,/g, "\\,").replace(/;/g, "\\;");
+function downloadCalendarIcs(eventData) {
+  const details = String(eventData.details || "").replace(/\n/g, "\\n");
+  const safeTitle = String(eventData.title || "Calendar Event").replace(/\n/g, " ").replace(/,/g, "\\,").replace(/;/g, "\\;");
+  const location = String(eventData.location || "").replace(/\n/g, " ").replace(/,/g, "\\,").replace(/;/g, "\\;");
   const content = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -8979,10 +9253,11 @@ function downloadCalendarIcs(deadline) {
     "BEGIN:VEVENT",
     `UID:${Date.now()}-${Math.random().toString(16).slice(2)}@unitrack`,
     `DTSTAMP:${formatCalendarStamp(new Date())}`,
-    `DTSTART:${formatCalendarStamp(start)}`,
-    `DTEND:${formatCalendarStamp(end)}`,
+    eventData.allDay ? `DTSTART;VALUE=DATE:${formatCalendarDateOnly(eventData.start)}` : `DTSTART:${formatCalendarStamp(eventData.start)}`,
+    eventData.allDay ? `DTEND;VALUE=DATE:${formatCalendarDateOnly(eventData.end)}` : `DTEND:${formatCalendarStamp(eventData.end)}`,
     `SUMMARY:${safeTitle}`,
     `DESCRIPTION:${details}`,
+    ...(location ? [`LOCATION:${location}`] : []),
     "END:VEVENT",
     "END:VCALENDAR"
   ].join("\r\n");
@@ -8990,43 +9265,62 @@ function downloadCalendarIcs(deadline) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${(deadline.mod || "deadline").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "deadline"}.ics`;
+  link.download = `${(eventData.title || "calendar-event").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "calendar-event"}.ics`;
   document.body.appendChild(link);
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 500);
 }
 
-function openDeadlineInCalendar(deadline) {
-  if (!deadline?.date || !deadline?.mod) return;
+function openCalendarEvent(eventData) {
+  if (!eventData?.start || !eventData?.end || !eventData?.title) return;
   const providerKey = preferences.calendarProvider || "google";
-  const provider = CALENDAR_PROVIDERS[providerKey] || CALENDAR_PROVIDERS.google;
-  const { start, end } = buildCalendarWindow(deadline);
-  const title = deadline.mod;
-  const details = getDeadlineCalendarDetails(deadline);
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
   if (providerKey === "apple") {
-    downloadCalendarIcs(deadline);
+    downloadCalendarIcs(eventData);
     return;
   }
   if (providerKey === "outlook") {
     const params = new URLSearchParams({
       path: "/calendar/action/compose",
       rru: "addevent",
-      subject: title,
-      startdt: start.toISOString(),
-      enddt: end.toISOString(),
-      body: details
+      subject: eventData.title,
+      startdt: eventData.start.toISOString(),
+      enddt: eventData.end.toISOString(),
+      body: eventData.details || "",
+      location: eventData.location || "",
+      allday: eventData.allDay ? "true" : "false",
+      ctz: timezone
     });
     window.open(`https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`, "_blank", "noopener");
     return;
   }
   const params = new URLSearchParams({
     action: "TEMPLATE",
-    text: title,
-    dates: `${formatCalendarStamp(start)}/${formatCalendarStamp(end)}`,
-    details
+    text: eventData.title,
+    dates: eventData.allDay
+      ? `${formatCalendarDateOnly(eventData.start)}/${formatCalendarDateOnly(eventData.end)}`
+      : `${formatCalendarStamp(eventData.start)}/${formatCalendarStamp(eventData.end)}`,
+    details: eventData.details || "",
+    location: eventData.location || "",
+    crm: eventData.availability || "BUSY",
+    ctz: timezone
   });
   window.open(`https://calendar.google.com/calendar/render?${params.toString()}`, "_blank", "noopener");
+}
+
+function openDeadlineInCalendar(deadline) {
+  if (!deadline?.date || !deadline?.mod) return;
+  const { start, end } = buildCalendarWindow(deadline);
+  openCalendarComposer({
+    title: deadline.mod,
+    start,
+    end,
+    allDay: false,
+    location: deadline.location || "",
+    details: getDeadlineCalendarDetails(deadline),
+    availability: "BUSY"
+  });
 }
 
 function openDeadlineInCalendarByIndex(index, event) {
@@ -9224,6 +9518,122 @@ function getTodoItems() {
   return store.todos;
 }
 
+function getTodoPanelState() {
+  if (!state.ui) state.ui = {};
+  if (!state.ui.todoPanel) {
+    state.ui.todoPanel = {
+      locked: false,
+      top: 146,
+      right: 28,
+      width: null,
+      height: null
+    };
+  }
+  return state.ui.todoPanel;
+}
+
+function applyTodoPanelState() {
+  const panel = document.querySelector("#todo-modal .todo-content");
+  if (!panel) return;
+  const panelState = getTodoPanelState();
+  panel.classList.toggle("is-locked", !!panelState.locked);
+  panel.style.top = `${panelState.top ?? 146}px`;
+  panel.style.right = `${panelState.right ?? 28}px`;
+  panel.style.left = "";
+  if (panelState.width) panel.style.width = `${panelState.width}px`;
+  if (panelState.height) panel.style.height = `${panelState.height}px`;
+  const lockBtn = document.getElementById("todo-lock-btn");
+  if (lockBtn) lockBtn.textContent = panelState.locked ? "Unlock" : "Lock";
+}
+
+function persistTodoPanelRect() {
+  const panel = document.querySelector("#todo-modal .todo-content");
+  if (!panel) return;
+  const panelState = getTodoPanelState();
+  const rect = panel.getBoundingClientRect();
+  panelState.top = Math.max(70, Math.round(rect.top));
+  panelState.right = Math.max(8, Math.round(window.innerWidth - rect.right));
+  panelState.width = Math.round(rect.width);
+  panelState.height = Math.round(rect.height);
+  save();
+}
+
+function setupTodoPanelResizePersistence() {
+  const panel = document.querySelector("#todo-modal .todo-content");
+  if (!panel || panel.dataset.resizeReady) return;
+  panel.dataset.resizeReady = "true";
+  panel.addEventListener("mouseup", () => persistTodoPanelRect());
+  panel.addEventListener("touchend", () => persistTodoPanelRect(), { passive: true });
+}
+
+function toggleTodoPanelLock() {
+  const panelState = getTodoPanelState();
+  panelState.locked = !panelState.locked;
+  applyTodoPanelState();
+  save();
+}
+
+function startTodoPanelDrag(event) {
+  const panelState = getTodoPanelState();
+  if (panelState.locked) return;
+  if (event.target.closest("button, input, textarea, select, option, label")) return;
+  const panel = document.querySelector("#todo-modal .todo-content");
+  if (!panel) return;
+  const rect = panel.getBoundingClientRect();
+  todoPanelDrag = {
+    pointerId: event.pointerId,
+    startX: event.clientX,
+    startY: event.clientY,
+    startTop: rect.top,
+    startLeft: rect.left,
+    width: rect.width
+  };
+  panel.style.left = `${rect.left}px`;
+  panel.style.top = `${rect.top}px`;
+  panel.style.right = "auto";
+  panel.setPointerCapture?.(event.pointerId);
+}
+
+function moveTodoPanelDrag(event) {
+  if (!todoPanelDrag) return;
+  const panel = document.querySelector("#todo-modal .todo-content");
+  if (!panel) return;
+  const nextLeft = Math.max(8, Math.min(window.innerWidth - todoPanelDrag.width - 8, todoPanelDrag.startLeft + (event.clientX - todoPanelDrag.startX)));
+  const nextTop = Math.max(70, todoPanelDrag.startTop + (event.clientY - todoPanelDrag.startY));
+  panel.style.left = `${nextLeft}px`;
+  panel.style.top = `${nextTop}px`;
+}
+
+function endTodoPanelDrag(event) {
+  if (!todoPanelDrag) return;
+  const panel = document.querySelector("#todo-modal .todo-content");
+  if (panel && event?.pointerId !== undefined && panel.hasPointerCapture?.(event.pointerId)) {
+    panel.releasePointerCapture(event.pointerId);
+  }
+  const panelState = getTodoPanelState();
+  const rect = panel.getBoundingClientRect();
+  panelState.top = Math.max(70, Math.round(rect.top));
+  panelState.right = Math.max(8, Math.round(window.innerWidth - rect.right));
+  panelState.width = Math.round(rect.width);
+  panelState.height = Math.round(rect.height);
+  panel.style.left = "";
+  panel.style.right = `${panelState.right}px`;
+  save();
+  todoPanelDrag = null;
+}
+
+function renderTodoModuleOptions() {
+  const select = document.getElementById("todo-module-input");
+  if (!select) return;
+  const currentValue = select.value;
+  const options = [`<option value="">General Task</option>`]
+    .concat(MODULES.map((mod, mi) => `<option value="${mi}">${escapeHtml(mod.kanji || mod.short || mod.name)}</option>`));
+  select.innerHTML = options.join("");
+  if (options.some((_, index) => String(index - 1) === currentValue) || currentValue === "") {
+    select.value = currentValue;
+  }
+}
+
 function getTodoSummaryText() {
   const todos = getTodoItems();
   const openCount = todos.filter((item) => !item.completed).length;
@@ -9249,7 +9659,10 @@ function renderTodoPlanner() {
       </div>
       <div class="timeline-card">
         <div class="todo-card-top">
-          <div class="todo-title-text">${escapeHtml(item.title || "Untitled task")}</div>
+          <div>
+            <div class="todo-title-text">${escapeHtml(item.title || "Untitled task")}</div>
+            <div class="todo-badge">${escapeHtml(Number.isInteger(item.moduleIndex) && MODULES[item.moduleIndex] ? (MODULES[item.moduleIndex].kanji || MODULES[item.moduleIndex].short || MODULES[item.moduleIndex].name) : "General")}</div>
+          </div>
           <div class="todo-card-actions">
             <button class="mini-btn module-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)" title="Delete task" aria-label="Delete task">x</button>
           </div>
@@ -9266,18 +9679,23 @@ function renderTodoPlanner() {
 function saveTodoDraft() {
   const titleInput = document.getElementById("todo-title-input");
   const noteInput = document.getElementById("todo-note-input");
+  const moduleInput = document.getElementById("todo-module-input");
   const title = String(titleInput?.value || "").trim();
   const note = String(noteInput?.value || "").trim();
   if (!title) return;
-  getTodoItems().unshift({ title, note, completed: false, createdAt: new Date().toISOString() });
+  const moduleValue = String(moduleInput?.value || "").trim();
+  const moduleIndex = moduleValue === "" ? null : Number(moduleValue);
+  getTodoItems().unshift({ title, note, moduleIndex: Number.isInteger(moduleIndex) ? moduleIndex : null, completed: false, createdAt: new Date().toISOString() });
   if (titleInput) titleInput.value = "";
   if (noteInput) noteInput.value = "";
+  if (moduleInput) moduleInput.value = "";
   save();
   renderTodoPlanner();
 }
 
 function handleTodoInputKeydown(event) {
   if (event.key !== "Enter") return;
+  if (event.target?.id === "todo-note-input" && !event.ctrlKey && !event.metaKey) return;
   event.preventDefault();
   saveTodoDraft();
 }
@@ -9310,6 +9728,9 @@ function deleteTodoItem(index, event) {
 
 function openTodoPlanner() {
   document.getElementById("todo-modal").classList.remove("hidden");
+  renderTodoModuleOptions();
+  setupTodoPanelResizePersistence();
+  applyTodoPanelState();
   renderTodoPlanner();
 }
 
@@ -10058,6 +10479,7 @@ function refreshAppAfterAuth() {
   setupDeadlineBarScrolling();
   updateGlobal();
   if (currentUser && pendingFirstRunSetup) {
+    closeAuthModal(true);
     setupCourseIfNeeded();
   }
   maybeShowOnboarding();
