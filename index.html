@@ -6281,6 +6281,37 @@ body.theme-dark-offwhite .module-library-pill {
           <input class="input" id="deadline-time-input" type="time">
         </div>
       </div>
+      <div class="deadline-form-row">
+        <div class="field">
+          <label for="deadline-end-date-input">End Date</label>
+          <input class="input" id="deadline-end-date-input" type="date">
+        </div>
+        <div class="field">
+          <label for="deadline-end-time-input">End Time</label>
+          <input class="input" id="deadline-end-time-input" type="time">
+        </div>
+      </div>
+      <div class="deadline-form-row">
+        <div class="field">
+          <label for="deadline-all-day-input">Event Type</label>
+          <select class="nav-select" id="deadline-all-day-input">
+            <option value="false">Timed Event</option>
+            <option value="true">All-Day Event</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="deadline-availability-input">Show As</label>
+          <select class="nav-select" id="deadline-availability-input">
+            <option value="BUSY">Busy</option>
+            <option value="AVAILABLE">Free</option>
+            <option value="BLOCKING">Out of Office</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="deadline-location-input">Location</label>
+        <input class="input" id="deadline-location-input" placeholder="Library, Zoom, room number, or leave blank">
+      </div>
       <div class="field">
         <label for="deadline-note-input">Notes</label>
         <textarea class="timeline-notes" id="deadline-note-input" placeholder="Add context, room, prep checklist, what to bring..."></textarea>
@@ -8226,7 +8257,6 @@ function renderModuleLibrary() {
 
   const materials = getModuleLibraryItems("formula", moduleLibraryScopeMi);
   const links = getModuleLibraryItems("relevant", moduleLibraryScopeMi);
-  if (moduleLibrarySearch.trim() && links.length) moduleLibraryLinksOpen = true;
   materialsHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "") + (moduleLibraryMaterialsOpen ? "" : " hidden");
   linksHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "") + (moduleLibraryLinksOpen ? "" : " hidden");
   document.getElementById("module-library-links-chevron")?.classList.toggle("open", moduleLibraryLinksOpen);
@@ -8246,7 +8276,7 @@ function openModuleLibrary(mi = null, focus = "both", event) {
   if (moduleLibraryScopeMi === null) moduleLibraryFilter = "all";
   else moduleLibraryFilter = String(moduleLibraryScopeMi);
   moduleLibraryLinksOpen = focus === "links";
-  moduleLibraryMaterialsOpen = true;
+  moduleLibraryMaterialsOpen = focus === "formula";
   document.getElementById("module-library-modal").classList.remove("hidden");
   renderModuleLibrary();
 }
@@ -8537,6 +8567,7 @@ document.getElementById("calendar-modal").addEventListener("click", (event) => {
 });
 
 document.getElementById("calendar-all-day-input")?.addEventListener("change", updateCalendarComposerMode);
+document.getElementById("deadline-all-day-input")?.addEventListener("change", updateDeadlineFormMode);
 
 document.getElementById("module-library-modal").addEventListener("click", (event) => {
   if (event.target.id === "module-library-modal") closeModuleLibrary();
@@ -9158,6 +9189,11 @@ function openDeadlineForm(index = null) {
   const titleInput = document.getElementById("deadline-title-input");
   const dateInput = document.getElementById("deadline-date-input");
   const timeInput = document.getElementById("deadline-time-input");
+  const endDateInput = document.getElementById("deadline-end-date-input");
+  const endTimeInput = document.getElementById("deadline-end-time-input");
+  const allDayInput = document.getElementById("deadline-all-day-input");
+  const availabilityInput = document.getElementById("deadline-availability-input");
+  const locationInput = document.getElementById("deadline-location-input");
   const noteInput = document.getElementById("deadline-note-input");
   const title = document.getElementById("deadline-form-title");
   const saveBtn = document.getElementById("deadline-save-btn");
@@ -9165,9 +9201,15 @@ function openDeadlineForm(index = null) {
 
   if (deadline) {
     const date = new Date(deadline.date);
+    const endDate = deadline.endDate ? new Date(deadline.endDate) : new Date(date.getTime() + 60 * 60 * 1000);
     titleInput.value = deadline.mod || "";
     dateInput.value = Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
     timeInput.value = Number.isNaN(date.getTime()) ? "" : date.toTimeString().slice(0, 5);
+    endDateInput.value = Number.isNaN(endDate.getTime()) ? "" : endDate.toISOString().slice(0, 10);
+    endTimeInput.value = Number.isNaN(endDate.getTime()) ? "" : endDate.toTimeString().slice(0, 5);
+    allDayInput.value = deadline.allDay ? "true" : "false";
+    availabilityInput.value = deadline.availability || "BUSY";
+    locationInput.value = deadline.location || "";
     noteInput.value = deadline.note || "";
     if (title) title.textContent = "Edit Deadline";
     if (saveBtn) saveBtn.textContent = "Save Changes";
@@ -9175,11 +9217,17 @@ function openDeadlineForm(index = null) {
     titleInput.value = "";
     dateInput.value = "";
     timeInput.value = "";
+    endDateInput.value = "";
+    endTimeInput.value = "";
+    allDayInput.value = "false";
+    availabilityInput.value = "BUSY";
+    locationInput.value = "";
     noteInput.value = "";
     if (title) title.textContent = "Add Deadline";
     if (saveBtn) saveBtn.textContent = "Save Deadline";
   }
 
+  updateDeadlineFormMode();
   document.getElementById("deadline-form-modal").classList.remove("hidden");
   setTimeout(() => titleInput && titleInput.focus(), 0);
 }
@@ -9197,10 +9245,18 @@ function buildDeadlineFromForm() {
   const titleInput = document.getElementById("deadline-title-input");
   const dateInput = document.getElementById("deadline-date-input");
   const timeInput = document.getElementById("deadline-time-input");
+  const endDateInput = document.getElementById("deadline-end-date-input");
+  const endTimeInput = document.getElementById("deadline-end-time-input");
+  const allDayInput = document.getElementById("deadline-all-day-input");
+  const availabilityInput = document.getElementById("deadline-availability-input");
+  const locationInput = document.getElementById("deadline-location-input");
   const noteInput = document.getElementById("deadline-note-input");
   const mod = titleInput.value.trim();
   const date = dateInput.value;
   const time = timeInput.value || "09:00";
+  const endDate = endDateInput.value || date;
+  const endTime = endTimeInput.value || time;
+  const allDay = allDayInput.value === "true";
   if (!mod) {
     alert("Please enter a deadline title.");
     return;
@@ -9209,12 +9265,32 @@ function buildDeadlineFromForm() {
     alert("Please choose a date.");
     return;
   }
-  const parsed = new Date(`${date}T${time}`);
-  if (Number.isNaN(parsed.getTime())) {
+  const parsed = new Date(`${date}T${allDay ? "00:00" : time}`);
+  const parsedEnd = allDay
+    ? new Date(new Date(`${endDate}T00:00`).getTime() + 24 * 60 * 60 * 1000)
+    : new Date(`${endDate}T${endTime}`);
+  if (Number.isNaN(parsed.getTime()) || Number.isNaN(parsedEnd.getTime()) || parsedEnd <= parsed) {
     alert("Please enter a valid date and time.");
     return null;
   }
-  return { mod, date: toDeadlineStorageString(parsed), note: noteInput.value || "", completed: false };
+  return {
+    mod,
+    date: toDeadlineStorageString(parsed),
+    endDate: toDeadlineStorageString(parsedEnd),
+    allDay,
+    availability: availabilityInput.value || "BUSY",
+    location: locationInput.value.trim(),
+    note: noteInput.value || "",
+    completed: false
+  };
+}
+
+function updateDeadlineFormMode() {
+  const allDay = document.getElementById("deadline-all-day-input")?.value === "true";
+  const startTime = document.getElementById("deadline-time-input");
+  const endTime = document.getElementById("deadline-end-time-input");
+  if (startTime) startTime.disabled = allDay;
+  if (endTime) endTime.disabled = allDay;
 }
 
 function getDeadlineCalendarDetails(deadline) {
@@ -9311,15 +9387,16 @@ function openCalendarEvent(eventData) {
 
 function openDeadlineInCalendar(deadline) {
   if (!deadline?.date || !deadline?.mod) return;
-  const { start, end } = buildCalendarWindow(deadline);
+  const start = new Date(deadline.date);
+  const end = deadline.endDate ? new Date(deadline.endDate) : new Date(start.getTime() + 60 * 60 * 1000);
   openCalendarComposer({
     title: deadline.mod,
     start,
     end,
-    allDay: false,
+    allDay: !!deadline.allDay,
     location: deadline.location || "",
     details: getDeadlineCalendarDetails(deadline),
-    availability: "BUSY"
+    availability: deadline.availability || "BUSY"
   });
 }
 
@@ -9523,10 +9600,10 @@ function getTodoPanelState() {
   if (!state.ui.todoPanel) {
     state.ui.todoPanel = {
       locked: false,
-      top: 146,
-      right: 28,
-      width: null,
-      height: null
+      top: null,
+      left: null,
+      width: 560,
+      height: 460
     };
   }
   return state.ui.todoPanel;
@@ -9536,14 +9613,18 @@ function applyTodoPanelState() {
   const panel = document.querySelector("#todo-modal .todo-content");
   if (!panel) return;
   const panelState = getTodoPanelState();
+  const width = panelState.width || 560;
+  const height = panelState.height || 460;
+  const left = panelState.left ?? Math.max(8, Math.round((window.innerWidth - width) / 2));
+  const top = panelState.top ?? Math.max(90, Math.round((window.innerHeight - height) / 2));
   panel.classList.toggle("is-locked", !!panelState.locked);
-  panel.style.top = `${panelState.top ?? 146}px`;
-  panel.style.right = `${panelState.right ?? 28}px`;
-  panel.style.left = "";
-  if (panelState.width) panel.style.width = `${panelState.width}px`;
-  if (panelState.height) panel.style.height = `${panelState.height}px`;
+  panel.style.top = `${top}px`;
+  panel.style.left = `${left}px`;
+  panel.style.right = "auto";
+  panel.style.width = `${width}px`;
+  panel.style.height = `${height}px`;
   const lockBtn = document.getElementById("todo-lock-btn");
-  if (lockBtn) lockBtn.textContent = panelState.locked ? "Unlock" : "Lock";
+  if (lockBtn) lockBtn.textContent = panelState.locked ? "Unpin" : "Pin";
 }
 
 function persistTodoPanelRect() {
@@ -9552,7 +9633,7 @@ function persistTodoPanelRect() {
   const panelState = getTodoPanelState();
   const rect = panel.getBoundingClientRect();
   panelState.top = Math.max(70, Math.round(rect.top));
-  panelState.right = Math.max(8, Math.round(window.innerWidth - rect.right));
+  panelState.left = Math.max(8, Math.round(rect.left));
   panelState.width = Math.round(rect.width);
   panelState.height = Math.round(rect.height);
   save();
@@ -9613,11 +9694,9 @@ function endTodoPanelDrag(event) {
   const panelState = getTodoPanelState();
   const rect = panel.getBoundingClientRect();
   panelState.top = Math.max(70, Math.round(rect.top));
-  panelState.right = Math.max(8, Math.round(window.innerWidth - rect.right));
+  panelState.left = Math.max(8, Math.round(rect.left));
   panelState.width = Math.round(rect.width);
   panelState.height = Math.round(rect.height);
-  panel.style.left = "";
-  panel.style.right = `${panelState.right}px`;
   save();
   todoPanelDrag = null;
 }
@@ -9899,19 +9978,18 @@ function buildModules() {
     list.appendChild(notesSection.wrap);
 
 
+    const topicsSection = createModuleSection(mi, "topics", "Topics", `<button class="mini-btn" type="button" onclick="addTopicToModule(${mi}, event)">Add Topic</button>`);
     const topicTools = document.createElement("div");
     topicTools.className = "notes-area-wrap";
     topicTools.innerHTML = `
-      <div class="topic-tools">
-        <div class="topic-tools-title">Topics</div>
-      </div>
       <div class="topic-entry-row">
         <input class="input" id="topic-add-${mi}" placeholder='Add one topic, or "Topic 1" "Topic 2"'>
         <button class="mini-btn" type="button" onclick="addTopicToModule(${mi}, event)">Add Topic</button>
       </div>
       <div class="topic-entry-help">Use quotes for several topics. Click a row to select it, shift-click to select a range, double-click to rename, and drag the row into the gap under a topic then move right to nest it.</div>
     `;
-    list.appendChild(topicTools);
+    topicsSection.body.appendChild(topicTools);
+    list.appendChild(topicsSection.wrap);
     const topicAddInput = topicTools.querySelector(`#topic-add-${mi}`);
     if (topicAddInput) {
       topicAddInput.addEventListener("keydown", (event) => {
@@ -10004,7 +10082,7 @@ function buildModules() {
       main.appendChild(checkbox);
       main.appendChild(label);
       row.appendChild(main);
-      list.appendChild(row);
+      topicsSection.body.appendChild(row);
 
       if (topic.subtopics.length) {
         const subtopicList = document.createElement("div");
@@ -10069,7 +10147,7 @@ function buildModules() {
           subRow.appendChild(subMain);
           subtopicList.appendChild(subRow);
         });
-        list.appendChild(subtopicList);
+        topicsSection.body.appendChild(subtopicList);
       }
     });
 
@@ -11969,6 +12047,130 @@ body.theme-dark-offwhite .module-library-section-label {
     const linkWord = links.length === 1 ? "link" : "links";
     if (materialsCopy) materialsCopy.textContent = moduleLibraryMaterialsOpen ? `Formula sheets, worked examples, reference pages, and quick-access study material. ${materials.length} saved ${materialWord}.` : (materials.length ? `${materials.length} saved material ${materialWord}` : "No saved material yet");
     if (linksCopy) linksCopy.textContent = moduleLibraryLinksOpen ? `Useful URLs, portals, videos, docs, and external resources. ${links.length} saved ${linkWord}.` : (links.length ? `${links.length} saved relevant ${linkWord}` : "No saved relevant links yet");
+  };
+})();
+</script>
+<style>
+#todo-modal {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+#todo-modal .todo-content {
+  width: 560px !important;
+  min-width: 460px !important;
+  min-height: 420px !important;
+  max-width: min(92vw, 760px) !important;
+  max-height: min(78vh, 760px) !important;
+  padding: 20px 20px 16px !important;
+  border-radius: 14px !important;
+  resize: both !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 24px 64px rgba(14,12,10,0.22) !important;
+}
+
+#todo-modal .timeline-head {
+  flex: 0 0 auto !important;
+  padding-right: 0 !important;
+  margin-bottom: 14px !important;
+}
+
+#todo-modal .timeline-list.todo-list {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: auto !important;
+  padding-right: 6px !important;
+}
+
+#todo-modal .todo-panel-controls {
+  top: 16px !important;
+  right: 16px !important;
+  gap: 6px !important;
+}
+
+#todo-modal .todo-panel-controls .mini-btn,
+#todo-modal .todo-panel-controls .dashboard-close {
+  min-width: 38px !important;
+  width: 38px !important;
+  height: 38px !important;
+  padding: 0 !important;
+}
+
+#todo-modal .todo-drag-handle {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+#todo-modal .todo-drag-handle::before {
+  content: "⋮⋮" !important;
+  font-size: 14px !important;
+  letter-spacing: -1px !important;
+  color: var(--muted) !important;
+}
+
+#todo-modal .todo-toolbar {
+  grid-template-columns: 1fr 200px !important;
+  align-items: start !important;
+}
+
+#todo-modal .todo-note-field {
+  grid-column: 1 / -1 !important;
+}
+
+#todo-modal .todo-compose-note {
+  min-height: 96px !important;
+}
+
+#todo-modal .todo-summary {
+  margin-bottom: 12px !important;
+}
+
+@media (max-width: 760px) {
+  #todo-modal .todo-content {
+    width: calc(100vw - 18px) !important;
+    min-width: 0 !important;
+    min-height: 360px !important;
+    max-width: calc(100vw - 18px) !important;
+    max-height: calc(100vh - 92px) !important;
+    resize: none !important;
+  }
+
+  #todo-modal .todo-toolbar {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+body.theme-dark .module-library-section-copy,
+body.theme-dark-offwhite .module-library-section-copy {
+  color: rgba(241,237,228,0.84) !important;
+  opacity: 1 !important;
+}
+</style>
+<script>
+(function finalUiTidyPass(){
+  const originalRenderModuleLibraryFinal = renderModuleLibrary;
+  renderModuleLibrary = function patchedRenderModuleLibraryFinal() {
+    originalRenderModuleLibraryFinal.apply(this, arguments);
+    const linksHost = document.getElementById("module-library-links");
+    const materialsHost = document.getElementById("module-library-materials");
+    if (linksHost) linksHost.classList.toggle("hidden", !moduleLibraryLinksOpen);
+    if (materialsHost) materialsHost.classList.toggle("hidden", !moduleLibraryMaterialsOpen);
+    document.getElementById("module-library-links-chevron")?.classList.toggle("open", moduleLibraryLinksOpen);
+    document.getElementById("module-library-materials-chevron")?.classList.toggle("open", moduleLibraryMaterialsOpen);
+  };
+
+  openModuleLibrary = function patchedOpenModuleLibraryFinal(mi = null, focus = "both", event) {
+    if (event) event.stopPropagation();
+    materialLibraryModuleIndex = mi;
+    moduleLibraryScopeMi = Number.isInteger(mi) ? mi : null;
+    moduleLibraryFilter = moduleLibraryScopeMi === null ? "all" : String(moduleLibraryScopeMi);
+    moduleLibraryLinksOpen = focus === "links";
+    moduleLibraryMaterialsOpen = focus === "formula";
+    document.getElementById("module-library-modal").classList.remove("hidden");
+    renderModuleLibrary();
   };
 })();
 </script>
