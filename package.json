@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "description": "UniTrack course progress tracker",
-  "type": "module",
   "scripts": {
     "sync": "node scripts/build-assets.mjs",
     "dev": "npm run sync && vite --host 0.0.0.0",
