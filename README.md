@@ -1,40 +1,57 @@
-# UniTrack
+# UniTrack — Split Vercel Project
 
-A packaged Vite/Vercel deployment version of the UniTrack single-page tracker.
+This is the same working UniTrack app, but reorganised so it is easier to troubleshoot.
 
-## Local setup
+## How it works
+
+The editable source is split into:
+
+```txt
+src/styles/
+src/js/
+```
+
+The browser still loads generated bundles from:
+
+```txt
+public/generated/styles.bundle.css
+public/generated/app.bundle.js
+```
+
+This keeps the app stable because the split files are concatenated back into the same runtime order as the original working single-file version.
+
+## Commands
+
+Install once:
 
 ```bash
 npm install
+```
+
+Run locally:
+
+```bash
 npm run dev
 ```
 
-Then open the local URL Vite prints in the terminal.
-
-## Production build
+Build for Vercel:
 
 ```bash
 npm run build
-npm run preview
 ```
 
-## Deploy to Vercel
-
-Push this folder to GitHub, import it in Vercel, and use:
-
-- Framework Preset: Vite
-- Build Command: npm run build
-- Output Directory: dist
-- Install Command: npm install
-
-Or deploy from terminal:
+Manually regenerate bundles after editing source files:
 
 ```bash
-npm install
-npm run build
-vercel --prod
+npm run sync
 ```
 
-## Notes
+## Where to edit
 
-This package intentionally keeps the app as a full single-file `index.html`, because the split `src/styles` and `src/js` scaffold was incomplete. Once the app is stable, it can be refactored into separate CSS/JS modules later.
+- Topic clicking / nesting / flashing: `src/js/40-topic-drag-reorder.js`, `src/js/70-module-rendering.js`
+- Deadline timeline animation: `src/js/50-deadlines-calendar.js`, `src/styles/80-setup-onboarding-deadlines.css`
+- Auth / login / setup: `src/js/80-auth-onboarding-cloud.js`, `src/styles/10-auth-setup.css`
+- Walkthrough / onboarding: `src/js/80-auth-onboarding-cloud.js`, `src/styles/80-setup-onboarding-deadlines.css`
+- Buttons/global polish: `src/styles/90-responsive-final-overrides.css`
+
+Do not edit the generated files directly unless you are debugging a build output.

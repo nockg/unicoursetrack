@@ -2,12 +2,13 @@
   "name": "unitrack",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "description": "UniTrack course progress tracker",
+  "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
-    "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0"
+    "sync": "node scripts/build-assets.mjs",
+    "dev": "npm run sync && vite --host 0.0.0.0",
+    "build": "npm run sync && vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "vite": "^5.0.0"

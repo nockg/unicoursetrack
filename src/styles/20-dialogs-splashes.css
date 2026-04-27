@@ -1,0 +1,210 @@
+/* Deadline splash, template splash, app dialogs, early topic states */
+
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 12, 18, 0.55);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.25s ease;
+}
+
+.deadline-splash.hidden {
+  display: none;
+}
+
+.template-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.template-choice {
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 8px;
+  padding: 14px;
+  cursor: pointer;
+  color: #fff;
+  background: rgba(255,255,255,0.08);
+  text-align: left;
+}
+
+.template-choice-title {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f8ead5;
+  margin-bottom: 8px;
+}
+
+.template-choice-detail {
+  color: rgba(255,255,255,0.68);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.template-choice.primary {
+  border-color: rgba(216,200,176,0.45);
+  background: rgba(216,200,176,0.18);
+}
+
+.template-choice:hover {
+  background: rgba(255,255,255,0.14);
+}
+
+.template-splash-copy {
+  color: rgba(255,255,255,0.68);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.deadline-splash-card {
+  width: min(420px, calc(100vw - 32px));
+  padding: 26px 28px;
+  border-radius: 10px;
+
+  background: rgba(20, 24, 32, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+
+  position: relative;
+  overflow: hidden;
+}
+
+.template-splash-card {
+  width: min(640px, calc(100vw - 32px));
+}
+
+/* subtle accent line */
+.deadline-splash-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #d8c8b0, transparent);
+}
+
+/* close button */
+.deadline-splash-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  border: none;
+  background: none;
+  color: rgba(255,255,255,0.5);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.deadline-splash-close:hover {
+  color: white;
+}
+
+/* label */
+.deadline-splash-label {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 10px;
+}
+
+/* title */
+.deadline-splash-title {
+  font-family: "Shippori Mincho", serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+/* BIG timer */
+.deadline-splash-time {
+  font-family: "DM Mono", monospace;
+  font-size: 32px;
+  color: #d8c8b0;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 12px rgba(216,200,176,0.1);
+}
+
+.app-dialog-card {
+  width: min(460px, calc(100vw - 32px));
+  padding: 24px;
+}
+.app-dialog-message {
+  color: rgba(245,240,232,0.72);
+  font-size: 15px;
+  line-height: 1.45;
+  margin: 8px 0 12px;
+}
+.app-dialog-field {
+  display: grid;
+  gap: 7px;
+  margin: 12px 0 16px;
+}
+.app-dialog-field.hidden { display: none !important; }
+.app-dialog-field label,
+.app-dialog-check {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.58);
+}
+.app-dialog-input {
+  width: 100%;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  color: #f5f0e8;
+  padding: 11px 12px;
+  font-family: "DM Mono", monospace;
+  font-size: 14px;
+  outline: none;
+}
+.app-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+body:not(.theme-dark) .app-dialog-card {
+  background: rgba(250,247,242,0.98);
+  border-color: rgba(26,22,18,0.16);
+}
+body:not(.theme-dark) .app-dialog-card .deadline-splash-title { color: var(--ink); }
+body:not(.theme-dark) .app-dialog-card .deadline-splash-label,
+body:not(.theme-dark) .app-dialog-field label,
+body:not(.theme-dark) .app-dialog-check { color: var(--muted); }
+body:not(.theme-dark) .app-dialog-message { color: var(--muted); }
+body:not(.theme-dark) .app-dialog-input {
+  background: var(--paper2);
+  color: var(--ink);
+  border-color: var(--border2);
+}
+
+/* animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.topic-row.dragging {
+  background: rgba(192,57,43,0.06);
+}
+
+.topic-row {
+  cursor: pointer;
+}
+
+.sticky-exams {

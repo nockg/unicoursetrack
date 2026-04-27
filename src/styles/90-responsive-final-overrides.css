@@ -1,0 +1,178 @@
+/* Responsive rules, dark/light theme fixes and final polish overrides */
+
+body.theme-dark .deadline-choice-copy { color: rgba(241,237,228,0.72); }
+body.theme-dark .timeline-card:not(.deadline-card-clickable) { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.1); }
+body.theme-dark .timeline-card.deadline-card-clickable {
+  background: rgba(255,255,255,0.045);
+  border-color: rgba(255,255,255,0.1);
+  border-bottom-color: var(--deadline-edge-colour, rgba(255,255,255,0.22));
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,0.04);
+}
+body.theme-dark .timeline-dot.complete-toggle { background: #1c1c1f; }
+body.theme-dark .deadline-card-title-line .timeline-title,
+body.theme-dark .deadline-card-clickable .timeline-title { color: #f1ede4; }
+body.theme-dark .deadline-card-countdown { color: #f4efe7; }
+body.theme-dark .deadline-meta-line,
+body.theme-dark .deadline-type-badge { color: rgba(241,237,228,0.78); }
+body.theme-dark .deadline-card-countdown.urgent { color: #f08b80; }
+body.theme-dark .deadline-details { background: transparent; border-color: rgba(255,255,255,0.1); color: rgba(245,240,232,0.76); }
+body.theme-dark .deadline-details summary { color: #f1ede4; }
+body.theme-dark .deadline-form-content .timeline-notes,
+body.theme-dark .calendar-form-content .timeline-notes { background: #202020; border-color: rgba(255,255,255,0.16); color: #f4efe7; }
+body.theme-dark .priority-choice { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.1); color: rgba(245,240,232,0.72); }
+body.theme-dark .priority-choice.active { color: #fff; background: rgba(255,255,255,0.08); }
+
+@media(max-width:700px){ .deadline-title-module-row, .deadline-card-lower, .deadline-choice-grid, .deadline-form-row { grid-template-columns:1fr; } .deadline-priority-row { grid-template-columns: repeat(2,minmax(0,1fr)); } .countdown-header-pref { grid-template-columns: 1fr; } }
+
+.exam-ticker { border-bottom: 0 !important; }
+.sticky-exams { border-bottom-color: rgba(245,240,232,0.16) !important; }
+body.theme-quiet .sticky-exams{ border-bottom-color: rgba(245,240,232,0.16) !important; }
+.module-library-section-collapsible.is-collapsed .module-library-list { display: none !important; }
+
+
+
+/* Readability + interaction patch */
+.nav-btn,
+.bb-link,
+.bb-edit-btn,
+.formula-btn,
+.formula-edit-btn,
+.mini-btn,
+.topic-edit-btn,
+.topic-options-summary,
+.topic-options-action,
+.deadline-tab-btn,
+.priority-choice,
+.pref-toggle-pill,
+.auth-gate-tab {
+  font-size: 11.5px;
+  line-height: 1.25;
+  min-height: 36px;
+  padding: 9px 14px;
+}
+
+.mini-btn,
+.topic-edit-btn,
+.topic-options-summary {
+  min-height: 32px;
+  padding: 7px 11px;
+}
+
+.module-delete-btn,
+.subtopic-toggle {
+  min-height: 28px;
+  min-width: 28px;
+}
+
+.nav-bar {
+  gap: 10px;
+}
+
+body.setup-required #course-setup-modal {
+  color: #17120e;
+  background: #f5f0e8;
+}
+
+body.setup-required .setup-content {
+  background: rgba(250,247,242,0.992) !important;
+  color: #17120e !important;
+  border: 1px solid rgba(26,22,18,0.16) !important;
+  box-shadow: 0 26px 70px rgba(14,12,10,0.16) !important;
+}
+
+body.setup-required .setup-content .dashboard-title,
+body.setup-required .setup-content .timeline-subtitle,
+body.setup-required .setup-content .setup-copy,
+body.setup-required .setup-content .setup-choice-title,
+body.setup-required .setup-content .setup-choice-detail,
+body.setup-required .setup-content .field label,
+body.setup-required .setup-content .setup-linked-status {
+  color: #17120e !important;
+}
+
+body.setup-required .setup-content .setup-copy,
+body.setup-required .setup-content .setup-choice-detail,
+body.setup-required .setup-content .setup-linked-status {
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+body.setup-required .setup-content .input {
+  background: #fffdf8 !important;
+  color: #17120e !important;
+  border-color: rgba(26,22,18,0.24) !important;
+  font-size: 16px;
+  min-height: 44px;
+}
+
+body.setup-required .setup-choice {
+  background: #fffaf0 !important;
+  color: #17120e !important;
+  border-color: rgba(26,22,18,0.16) !important;
+}
+
+body.setup-required .setup-choice.active {
+  background: rgba(212,160,23,0.14) !important;
+  border-color: #b8860b !important;
+  box-shadow: inset 0 -3px 0 rgba(184,134,11,0.36);
+}
+
+body.setup-required .setup-actions .nav-btn,
+body.setup-required .dashboard-close {
+  background: #17120e !important;
+  color: #fffaf0 !important;
+  border-color: #17120e !important;
+}
+
+.onboarding-content {
+  width: min(860px, calc(100vw - 32px));
+}
+
+.onboarding-tour {
+  grid-template-columns: minmax(190px, .42fr) minmax(0, 1fr);
+  gap: 22px;
+}
+
+.onboarding-step-tab {
+  font-size: 12px;
+  line-height: 1.35;
+  min-height: 44px;
+  padding: 12px 14px;
+}
+
+.onboarding-kicker,
+.onboarding-progress {
+  font-size: 12px;
+}
+
+.onboarding-step-title {
+  font-size: clamp(32px, 3.8vw, 42px);
+}
+
+.onboarding-step-copy {
+  font-size: 22px;
+  line-height: 1.48;
+}
+
+.onboarding-preview-row {
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.onboarding-actions .nav-btn {
+  min-width: 104px;
+}
+
+@media (max-width: 760px) {
+  .nav-bar {
+    padding: 10px 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-bar::-webkit-scrollbar { display: none; }
+  .onboarding-tour,
+  .setup-fields,
+  .setup-template-grid {
+    grid-template-columns: 1fr;
+  }
+}
