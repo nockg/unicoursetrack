@@ -338,6 +338,7 @@ body.font-mono .deadline-splash-title {
   height: 100%;
   cursor: pointer;
   transition: background 0.2s;
+  border-bottom: 3px solid var(--deadline-edge-colour, rgba(245,240,232,0.38));
 }
 .exam-ticker:hover { background: rgba(192,57,43,0.16); }
 .ticker-mod {
@@ -3586,7 +3587,7 @@ body.theme-dark .auth-gate-tab.active {
 }
 
 
-/* ===== Mobile usability overhaul v1 ===== */
+
 @media (max-width: 760px) {
   html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
   body { padding-top: 116px; font-size: 16px; -webkit-text-size-adjust: 100%; }
@@ -5193,7 +5194,7 @@ body.theme-dark-offwhite .module-library-section {
   }
 }
 
-/* v1.5 — module options contrast fix */
+
 .module-edit-tools .weight-edit-btn,
 .module-edit-primary .weight-edit-btn,
 button.weight-edit-btn {
@@ -5233,7 +5234,7 @@ body.theme-dark-offwhite button.weight-edit-btn:hover {
 }
 
 
-/* v1.6 — contrast audit + compact mobile library/deadline pass */
+
 .module-library-section-collapsible .module-library-collapse {
   color: var(--ink) !important;
   min-height: 0;
@@ -5386,7 +5387,7 @@ body.theme-dark-offwhite .module-section.coursework-section .module-section-titl
 }
 
 
-/* v1.7 — Ink & Parchment library contrast + collapsed mobile library fix */
+
 .module-library-materials-section {
   min-height: 0 !important;
 }
@@ -5523,7 +5524,7 @@ body.theme-dark-offwhite .module-section-head {
 
 
 
-/* v1.9 — solid library dropdowns + hero button glass + dark dashboard grade readability */
+
 /* Remove the gradients on All Modules Library collapsible headers; use solid, theme-aware surfaces. */
 .module-library-section-head,
 .module-library-collapse,
@@ -5652,9 +5653,9 @@ body.theme-dark {
   --ui-btn-active-bg: #e8dac5;
   --ui-btn-active-border: #e8dac5;
   --ui-btn-active-text: #18181b;
-  --ui-btn-primary-bg: #f1e5d4;
-  --ui-btn-primary-border: #f1e5d4;
-  --ui-btn-primary-text: #18181b;
+  --ui-btn-primary-bg: #050505;
+  --ui-btn-primary-border: #050505;
+  --ui-btn-primary-text: #ffffff;
 }
 
 body.theme-dark-offwhite {
@@ -5983,26 +5984,30 @@ body.theme-dark-offwhite .module-library-pill {
 
 
 
-/* Integrated feature cleanup: deadlines, todo, and theme consistency */
 body.theme-dark .dash-library-launch {
-  background: rgba(255,255,255,0.065);
-  border-color: rgba(255,255,255,0.14);
+  background: rgba(17,18,21,0.72) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06) !important;
 }
 body.theme-dark .dash-library-launch:hover {
-  background: rgba(255,255,255,0.095);
-  border-color: rgba(255,255,255,0.22);
+  background: rgba(17,18,21,0.84) !important;
+  border-color: rgba(255,255,255,0.16) !important;
 }
+body.theme-dark .module-links .bb-link,
 body.theme-dark .bb-link,
+body.theme-dark-offwhite .module-links .bb-link,
 body.theme-dark-offwhite .bb-link {
-  background: #050505;
-  border-color: #050505;
-  color: #fff;
+  background: #050505 !important;
+  border-color: #050505 !important;
+  color: #fff !important;
 }
+body.theme-dark .module-links .bb-link:hover,
 body.theme-dark .bb-link:hover,
+body.theme-dark-offwhite .module-links .bb-link:hover,
 body.theme-dark-offwhite .bb-link:hover {
-  background: #111;
-  border-color: var(--vermillion);
-  color: #fff;
+  background: #111 !important;
+  border-color: var(--vermillion) !important;
+  color: #fff !important;
 }
 .countdown-header-pref {
   grid-column: 1 / -1;
@@ -6044,6 +6049,12 @@ body.theme-dark-offwhite .countdown-header-pref-copy,
 body.theme-dark-offwhite .countdown-header-pref label { color: #3b3026; }
 body.theme-dark-offwhite .pref-toggle-pill { background: #fffaf2; color: #241d16; border-color: rgba(26,22,18,0.24); }
 body.theme-dark-offwhite .pref-toggle-pill.is-on { background: #241d16; color: #fffaf2; border-color: #241d16; }
+body.theme-quiet .sticky-exams,
+body.theme-dark-offwhite .sticky-exams { background: var(--sumi); color: var(--paper); }
+body.theme-quiet .ticker-time,
+body.theme-dark-offwhite .ticker-time { color: #fffaf2; }
+body.theme-quiet .ticker-date,
+body.theme-dark-offwhite .ticker-date { color: rgba(245,240,232,0.62); }
 body.countdown-header-hidden .sticky-exams { display: none !important; }
 body.countdown-header-hidden { padding-top: 60px; }
 body.countdown-header-hidden .nav-bar { top: 0; }
@@ -6076,8 +6087,37 @@ body.theme-dark .deadline-tab-btn.active { background: rgba(245,240,232,0.9); co
 body.theme-dark-offwhite .deadline-tabs { background: rgba(250,247,242,0.82); border-color: rgba(26,22,18,0.18); }
 body.theme-dark-offwhite .deadline-tab-btn { color: #6d6257; }
 body.theme-dark-offwhite .deadline-tab-btn.active { background: #241d16; color: #fffaf2; }
-.timeline-list { scrollbar-width: none; }
+.timeline-list { scrollbar-width: none; transition: opacity .18s ease, transform .18s ease; }
 .timeline-list::-webkit-scrollbar { display: none; }
+.timeline-list.is-switching { opacity: 0; transform: translateY(6px); }
+.deadline-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+.deadline-choice-card {
+  border: 1px solid var(--border);
+  border-bottom: 4px solid var(--gold2);
+  border-radius: 14px;
+  background: rgba(26,22,18,0.025);
+  color: var(--sumi);
+  padding: 18px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform .16s ease, border-color .16s ease, background .16s ease;
+  font: inherit;
+}
+.deadline-choice-card:hover { transform: translateY(-1px); border-color: var(--border2); background: rgba(255,255,255,0.34); }
+.deadline-choice-title { font-family: "Shippori Mincho", serif; font-size: 22px; line-height: 1.08; font-weight: 800; color: var(--sumi); margin-bottom: 8px; }
+.deadline-choice-copy { color: var(--muted); font-size: 15px; line-height: 1.35; }
+body.theme-dark .deadline-choice-card { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.1); color: #f1ede4; }
+body.theme-dark .deadline-choice-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18); }
+body.theme-dark .deadline-choice-title { color: #f1ede4; }
+body.theme-dark .deadline-choice-copy { color: rgba(241,237,228,0.72); }
+body.theme-dark-offwhite .deadline-choice-card { background: rgba(255,255,255,0.56); border-color: rgba(26,22,18,0.14); }
+body.theme-dark-offwhite .deadline-choice-title { color: #241d16; }
+body.theme-dark-offwhite .deadline-choice-copy { color: #6d6257; }
 .deadline-view-shell { transition: opacity .18s ease, transform .18s ease; }
 .deadline-view-shell.is-switching { opacity: 0; transform: translateY(6px); }
 .timeline-card.deadline-card-clickable {
@@ -6096,6 +6136,23 @@ body.theme-dark .deadline-card-clickable .timeline-title { color: #f1ede4; }
 body.theme-dark-offwhite .deadline-card-title-line .timeline-title,
 body.theme-dark-offwhite .deadline-card-clickable .timeline-title { color: #241d16; }
 .deadline-card-top { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
+.deadline-card-clickable .timeline-badge.countdown {
+  background: rgba(26,22,18,0.035);
+  border-color: var(--border);
+  color: var(--sumi);
+  font-size: 18px;
+  padding: 8px 11px;
+}
+body.theme-dark .deadline-card-clickable .timeline-badge.countdown {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
+  color: #f1ede4;
+}
+body.theme-dark-offwhite .deadline-card-clickable .timeline-badge.countdown {
+  background: rgba(255,255,255,0.54);
+  border-color: rgba(26,22,18,0.14);
+  color: #241d16;
+}
 .deadline-card-lower { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; align-items: start; margin-top: 10px; }
 .deadline-details { border: 1px solid var(--border); border-radius: 10px; background: rgba(26,22,18,0.025); padding: 0; }
 .deadline-details summary { cursor: pointer; list-style: none; padding: 8px 10px; font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--sumi); }
@@ -6121,6 +6178,16 @@ body.theme-dark .priority-choice.active { color: #fff; background: rgba(255,255,
 
 .todo-view-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
 #todo-modal .todo-content { resize: both; overflow: hidden; min-width: 320px; min-height: 260px; max-width: calc(100vw - 18px); max-height: calc(100vh - 18px); display: flex; flex-direction: column; }
+#todo-modal { background: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+#todo-modal .todo-content { background: var(--paper3); box-shadow: 0 18px 48px rgba(14,12,10,0.18); }
+body.theme-dark #todo-modal .todo-content { background: #1c1c1f; box-shadow: 0 18px 54px rgba(0,0,0,0.34); }
+body.theme-dark-offwhite #todo-modal .todo-content { background: #faf7f2; box-shadow: 0 18px 48px rgba(14,12,10,0.16); }
+#todo-modal .timeline-head { margin-bottom: 12px; padding-right: 74px; }
+#todo-modal .timeline-topline { align-items: center; }
+#todo-modal .timeline-page-title { font-size: 32px; }
+#todo-modal .todo-panel-controls { top: 14px; right: 14px; z-index: 4; }
+#todo-modal .todo-panel-controls .dashboard-close { position: static; width: 30px; height: 30px; }
+#todo-modal .todo-list { display: grid; align-content: start; }
 #todo-modal .timeline-head { flex: 0 0 auto; }
 #todo-modal .todo-list { flex: 1 1 auto; min-height: 0; overflow: auto; scrollbar-width: none; }
 #todo-modal .todo-list::-webkit-scrollbar { display: none; }
@@ -6152,7 +6219,7 @@ body.theme-dark-offwhite .todo-expanded-title,
 body.theme-dark-offwhite .todo-row-title { color: #241d16; }
 body.suppress-topic-refresh .topic-row,
 body.suppress-topic-refresh .subtopic-list { transition: none !important; }
-@media(max-width:700px){ .deadline-title-module-row, .deadline-card-lower { grid-template-columns:1fr; } .deadline-priority-row { grid-template-columns: repeat(2,minmax(0,1fr)); } .countdown-header-pref { grid-template-columns: 1fr; } }
+@media(max-width:700px){ .deadline-title-module-row, .deadline-card-lower, .deadline-choice-grid { grid-template-columns:1fr; } .deadline-priority-row { grid-template-columns: repeat(2,minmax(0,1fr)); } .countdown-header-pref { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body class="auth-required auth-loading">
@@ -8490,6 +8557,26 @@ function renderModuleLibrary() {
 
   const materials = getModuleLibraryItems("formula", moduleLibraryScopeMi);
   const links = getModuleLibraryItems("relevant", moduleLibraryScopeMi);
+  const materialWord = materials.length === 1 ? "item" : "items";
+  const linkWord = links.length === 1 ? "link" : "links";
+  const materialsSection = document.querySelector(".module-library-materials-section");
+  const linksSection = linksHost.closest(".module-library-section");
+  const materialsCopy = materialsSection?.querySelector(".module-library-section-copy");
+  const linksCopy = linksSection?.querySelector(".module-library-section-copy");
+
+  if (materialsSection) materialsSection.classList.toggle("is-collapsed", !moduleLibraryMaterialsOpen);
+  if (linksSection) linksSection.classList.toggle("is-collapsed", !moduleLibraryLinksOpen);
+  if (materialsCopy) {
+    materialsCopy.textContent = moduleLibraryMaterialsOpen
+      ? `Formula sheets, worked examples, reference pages, and quick-access study material. ${materials.length} saved ${materialWord}.`
+      : `${materials.length} saved material ${materialWord}. Tap to expand.`;
+  }
+  if (linksCopy) {
+    linksCopy.textContent = moduleLibraryLinksOpen
+      ? `Useful URLs, portals, videos, docs, and external resources. ${links.length} saved ${linkWord}.`
+      : `${links.length} saved relevant ${linkWord}. Tap to expand.`;
+  }
+
   materialsHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "") + (moduleLibraryMaterialsOpen ? "" : " hidden");
   linksHost.className = "module-library-list" + (moduleLibraryViewMode === "cards" ? " cards" : "") + (moduleLibraryLinksOpen ? "" : " hidden");
   document.getElementById("module-library-links-chevron")?.classList.toggle("open", moduleLibraryLinksOpen);
@@ -8508,8 +8595,16 @@ function openModuleLibrary(mi = null, focus = "both", event) {
   moduleLibraryScopeMi = Number.isInteger(mi) ? mi : null;
   if (moduleLibraryScopeMi === null) moduleLibraryFilter = "all";
   else moduleLibraryFilter = String(moduleLibraryScopeMi);
-  moduleLibraryLinksOpen = focus === "links";
-  moduleLibraryMaterialsOpen = focus === "formula";
+
+  const isMobile = window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
+  if (isMobile) {
+    moduleLibraryLinksOpen = focus === "links";
+    moduleLibraryMaterialsOpen = focus === "formula";
+  } else {
+    moduleLibraryLinksOpen = focus === "links";
+    moduleLibraryMaterialsOpen = focus === "formula" || focus === "both";
+  }
+
   document.getElementById("module-library-modal").classList.remove("hidden");
   renderModuleLibrary();
 }
@@ -9388,7 +9483,7 @@ const DEADLINE_PRIORITY_COLOURS = {
   high: "#c0392b",
   medium: "#b8860b",
   low: "#2d5a27",
-  default: "rgba(245,240,232,0.42)"
+  default: "#d8c8b0"
 };
 
 function deadlinePriorityColour(deadline) {
@@ -9458,8 +9553,8 @@ function swapDeadlineView(render) {
   host.classList.add("is-switching");
   window.setTimeout(() => {
     render();
-    host.classList.remove("is-switching");
-  }, 120);
+    requestAnimationFrame(() => host.classList.remove("is-switching"));
+  }, 90);
 }
 
 function showDeadlineTab(tab = "upcoming") {
@@ -10027,17 +10122,22 @@ function applyTodoPanelState(forceCenter = false) {
   if (!panel) return;
   const panelState = getTodoPanelState();
   const compact = !!panelState.compact;
+  const items = getTodoItems();
   const maxWidth = Math.min(window.innerWidth - 18, 760);
   const maxHeight = Math.min(window.innerHeight - 18, 720);
-  const minHeight = compact ? 170 : 260;
-  const width = Math.max(320, Math.min(panelState.width || 460, maxWidth));
-  const autoCompactHeight = 112 + Math.min(getTodoItems().length, 5) * 30;
-  const requestedHeight = compact ? Math.min(panelState.height || autoCompactHeight, autoCompactHeight) : (panelState.height || 430);
-  const height = Math.max(minHeight, Math.min(requestedHeight, maxHeight));
+  const width = Math.max(330, Math.min(panelState.width || 460, maxWidth));
+
+  const compactHeight = 132 + Math.min(items.length || 1, 8) * 34;
+  const expandedHeight = 286 + Math.min(items.length || 1, 4) * 112;
+  const preferredHeight = compact ? compactHeight : Math.max(panelState.height || 0, Math.min(expandedHeight, 640));
+  const minHeight = compact ? 176 : 390;
+  const height = Math.max(minHeight, Math.min(preferredHeight, maxHeight));
+
   const savedLeft = Number.isFinite(panelState.left) ? panelState.left : null;
   const savedTop = Number.isFinite(panelState.top) ? panelState.top : null;
   const left = forceCenter || savedLeft === null ? Math.max(8, Math.round((window.innerWidth - width) / 2)) : Math.max(8, Math.min(savedLeft, window.innerWidth - width - 8));
   const top = forceCenter || savedTop === null ? Math.max(76, Math.round((window.innerHeight - height) / 2)) : Math.max(70, Math.min(savedTop, window.innerHeight - height - 8));
+
   panel.classList.toggle("is-locked", !!panelState.locked);
   document.getElementById("todo-modal")?.classList.toggle("todo-compact-mode", compact);
   panel.style.top = `${top}px`;
@@ -10126,14 +10226,13 @@ function endTodoPanelDrag(event) {
 function toggleTodoCompactView() {
   const panelState = getTodoPanelState();
   panelState.compact = !panelState.compact;
-  if (panelState.compact) {
-    panelState.height = 112 + Math.min(getTodoItems().length, 5) * 30;
-  } else {
-    panelState.height = Math.max(panelState.height || 0, Math.min(window.innerHeight - 18, 250 + Math.min(getTodoItems().length, 4) * 116));
-  }
+  const items = getTodoItems();
+  panelState.height = panelState.compact
+    ? 132 + Math.min(items.length || 1, 8) * 34
+    : Math.min(window.innerHeight - 18, 286 + Math.min(items.length || 1, 4) * 112);
   save();
-  applyTodoPanelState();
   renderTodoPlanner();
+  applyTodoPanelState();
 }
 
 function renderTodoModuleOptions() {
@@ -10202,7 +10301,7 @@ function renderTodoPlanner() {
   host.querySelectorAll("[data-todo-note-index]").forEach((textarea) => {
     textarea.addEventListener("input", (event) => updateTodoNote(Number(event.target.dataset.todoNoteIndex), event.target.value));
   });
-  if (compact) applyTodoPanelState();
+  applyTodoPanelState();
 }
 
 function saveTodoDraft() {
@@ -10243,7 +10342,6 @@ function updateTodoNote(index, value) {
   if (!todos[index]) return;
   todos[index].note = value;
   save();
-  renderTodoPlanner();
 }
 
 function deleteTodoItem(index, event) {
@@ -12046,43 +12144,18 @@ function toggleTopicSubtopics(mi, ti, event) {
   if (event) event.stopPropagation();
   const topic = getTopicEntry(mi, ti);
   MODULES[mi].topics[ti] = Object.assign({}, topic, { collapsed: !topic.collapsed });
+  const row = event?.target?.closest?.(".topic-row");
+  const subtopicList = row?.nextElementSibling;
+  const toggle = row?.querySelector?.(".subtopic-toggle");
+  if (subtopicList?.classList?.contains("subtopic-list")) {
+    subtopicList.classList.toggle("hidden", MODULES[mi].topics[ti].collapsed);
+  }
+  if (toggle) {
+    toggle.classList.toggle("collapsed", MODULES[mi].topics[ti].collapsed);
+    toggle.setAttribute("aria-label", MODULES[mi].topics[ti].collapsed ? "Expand subtopics" : "Collapse subtopics");
+    toggle.title = MODULES[mi].topics[ti].collapsed ? "Expand subtopics" : "Collapse subtopics";
+  }
   save();
-  buildModules();
-}
-
-async function deleteTopicFromModule(mi, ti, event) {
-  if (event) event.stopPropagation();
-  const title = getTopicEntry(mi, ti).title;
-  if (!title) return;
-  const confirmed = await appConfirm({ label: "Delete Topic", title: "Delete this topic?", message: title, confirmText: "Delete Topic", danger: true });
-  if (!confirmed) return;
-  const store = getStore();
-  MODULES[mi].topics.splice(ti, 1);
-  const nextTopics = {};
-  Object.keys(store.topics).forEach((key) => {
-    const match = /^t_(\d+)_(\d+)$/.exec(key);
-    if (!match) { nextTopics[key] = store.topics[key]; return; }
-    const moduleIndex = Number(match[1]);
-    const topicIndex = Number(match[2]);
-    if (moduleIndex !== mi) { nextTopics[key] = store.topics[key]; return; }
-    if (topicIndex < ti) nextTopics[key] = store.topics[key];
-    if (topicIndex > ti) nextTopics[`t_${mi}_${topicIndex - 1}`] = store.topics[key];
-  });
-  Object.keys(store.topics).forEach((key) => {
-    const match = /^s_(\d+)_(\d+)_(\d+)$/.exec(key);
-    if (!match) return;
-    const moduleIndex = Number(match[1]);
-    const topicIndex = Number(match[2]);
-    const subIndex = Number(match[3]);
-    if (moduleIndex !== mi) { nextTopics[key] = store.topics[key]; return; }
-    if (topicIndex < ti) nextTopics[key] = store.topics[key];
-    if (topicIndex > ti) nextTopics[`s_${mi}_${topicIndex - 1}_${subIndex}`] = store.topics[key];
-  });
-  store.topics = nextTopics;
-  clearTopicSelection(mi);
-  save();
-  buildModules();
-  updateGlobal();
 }
 
 async function editTopicInModule(mi, ti, event) {
@@ -12216,85 +12289,6 @@ document.addEventListener("keydown", (event) => {
 });
 
 
-
-// v1.6 — keep collapsed module library sections explicit + avoid blank-looking dropdowns
-(function enhanceModuleLibraryCollapsedState(){
-  const originalRenderModuleLibrary = renderModuleLibrary;
-  renderModuleLibrary = function patchedRenderModuleLibrary() {
-    originalRenderModuleLibrary.apply(this, arguments);
-    const materials = getModuleLibraryItems("formula", moduleLibraryScopeMi);
-    const links = getModuleLibraryItems("relevant", moduleLibraryScopeMi);
-    const materialsSection = document.querySelector(".module-library-materials-section");
-    const linksSection = document.querySelector("#module-library-links")?.closest(".module-library-section");
-    const materialsCopy = materialsSection?.querySelector(".module-library-section-copy");
-    const linksCopy = linksSection?.querySelector(".module-library-section-copy");
-    const materialWord = materials.length === 1 ? "item" : "items";
-    const linkWord = links.length === 1 ? "link" : "links";
-    if (materialsSection) materialsSection.classList.toggle("is-collapsed", !moduleLibraryMaterialsOpen);
-    if (linksSection) linksSection.classList.toggle("is-collapsed", !moduleLibraryLinksOpen);
-    if (materialsCopy) {
-      materialsCopy.textContent = moduleLibraryMaterialsOpen
-        ? `Formula sheets, worked examples, reference pages, and quick-access study material. ${materials.length} saved ${materialWord}.`
-        : `Collapsed — ${materials.length} saved material ${materialWord}. Tap to expand.`;
-    }
-    if (linksCopy) {
-      linksCopy.textContent = moduleLibraryLinksOpen
-        ? `Useful URLs, portals, videos, docs, and external resources. ${links.length} saved ${linkWord}.`
-        : `Collapsed — ${links.length} saved relevant ${linkWord}. Tap to expand.`;
-    }
-  };
-})();
-
-
-// v1.7 — cleaner collapsed labels + mobile library opens compact instead of revealing everything
-(function patchModuleLibraryMobileAndCopy(){
-  const originalRenderModuleLibraryV17 = renderModuleLibrary;
-  renderModuleLibrary = function patchedRenderModuleLibraryV17() {
-    originalRenderModuleLibraryV17.apply(this, arguments);
-    const materials = getModuleLibraryItems("formula", moduleLibraryScopeMi);
-    const links = getModuleLibraryItems("relevant", moduleLibraryScopeMi);
-    const materialsSection = document.querySelector(".module-library-materials-section");
-    const linksSection = document.querySelector("#module-library-links")?.closest(".module-library-section");
-    const materialsCopy = materialsSection?.querySelector(".module-library-section-copy");
-    const linksCopy = linksSection?.querySelector(".module-library-section-copy");
-    const materialWord = materials.length === 1 ? "item" : "items";
-    const linkWord = links.length === 1 ? "link" : "links";
-
-    if (materialsSection) materialsSection.classList.toggle("is-collapsed", !moduleLibraryMaterialsOpen);
-    if (linksSection) linksSection.classList.toggle("is-collapsed", !moduleLibraryLinksOpen);
-
-    if (materialsCopy) {
-      materialsCopy.textContent = moduleLibraryMaterialsOpen
-        ? `Formula sheets, worked examples, reference pages, and quick-access study material. ${materials.length} saved ${materialWord}.`
-        : `${materials.length} saved material ${materialWord}. Tap to expand.`;
-    }
-    if (linksCopy) {
-      linksCopy.textContent = moduleLibraryLinksOpen
-        ? `Useful URLs, portals, videos, docs, and external resources. ${links.length} saved ${linkWord}.`
-        : `${links.length} saved relevant ${linkWord}. Tap to expand.`;
-    }
-  };
-
-  openModuleLibrary = function patchedOpenModuleLibrary(mi = null, focus = "both", event) {
-    if (event) event.stopPropagation();
-    materialLibraryModuleIndex = mi;
-    moduleLibraryScopeMi = Number.isInteger(mi) ? mi : null;
-    if (moduleLibraryScopeMi === null) moduleLibraryFilter = "all";
-    else moduleLibraryFilter = String(moduleLibraryScopeMi);
-
-    const isMobile = window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
-    if (isMobile) {
-      moduleLibraryLinksOpen = focus === "links";
-      moduleLibraryMaterialsOpen = focus === "formula";
-    } else {
-      moduleLibraryLinksOpen = focus === "links";
-      moduleLibraryMaterialsOpen = true;
-    }
-
-    document.getElementById("module-library-modal").classList.remove("hidden");
-    renderModuleLibrary();
-  };
-})();
 
 // Wait for Supabase to check/restore the session before showing login or the dashboard.
 (async function bootApp() {
