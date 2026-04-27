@@ -54,6 +54,7 @@ body.auth-required .content,
 body.auth-required #dashboard-modal,
 body.auth-required #onboarding-modal,
 body.auth-required #timeline-modal,
+body.auth-required #todo-modal,
 body.auth-required #deadline-form-modal,
 body.auth-required #course-setup-modal,
 body.auth-required #deadline-splash,
@@ -74,6 +75,7 @@ body.auth-loading .content,
 body.auth-loading #dashboard-modal,
 body.auth-loading #onboarding-modal,
 body.auth-loading #timeline-modal,
+body.auth-loading #todo-modal,
 body.auth-loading #deadline-form-modal,
 body.auth-loading #course-setup-modal,
 body.auth-loading #deadline-splash,
@@ -94,6 +96,7 @@ body.setup-required .content,
 body.setup-required #dashboard-modal,
 body.setup-required #onboarding-modal,
 body.setup-required #timeline-modal,
+body.setup-required #todo-modal,
 body.setup-required #deadline-form-modal,
 body.setup-required #deadline-splash,
 body.setup-required #template-splash,
@@ -1627,7 +1630,8 @@ body.theme-dark-offwhite .module-library-pill {
   cursor: grab;
 }
 .topic-row.selected {
-  background: rgba(26,44,74,0.08);
+  background: rgba(26,44,74,0.12);
+  box-shadow: inset 3px 0 0 rgba(26,44,74,0.62);
 }
 .topic-row.subtopic-row {
   margin-left: 0;
@@ -1824,6 +1828,7 @@ body.theme-dark-offwhite .topic-options-summary {
 body.theme-dark .topic-row.selected,
 body.theme-dark-offwhite .topic-row.selected {
   background: rgba(255,255,255,0.08);
+  box-shadow: inset 3px 0 0 rgba(255,255,255,0.58);
 }
 body.theme-dark .topic-options-panel,
 body.theme-dark-offwhite .topic-options-panel {
@@ -1946,23 +1951,32 @@ body.theme-dark-offwhite .coursework-empty {
 
 .prefs-grid {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 .prefs-grid-compact {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 14px;
+}
+.prefs-grid .field {
+  min-width: 0;
 }
 .prefs-grid .field label {
   margin-bottom: 6px;
 }
+.prefs-grid .nav-select,
+.prefs-grid .input {
+  width: 100%;
+  min-width: 0;
+}
 .prefs-input-row {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
-  align-items: end;
+  align-items: center;
 }
 .prefs-input-row .nav-btn {
   white-space: nowrap;
+  min-width: 0;
 }
 .prefs-span-2 {
   grid-column: 1 / -1;
@@ -2655,6 +2669,98 @@ body.theme-dark-offwhite .b6::before {
 .timeline-list {
   display: grid;
   gap: 18px;
+}
+.todo-content {
+  width: min(880px, calc(100vw - 32px));
+}
+.todo-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+.todo-toolbar .input {
+  min-width: 0;
+}
+.todo-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(26,22,18,0.03);
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.todo-list {
+  gap: 14px;
+}
+.todo-item .timeline-card {
+  border-left-color: var(--indigo);
+}
+.todo-item.is-done .timeline-card {
+  opacity: 0.72;
+}
+.todo-item.is-done .todo-title-text {
+  text-decoration: line-through;
+  text-decoration-color: var(--faint);
+}
+.todo-item .timeline-dot.complete-toggle {
+  border-color: var(--indigo);
+}
+.todo-item.is-done .timeline-dot.complete-toggle {
+  background: var(--indigo);
+  border-color: var(--indigo);
+}
+.todo-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.todo-title-text {
+  font-family: "Shippori Mincho", serif;
+  font-size: 24px;
+  line-height: 1.12;
+  color: var(--ink);
+  font-weight: 700;
+}
+.todo-card-actions {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+.todo-inline-note {
+  width: 100%;
+  min-height: 68px;
+  resize: vertical;
+}
+.todo-empty {
+  padding: 24px;
+}
+body.theme-dark .todo-summary,
+body.theme-dark-offwhite .todo-summary {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.08);
+  color: #cfc8bc;
+}
+body.theme-dark .todo-title-text,
+body.theme-dark-offwhite .todo-title-text {
+  color: #f1ede4;
+}
+body.theme-dark .todo-item .timeline-dot.complete-toggle,
+body.theme-dark-offwhite .todo-item .timeline-dot.complete-toggle {
+  border-color: #7c9edc;
+}
+body.theme-dark .todo-item.is-done .timeline-dot.complete-toggle,
+body.theme-dark-offwhite .todo-item.is-done .timeline-dot.complete-toggle {
+  background: #7c9edc;
+  border-color: #7c9edc;
 }
 
 .timeline-empty {
@@ -5690,6 +5796,85 @@ body.theme-dark-offwhite .module-library-pill {
   color: inherit !important;
 }
 
+.prefs-panel {
+  width: min(760px, calc(100vw - 28px)) !important;
+}
+
+.prefs-grid-compact {
+  align-items: start !important;
+}
+
+.prefs-inline-field {
+  padding: 12px 12px 10px !important;
+}
+
+.module-library-card-actions {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  overflow: visible !important;
+}
+
+.module-library-card-actions .mini-btn,
+.module-library-card-actions .module-delete-btn {
+  min-width: 44px !important;
+  width: auto !important;
+  height: 32px !important;
+  padding: 0 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+}
+
+.module-library-card-actions .module-delete-btn {
+  border-radius: var(--ui-radius-control) !important;
+  margin: 0 !important;
+  position: static !important;
+}
+
+.dash-actions-card .dash-hero-btn {
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+  min-height: 96px !important;
+}
+
+.dash-actions-card .dash-hero-btn .dash-launch-icon,
+.dash-actions-card .dash-library-launch .dash-launch-icon {
+  width: 100% !important;
+  text-align: center !important;
+  margin: 0 !important;
+}
+
+.dash-actions-card .dash-hero-btn .dash-launch-copy,
+.dash-actions-card .dash-library-launch .dash-launch-copy {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .todo-content {
+    width: min(100vw - 16px, 880px);
+  }
+  .todo-toolbar {
+    grid-template-columns: 1fr;
+  }
+  .prefs-panel {
+    width: calc(100vw - 16px) !important;
+  }
+  .prefs-grid-compact {
+    grid-template-columns: 1fr !important;
+  }
+  .prefs-input-row {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+  }
+  .prefs-input-row .nav-btn {
+    min-width: 132px !important;
+  }
+}
+
 </style>
 </head>
 <body class="auth-required auth-loading">
@@ -5783,13 +5968,14 @@ body.theme-dark-offwhite .module-library-pill {
   <div class="year-controls">
     <select class="nav-select" id="year-select" onchange="handleYearDropdown(this.value)"></select>
   </div>
-  <button class="nav-btn calendar-btn" onclick="openPreferredCalendar()">Open Calendar</button>
+  <button class="nav-btn calendar-btn" onclick="openPreferredCalendar()">Calendar</button>
   <button class="nav-btn youtube-btn" type="button" onclick="openYouTube()" title="Open YouTube" aria-label="Open YouTube">
     <span class="youtube-icon" aria-hidden="true"></span>
     <span class="youtube-label">YouTube</span>
   </button>
   <button class="nav-btn" onclick="addModuleToCurrentYear()">Add Module</button>
   <button class="nav-btn" onclick="openDeadlineTimeline()">Deadlines</button>
+  <button class="nav-btn" onclick="openTodoPlanner()">To-Do List</button>
   <button class="nav-btn dashboard-nav-btn" onclick="openDashboard()">Dashboard</button>
   <button class="nav-btn prefs-toggle-btn" onclick="togglePreferences()">Preferences</button>
   <button class="nav-btn" id="auth-btn" onclick="openAuthModal()">Account</button>
@@ -5852,7 +6038,7 @@ body.theme-dark-offwhite .module-library-pill {
     </div>
 
     <div class="field prefs-span-2">
-      <label>Hero Background</label>
+      <label>Header Background</label>
       <div class="bg-picker" id="bg-picker"></div>
     </div>
   </div>
@@ -5880,11 +6066,9 @@ body.theme-dark-offwhite .module-library-pill {
       <div class="dash-actions-card">
         <button class="washi-card dash-launch dash-hero-btn" type="button" onclick="openDashboard()">
           <span class="dash-launch-icon">Dashboard</span>
-          <span class="dash-launch-copy">Marks, Progress, Credits</span>
         </button>
         <button class="washi-card dash-launch dash-hero-btn dash-library-launch" type="button" onclick="openModuleLibrary(null, 'both', event)">
           <span class="dash-launch-icon">All Modules Library</span>
-          <span class="dash-launch-copy">Materials, notes, and useful links</span>
         </button>
       </div>
 
@@ -5936,6 +6120,25 @@ body.theme-dark-offwhite .module-library-pill {
       </div>
     </div>
     <div class="timeline-list" id="timeline-list"></div>
+  </div>
+</div>
+
+<div id="todo-modal" class="dashboard-modal hidden">
+  <div class="dashboard-content timeline-content todo-content">
+    <button class="dashboard-close" onclick="closeTodoPlanner()">X</button>
+    <div class="timeline-head">
+      <div class="timeline-subtitle">Planner</div>
+      <div class="timeline-topline">
+        <div class="timeline-page-title">To-Do List</div>
+        <button class="nav-btn" type="button" onclick="saveTodoDraft()">Add Task</button>
+      </div>
+      <div class="todo-toolbar">
+        <input class="input" id="todo-title-input" placeholder="Add a task title" onkeydown="handleTodoInputKeydown(event)">
+        <input class="input" id="todo-note-input" placeholder="Optional note or next step" onkeydown="handleTodoInputKeydown(event)">
+      </div>
+    </div>
+    <div class="todo-summary" id="todo-summary"></div>
+    <div class="timeline-list todo-list" id="todo-list"></div>
   </div>
 </div>
 
@@ -6601,6 +6804,7 @@ function createYearStore(modules) {
     relevantLinks: {},
     moduleColors: {},
     customExams: [],
+    todos: [],
     archived: false
   };
 }
@@ -6689,6 +6893,11 @@ function getSelectedTopicCount(mi) {
     if (parsed?.mi === mi) count += 1;
   });
   return count;
+}
+
+function selectOnlyTopicKey(key) {
+  selectedTopicKeys = new Set([key]);
+  lastSelectedTopicKey = key;
 }
 
 function clearTopicSelection(mi = null) {
@@ -6978,6 +7187,7 @@ function ensureYearsState() {
     formulas: state.formulas || {},
     relevantLinks: state.relevantLinks || {},
     customExams: state.customExams || [],
+    todos: state.todos || [],
     archived: false
   };
   state = {
@@ -8051,6 +8261,10 @@ document.getElementById("timeline-modal").addEventListener("click", (event) => {
   if (event.target.id === "timeline-modal") closeDeadlineTimeline();
 });
 
+document.getElementById("todo-modal").addEventListener("click", (event) => {
+  if (event.target.id === "todo-modal") closeTodoPlanner();
+});
+
 document.getElementById("deadline-form-modal").addEventListener("click", (event) => {
   if (event.target.id === "deadline-form-modal") closeDeadlineForm();
 });
@@ -9004,6 +9218,105 @@ function closeDeadlineTimeline() {
   }
 }
 
+function getTodoItems() {
+  const store = getStore();
+  if (!Array.isArray(store.todos)) store.todos = [];
+  return store.todos;
+}
+
+function getTodoSummaryText() {
+  const todos = getTodoItems();
+  const openCount = todos.filter((item) => !item.completed).length;
+  const doneCount = todos.length - openCount;
+  if (!todos.length) return "No tasks yet";
+  return `${openCount} open - ${doneCount} done`;
+}
+
+function renderTodoPlanner() {
+  const host = document.getElementById("todo-list");
+  const summary = document.getElementById("todo-summary");
+  if (!host || !summary) return;
+  const todos = getTodoItems();
+  summary.textContent = getTodoSummaryText();
+  if (!todos.length) {
+    host.innerHTML = '<div class="timeline-empty todo-empty">No tasks yet. Add one from the top of this planner.</div>';
+    return;
+  }
+  host.innerHTML = todos.map((item, index) => `
+    <div class="timeline-item todo-item ${item.completed ? "is-done" : ""}">
+      <div class="timeline-rail">
+        <button class="timeline-dot complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
+      </div>
+      <div class="timeline-card">
+        <div class="todo-card-top">
+          <div class="todo-title-text">${escapeHtml(item.title || "Untitled task")}</div>
+          <div class="todo-card-actions">
+            <button class="mini-btn module-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)" title="Delete task" aria-label="Delete task">x</button>
+          </div>
+        </div>
+        <textarea class="timeline-notes todo-inline-note" data-todo-note-index="${index}" placeholder="Add context, next steps, or anything you need to remember...">${escapeHtml(item.note || "")}</textarea>
+      </div>
+    </div>
+  `).join("");
+  host.querySelectorAll("[data-todo-note-index]").forEach((textarea) => {
+    textarea.addEventListener("input", (event) => updateTodoNote(Number(event.target.dataset.todoNoteIndex), event.target.value));
+  });
+}
+
+function saveTodoDraft() {
+  const titleInput = document.getElementById("todo-title-input");
+  const noteInput = document.getElementById("todo-note-input");
+  const title = String(titleInput?.value || "").trim();
+  const note = String(noteInput?.value || "").trim();
+  if (!title) return;
+  getTodoItems().unshift({ title, note, completed: false, createdAt: new Date().toISOString() });
+  if (titleInput) titleInput.value = "";
+  if (noteInput) noteInput.value = "";
+  save();
+  renderTodoPlanner();
+}
+
+function handleTodoInputKeydown(event) {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  saveTodoDraft();
+}
+
+function toggleTodoComplete(index, event) {
+  if (event) event.stopPropagation();
+  const todos = getTodoItems();
+  if (!todos[index]) return;
+  todos[index].completed = !todos[index].completed;
+  save();
+  renderTodoPlanner();
+}
+
+function updateTodoNote(index, value) {
+  const todos = getTodoItems();
+  if (!todos[index]) return;
+  todos[index].note = value;
+  save();
+  renderTodoPlanner();
+}
+
+function deleteTodoItem(index, event) {
+  if (event) event.stopPropagation();
+  const todos = getTodoItems();
+  if (!todos[index]) return;
+  todos.splice(index, 1);
+  save();
+  renderTodoPlanner();
+}
+
+function openTodoPlanner() {
+  document.getElementById("todo-modal").classList.remove("hidden");
+  renderTodoPlanner();
+}
+
+function closeTodoPlanner() {
+  document.getElementById("todo-modal").classList.add("hidden");
+}
+
 function buildModules() {
   const container = document.getElementById("modules");
   container.innerHTML = "";
@@ -9244,6 +9557,10 @@ function buildModules() {
           event.preventDefault();
           return;
         }
+        const currentKey = topicSelectionKey(mi, ti);
+        if (selectedTopicKeys.size > 1 || !selectedTopicKeys.has(currentKey)) {
+          selectOnlyTopicKey(currentKey);
+        }
         row.classList.add("reordering");
         startTopicReorder(mi, ti, event);
       });
@@ -9309,6 +9626,10 @@ function buildModules() {
             if (event.target.closest("button") || event.target.closest("input") || event.target.closest("textarea")) {
               event.preventDefault();
               return;
+            }
+            const currentKey = topicSelectionKey(mi, ti, si);
+            if (selectedTopicKeys.size > 1 || !selectedTopicKeys.has(currentKey)) {
+              selectOnlyTopicKey(currentKey);
             }
             subRow.classList.add("reordering");
             startTopicReorder(mi, ti, event, si);
@@ -11232,9 +11553,3 @@ body.theme-dark-offwhite .module-library-section-label {
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
-
-
-
-
-
-
