@@ -344,6 +344,24 @@ body.theme-dark.has-body-background::before {
   background-position: center;
 }
 
+textarea,
+select,
+input,
+button {
+  font-size-adjust: none;
+}
+.timeline-notes,
+.notes-area,
+.app-dialog-input {
+  font-size: 14px;
+  line-height: 1.45;
+}
+body.theme-dark select,
+body.theme-dark option {
+  background: #202024;
+  color: #f1ede4;
+}
+
 body.font-sans,
 body.font-sans * {
   font-family: "Segoe UI", Arial, sans-serif;
@@ -497,6 +515,62 @@ body.font-mono .deadline-splash-title {
   color: #d8c8b0;
   letter-spacing: 0.04em;
   text-shadow: 0 0 12px rgba(216,200,176,0.1);
+}
+
+.app-dialog-card {
+  width: min(460px, calc(100vw - 32px));
+  padding: 24px;
+}
+.app-dialog-message {
+  color: rgba(245,240,232,0.72);
+  font-size: 15px;
+  line-height: 1.45;
+  margin: 8px 0 12px;
+}
+.app-dialog-field {
+  display: grid;
+  gap: 7px;
+  margin: 12px 0 16px;
+}
+.app-dialog-field.hidden { display: none !important; }
+.app-dialog-field label,
+.app-dialog-check {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.58);
+}
+.app-dialog-input {
+  width: 100%;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  color: #f5f0e8;
+  padding: 11px 12px;
+  font-family: "DM Mono", monospace;
+  font-size: 14px;
+  outline: none;
+}
+.app-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+body:not(.theme-dark) .app-dialog-card {
+  background: rgba(250,247,242,0.98);
+  border-color: rgba(26,22,18,0.16);
+}
+body:not(.theme-dark) .app-dialog-card .deadline-splash-title { color: var(--ink); }
+body:not(.theme-dark) .app-dialog-card .deadline-splash-label,
+body:not(.theme-dark) .app-dialog-field label,
+body:not(.theme-dark) .app-dialog-check { color: var(--muted); }
+body:not(.theme-dark) .app-dialog-message { color: var(--muted); }
+body:not(.theme-dark) .app-dialog-input {
+  background: var(--paper2);
+  color: var(--ink);
+  border-color: var(--border2);
 }
 
 /* animation */
@@ -666,10 +740,11 @@ body.countdown-header-hidden .nav-bar {
 .nav-select {
   background: white;
   border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 6px 12px;
+  border-radius: 6px;
+  padding: 9px 12px;
   font-family: "DM Mono", monospace;
-  font-size: 10px;
+  font-size: 12px;
+  line-height: 1.35;
   text-transform: uppercase;
   color: var(--slate);
   min-width: 120px;
@@ -1015,9 +1090,9 @@ h1 {
   border: 1px solid var(--border2);
   border-radius: 2px;
   color: var(--slate);
-  padding: 5px 9px;
+  padding: 6px 11px;
   font-family: "DM Mono", monospace;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -1104,21 +1179,22 @@ body.theme-dark .weight-edit-btn:hover{
 .field label {
   display: block;
   font-family: "DM Mono", monospace;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 .input {
   width: 100%;
   background: var(--paper2);
   color: var(--ink);
   border: 1px solid var(--border2);
-  border-radius: 2px;
-  padding: 8px 10px;
+  border-radius: 6px;
+  padding: 10px 12px;
   font-family: "DM Mono", monospace;
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.35;
   outline: none;
 }
 .input:focus { border-color: var(--vermillion); }
@@ -1940,7 +2016,7 @@ body.theme-dark .module-library-pill{
   line-height: 1.35;
 }
 .topic-row.subtopic-row .topic-label {
-  font-size: 14px;
+  font-size: 13px;
 }
 .topic-label.done {
   color: var(--faint);
@@ -3089,10 +3165,13 @@ body.theme-dark .nav-btn:hover {
 .todo-inline-note {
   width: calc(100% - 18px);
   margin: 0 9px 9px;
-  min-height: 58px;
-  resize: vertical;
-  overflow: auto;
+  min-height: 64px;
+  height: 64px;
+  resize: none;
+  overflow: hidden;
   overscroll-behavior: contain;
+  font-size: 14px;
+  line-height: 1.45;
 }
 .todo-delete-btn {
   min-width: 56px;
@@ -3123,16 +3202,18 @@ body.theme-dark .nav-btn:hover {
   margin: 8px 0;
 }
 #todo-modal.todo-compact-mode .todo-list {
-  gap: 5px;
+  gap: 7px;
+  scrollbar-width: none;
 }
+#todo-modal.todo-compact-mode .todo-list::-webkit-scrollbar { display: none; }
 #todo-modal.todo-compact-mode .todo-task-row {
-  min-height: 26px;
-  padding: 4px 7px;
-  border-radius: 7px;
+  min-height: 34px;
+  padding: 7px 9px;
+  border-radius: 8px;
 }
 #todo-modal.todo-compact-mode .todo-row-title {
-  font-size: 13px;
-  line-height: 1;
+  font-size: 14px;
+  line-height: 1.25;
 }
 #todo-modal.todo-compact-mode .todo-delete-btn {
   height: 22px;
@@ -3316,14 +3397,14 @@ body.theme-dark .deadline-tab-btn { color: rgba(245,240,232,0.72); }
 body.theme-dark .deadline-tab-btn.active { background: rgba(245,240,232,0.9); color: #151515; }
 
 
-.timeline-list {
+#timeline-list {
   scrollbar-width: none;
-  transition: opacity .18s ease;
-  overflow: auto;
+  transition: opacity .22s ease, height .22s ease;
+  overflow: hidden;
   -ms-overflow-style: none;
 }
-.timeline-list::-webkit-scrollbar { display: none; }
-.timeline-list.is-switching { opacity: 0; }
+#timeline-list::-webkit-scrollbar { display: none; }
+#timeline-list.is-switching { opacity: 0; pointer-events: none; }
 .deadline-choice-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3421,11 +3502,14 @@ body.theme-dark .deadline-tab-btn.active { background: rgba(245,240,232,0.9); co
 .priority-choice[data-priority="low"] { --priority-colour: #4f7a53; }
 .deadline-form-content .timeline-notes,
 .calendar-form-content .timeline-notes {
-  min-height: 72px;
-  height: 76px;
-  max-height: 120px;
-  resize: vertical;
+  min-height: 74px;
+  height: 74px;
+  max-height: 74px;
+  resize: none;
   overflow: hidden;
+  font-size: 14px;
+  line-height: 1.45;
+  border-radius: 8px;
 }
 body.theme-dark .deadline-choice-card { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.1); color: #f1ede4; }
 body.theme-dark .deadline-choice-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18); }
@@ -4263,6 +4347,7 @@ let isDraggingTopics = false;
 let dragTopicValue = null;
 let draggedTopic = null;
 let draggedTopicStartX = 0;
+let topicDropSuppressUntil = 0;
 let selectedTopicKeys = new Set();
 let lastSelectedTopicKey = null;
 const undoStack = [];
@@ -6678,6 +6763,7 @@ function clearTopicDropState(event) {
 
 function dropTopicReorder(mi, ti, event) {
   event.preventDefault();
+  topicDropSuppressUntil = Date.now() + 650;
   event.currentTarget.classList.remove("reordering", "drop-before", "drop-after", "drop-subtopic");
   if (!draggedTopic || draggedTopic.mi !== mi) return;
   const indentDelta = (event.clientX || 0) - (draggedTopic.startX || 0);
@@ -6706,6 +6792,7 @@ function dropTopicReorder(mi, ti, event) {
 }
 
 function endTopicReorder() {
+  topicDropSuppressUntil = Math.max(topicDropSuppressUntil, Date.now() + 250);
   draggedTopic = null;
   draggedTopicStartX = 0;
   document.querySelectorAll(".topic-row.reordering, .topic-row.drop-before, .topic-row.drop-after, .topic-row.drop-subtopic").forEach((row) => row.classList.remove("reordering", "drop-before", "drop-after", "drop-subtopic"));
@@ -6728,6 +6815,7 @@ function allowSubtopicDrop(mi, parentTi, si, event) {
 
 function dropSubtopicReorder(mi, parentTi, si, event) {
   event.preventDefault();
+  topicDropSuppressUntil = Date.now() + 650;
   event.currentTarget.classList.remove("reordering", "drop-before", "drop-after", "drop-subtopic");
   if (!draggedTopic || draggedTopic.mi !== mi) return;
   const rect = event.currentTarget.getBoundingClientRect();
@@ -6811,16 +6899,20 @@ function renderDeadlineAddChoice() {
 function swapDeadlineView(render) {
   const host = document.getElementById("timeline-list");
   if (!host) return;
-  const currentHeight = host.offsetHeight;
-  if (currentHeight) host.style.minHeight = currentHeight + "px";
+  const previousHeight = Math.max(host.offsetHeight, 120);
+  host.style.height = previousHeight + "px";
   host.classList.add("is-switching");
-  window.setTimeout(() => {
+
+  requestAnimationFrame(() => {
     render();
+    const nextHeight = Math.max(host.scrollHeight, 120);
+    host.style.height = previousHeight + "px";
     requestAnimationFrame(() => {
+      host.style.height = nextHeight + "px";
       host.classList.remove("is-switching");
-      window.setTimeout(() => { host.style.minHeight = ""; }, 180);
+      window.setTimeout(() => { host.style.height = ""; }, 230);
     });
-  }, 70);
+  });
 }
 
 function showDeadlineTab(tab = "upcoming") {
@@ -7292,7 +7384,6 @@ function renderDeadlineTimeline(force = false) {
               </div>
             </details>
             <div class="deadline-card-actions" onclick="event.stopPropagation()">
-              ${isEvent ? `<button class="mini-btn" type="button" onclick="openDeadlineInCalendarByIndex(${exam.originalIndex}, event)">Calendar</button>` : ""}
               <button class="mini-btn" type="button" onclick="editDeadline(${exam.originalIndex})">Edit</button>
             </div>
           </div>
@@ -7386,10 +7477,10 @@ function applyTodoPanelState(forceCenter = false) {
   const maxHeight = Math.min(window.innerHeight - 18, 720);
   const width = Math.max(330, Math.min(panelState.width || 460, maxWidth));
 
-  const compactHeight = 172 + Math.min(items.length || 1, 8) * 34;
+  const compactHeight = 184 + Math.min(items.length || 1, 8) * 40;
   const expandedHeight = 238 + Math.min(items.length || 1, 4) * 112;
   const preferredHeight = compact ? compactHeight : Math.max(panelState.height || 0, Math.min(expandedHeight, 620));
-  const minHeight = compact ? 214 : 340;
+  const minHeight = compact ? 236 : 340;
   const height = Math.max(minHeight, Math.min(preferredHeight, maxHeight));
 
   const savedLeft = Number.isFinite(panelState.left) ? panelState.left : null;
@@ -7586,7 +7677,7 @@ function toggleTodoCompactView() {
   panelState.compact = !panelState.compact;
   const items = getTodoItems();
   panelState.height = panelState.compact
-    ? 172 + Math.min(items.length || 1, 8) * 34
+    ? 184 + Math.min(items.length || 1, 8) * 40
     : Math.min(window.innerHeight - 18, 238 + Math.min(items.length || 1, 4) * 112);
   save();
   renderTodoPlanner();
@@ -7970,11 +8061,13 @@ function buildModules() {
         draggedTopicStartX = event.clientX || 0;
       });
       row.addEventListener("click", (event) => {
+        if (Date.now() < topicDropSuppressUntil) { event.preventDefault(); event.stopPropagation(); return; }
         if (event.target.closest("button") || event.target.closest("input") || event.target.closest("details") || event.target.closest("summary")) return;
         event.preventDefault();
         selectTopicRow(mi, ti, null, event);
       });
       row.addEventListener("dblclick", (event) => {
+        if (Date.now() < topicDropSuppressUntil) { event.preventDefault(); event.stopPropagation(); return; }
         if (event.target.closest("button") || event.target.closest("input") || event.target.closest("details") || event.target.closest("summary")) return;
         event.preventDefault();
         editTopicInModule(mi, ti, event);
@@ -8036,11 +8129,13 @@ function buildModules() {
             event.stopPropagation();
           });
           subRow.addEventListener("click", (event) => {
+            if (Date.now() < topicDropSuppressUntil) { event.preventDefault(); event.stopPropagation(); return; }
             if (event.target.closest("button") || event.target.closest("input")) return;
             event.preventDefault();
             selectTopicRow(mi, ti, si, event);
           });
           subRow.addEventListener("dblclick", (event) => {
+            if (Date.now() < topicDropSuppressUntil) { event.preventDefault(); event.stopPropagation(); return; }
             if (event.target.closest("button") || event.target.closest("input")) return;
             event.preventDefault();
             editSubtopicInModule(mi, ti, si, event);
