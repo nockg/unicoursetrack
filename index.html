@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -12339,6 +12339,461 @@ body.theme-dark-offwhite .module-library-pill {
 })();
 </script>
 
+<style>
+/* v1.8 — to-do window + deadline card polish */
+#todo-modal .todo-content {
+  width: 460px !important;
+  min-width: 240px !important;
+  min-height: 220px !important;
+  max-width: calc(100vw - 12px) !important;
+  max-height: calc(100vh - 12px) !important;
+}
+#todo-modal .todo-compose-shell {
+  padding: 10px 12px !important;
+  gap: 8px !important;
+}
+#todo-modal .todo-compose-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(100px, 0.5fr) auto !important;
+  align-items: end !important;
+  gap: 8px !important;
+}
+#todo-modal .todo-compose-grid .nav-btn {
+  height: 36px !important;
+  white-space: nowrap !important;
+}
+.todo-add-note-details {
+  border: 1px solid var(--border) !important;
+  background: rgba(26,22,18,0.025) !important;
+  border-radius: 9px !important;
+  overflow: hidden !important;
+}
+.todo-add-note-details summary {
+  list-style: none !important;
+  cursor: pointer !important;
+  padding: 7px 9px !important;
+  font-family: "DM Mono", monospace !important;
+  font-size: 9px !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+}
+.todo-add-note-details summary::-webkit-details-marker { display: none !important; }
+.todo-add-note-details .field { padding: 0 9px 9px !important; }
+#todo-modal .todo-compose-note {
+  min-height: 42px !important;
+  max-height: 72px !important;
+}
+#todo-modal .todo-view-row {
+  padding: 8px 12px !important;
+}
+#todo-modal .timeline-list.todo-list {
+  padding: 9px 12px 12px !important;
+  gap: 8px !important;
+  scrollbar-width: none !important;
+}
+#todo-modal .timeline-list.todo-list::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
+.todo-task-row {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  gap: 9px !important;
+  align-items: center !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(26,22,18,0.026) !important;
+  border-radius: 10px !important;
+  padding: 9px 10px !important;
+}
+.todo-task-row.is-done .todo-row-title,
+.todo-task-row.is-done .todo-expanded-title { text-decoration: line-through; color: var(--muted) !important; }
+.todo-row-title {
+  font-family: "Cormorant Garamond", serif !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  color: var(--ink) !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.todo-expanded-card {
+  display: grid !important;
+  grid-template-columns: auto minmax(0,1fr) auto !important;
+  gap: 10px !important;
+  align-items: start !important;
+  border: 1px solid var(--border) !important;
+  background: rgba(26,22,18,0.025) !important;
+  border-radius: 12px !important;
+  padding: 12px !important;
+}
+.todo-expanded-title {
+  font-family: "Shippori Mincho", serif !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  line-height: 1.08 !important;
+  color: var(--ink) !important;
+  margin-bottom: 6px !important;
+}
+.todo-note-details {
+  margin-top: 8px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  background: rgba(255,255,255,0.22) !important;
+}
+.todo-note-details summary {
+  list-style: none !important;
+  cursor: pointer !important;
+  padding: 8px 10px !important;
+  font-family: "DM Mono", monospace !important;
+  font-size: 9px !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+}
+.todo-note-details summary::-webkit-details-marker { display: none !important; }
+.todo-note-details .todo-inline-note {
+  border: 0 !important;
+  border-top: 1px solid var(--border) !important;
+  border-radius: 0 !important;
+  min-height: 64px !important;
+  resize: vertical !important;
+}
+.todo-delete-btn {
+  min-width: 34px !important;
+  height: 32px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+}
+#todo-modal.todo-compact-mode .todo-compose-shell .todo-add-note-details,
+#todo-modal.todo-compact-mode .todo-compose-shell .field label[for="todo-module-input"],
+#todo-modal.todo-compact-mode .todo-view-row .todo-summary {
+  display: none !important;
+}
+#todo-modal.todo-compact-mode .todo-compose-shell {
+  padding: 8px 10px !important;
+}
+#todo-modal.todo-compact-mode .todo-compose-grid {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+}
+#todo-modal.todo-compact-mode #todo-module-input {
+  display: none !important;
+}
+#todo-modal.todo-compact-mode .todo-view-row {
+  padding: 5px 10px !important;
+  justify-content: flex-end !important;
+}
+#todo-modal.todo-compact-mode .todo-task-row {
+  padding: 6px 8px !important;
+  min-height: 34px !important;
+  border-radius: 8px !important;
+}
+#todo-modal.todo-compact-mode .todo-row-title {
+  font-size: 15px !important;
+}
+.todo-resize-handle { pointer-events: auto !important; }
+.todo-resize-e, .todo-resize-w { width: 14px !important; }
+.todo-resize-e { right: -7px !important; }
+.todo-resize-w { left: -7px !important; }
+.todo-resize-se { width: 22px !important; height: 22px !important; right: -6px !important; bottom: -6px !important; }
+
+.deadline-priority-row { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+.priority-choice {
+  min-width: 0 !important;
+  width: 100% !important;
+  padding: 8px 4px !important;
+  font-size: 9px !important;
+  letter-spacing: .04em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+.deadline-tabs {
+  background: rgba(26,22,18,.07) !important;
+  border-color: var(--border2) !important;
+}
+.deadline-tab-btn { color: color-mix(in srgb, var(--sumi) 76%, var(--paper) 24%) !important; }
+.deadline-tab-btn.active { background: var(--sumi) !important; color: var(--paper) !important; }
+.deadline-priority-dot,
+.ticker-priority-dot {
+  display: inline-block !important;
+  width: 9px !important;
+  height: 9px !important;
+  border-radius: 2px !important;
+  margin-right: 7px !important;
+  vertical-align: middle !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.08) !important;
+}
+.ticker-mod { display: flex !important; align-items: center !important; min-width: 0 !important; }
+.ticker-mod-label { overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+.deadline-card-top { align-items: start !important; }
+.deadline-card-title-line { display: flex !important; align-items: center !important; gap: 0 !important; }
+.deadline-card-title-line .timeline-title { margin-bottom: 0 !important; }
+.deadline-card-lower {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 10px !important;
+  align-items: start !important;
+  margin-top: 10px !important;
+}
+.deadline-details {
+  margin-top: 0 !important;
+  border-color: var(--border2) !important;
+  background: rgba(26,22,18,.04) !important;
+}
+.deadline-details summary {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 10px 12px !important;
+  color: color-mix(in srgb, var(--sumi) 72%, var(--paper) 28%) !important;
+}
+.deadline-details summary::after {
+  content: "⌄" !important;
+  font-size: 13px !important;
+  opacity: .65 !important;
+}
+.deadline-details[open] summary::after { content: "⌃" !important; }
+.deadline-card-actions {
+  margin-top: 0 !important;
+  justify-content: flex-end !important;
+  align-self: start !important;
+}
+.deadline-card-actions .mini-btn { min-width: 64px !important; }
+body.theme-dark .deadline-tabs,
+body.theme-dark-offwhite .deadline-tabs { background: rgba(255,255,255,.055) !important; border-color: rgba(255,255,255,.1) !important; }
+body.theme-dark .deadline-tab-btn,
+body.theme-dark-offwhite .deadline-tab-btn { color: rgba(245,240,232,.78) !important; }
+body.theme-dark .deadline-tab-btn.active,
+body.theme-dark-offwhite .deadline-tab-btn.active { background: rgba(245,240,232,.9) !important; color: #151515 !important; }
+body.theme-dark .deadline-details summary,
+body.theme-dark-offwhite .deadline-details summary { color: rgba(245,240,232,.86) !important; }
+body.theme-dark .todo-task-row,
+body.theme-dark .todo-expanded-card,
+body.theme-dark .todo-note-details,
+body.theme-dark .todo-add-note-details,
+body.theme-dark-offwhite .todo-task-row,
+body.theme-dark-offwhite .todo-expanded-card,
+body.theme-dark-offwhite .todo-note-details,
+body.theme-dark-offwhite .todo-add-note-details { background: rgba(255,255,255,.045) !important; border-color: rgba(255,255,255,.09) !important; }
+body.theme-dark .todo-row-title,
+body.theme-dark .todo-expanded-title,
+body.theme-dark-offwhite .todo-row-title,
+body.theme-dark-offwhite .todo-expanded-title { color: #f1ede4 !important; }
+@media(max-width:760px){
+  #todo-modal .todo-compose-grid{grid-template-columns:1fr!important}
+  #todo-modal .todo-compose-grid .nav-btn{width:100%!important}
+  .deadline-card-lower{grid-template-columns:1fr!important}
+  .deadline-card-actions{justify-content:flex-start!important}
+}
+</style>
+<script>
+(function v18TodoDeadlinePolish(){
+  const priorityColoursV18 = { high: "#c0392b", medium: "#b8860b", low: "#2d5a27" };
+  function priorityColourV18(item){ return priorityColoursV18[item?.priority || "medium"] || (item?.type === "event" ? "#1a2c4a" : "#b8860b"); }
+  function moduleLabelV18(item){
+    if (typeof deadlineModuleLabel === "function") return deadlineModuleLabel(item);
+    return Number.isInteger(item?.moduleIndex) && MODULES[item.moduleIndex] ? (MODULES[item.moduleIndex].kanji || MODULES[item.moduleIndex].short || MODULES[item.moduleIndex].name) : "General";
+  }
+  function ensureTodoV18(){
+    const p = document.querySelector("#todo-modal .todo-content");
+    if (!p) return;
+    if (p.dataset.v18TodoReady) return;
+    if (typeof ensureTodo === "function") ensureTodo();
+    p.dataset.v18TodoReady = "true";
+    p.innerHTML = `<div class="todo-window-titlebar todo-drag-handle" id="todo-drag-handle"><div class="todo-window-title"><div class="todo-window-kicker">Planner</div><div class="todo-window-name">To-Do List</div></div><div class="todo-window-controls"><button class="mini-btn" type="button" id="todo-lock-btn" onclick="toggleTodoPanelLock()">Dock</button><button class="dashboard-close" type="button" onclick="closeTodoPlanner()">X</button></div></div><div class="todo-compose-shell"><div class="todo-compose-grid"><div class="field"><label for="todo-title-input">Task</label><input class="input" id="todo-title-input" placeholder="Add a task" onkeydown="handleTodoInputKeydown(event)"></div><div class="field"><label for="todo-module-input">Module</label><select class="nav-select" id="todo-module-input"></select></div><button class="nav-btn" type="button" onclick="saveTodoDraft()">Add</button></div><details class="todo-add-note-details"><summary>Optional note</summary><div class="field"><label for="todo-note-input">Note</label><textarea class="timeline-notes todo-compose-note" id="todo-note-input" placeholder="Next step, context, or reminder..." onkeydown="handleTodoInputKeydown(event)"></textarea></div></details></div><div class="todo-view-row"><div class="todo-summary" id="todo-summary"></div><button class="mini-btn" type="button" id="todo-view-toggle" onclick="toggleTodoCompactView()">Simplify</button></div><div class="timeline-list todo-list" id="todo-list"></div>${["n","s","e","w","ne","nw","se","sw"].map(x=>`<div class="todo-resize-handle todo-resize-${x}" data-resize="${x}"></div>`).join("")}`;
+    p.querySelector("#todo-drag-handle")?.addEventListener("pointerdown", startTodoPanelDrag);
+    p.querySelectorAll(".todo-resize-handle").forEach(h => h.addEventListener("pointerdown", (typeof startResize === "function" ? startResize : function(){})));
+  }
+  const oldGetPanelV18 = window.getTodoPanelState || getTodoPanelState;
+  window.getTodoPanelState = function(){
+    const ps = oldGetPanelV18();
+    if (!ps.width) ps.width = 460;
+    if (!ps.height) ps.height = 430;
+    return ps;
+  };
+  window.applyTodoPanelState = function(forceCenter=false){
+    ensureTodoV18();
+    const p = document.querySelector("#todo-modal .todo-content");
+    if (!p) return;
+    const ps = getTodoPanelState();
+    const minW = 240, minH = 220, maxW = Math.max(minW, innerWidth - 12), maxH = Math.max(minH, innerHeight - 12);
+    const w = Math.max(minW, Math.min(ps.width || 460, maxW));
+    const h = Math.max(minH, Math.min(ps.height || 430, maxH));
+    const savedLeft = Number.isFinite(ps.left) ? ps.left : null;
+    const savedTop = Number.isFinite(ps.top) ? ps.top : null;
+    const l = forceCenter || savedLeft === null ? Math.max(6, Math.round((innerWidth - w) / 2)) : Math.max(6, Math.min(savedLeft, innerWidth - w - 6));
+    const t = forceCenter || savedTop === null ? Math.max(70, Math.round((innerHeight - h) / 2)) : Math.max(6, Math.min(savedTop, innerHeight - h - 6));
+    p.classList.toggle("is-locked", !!ps.locked);
+    document.getElementById("todo-modal")?.classList.toggle("todo-compact-mode", !!ps.compact);
+    Object.assign(p.style, { left: `${l}px`, top: `${t}px`, right: "auto", width: `${w}px`, height: `${h}px` });
+    const b = document.getElementById("todo-lock-btn");
+    if (b) b.textContent = ps.locked ? "Undock" : "Dock";
+  };
+  window.toggleTodoCompactView = function(){
+    const ps = getTodoPanelState();
+    ps.compact = !ps.compact;
+    document.getElementById("todo-modal")?.classList.toggle("todo-compact-mode", !!ps.compact);
+    save();
+    renderTodoPlanner();
+  };
+  window.openTodoPlanner = function(){
+    ensureTodoV18();
+    const modal = document.getElementById("todo-modal");
+    if (!modal) return;
+    if (!modal.classList.contains("hidden")) { closeTodoPlanner(); return; }
+    modal.classList.remove("hidden");
+    renderTodoModuleOptions();
+    const ps = getTodoPanelState();
+    applyTodoPanelState(!ps.hasOpenedOnce);
+    ps.hasOpenedOnce = true;
+    save();
+    renderTodoPlanner();
+  };
+  window.renderTodoPlanner = function(){
+    ensureTodoV18();
+    const host = document.getElementById("todo-list"), summary = document.getElementById("todo-summary"), toggle = document.getElementById("todo-view-toggle");
+    if (!host || !summary) return;
+    const todos = getTodoItems();
+    const cmp = !!getTodoPanelState().compact;
+    document.getElementById("todo-modal")?.classList.toggle("todo-compact-mode", cmp);
+    summary.textContent = getTodoSummaryText();
+    if (toggle) toggle.textContent = cmp ? "Expand" : "Simplify";
+    if (!todos.length) { host.innerHTML = '<div class="timeline-empty todo-empty">No tasks yet. Add one from the top of this widget.</div>'; return; }
+    host.innerHTML = todos.map((it, i) => {
+      const title = escapeHtml(it.title || "Untitled task");
+      const ml = escapeHtml(Number.isInteger(it.moduleIndex) && MODULES[it.moduleIndex] ? (MODULES[it.moduleIndex].kanji || MODULES[it.moduleIndex].short || MODULES[it.moduleIndex].name) : "General");
+      const note = escapeHtml(it.note || "");
+      if (cmp) return `<div class="todo-task-row ${it.completed ? "is-done" : ""}"><button class="timeline-dot complete-toggle" type="button" onclick="toggleTodoComplete(${i},event)"></button><div class="todo-row-title" title="${title}">${title}</div><button class="mini-btn module-delete-btn todo-delete-btn" type="button" onclick="deleteTodoItem(${i},event)">Delete</button></div>`;
+      return `<div class="todo-expanded-card ${it.completed ? "is-done" : ""}"><button class="timeline-dot complete-toggle" type="button" onclick="toggleTodoComplete(${i},event)"></button><div><div class="todo-expanded-title">${title}</div><div class="todo-badge">${ml}</div><details class="todo-note-details"><summary>${it.note ? "View note" : "Add note"}</summary><textarea class="timeline-notes todo-inline-note" data-todo-note-index="${i}" placeholder="Add context, next steps, or anything you need to remember...">${note}</textarea></details></div><button class="mini-btn module-delete-btn todo-delete-btn" type="button" onclick="deleteTodoItem(${i},event)">Delete</button></div>`;
+    }).join("");
+    host.querySelectorAll("[data-todo-note-index]").forEach(t => t.addEventListener("input", e => updateTodoNote(Number(e.target.dataset.todoNoteIndex), e.target.value)));
+  };
+
+  window.renderStickyExams = function(){
+    const host = document.getElementById("live-exam-bar");
+    if (!host) return;
+    const store = getStore();
+    const now = Date.now();
+    const upcoming = (store.customExams || []).map((exam, originalIndex) => ({...exam, originalIndex})).filter(exam => !exam.completed).sort((a,b) => new Date(a.date) - new Date(b.date));
+    host.innerHTML = "";
+    upcoming.forEach(exam => {
+      const target = new Date(exam.date);
+      const isUrgent = target.getTime() <= now;
+      const card = document.createElement("div");
+      card.className = "exam-ticker";
+      card.dataset.deadlineIndex = String(exam.originalIndex);
+      const col = priorityColourV18(exam);
+      card.innerHTML = `<div class="ticker-mod"><span class="ticker-priority-dot" style="background:${col}"></span><span class="ticker-mod-label">${escapeHtml(exam.mod)}</span></div><div class="ticker-time ${isUrgent ? "urgent" : ""}">${formatCountdown(exam.date)}</div><div class="ticker-date">${target.toLocaleString([], { dateStyle: "medium", timeStyle: exam.allDay ? undefined : "short" })}</div>`;
+      card.addEventListener("contextmenu", event => { event.preventDefault(); removeExam(exam.originalIndex); });
+      host.appendChild(card);
+    });
+    const button = document.createElement("button");
+    button.className = "add-exam-btn";
+    button.textContent = "+ Add Deadline";
+    button.onclick = addExam;
+    host.appendChild(button);
+  };
+  window.openDeadlineInCalendar = function(){ return; };
+  window.openDeadlineInCalendarByIndex = function(index, event){ if (event) event.stopPropagation(); editDeadline(index); };
+  window.renderDeadlineTimeline = function(){
+    ensureTimeline();
+    const h = document.getElementById("timeline-list");
+    if (!h || activeDeadlineTab === "add") return renderAddChoice();
+    const now = Date.now();
+    const exams = (getStore().customExams || []).map((e,i)=>({...e,originalIndex:i})).filter(e=>!e.completed).sort((a,b)=>new Date(a.date)-new Date(b.date));
+    if (!exams.length) { h.innerHTML = '<div class="timeline-empty">No deadlines yet. Use Add new to create one.</div>'; return; }
+    h.innerHTML = exams.map(e => {
+      const t = new Date(e.date), en = e.endDate ? new Date(e.endDate) : null;
+      const urgent = t.getTime() <= now, isEv = e.type === "event", col = priorityColourV18(e);
+      const time = e.allDay ? t.toLocaleDateString([], {dateStyle:"full"}) : t.toLocaleString([], {dateStyle:"full", timeStyle:"short"});
+      const range = isEv && en && !Number.isNaN(en.getTime()) ? (e.allDay ? `${t.toLocaleDateString([], {dateStyle:"medium"})} - ${en.toLocaleDateString([], {dateStyle:"medium"})}` : `${t.toLocaleString([], {dateStyle:"medium", timeStyle:"short"})} - ${en.toLocaleString([], {dateStyle:"medium", timeStyle:"short"})}`) : time;
+      return `<div class="timeline-item"><div class="timeline-rail"><button class="timeline-dot complete-toggle" type="button" onclick="toggleDeadlineComplete(${e.originalIndex},event)"></button></div><div class="timeline-card deadline-card-clickable" style="border-left-color:${col}" onclick="editDeadline(${e.originalIndex})"><div class="deadline-card-top"><div><div class="deadline-card-title-line"><span class="deadline-priority-dot" style="background:${col}"></span><div class="timeline-title">${escapeHtml(e.mod)}</div></div><div class="timeline-meta"><span class="timeline-badge countdown ${urgent ? "urgent" : ""}" data-deadline-countdown="${escapeHtml(e.date)}">${escapeHtml(formatCountdown(e.date))}</span><span class="timeline-badge">${escapeHtml(moduleLabelV18(e))}</span><span class="timeline-badge">${escapeHtml(time)}</span></div></div><span class="deadline-type-badge">${isEv ? "Calendar Event" : escapeHtml((e.priority || "High").toUpperCase())}</span></div><div class="deadline-card-lower"><details class="deadline-details" onclick="event.stopPropagation()"><summary>Details</summary><div class="deadline-detail-grid"><div><strong>When:</strong> ${escapeHtml(range)}</div>${isEv && e.location ? `<div><strong>Location:</strong> ${escapeHtml(e.location)}</div>` : ""}${isEv ? `<div><strong>Show as:</strong> ${escapeHtml(e.availability || "Busy")}</div>` : ""}<div><strong>Note:</strong> ${escapeHtml(e.note || "None added")}</div></div></details><div class="deadline-card-actions" onclick="event.stopPropagation()"><button class="mini-btn" type="button" onclick="editDeadline(${e.originalIndex})">Edit</button></div></div></div></div>`;
+    }).join("");
+  };
+  renderStickyExams();
+  if (!document.getElementById("timeline-modal")?.classList.contains("hidden")) renderDeadlineTimeline();
+})();
+</script>
+
+<style>
+/* v1.9 — countdown header preference + cleaner deadline form title row */
+body.countdown-header-hidden .sticky-exams { display: none !important; }
+body.countdown-header-hidden { padding-top: 60px; }
+body.countdown-header-hidden .nav-bar { top: 0 !important; }
+body.countdown-header-hidden .hero { margin-top: 0; }
+.countdown-header-pref { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+.countdown-header-pref-copy { color: var(--muted); line-height: 1.35; font-size: 14px; }
+.pref-toggle-pill { border: 1px solid var(--border2); border-radius: 999px; background: rgba(26,22,18,.045); color: var(--sumi); font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 9px 12px; cursor: pointer; min-width: 86px; }
+.pref-toggle-pill.is-on { background: var(--sumi); color: var(--paper); border-color: var(--sumi); }
+.deadline-title-module-row { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(170px, .75fr); gap: 12px; align-items: end; }
+.deadline-title-module-row .nav-select { width: 100%; }
+.deadline-form-grid > .deadline-form-row.deadline-module-priority-row { grid-template-columns: 1fr; }
+.deadline-form-grid > .deadline-form-row.deadline-module-priority-row > .field:has(#deadline-module-input) { display: none !important; }
+body.theme-dark .pref-toggle-pill, body.theme-dark-offwhite .pref-toggle-pill { background: rgba(255,255,255,.055); color: rgba(245,240,232,.86); border-color: rgba(255,255,255,.12); }
+body.theme-dark .pref-toggle-pill.is-on, body.theme-dark-offwhite .pref-toggle-pill.is-on { background: rgba(245,240,232,.9); color: #151515; border-color: rgba(245,240,232,.9); }
+@media (max-width: 640px) {
+  body.countdown-header-hidden { padding-top: 54px; }
+  .deadline-title-module-row { grid-template-columns: 1fr; }
+  .countdown-header-pref { grid-template-columns: 1fr; }
+  .pref-toggle-pill { width: fit-content; }
+}
+</style>
+<script>
+(function countdownHeaderAndDeadlineLayoutV19(){
+  function getCountdownVisible(){
+    if (typeof preferences !== "undefined" && Object.prototype.hasOwnProperty.call(preferences, "showCountdownHeader")) return preferences.showCountdownHeader !== false;
+    return true;
+  }
+  window.applyCountdownHeaderPreference = function(){
+    var visible = getCountdownVisible();
+    document.body.classList.toggle("countdown-header-hidden", !visible);
+    var btn = document.getElementById("pref-countdown-header-toggle");
+    if (btn) { btn.textContent = visible ? "Shown" : "Hidden"; btn.classList.toggle("is-on", visible); btn.setAttribute("aria-pressed", String(visible)); }
+  };
+  window.toggleCountdownHeaderPreference = function(){
+    if (typeof preferences === "undefined") return;
+    preferences.showCountdownHeader = !getCountdownVisible();
+    if (typeof savePreferences === "function") savePreferences();
+    applyCountdownHeaderPreference();
+  };
+  function ensureCountdownPreferenceControl(){
+    var grid = document.querySelector("#prefs-panel .prefs-grid");
+    if (!grid || document.getElementById("pref-countdown-header-toggle")) return;
+    var calendarField = document.getElementById("pref-calendar") && document.getElementById("pref-calendar").closest(".field");
+    var block = document.createElement("div");
+    block.className = "field prefs-inline-field prefs-span-2 countdown-header-pref";
+    block.innerHTML = '<div><label>Countdown Header</label><div class="countdown-header-pref-copy">Hide the constant top countdown bar when you want the page to feel calmer.</div></div><button class="pref-toggle-pill" id="pref-countdown-header-toggle" type="button" onclick="toggleCountdownHeaderPreference()" aria-pressed="true">Shown</button>';
+    if (calendarField && calendarField.nextSibling) calendarField.parentNode.insertBefore(block, calendarField.nextSibling); else grid.prepend(block);
+    applyCountdownHeaderPreference();
+  }
+  var oldApplyPreferencesV19 = window.applyPreferences;
+  window.applyPreferences = function(){ if (typeof oldApplyPreferencesV19 === "function") oldApplyPreferencesV19.apply(this, arguments); ensureCountdownPreferenceControl(); applyCountdownHeaderPreference(); };
+  var oldTogglePreferencesV19 = window.togglePreferences;
+  window.togglePreferences = function(){ if (typeof oldTogglePreferencesV19 === "function") oldTogglePreferencesV19.apply(this, arguments); ensureCountdownPreferenceControl(); };
+  function restructureDeadlineFormTitleModule(){
+    var formGrid = document.querySelector("#deadline-form-modal .deadline-form-grid");
+    var titleInput = document.getElementById("deadline-title-input");
+    var moduleInput = document.getElementById("deadline-module-input");
+    var titleField = titleInput && titleInput.closest(".field");
+    var moduleField = moduleInput && moduleInput.closest(".field");
+    if (!formGrid || !titleField || !moduleField) return;
+    var row = document.querySelector("#deadline-form-modal .deadline-title-module-row");
+    if (!row) {
+      row = document.createElement("div");
+      row.className = "deadline-title-module-row";
+      var pill = document.getElementById("deadline-form-type-pill");
+      if (pill && pill.nextSibling) pill.parentNode.insertBefore(row, pill.nextSibling); else formGrid.prepend(row);
+    }
+    row.appendChild(titleField);
+    row.appendChild(moduleField);
+    var modulePriorityRow = document.getElementById("deadline-priority-field") && document.getElementById("deadline-priority-field").closest(".deadline-form-row");
+    if (modulePriorityRow) modulePriorityRow.classList.add("deadline-module-priority-row");
+  }
+  var oldOpenDeadlineFormV19 = window.openDeadlineForm;
+  window.openDeadlineForm = function(){ var result = typeof oldOpenDeadlineFormV19 === "function" ? oldOpenDeadlineFormV19.apply(this, arguments) : undefined; restructureDeadlineFormTitleModule(); return result; };
+  if (typeof preferences !== "undefined" && !Object.prototype.hasOwnProperty.call(preferences, "showCountdownHeader")) preferences.showCountdownHeader = true;
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function(){ ensureCountdownPreferenceControl(); applyCountdownHeaderPreference(); }); else { ensureCountdownPreferenceControl(); applyCountdownHeaderPreference(); }
+})();
+</script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
