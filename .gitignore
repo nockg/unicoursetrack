@@ -1,0 +1,4 @@
+.env
+.env.local
+public/config.js
+public/generated/
