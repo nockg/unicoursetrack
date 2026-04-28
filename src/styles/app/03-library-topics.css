@@ -482,7 +482,7 @@ body.theme-dark .module-library-pill{
   line-height: 1.35;
 }
 .topic-row.subtopic-row .topic-label {
-  font-size: 13px;
+  font-size: 15px;
 }
 .topic-label.done {
   color: var(--faint);

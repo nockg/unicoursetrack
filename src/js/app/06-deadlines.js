@@ -313,7 +313,7 @@ function formatCalendarStamp(date) {
 
 function formatCalendarDateOnly(date) {
   const pad = (value) => String(value).padStart(2, "0");
-  return `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}`;
+  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}`;
 }
 
 function buildCalendarWindow(deadline) {
@@ -365,8 +365,6 @@ function openCalendarEvent(eventData) {
   }
   if (providerKey === "outlook") {
     const params = new URLSearchParams({
-      path: "/calendar/action/compose",
-      rru: "addevent",
       subject: eventData.title,
       startdt: eventData.start.toISOString(),
       enddt: eventData.end.toISOString(),
@@ -396,7 +394,7 @@ function openDeadlineInCalendar(deadline) {
   if (!deadline?.date || !deadline?.mod) return;
   const start = new Date(deadline.date);
   const end = deadline.endDate ? new Date(deadline.endDate) : new Date(start.getTime() + 60 * 60 * 1000);
-  openCalendarComposer({
+  openCalendarEvent({
     title: deadline.mod,
     start,
     end,

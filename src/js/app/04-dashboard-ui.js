@@ -133,7 +133,7 @@ document.getElementById("timeline-modal").addEventListener("click", (event) => {
 });
 
 document.getElementById("todo-modal").addEventListener("click", (event) => {
-  if (event.target.id === "todo-modal") closeTodoPlanner();
+  if (event.target.id === "todo-modal") event.stopPropagation();
 });
 
 document.querySelector("#todo-modal .timeline-head")?.addEventListener("pointerdown", startTodoPanelDrag);

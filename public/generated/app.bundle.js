@@ -2090,7 +2090,7 @@ document.getElementById("timeline-modal").addEventListener("click", (event) => {
 });
 
 document.getElementById("todo-modal").addEventListener("click", (event) => {
-  if (event.target.id === "todo-modal") closeTodoPlanner();
+  if (event.target.id === "todo-modal") event.stopPropagation();
 });
 
 document.querySelector("#todo-modal .timeline-head")?.addEventListener("pointerdown", startTodoPanelDrag);
@@ -3032,7 +3032,7 @@ function formatCalendarStamp(date) {
 
 function formatCalendarDateOnly(date) {
   const pad = (value) => String(value).padStart(2, "0");
-  return `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}`;
+  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}`;
 }
 
 function buildCalendarWindow(deadline) {
@@ -3084,8 +3084,6 @@ function openCalendarEvent(eventData) {
   }
   if (providerKey === "outlook") {
     const params = new URLSearchParams({
-      path: "/calendar/action/compose",
-      rru: "addevent",
       subject: eventData.title,
       startdt: eventData.start.toISOString(),
       enddt: eventData.end.toISOString(),
@@ -3115,7 +3113,7 @@ function openDeadlineInCalendar(deadline) {
   if (!deadline?.date || !deadline?.mod) return;
   const start = new Date(deadline.date);
   const end = deadline.endDate ? new Date(deadline.endDate) : new Date(start.getTime() + 60 * 60 * 1000);
-  openCalendarComposer({
+  openCalendarEvent({
     title: deadline.mod,
     start,
     end,
@@ -3369,10 +3367,10 @@ function applyTodoPanelState(forceCenter = false) {
   const maxHeight = Math.min(window.innerHeight - 18, 720);
   const width = Math.max(330, Math.min(panelState.width || 460, maxWidth));
 
-  const compactHeight = 184 + Math.min(items.length || 1, 8) * 40;
+  const compactHeight = 282 + Math.min(items.length || 1, 6) * 52;
   const expandedHeight = 238 + Math.min(items.length || 1, 4) * 112;
   const preferredHeight = compact ? compactHeight : Math.max(panelState.height || 0, Math.min(expandedHeight, 620));
-  const minHeight = compact ? 236 : 340;
+  const minHeight = compact ? 320 : 340;
   const height = Math.max(minHeight, Math.min(preferredHeight, maxHeight));
 
   const savedLeft = Number.isFinite(panelState.left) ? panelState.left : null;
@@ -3569,7 +3567,7 @@ function toggleTodoCompactView() {
   panelState.compact = !panelState.compact;
   const items = getTodoItems();
   panelState.height = panelState.compact
-    ? Math.min(window.innerHeight - 18, 172 + Math.min(items.length || 1, 8) * 48)
+    ? Math.min(window.innerHeight - 18, 282 + Math.min(items.length || 1, 6) * 52)
     : Math.min(window.innerHeight - 18, 238 + Math.min(items.length || 1, 4) * 112);
   save();
   renderTodoPlanner();
@@ -3619,7 +3617,10 @@ function renderTodoPlanner() {
       return `
         <div class="todo-task-row ${doneClass}" onclick="handleTodoCardClick(${index}, event)">
           <button class="timeline-dot complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
-          <div class="todo-row-title" title="${title}">${title}</div>
+          <div class="todo-row-main">
+            <div class="todo-row-title" title="${title}">${title}</div>
+            <div class="todo-row-meta">${moduleLabel}</div>
+          </div>
           <button class="mini-btn todo-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)" title="Delete task" aria-label="Delete task">Delete</button>
         </div>
       `;
