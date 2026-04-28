@@ -952,11 +952,17 @@ function createModuleSection(mi, section, title, controlHtml = "") {
     </div>
     <div class="module-section-body" id="module-section-body-${mi}-${section}"></div>
   `;
-  setTimeout(() => setModuleSectionOpen(mi, section, isModuleSectionOpen(mi, section)), 0);
-  return {
-    wrap,
-    body: wrap.querySelector(`#module-section-body-${mi}-${section}`)
-  };
+
+  // Apply the saved open/closed state immediately while building the node.
+  // The old setTimeout version rendered the body closed for one frame, which
+  // looked like the Topics dropdown was collapsing whenever the list rebuilt.
+  const body = wrap.querySelector(`#module-section-body-${mi}-${section}`);
+  const chevron = wrap.querySelector(`#module-section-chevron-${mi}-${section}`);
+  const open = isModuleSectionOpen(mi, section);
+  if (body) body.classList.toggle("open", open);
+  if (chevron) chevron.classList.toggle("open", open);
+
+  return { wrap, body };
 }
 
 function isFreshSupabaseUser(user) {
@@ -1248,10 +1254,12 @@ function openCalendarComposer(prefill = null) {
   document.getElementById("calendar-notes-input").value = prefill?.details || "";
   updateCalendarComposerMode();
   document.getElementById("calendar-modal").classList.remove("hidden");
+  lockPageScroll();
 }
 
 function closeCalendarComposer() {
   document.getElementById("calendar-modal").classList.add("hidden");
+  unlockPageScroll();
 }
 
 function updateCalendarComposerMode() {
@@ -2732,8 +2740,9 @@ function setDeadlineFormType(type = "date") {
   const isEvent = activeDeadlineFormType === "event";
   document.getElementById("deadline-calendar-fields")?.classList.toggle("deadline-field-hidden", !isEvent);
   document.getElementById("deadline-calendar-btn")?.classList.toggle("deadline-field-hidden", !isEvent);
+  document.getElementById("deadline-priority-field")?.classList.toggle("deadline-field-hidden", isEvent);
   const pill = document.getElementById("deadline-form-type-pill");
-  if (pill) pill.textContent = isEvent ? "Plan Calendar Event" : "Track a Date";
+  if (pill) pill.textContent = isEvent ? "Calendar Event" : "Tracked Date";
   const title = document.getElementById("deadline-form-title");
   if (title && editingDeadlineIndex === null) title.textContent = isEvent ? "Plan Calendar Event" : "Track a Date";
   const saveBtn = document.getElementById("deadline-save-btn");
@@ -2745,7 +2754,7 @@ function renderDeadlineAddChoice() {
   return `<div class="deadline-choice-grid deadline-view-shell">
     <button class="deadline-choice-card" type="button" onclick="openDeadlineForm(null, 'date')">
       <div class="deadline-choice-title">Track a Date</div>
-      <div class="deadline-choice-copy">Title, module, priority, start date, and time.</div>
+      <div class="deadline-choice-copy">Quick tracked deadline with title, module, date, time, and priority.</div>
     </button>
     <button class="deadline-choice-card" type="button" onclick="openDeadlineForm(null, 'event')">
       <div class="deadline-choice-title">Plan Calendar Event</div>
@@ -2756,58 +2765,20 @@ function renderDeadlineAddChoice() {
 
 function swapDeadlineView(render) {
   const host = document.getElementById("timeline-list");
-  if (!host) return;
+  if (!host || typeof render !== "function") return;
 
   window.clearTimeout(host._deadlineSwitchTimer);
   host.getAnimations?.().forEach((animation) => animation.cancel());
 
-  const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-  const fromHeight = Math.max(host.getBoundingClientRect().height || host.scrollHeight || 0, 120);
+  host.style.height = "";
+  host.style.width = "";
+  host.style.maxWidth = "";
+  host.style.overflow = "";
+  host.style.opacity = "";
+  host.style.transform = "";
+  host.classList.remove("is-switching");
 
-  if (reducedMotion) {
-    render();
-    return;
-  }
-
-  host.style.overflow = "hidden";
-  host.style.height = `${fromHeight}px`;
-
-  const fadeOut = host.animate(
-    [
-      { opacity: 1, transform: "translateY(0)" },
-      { opacity: 0, transform: "translateY(8px)" }
-    ],
-    { duration: 110, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
-  );
-
-  fadeOut.onfinish = () => {
-    render();
-    const toHeight = Math.max(host.scrollHeight || 0, 120);
-    host.style.height = `${toHeight}px`;
-
-    host.animate(
-      [
-        { height: `${fromHeight}px` },
-        { height: `${toHeight}px` }
-      ],
-      { duration: 230, easing: "cubic-bezier(.2,.8,.2,1)" }
-    );
-
-    const fadeIn = host.animate(
-      [
-        { opacity: 0, transform: "translateY(-6px)" },
-        { opacity: 1, transform: "translateY(0)" }
-      ],
-      { duration: 190, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
-    );
-
-    fadeIn.onfinish = () => {
-      host.style.height = "";
-      host.style.overflow = "";
-      host.style.opacity = "";
-      host.style.transform = "";
-    };
-  };
+  render();
 }
 
 function showDeadlineTab(tab = "upcoming") {
@@ -2912,6 +2883,7 @@ function openDeadlineForm(index = null, type = "date") {
 
   setDeadlineFormType(formType);
   document.getElementById("deadline-form-modal").classList.remove("hidden");
+  lockPageScroll();
   setTimeout(() => titleInput && titleInput.focus(), 0);
 }
 
@@ -2922,6 +2894,7 @@ function editDeadline(index) {
 function closeDeadlineForm() {
   document.getElementById("deadline-form-modal").classList.add("hidden");
   editingDeadlineIndex = null;
+  unlockPageScroll();
 }
 
 function buildDeadlineFromForm() {
@@ -3895,7 +3868,7 @@ function buildModules() {
     list.appendChild(notesSection.wrap);
 
 
-    const topicsSection = createModuleSection(mi, "topics", "Topics", `<button class="mini-btn" type="button" onclick="addTopicToModule(${mi}, event)">Add Topic</button>`);
+    const topicsSection = createModuleSection(mi, "topics", "Topics", "");
     const topicTools = document.createElement("div");
     topicTools.className = "notes-area-wrap";
     topicTools.innerHTML = `
@@ -3956,15 +3929,29 @@ function buildModules() {
         draggedTopicStartX = event.clientX || 0;
       });
       row.addEventListener("click", (event) => {
-        if (Date.now() < topicDropSuppressUntil) { event.preventDefault(); event.stopPropagation(); return; }
+        if (Date.now() < topicDropSuppressUntil) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation?.();
+          return;
+        }
         if (event.target.closest("button") || event.target.closest("input") || event.target.closest("details") || event.target.closest("summary")) return;
         event.preventDefault();
+        event.stopPropagation();
         selectTopicRow(mi, ti, null, event);
       });
       row.addEventListener("dblclick", (event) => {
-        if (Date.now() < topicDropSuppressUntil) { event.preventDefault(); event.stopPropagation(); return; }
+        if (Date.now() < topicDropSuppressUntil) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation?.();
+          return;
+        }
         if (event.target.closest("button") || event.target.closest("input") || event.target.closest("details") || event.target.closest("summary")) return;
         event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation?.();
+        topicDropSuppressUntil = Date.now() + 450;
         editTopicInModule(mi, ti, event);
       });
       row.addEventListener("dragover", (event) => allowTopicDrop(mi, ti, event));
@@ -4024,15 +4011,29 @@ function buildModules() {
             event.stopPropagation();
           });
           subRow.addEventListener("click", (event) => {
-            if (Date.now() < topicDropSuppressUntil) { event.preventDefault(); event.stopPropagation(); return; }
+            if (Date.now() < topicDropSuppressUntil) {
+              event.preventDefault();
+              event.stopPropagation();
+              event.stopImmediatePropagation?.();
+              return;
+            }
             if (event.target.closest("button") || event.target.closest("input")) return;
             event.preventDefault();
+            event.stopPropagation();
             selectTopicRow(mi, ti, si, event);
           });
           subRow.addEventListener("dblclick", (event) => {
-            if (Date.now() < topicDropSuppressUntil) { event.preventDefault(); event.stopPropagation(); return; }
+            if (Date.now() < topicDropSuppressUntil) {
+              event.preventDefault();
+              event.stopPropagation();
+              event.stopImmediatePropagation?.();
+              return;
+            }
             if (event.target.closest("button") || event.target.closest("input")) return;
             event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation?.();
+            topicDropSuppressUntil = Date.now() + 450;
             editSubtopicInModule(mi, ti, si, event);
           });
           subRow.addEventListener("pointerdown", (event) => {
@@ -5332,7 +5333,11 @@ async function editModuleCode(mi, event) {
 }
 
 async function addTopicToModule(mi, event) {
-  if (event) event.stopPropagation();
+  if (event) {
+    event.preventDefault?.();
+    event.stopPropagation?.();
+    event.stopImmediatePropagation?.();
+  }
   const draftInput = document.getElementById(`topic-add-${mi}`);
   let input = draftInput ? draftInput.value : "";
   if (!input) {
@@ -5344,13 +5349,17 @@ async function addTopicToModule(mi, event) {
   const topicsToAdd = quotedTopics.length ? quotedTopics : [input.trim()];
   MODULES[mi].topics.push(...topicsToAdd.map((title) => ({ title, subtopics: [], collapsed: false })));
   if (draftInput) draftInput.value = "";
-  save();
-  buildModules();
-  updateGlobal();
+  openModules.add(mi);
+  openModuleSections[getModuleSectionStateKey(mi, "topics")] = true;
+  refreshTopicStructure(mi);
 }
 
 async function addSubtopicToTopic(mi, ti, event) {
-  if (event) event.stopPropagation();
+  if (event) {
+    event.preventDefault?.();
+    event.stopPropagation?.();
+    event.stopImmediatePropagation?.();
+  }
   const topic = getTopicEntry(mi, ti);
   const result = await appPrompt({
     label: "Subtopics",
@@ -5363,9 +5372,9 @@ async function addSubtopicToTopic(mi, ti, event) {
   const values = parseQuotedList(result?.value || "");
   if (!values.length) return;
   MODULES[mi].topics[ti] = Object.assign({}, topic, { subtopics: [...topic.subtopics, ...values], collapsed: false });
-  save();
-  buildModules();
-  updateGlobal();
+  openModules.add(mi);
+  openModuleSections[getModuleSectionStateKey(mi, "topics")] = true;
+  refreshTopicStructure(mi);
 }
 
 function removeSubtopicFromModule(mi, ti, si) {
@@ -5519,32 +5528,66 @@ function toggleTopicSubtopics(mi, ti, event) {
 }
 
 async function editTopicInModule(mi, ti, event) {
-  if (event) event.stopPropagation();
+  if (event) {
+    event.preventDefault?.();
+    event.stopPropagation?.();
+    event.stopImmediatePropagation?.();
+  }
+  topicDropSuppressUntil = Date.now() + 450;
+
   const topic = getTopicEntry(mi, ti);
   if (!topic) return;
   const result = await appPrompt({ label: "Topic", title: "Edit topic", inputLabel: "Topic name", defaultValue: topic.title, confirmText: "Save" });
   const updated = result?.value;
-  if (updated === undefined || updated === null || !updated.trim()) return;
-  MODULES[mi].topics[ti] = Object.assign({}, topic, { title: updated.trim() });
+  if (updated === undefined || updated === null || !updated.trim()) {
+    topicDropSuppressUntil = Date.now() + 250;
+    return;
+  }
+
+  const nextTitle = updated.trim();
+  MODULES[mi].topics[ti] = Object.assign({}, topic, { title: nextTitle });
+
+  const row = document.querySelector(`[data-topic-key="${topicSelectionKey(mi, ti)}"]`);
+  const label = row?.querySelector(".topic-label");
+  if (label) label.textContent = nextTitle;
+
   save();
-  buildModules();
+  updateModule(mi);
   updateGlobal();
+  topicDropSuppressUntil = Date.now() + 250;
 }
 
 async function editSubtopicInModule(mi, ti, si, event) {
-  if (event) event.stopPropagation();
+  if (event) {
+    event.preventDefault?.();
+    event.stopPropagation?.();
+    event.stopImmediatePropagation?.();
+  }
+  topicDropSuppressUntil = Date.now() + 450;
+
   const topic = getTopicEntry(mi, ti);
   const current = topic.subtopics?.[si];
   if (!current) return;
   const result = await appPrompt({ label: "Subtopic", title: "Edit subtopic", inputLabel: "Subtopic name", defaultValue: current, confirmText: "Save" });
   const updated = result?.value;
-  if (updated === undefined || updated === null || !updated.trim()) return;
+  if (updated === undefined || updated === null || !updated.trim()) {
+    topicDropSuppressUntil = Date.now() + 250;
+    return;
+  }
+
+  const nextTitle = updated.trim();
   const subtopics = [...topic.subtopics];
-  subtopics[si] = updated.trim();
+  subtopics[si] = nextTitle;
   MODULES[mi].topics[ti] = Object.assign({}, topic, { subtopics });
+
+  const row = document.querySelector(`[data-topic-key="${topicSelectionKey(mi, ti, si)}"]`);
+  const label = row?.querySelector(".topic-label");
+  if (label) label.textContent = nextTitle;
+
   save();
-  buildModules();
+  updateModule(mi);
   updateGlobal();
+  topicDropSuppressUntil = Date.now() + 250;
 }
 
 async function deleteSelectedTopicsInModule(mi, event) {
@@ -5601,9 +5644,9 @@ async function deleteSelectedTopicsInModule(mi, event) {
   });
 
   clearTopicSelection(mi);
-  save();
-  buildModules();
-  updateGlobal();
+  openModules.add(mi);
+  openModuleSections[getModuleSectionStateKey(mi, "topics")] = true;
+  refreshTopicStructure(mi);
 }
 
 async function deleteCourseworkComponent(mi, ci, event) {
