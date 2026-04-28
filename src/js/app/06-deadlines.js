@@ -355,11 +355,44 @@ function downloadCalendarIcs(eventData) {
   setTimeout(() => URL.revokeObjectURL(url), 500);
 }
 
-function openCalendarEvent(eventData) {
-  if (!eventData?.start || !eventData?.end || !eventData?.title) return;
+function reserveCalendarWindow() {
+  try {
+    return window.open("about:blank", "_blank", "noopener");
+  } catch (error) {
+    return null;
+  }
+}
+
+function closeReservedCalendarWindow(calendarWindow) {
+  try {
+    if (calendarWindow && !calendarWindow.closed) calendarWindow.close();
+  } catch (error) {
+    // Ignore browser cross-window restrictions.
+  }
+}
+
+function navigateCalendarWindow(url, calendarWindow = null) {
+  if (calendarWindow && !calendarWindow.closed) {
+    try {
+      calendarWindow.location.href = url;
+      return;
+    } catch (error) {
+      // Fall through to the normal popup path.
+    }
+  }
+  const opened = window.open(url, "_blank", "noopener");
+  if (!opened) window.location.href = url;
+}
+
+function openCalendarEvent(eventData, calendarWindow = null) {
+  if (!eventData?.start || !eventData?.end || !eventData?.title) {
+    closeReservedCalendarWindow(calendarWindow);
+    return;
+  }
   const providerKey = preferences.calendarProvider || "google";
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
   if (providerKey === "apple") {
+    closeReservedCalendarWindow(calendarWindow);
     downloadCalendarIcs(eventData);
     return;
   }
@@ -373,7 +406,7 @@ function openCalendarEvent(eventData) {
       allday: eventData.allDay ? "true" : "false",
       ctz: timezone
     });
-    window.open(`https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`, "_blank", "noopener");
+    navigateCalendarWindow(`https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`, calendarWindow);
     return;
   }
   const params = new URLSearchParams({
@@ -387,10 +420,10 @@ function openCalendarEvent(eventData) {
     crm: eventData.availability || "BUSY",
     ctz: timezone
   });
-  window.open(`https://calendar.google.com/calendar/render?${params.toString()}`, "_blank", "noopener");
+  navigateCalendarWindow(`https://calendar.google.com/calendar/render?${params.toString()}`, calendarWindow);
 }
 
-function openDeadlineInCalendar(deadline) {
+function openDeadlineInCalendar(deadline, calendarWindow = null) {
   if (!deadline?.date || !deadline?.mod) return;
   const start = new Date(deadline.date);
   const end = deadline.endDate ? new Date(deadline.endDate) : new Date(start.getTime() + 60 * 60 * 1000);
@@ -402,7 +435,7 @@ function openDeadlineInCalendar(deadline) {
     location: deadline.location || "",
     details: getDeadlineCalendarDetails(deadline),
     availability: deadline.availability || "BUSY"
-  });
+  }, calendarWindow);
 }
 
 function openDeadlineInCalendarByIndex(index, event) {
@@ -413,8 +446,12 @@ function openDeadlineInCalendarByIndex(index, event) {
 }
 
 function saveDeadlineForm(openCalendar = false) {
+  const calendarWindow = openCalendar ? reserveCalendarWindow() : null;
   const deadlineData = buildDeadlineFromForm();
-  if (!deadlineData) return;
+  if (!deadlineData) {
+    closeReservedCalendarWindow(calendarWindow);
+    return;
+  }
   const store = getStore();
   if (editingDeadlineIndex !== null && store.customExams[editingDeadlineIndex]) {
     deadlineData.completed = !!store.customExams[editingDeadlineIndex].completed;
@@ -427,7 +464,8 @@ function saveDeadlineForm(openCalendar = false) {
   renderStickyExams();
   closeDeadlineForm();
   showDeadlineTab("upcoming");
-  if (openCalendar && deadlineData.type === "event") openDeadlineInCalendar(deadlineData);
+  if (openCalendar && deadlineData.type === "event") openDeadlineInCalendar(deadlineData, calendarWindow);
+  else closeReservedCalendarWindow(calendarWindow);
 }
 
 

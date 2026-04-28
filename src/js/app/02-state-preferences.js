@@ -861,15 +861,16 @@ function toTimeInputValue(date) {
 
 function openSelectedCalendar() {
   const providerKey = preferences.calendarProvider || "google";
+  const calendarWindow = reserveCalendarWindow();
   if (providerKey === "outlook") {
-    window.open("https://outlook.live.com/calendar/0/view/month", "_blank", "noopener");
+    navigateCalendarWindow("https://outlook.live.com/calendar/0/view/month", calendarWindow);
     return;
   }
   if (providerKey === "apple") {
-    window.open("https://www.icloud.com/calendar/", "_blank", "noopener");
+    navigateCalendarWindow("https://www.icloud.com/calendar/", calendarWindow);
     return;
   }
-  window.open("https://calendar.google.com/calendar/u/0/r", "_blank", "noopener");
+  navigateCalendarWindow("https://calendar.google.com/calendar/u/0/r", calendarWindow);
 }
 
 function openCalendarComposer(prefill = null) {
@@ -924,9 +925,13 @@ function buildCalendarEventFromComposer() {
 }
 
 function submitCalendarComposer() {
+  const calendarWindow = reserveCalendarWindow();
   const eventData = buildCalendarEventFromComposer();
-  if (!eventData) return;
-  openCalendarEvent(eventData);
+  if (!eventData) {
+    closeReservedCalendarWindow(calendarWindow);
+    return;
+  }
+  openCalendarEvent(eventData, calendarWindow);
   closeCalendarComposer();
 }
 
