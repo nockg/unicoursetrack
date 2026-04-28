@@ -1,0 +1,432 @@
+.deadline-form-content {
+  width: min(560px, calc(100vw - 32px));
+}
+.deadline-form-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.setup-content {
+  width: min(760px, calc(100vw - 32px));
+}
+
+.setup-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.setup-copy {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #5a4d40;
+}
+
+.setup-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.setup-fields .field:first-child,
+.setup-fields .field:nth-child(2),
+.setup-fields .field:nth-child(3) {
+  grid-column: 1 / -1;
+}
+
+.setup-template-block {
+  display: grid;
+  gap: 12px;
+}
+
+.setup-template-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.setup-choice {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--paper2);
+  text-align: left;
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+}
+
+.setup-choice:hover {
+  border-color: rgba(26,22,18,0.22);
+  transform: translateY(-1px);
+}
+
+.setup-choice.active {
+  border-color: var(--gold2);
+  background: rgba(212,160,23,0.08);
+}
+
+.setup-choice-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.setup-choice-detail {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--slate);
+}
+
+.setup-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.onboarding-content {
+  width: min(760px, calc(100vw - 32px));
+}
+
+.onboarding-tour {
+  display: grid;
+  grid-template-columns: 168px 1fr;
+  gap: 18px;
+  align-items: stretch;
+}
+
+.onboarding-steps {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.onboarding-step-tab {
+  border: 1px solid var(--border);
+  background: var(--paper2);
+  border-radius: 6px;
+  padding: 10px 12px;
+  text-align: left;
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.onboarding-step-tab.active {
+  background: var(--sumi);
+  border-color: var(--sumi);
+  color: var(--paper);
+}
+
+.onboarding-stage {
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 22px;
+  min-height: 260px;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+
+.onboarding-kicker {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.onboarding-step-title {
+  font-family: "Shippori Mincho", serif;
+  font-size: 30px;
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.onboarding-step-copy {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 20px;
+  line-height: 1.45;
+  color: #5a4d40;
+}
+
+.onboarding-preview {
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.42);
+  border-radius: 6px;
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.onboarding-preview-row {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
+  align-items: center;
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--slate);
+}
+
+.onboarding-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--gold2);
+}
+
+.onboarding-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.onboarding-progress {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.deadline-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.deadline-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.timeline-card {
+  background: rgba(255,255,255,0.42);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.timeline-item {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+.timeline-rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+.timeline-rail::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: -22px;
+  width: 1px;
+  background: var(--border);
+}
+.timeline-item:last-child .timeline-rail::before { bottom: 50%; }
+.timeline-dot.complete-toggle {
+  position: relative;
+  z-index: 1;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--gold2);
+  background: var(--paper3);
+  cursor: pointer;
+  margin-top: 10px;
+}
+.timeline-dot.complete-toggle:hover { background: rgba(212,160,23,0.16); }
+.deadline-tabs {
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(26,22,18,0.035);
+}
+.deadline-tab-btn {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+.deadline-tab-btn.active { background: var(--sumi); color: var(--paper); }
+body.theme-dark .deadline-tabs { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.11); }
+body.theme-dark .deadline-tab-btn { color: rgba(245,240,232,0.72); }
+body.theme-dark .deadline-tab-btn.active { background: rgba(245,240,232,0.9); color: #151515; }
+
+
+#timeline-list {
+  scrollbar-width: none;
+  transition: opacity .18s ease, transform .18s ease, height .22s ease;
+  overflow: hidden;
+  -ms-overflow-style: none;
+}
+#timeline-list::-webkit-scrollbar { display: none; }
+#timeline-list.is-switching { opacity: 0; transform: translateY(8px); pointer-events: none; }
+.deadline-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+.deadline-choice-card {
+  min-height: 118px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(26,22,18,0.02);
+  color: var(--sumi);
+  padding: 20px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform .16s ease, border-color .16s ease, background .16s ease;
+  font: inherit;
+}
+.deadline-choice-card:hover { transform: translateY(-1px); border-color: var(--border2); background: rgba(255,255,255,0.26); }
+.deadline-choice-title { font-family: "Shippori Mincho", serif; font-size: 18px; line-height: 1.1; font-weight: 700; color: var(--sumi); margin-bottom: 10px; }
+.deadline-choice-copy { color: var(--muted); font-size: 15px; line-height: 1.42; }
+.deadline-view-shell { display: grid; gap: 22px; }
+.timeline-card.deadline-card-clickable {
+  position: relative;
+  border: 1px solid var(--border);
+  border-bottom: 4px solid var(--deadline-edge-colour, var(--border2));
+  border-radius: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  padding: 20px 22px 18px;
+  margin: 0;
+  background: rgba(255,255,255,0.18);
+}
+.timeline-card.deadline-card-clickable::before { content: none !important; display: none !important; }
+.deadline-card-top { display: grid; gap: 10px; }
+.deadline-card-title-line .timeline-title,
+.deadline-card-clickable .timeline-title {
+  color: var(--sumi);
+  font-size: 16px;
+  line-height: 1.22;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+.deadline-card-countdown {
+  width: fit-content;
+  font-family: "DM Mono", monospace;
+  font-size: 13px;
+  letter-spacing: .02em;
+  color: var(--sumi);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.deadline-card-countdown.urgent { color: var(--vermillion); }
+.deadline-meta-line {
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  letter-spacing: .04em;
+  text-transform: none;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.deadline-card-lower {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 10px;
+  align-items: start;
+  margin-top: 14px;
+}
+.deadline-details {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  padding: 0;
+}
+.deadline-details summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 8px 10px;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--sumi);
+}
+.deadline-detail-grid { display: grid; gap: 5px; padding: 0 10px 10px; color: var(--muted); line-height: 1.35; }
+.deadline-type-badge { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.deadline-field-hidden { display: none !important; }
+.deadline-form-type-pill { display: inline-flex; width: fit-content; border: 1px solid var(--border); border-radius: 999px; padding: 6px 10px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: rgba(26,22,18,0.02); }
+.deadline-title-module-row { display: grid; grid-template-columns: minmax(0,1.3fr) minmax(170px,.7fr); gap: 12px; }
+.deadline-priority-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
+.priority-choice { border: 1px solid var(--border); border-radius: 8px; padding: 8px 9px; background: rgba(26,22,18,0.025); color: var(--muted); font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.priority-choice.active { color: var(--sumi); border-color: var(--priority-colour, var(--border2)); box-shadow: inset 0 -3px 0 var(--priority-colour, var(--border2)); background: rgba(255,255,255,0.32); }
+.priority-choice[data-priority="high"] { --priority-colour: #b84a3f; }
+.priority-choice[data-priority="medium"] { --priority-colour: #b38a2f; }
+.priority-choice[data-priority="low"] { --priority-colour: #4f7a53; }
+.deadline-form-content .timeline-notes,
+.calendar-form-content .timeline-notes {
+  width: 100%;
+  display: block;
+  min-height: 82px;
+  height: 82px;
+  max-height: 82px;
+  resize: none;
+  overflow: auto;
+  scrollbar-width: none;
+  font-size: 15px;
+  line-height: 1.45;
+  border-radius: 8px;
+  background: var(--paper2);
+}
+.deadline-form-content .timeline-notes::-webkit-scrollbar,
+.calendar-form-content .timeline-notes::-webkit-scrollbar { display: none; }
+body.theme-dark .deadline-choice-card { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.1); color: #f1ede4; }
+body.theme-dark .deadline-choice-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18); }
+body.theme-dark .deadline-choice-title { color: #f1ede4; }
+body.theme-dark .deadline-choice-copy { color: rgba(241,237,228,0.72); }
+body.theme-dark .timeline-card:not(.deadline-card-clickable) { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.1); }
+body.theme-dark .timeline-card.deadline-card-clickable {
+  background: rgba(255,255,255,0.045);
+  border-color: rgba(255,255,255,0.1);
+  border-bottom-color: var(--deadline-edge-colour, rgba(255,255,255,0.22));
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,0.04);
+}
+body.theme-dark .timeline-dot.complete-toggle { background: #1c1c1f; }
+body.theme-dark .deadline-card-title-line .timeline-title,
+body.theme-dark .deadline-card-clickable .timeline-title { color: #f1ede4; }
+body.theme-dark .deadline-card-countdown { color: #f4efe7; }
+body.theme-dark .deadline-meta-line,
+body.theme-dark .deadline-type-badge { color: rgba(241,237,228,0.78); }
+body.theme-dark .deadline-card-countdown.urgent { color: #f08b80; }
+body.theme-dark .deadline-details { background: transparent; border-color: rgba(255,255,255,0.1); color: rgba(245,240,232,0.76); }
+body.theme-dark .deadline-details summary { color: #f1ede4; }
+body.theme-dark .deadline-form-content .timeline-notes,
+body.theme-dark .calendar-form-content .timeline-notes { background: #202020; border-color: rgba(255,255,255,0.16); color: #f4efe7; }
+body.theme-dark .priority-choice { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.1); color: rgba(245,240,232,0.72); }
+body.theme-dark .priority-choice.active { color: #fff; background: rgba(255,255,255,0.08); }
+
+@media(max-width:700px){ .deadline-title-module-row, .deadline-card-lower, .deadline-choice-grid, .deadline-form-row { grid-template-columns:1fr; } .deadline-priority-row { grid-template-columns: repeat(2,minmax(0,1fr)); } .countdown-header-pref { grid-template-columns: 1fr; } }
+
+.exam-ticker { border-bottom: 0 !important; }
+.sticky-exams { border-bottom-color: rgba(245,240,232,0.16) !important; }
+body.theme-quiet .sticky-exams{ border-bottom-color: rgba(245,240,232,0.16) !important; }
+.module-library-section-collapsible.is-collapsed .module-library-list { display: none !important; }
+
+
+

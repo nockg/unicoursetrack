@@ -5,11 +5,8 @@
   "description": "UniTrack course progress tracker",
   "scripts": {
     "sync": "node scripts/build-assets.mjs",
-    "dev": "npm run sync && vite --host 0.0.0.0",
-    "build": "npm run sync && vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "vite": "^5.0.0"
+    "dev": "npm run sync && node scripts/dev-server.mjs",
+    "build": "npm run sync && node scripts/build-dist.mjs",
+    "preview": "node scripts/dev-server.mjs"
   }
 }

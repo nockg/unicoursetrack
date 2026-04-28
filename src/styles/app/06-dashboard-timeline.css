@@ -1,0 +1,183 @@
+.dashboard-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(14,12,10,0.55);
+  backdrop-filter: blur(6px);
+
+  animation: dashboardBackdropFade 0.22s ease;
+}
+
+.dashboard-content {
+  animation: dashboardCardIn 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dashboardBackdropFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dashboardCardIn {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+.dashboard-modal.hidden {
+  display: none;
+}
+
+.dashboard-content {
+  width: min(720px, calc(100vw - 32px));
+  max-height: 88vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 22px;
+
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+  position: relative;
+
+  animation: dashboardCardIn 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center center;
+}
+.dashboard-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 26px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.dashboard-close:hover { color: var(--vermillion); }
+
+.dashboard-title {
+  font-family: "Shippori Mincho", serif;
+  font-size: 20px;
+  margin-bottom: 22px;
+  color: var(--ink);
+}
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+.dashboard-card {
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 18px;
+}
+.dashboard-card-title {
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.dashboard-score {
+  font-family: "Shippori Mincho", serif;
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.dashboard-score.predictor-big {
+  font-size: clamp(58px, 7vw, 82px);
+  line-height: 0.92;
+}
+.dashboard-subtitle {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 17px;
+  color: #5a4d40;
+  line-height: 1.4;
+}
+.dashboard-wide { grid-column: 1 / -1; }
+.dashboard-chart-wrap {
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(26,22,18,0.08);
+  border-radius: 6px;
+  padding: 14px;
+}
+#dashboard-chart {
+  width: 100%;
+  max-width: 100%;
+  height: 220px;
+}
+
+.classification-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 2px;
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  border: 1px solid;
+  margin-top: 10px;
+}
+.cls-first { background: rgba(255,25,0,0.12); border-color: var(--vermillion); color: var(--vermillion); }
+.cls-21 { background: rgba(212,160,23,0.14); border-color: var(--gold2); color: var(--gold); }
+.cls-22 { background: rgba(26,44,74,0.08); border-color: rgba(26,44,74,0.25); color: var(--indigo); }
+.cls-third { background: rgba(74,85,104,0.1); border-color: var(--border2); color: var(--slate); }
+
+.timeline-content {
+  width: min(860px, calc(100vw - 32px));
+}
+
+.timeline-head {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 28px;
+  padding-right: 28px;
+}
+
+.timeline-subtitle {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.timeline-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.timeline-page-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+  margin: 0;
+}
+
+.timeline-list {
+  display: grid;
+  gap: 18px;
+}
