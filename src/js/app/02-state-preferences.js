@@ -851,6 +851,30 @@ function openPreferredCalendar() {
   openCalendarComposer();
 }
 
+let modalScrollY = 0;
+
+function isMobileViewport() {
+  return window.matchMedia?.("(max-width: 760px)")?.matches || window.innerWidth <= 760;
+}
+
+function lockPageScroll() {
+  if (document.body.classList.contains("modal-scroll-locked")) return;
+  modalScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  const fixedScrollLock = !isMobileViewport();
+  document.body.dataset.scrollLockFixed = fixedScrollLock ? "true" : "false";
+  if (fixedScrollLock) document.body.style.top = `-${modalScrollY}px`;
+  document.body.classList.add("modal-scroll-locked");
+}
+
+function unlockPageScroll() {
+  if (!document.body.classList.contains("modal-scroll-locked")) return;
+  const shouldRestoreScroll = document.body.dataset.scrollLockFixed === "true";
+  document.body.classList.remove("modal-scroll-locked");
+  document.body.style.top = "";
+  delete document.body.dataset.scrollLockFixed;
+  if (shouldRestoreScroll) window.scrollTo(0, modalScrollY);
+}
+
 function toDateInputValue(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
@@ -861,16 +885,15 @@ function toTimeInputValue(date) {
 
 function openSelectedCalendar() {
   const providerKey = preferences.calendarProvider || "google";
-  const calendarWindow = reserveCalendarWindow();
   if (providerKey === "outlook") {
-    navigateCalendarWindow("https://outlook.live.com/calendar/0/view/month", calendarWindow);
+    navigateCalendarWindow("https://outlook.live.com/calendar/0/view/month");
     return;
   }
   if (providerKey === "apple") {
-    navigateCalendarWindow("https://www.icloud.com/calendar/", calendarWindow);
+    navigateCalendarWindow("https://www.icloud.com/calendar/");
     return;
   }
-  navigateCalendarWindow("https://calendar.google.com/calendar/u/0/r", calendarWindow);
+  navigateCalendarWindow("https://calendar.google.com/calendar/u/0/r");
 }
 
 function openCalendarComposer(prefill = null) {
@@ -925,13 +948,9 @@ function buildCalendarEventFromComposer() {
 }
 
 function submitCalendarComposer() {
-  const calendarWindow = reserveCalendarWindow();
   const eventData = buildCalendarEventFromComposer();
-  if (!eventData) {
-    closeReservedCalendarWindow(calendarWindow);
-    return;
-  }
-  openCalendarEvent(eventData, calendarWindow);
+  if (!eventData) return;
+  openCalendarEvent(eventData);
   closeCalendarComposer();
 }
 

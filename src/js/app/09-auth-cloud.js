@@ -64,8 +64,10 @@ async function waitForInitialAuth() {
 
   try {
     const { data } = await supabaseClient.auth.getSession();
+    currentSession = data?.session || null;
     currentUser = data?.session?.user || null;
   } catch (error) {
+    currentSession = null;
     currentUser = null;
     console.warn("Initial auth check failed:", error?.message || error);
   }
@@ -470,26 +472,36 @@ function ensureCloudAuthReady() {
   return false;
 }
 
-function withCloudTimeout(promise, label = "Cloud request") {
+function withCloudTimeout(promise, label = "Cloud request", timeoutMs = 12000) {
   return Promise.race([
     promise,
     new Promise((_, reject) => {
-      setTimeout(() => reject(new Error(`${label} took too long. Check your connection and try again.`)), 5000);
+      setTimeout(() => reject(new Error(`${label} took too long. Check your connection and try again.`)), timeoutMs);
     })
   ]);
 }
 
-async function getCloudAccessToken() {
+function getCachedAccessToken(session = currentSession) {
+  const expiresAt = Number(session?.expires_at || 0);
+  const stillFresh = !expiresAt || expiresAt * 1000 > Date.now() + 30000;
+  return session?.access_token && stillFresh ? session.access_token : "";
+}
+
+async function getCloudAccessToken(session = currentSession) {
+  const cachedToken = getCachedAccessToken(session);
+  if (cachedToken) return cachedToken;
   if (!supabaseClient) throw new Error("Cloud sign-in is not available.");
   const { data, error } = await withCloudTimeout(supabaseClient.auth.getSession(), "Session check");
   if (error) throw error;
+  currentSession = data?.session || null;
+  currentUser = currentSession?.user || currentUser;
   const token = data?.session?.access_token;
   if (!token) throw new Error("Your session expired. Please sign in again.");
   return token;
 }
 
-async function trackerApiRequest(method, body = null) {
-  const token = await getCloudAccessToken();
+async function trackerApiRequest(method, body = null, session = currentSession) {
+  const token = await getCloudAccessToken(session);
   const response = await withCloudTimeout(fetch("/api/tracker", {
     method,
     headers: {
@@ -513,15 +525,15 @@ async function trackerApiRequest(method, body = null) {
   return payload;
 }
 
-function loadTrackerProfileFromApi() {
-  return trackerApiRequest("GET");
+function loadTrackerProfileFromApi(session = currentSession) {
+  return trackerApiRequest("GET", null, session);
 }
 
-function saveTrackerProfileToApi(nextState = state, nextPreferences = preferences) {
+function saveTrackerProfileToApi(nextState = state, nextPreferences = preferences, session = currentSession) {
   return trackerApiRequest("PUT", {
     data: nextState,
     prefs: nextPreferences
-  });
+  }, session);
 }
 
 function togglePasswordVisibility(...ids) {
@@ -667,6 +679,7 @@ async function signUpFromModal() {
       console.warn("Post-signup sign out error:", signOutError?.message || signOutError);
     }
     currentUser = null;
+    currentSession = null;
     cloudReady = false;
   }
   accountCreationInProgress = false;
@@ -710,7 +723,8 @@ async function loginFromModal() {
       return;
     }
 
-    currentUser = data.session?.user || data.user || null;
+    currentSession = data.session || null;
+    currentUser = currentSession?.user || data.user || null;
     clearLogoutFlagForSignedInUser();
   } catch (error) {
     setAuthLoading(false);
@@ -732,6 +746,7 @@ async function logoutCloud() {
   }
 
   currentUser = null;
+  currentSession = null;
   cloudReady = false;
   cloudHadSave = false;
   cloudLoadSucceeded = false;
@@ -751,12 +766,27 @@ async function logoutCloud() {
   renderAuthGate("login");
 }
 
-async function loadCloudSave() {
+let cloudLoadPromise = null;
+
+async function loadCloudSave(options = {}) {
+  if (cloudLoadPromise) return cloudLoadPromise;
+  cloudLoadPromise = loadCloudSaveInner(options).finally(() => {
+    cloudLoadPromise = null;
+  });
+  return cloudLoadPromise;
+}
+
+async function loadCloudSaveInner(options = {}) {
   cloudLoadSucceeded = false;
   if (!supabaseClient) {
     cloudReady = false;
     setAuthError("Cloud sign-in did not load. Refresh the page and check your internet connection.");
     return;
+  }
+
+  if (options.session) {
+    currentSession = options.session;
+    currentUser = options.session.user || currentUser;
   }
 
   if (!currentUser) {
@@ -775,7 +805,8 @@ async function loadCloudSave() {
       return;
     }
 
-    currentUser = sessionData.session?.user || null;
+    currentSession = sessionData.session || null;
+    currentUser = currentSession?.user || null;
   }
 
   console.log("Cloud user:", currentUser?.email || "not logged in");
@@ -789,7 +820,7 @@ async function loadCloudSave() {
 
   let profile;
   try {
-    ({ profile } = await withCloudTimeout(loadTrackerProfileFromApi(), "Cloud data load"));
+    ({ profile } = await withCloudTimeout(loadTrackerProfileFromApi(currentSession), "Cloud data load"));
   } catch (cloudError) {
     console.warn("Cloud load error:", cloudError?.message || cloudError);
     cloudReady = true;
@@ -846,7 +877,8 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     return;
   }
 
-  currentUser = session?.user || null;
+  currentSession = session || null;
+  currentUser = currentSession?.user || null;
   markAuthStateKnown();
   clearLogoutFlagForSignedInUser();
   if (!currentUser) cloudReady = false;
@@ -868,7 +900,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
       cloudReady = false;
       pendingFirstRunSetup = false;
     }
-    await loadCloudSave();
+    await loadCloudSave({ session: currentSession });
     pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
     if (pendingFirstRunSetup && shouldBlockUi) {
       resetLocalAppState();

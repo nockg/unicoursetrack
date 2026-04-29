@@ -379,9 +379,10 @@ body.theme-dark .module-library-pill{
 }
 .topic-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
-  padding: 9px 20px 9px 42px;
+  min-height: 38px;
+  padding: 8px 20px 8px 42px;
   transition: background 0.15s;
   cursor: grab;
 }
@@ -429,10 +430,11 @@ body.theme-dark .module-library-pill{
 }
 .topic-main {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   flex: 1;
   cursor: pointer;
+  min-width: 0;
 }
 .topic-prefix {
   display: inline-flex;
@@ -440,7 +442,7 @@ body.theme-dark .module-library-pill{
   justify-content: center;
   width: 18px;
   min-width: 18px;
-  margin-top: 1px;
+  margin-top: 0;
 }
 .subtopic-list {
   margin-left: 22px;
@@ -456,7 +458,7 @@ body.theme-dark .module-library-pill{
   position: relative;
   flex-shrink: 0;
   cursor: pointer;
-  margin-top: 3px;
+  margin-top: 0;
 }
 .topic-row input[type=checkbox]:checked {
   background: var(--vermillion);
@@ -480,6 +482,7 @@ body.theme-dark .module-library-pill{
   font-weight: 600;
   color: var(--sumi);
   line-height: 1.35;
+  min-width: 0;
 }
 .topic-row.subtopic-row .topic-label {
   font-size: 15px;

@@ -11,8 +11,8 @@ function getTodoPanelState() {
       locked: false,
       top: null,
       left: null,
-      width: 460,
-      height: 430,
+      width: 560,
+      height: 520,
       compact: false,
       hasOpenedOnce: false
     };
@@ -28,12 +28,12 @@ function applyTodoPanelState(forceCenter = false) {
   const items = getTodoItems();
   const maxWidth = window.innerWidth - 18;
   const maxHeight = Math.min(window.innerHeight - 18, 720);
-  const width = Math.max(330, Math.min(panelState.width || 460, maxWidth));
+  const width = Math.max(420, Math.min(panelState.width || 560, maxWidth));
 
-  const compactHeight = 282 + Math.min(items.length || 1, 6) * 52;
-  const expandedHeight = 238 + Math.min(items.length || 1, 4) * 112;
+  const compactHeight = 300 + Math.min(items.length || 1, 6) * 54;
+  const expandedHeight = 310 + Math.min(items.length || 1, 4) * 118;
   const preferredHeight = compact ? compactHeight : Math.max(panelState.height || 0, Math.min(expandedHeight, 620));
-  const minHeight = compact ? 320 : 340;
+  const minHeight = compact ? 340 : 430;
   const height = Math.max(minHeight, Math.min(preferredHeight, maxHeight));
 
   const savedLeft = Number.isFinite(panelState.left) ? panelState.left : null;
@@ -230,8 +230,8 @@ function toggleTodoCompactView() {
   panelState.compact = !panelState.compact;
   const items = getTodoItems();
   panelState.height = panelState.compact
-    ? Math.min(window.innerHeight - 18, 282 + Math.min(items.length || 1, 6) * 52)
-    : Math.min(window.innerHeight - 18, 238 + Math.min(items.length || 1, 4) * 112);
+    ? Math.min(window.innerHeight - 18, 300 + Math.min(items.length || 1, 6) * 54)
+    : Math.min(window.innerHeight - 18, 310 + Math.min(items.length || 1, 4) * 118);
   save();
   renderTodoPlanner();
   applyTodoPanelState();
@@ -279,27 +279,31 @@ function renderTodoPlanner() {
     if (compact) {
       return `
         <div class="todo-task-row ${doneClass}" onclick="handleTodoCardClick(${index}, event)">
-          <button class="timeline-dot complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
+          <button class="todo-check-btn complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
           <div class="todo-row-main">
             <div class="todo-row-title" title="${title}">${title}</div>
             <div class="todo-row-meta">${moduleLabel}</div>
           </div>
-          <button class="mini-btn todo-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)" title="Delete task" aria-label="Delete task">Delete</button>
+          <button class="todo-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)" title="Delete task" aria-label="Delete task">Delete</button>
         </div>
       `;
     }
     return `
       <div class="todo-expanded-card ${doneClass}" onclick="handleTodoCardClick(${index}, event)">
-        <button class="timeline-dot complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
-        <div>
-          <div class="todo-expanded-title">${title}</div>
-          <div class="todo-badge">${moduleLabel}</div>
+        <button class="todo-check-btn complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
+        <div class="todo-expanded-main">
+          <div class="todo-expanded-head">
+            <div>
+              <div class="todo-expanded-title">${title}</div>
+              <div class="todo-badge">${moduleLabel}</div>
+            </div>
+            <button class="todo-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)" title="Delete task" aria-label="Delete task">Delete</button>
+          </div>
           <details class="todo-note-details">
             <summary>${item.note ? "View note" : "Add note"}</summary>
             <textarea class="timeline-notes todo-inline-note" data-todo-note-index="${index}" placeholder="Add context, next steps, or anything you need to remember...">${escapeHtml(item.note || "")}</textarea>
           </details>
         </div>
-        <button class="mini-btn todo-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)" title="Delete task" aria-label="Delete task">Delete</button>
       </div>
     `;
   }).join("");

@@ -97,21 +97,6 @@ function buildModules() {
       if (!components.length) {
         componentsHost.innerHTML = `
           <div class="coursework-empty">Add each assessment below, or type your overall coursework mark in the main coursework box above.</div>
-          <div class="coursework-component-row coursework-placeholder-row">
-            <div class="field">
-              <label>Component</label>
-              <input class="input cw-placeholder-name" placeholder="Lab report, quiz, project...">
-            </div>
-            <div class="field">
-              <label>Mark %</label>
-              <input class="input cw-placeholder-mark" type="number" min="0" max="100" step="0.1" placeholder="72">
-            </div>
-            <div class="field">
-              <label>Weight %</label>
-              <input class="input cw-placeholder-weight" type="number" min="0" max="100" step="0.1" placeholder="25">
-            </div>
-            <button class="mini-btn coursework-component-delete" type="button" onclick="commitCourseworkPlaceholder(${mi}, event)">Add</button>
-          </div>
         `;
       } else {
         components.forEach((component, ci) => {

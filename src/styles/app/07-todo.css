@@ -13,7 +13,8 @@
   z-index: 1200;
   display: flex;
   flex-direction: column;
-  padding: 22px 22px 18px;
+  container-type: inline-size;
+  padding: 0;
   background: var(--paper3);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -27,18 +28,20 @@
 }
 #todo-modal .timeline-head {
   margin-bottom: 0;
-  padding-right: 0;
+  padding: 18px 20px 16px;
   flex: 0 0 auto;
   cursor: move;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--paper3) 86%, white 14%);
 }
 #todo-modal .timeline-topline {
   display: grid;
   grid-template-columns: minmax(0,1fr) auto;
-  align-items: start;
-  gap: 14px;
+  align-items: center;
+  gap: 12px;
 }
 #todo-modal .timeline-page-title {
-  font-size: 31px;
+  font-size: 28px;
   line-height: 1;
 }
 .todo-header-actions {
@@ -49,9 +52,18 @@
 }
 .todo-header-actions .dashboard-close {
   position: static;
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 20px;
+  line-height: 1;
+}
+#todo-lock-btn {
+  height: 34px;
+  min-width: 64px;
+  border-radius: 6px;
 }
 .todo-drag-handle {
   cursor: inherit;
@@ -63,10 +75,10 @@
 }
 #todo-modal .todo-toolbar {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(150px, 0.5fr) auto;
-  gap: 12px;
+  grid-template-columns: minmax(180px, 1.4fr) minmax(150px, .7fr) minmax(104px, auto);
+  gap: 10px;
   align-items: end;
-  margin-top: 14px;
+  margin-top: 16px;
 }
 #todo-modal .todo-toolbar .field,
 #todo-modal .todo-toolbar .input,
@@ -75,15 +87,22 @@
 }
 #todo-modal .todo-add-btn {
   align-self: end;
-  min-width: 96px;
-  height: 36px;
+  min-width: 104px;
+  height: 42px;
+  border-radius: 6px;
+  background: var(--sumi);
+  border-color: var(--sumi);
+  color: var(--paper3);
 }
 .todo-view-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 10px;
-  margin: 12px 0;
+  margin: 0;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(26,22,18,0.018);
 }
 .todo-summary {
   display: inline-flex;
@@ -107,8 +126,8 @@
   scrollbar-width: thin;
   display: grid;
   align-content: start;
-  gap: 10px;
-  padding: 2px 2px 12px 0;
+  gap: 8px;
+  padding: 14px 20px 18px;
 }
 #todo-modal .todo-list,
 #todo-modal .todo-inline-note {
@@ -133,8 +152,8 @@
 .todo-expanded-card,
 .todo-task-row {
   border: 1px solid var(--border);
-  background: rgba(26,22,18,0.025);
-  border-radius: 10px;
+  background: color-mix(in srgb, var(--paper) 74%, white 26%);
+  border-radius: 7px;
   cursor: pointer;
   transition: border-color .16s ease, background .16s ease, opacity .16s ease;
 }
@@ -145,25 +164,34 @@
 }
 .todo-expanded-card {
   display: grid;
-  grid-template-columns: 18px minmax(0,1fr) auto;
+  grid-template-columns: 22px minmax(0,1fr);
+  gap: 14px;
+  align-items: start;
+  padding: 14px;
+}
+.todo-expanded-main {
+  min-width: 0;
+}
+.todo-expanded-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: start;
-  padding: 12px;
 }
 .todo-expanded-title {
   color: var(--sumi);
   font-family: "Shippori Mincho", serif;
   font-size: 17px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.15;
 }
 .todo-task-row {
   display: grid;
-  grid-template-columns: 18px minmax(0,1fr) auto;
-  gap: 10px;
+  grid-template-columns: 22px minmax(0,1fr) auto;
+  gap: 12px;
   align-items: center;
-  min-height: 42px;
-  padding: 8px 10px;
+  min-height: 52px;
+  padding: 10px 12px;
 }
 .todo-row-main {
   display: grid;
@@ -172,7 +200,7 @@
 }
 .todo-row-title {
   color: var(--sumi);
-  font-weight: 700;
+  font-weight: 500;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -224,10 +252,40 @@
   border-radius: 8px;
 }
 .todo-inline-note::-webkit-scrollbar { display: none; }
+.todo-check-btn {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border2);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  align-self: center;
+  position: relative;
+  flex-shrink: 0;
+}
+.todo-check-btn:hover {
+  border-color: var(--gold2);
+  background: rgba(212,160,23,0.08);
+}
 .todo-delete-btn {
-  min-width: 56px;
-  height: 28px;
+  min-width: 0;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid transparent;
   border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.todo-delete-btn:hover {
+  color: var(--vermillion);
+  border-color: color-mix(in srgb, var(--vermillion) 32%, transparent 68%);
+  background: rgba(192,57,43,0.06);
 }
 .todo-expanded-card.is-done,
 .todo-task-row.is-done {
@@ -238,19 +296,24 @@
   text-decoration: line-through;
   color: var(--muted);
 }
-.todo-expanded-card.is-done .timeline-dot.complete-toggle,
-.todo-task-row.is-done .timeline-dot.complete-toggle {
+.todo-expanded-card.is-done .todo-check-btn,
+.todo-task-row.is-done .todo-check-btn {
   background: var(--gold2);
   border-color: var(--gold2);
-  box-shadow: inset 0 0 0 3px var(--paper3);
+  box-shadow: none;
+}
+.todo-expanded-card.is-done .todo-check-btn::after,
+.todo-task-row.is-done .todo-check-btn::after {
+  content: none;
 }
 #todo-modal.todo-compact-mode .todo-toolbar {
-  grid-template-columns: minmax(160px, 1fr) minmax(120px, .45fr) auto;
+  grid-template-columns: minmax(170px, 1.35fr) minmax(130px, .65fr) minmax(96px, auto);
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 #todo-modal.todo-compact-mode .todo-view-row {
-  margin: 8px 0;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 #todo-modal.todo-compact-mode .todo-list {
   gap: 8px;
@@ -260,9 +323,8 @@
 }
 #todo-modal.todo-compact-mode .todo-list::-webkit-scrollbar { display: none; }
 #todo-modal.todo-compact-mode .todo-task-row {
-  min-height: 50px;
-  padding: 8px 10px;
-  border-radius: 8px;
+  min-height: 48px;
+  padding: 9px 11px;
   align-items: center;
 }
 #todo-modal.todo-compact-mode .todo-row-title {
@@ -276,9 +338,8 @@
   -webkit-box-orient: vertical;
 }
 #todo-modal.todo-compact-mode .todo-delete-btn {
-  height: 22px;
-  min-width: 46px;
-  padding: 0 7px;
+  height: 28px;
+  padding: 0 8px;
   font-size: 8px;
 }
 .todo-resize-handle {
@@ -348,6 +409,25 @@ body.theme-dark .todo-expanded-card.is-done .timeline-dot.complete-toggle,
 body.theme-dark .todo-task-row.is-done .timeline-dot.complete-toggle {
   box-shadow: inset 0 0 0 3px #1c1c1f;
 }
+body.theme-dark .todo-check-btn {
+  border-color: rgba(255,255,255,0.2);
+}
+body.theme-dark .todo-expanded-card.is-done .todo-check-btn,
+body.theme-dark .todo-task-row.is-done .todo-check-btn {
+  box-shadow: none;
+}
+body.theme-dark #todo-modal .todo-toolbar .input,
+body.theme-dark #todo-modal .todo-toolbar .nav-select {
+  background: #202024;
+  border-color: rgba(255,255,255,0.16);
+  color: #f4efe7;
+}
+body.theme-dark #todo-modal .todo-toolbar .input::placeholder {
+  color: rgba(244,239,231,0.48);
+}
+body.theme-dark #todo-modal .todo-toolbar .field label {
+  color: rgba(244,239,231,0.68);
+}
 @media (max-width: 760px) {
   #todo-modal .todo-content {
     width: calc(100vw - 16px) !important;
@@ -365,6 +445,49 @@ body.theme-dark .todo-task-row.is-done .timeline-dot.complete-toggle {
   }
   .todo-header-actions {
     justify-content: flex-start;
+  }
+  .todo-task-row {
+    grid-template-columns: 22px minmax(0,1fr);
+  }
+  .todo-task-row .todo-delete-btn,
+  .todo-expanded-head .todo-delete-btn {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+@container (max-width: 520px) {
+  #todo-modal .todo-toolbar,
+  #todo-modal.todo-compact-mode .todo-toolbar {
+    grid-template-columns: 1fr;
+  }
+  #todo-modal .todo-add-btn {
+    width: 100%;
+  }
+  .todo-view-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .todo-summary,
+  #todo-view-toggle {
+    width: 100%;
+    justify-content: center;
+  }
+  .todo-task-row {
+    grid-template-columns: 22px minmax(0,1fr) 48px;
+    gap: 8px;
+  }
+  .todo-task-row .todo-delete-btn {
+    grid-column: auto;
+    justify-self: end;
+    width: 48px;
+    padding: 0;
+    overflow: hidden;
+  }
+  .todo-expanded-head {
+    grid-template-columns: 1fr;
+  }
+  .todo-expanded-head .todo-delete-btn {
+    justify-self: start;
   }
 }
 body.suppress-topic-refresh { scroll-behavior: auto !important; }

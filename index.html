@@ -300,36 +300,43 @@
     <div class="dashboard-title" id="deadline-form-title">Add Deadline</div>
     <div class="deadline-form-grid">
       <div class="deadline-form-type-pill" id="deadline-form-type-pill">Track a Date</div>
-      <div class="deadline-title-module-row">
-        <div class="field">
-          <label for="deadline-title-input">Title</label>
-          <input class="input" id="deadline-title-input" placeholder="Coursework hand-in">
+      <section class="deadline-form-section deadline-form-section-primary" aria-label="Deadline identity">
+        <div class="deadline-section-title">Deadline</div>
+        <div class="deadline-title-module-row">
+          <div class="field">
+            <label for="deadline-title-input">Title</label>
+            <input class="input" id="deadline-title-input" placeholder="Coursework hand-in">
+          </div>
+          <div class="field">
+            <label for="deadline-module-input">Module</label>
+            <select class="nav-select" id="deadline-module-input"></select>
+          </div>
         </div>
-        <div class="field">
-          <label for="deadline-module-input">Module</label>
-          <select class="nav-select" id="deadline-module-input"></select>
+      </section>
+      <section class="deadline-form-section" aria-label="Schedule">
+        <div class="deadline-section-title">Schedule</div>
+        <div class="deadline-form-row">
+          <div class="field">
+            <label for="deadline-date-input">Start Date</label>
+            <input class="input" id="deadline-date-input" type="date">
+          </div>
+          <div class="field" id="deadline-time-field">
+            <label for="deadline-time-input">Time</label>
+            <input class="input" id="deadline-time-input" type="time">
+          </div>
         </div>
-      </div>
-      <div class="field" id="deadline-priority-field">
-        <label>Priority</label>
-        <div class="deadline-priority-row" id="deadline-priority-row">
-          <button class="priority-choice active" data-priority="default" type="button" onclick="setDeadlinePriority('default')">Default</button>
-          <button class="priority-choice" data-priority="high" type="button" onclick="setDeadlinePriority('high')">High</button>
-          <button class="priority-choice" data-priority="medium" type="button" onclick="setDeadlinePriority('medium')">Medium</button>
-          <button class="priority-choice" data-priority="low" type="button" onclick="setDeadlinePriority('low')">Low</button>
+        <div class="field" id="deadline-priority-field">
+          <label>Priority</label>
+          <div class="deadline-priority-row" id="deadline-priority-row">
+            <button class="priority-choice active" data-priority="default" type="button" onclick="setDeadlinePriority('default')">Default</button>
+            <button class="priority-choice" data-priority="high" type="button" onclick="setDeadlinePriority('high')">High</button>
+            <button class="priority-choice" data-priority="medium" type="button" onclick="setDeadlinePriority('medium')">Medium</button>
+            <button class="priority-choice" data-priority="low" type="button" onclick="setDeadlinePriority('low')">Low</button>
+          </div>
         </div>
-      </div>
-      <div class="deadline-form-row">
-        <div class="field">
-          <label for="deadline-date-input">Start Date</label>
-          <input class="input" id="deadline-date-input" type="date">
-        </div>
-        <div class="field" id="deadline-time-field">
-          <label for="deadline-time-input">Time</label>
-          <input class="input" id="deadline-time-input" type="time">
-        </div>
-      </div>
-      <div id="deadline-calendar-fields" class="deadline-form-grid deadline-field-hidden">
+      </section>
+      <section id="deadline-calendar-fields" class="deadline-form-section deadline-field-hidden" aria-label="Calendar event details">
+        <div class="deadline-section-title">Calendar Details</div>
         <div class="deadline-form-row">
           <div class="field">
             <label for="deadline-end-date-input">End Date</label>
@@ -361,11 +368,14 @@
           <label for="deadline-location-input">Location</label>
           <input class="input" id="deadline-location-input" placeholder="Room, library, Zoom link, or leave blank">
         </div>
-      </div>
-      <div class="field">
-        <label for="deadline-note-input">Note</label>
-        <textarea class="timeline-notes" id="deadline-note-input" placeholder="Optional context, prep, or what to bring..."></textarea>
-      </div>
+      </section>
+      <section class="deadline-form-section deadline-form-section-notes" aria-label="Notes">
+        <div class="deadline-section-title">Notes</div>
+        <div class="field">
+          <label for="deadline-note-input">Note</label>
+          <textarea class="timeline-notes" id="deadline-note-input" placeholder="Optional context, prep, or what to bring..."></textarea>
+        </div>
+      </section>
       <div class="deadline-form-actions">
         <button class="nav-btn" type="button" onclick="closeDeadlineForm()">Cancel</button>
         <button class="nav-btn" type="button" onclick="saveDeadlineForm(false)" id="deadline-save-btn">Save</button>

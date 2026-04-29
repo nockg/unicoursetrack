@@ -355,44 +355,16 @@ function downloadCalendarIcs(eventData) {
   setTimeout(() => URL.revokeObjectURL(url), 500);
 }
 
-function reserveCalendarWindow() {
-  try {
-    return window.open("about:blank", "_blank", "noopener");
-  } catch (error) {
-    return null;
-  }
-}
-
-function closeReservedCalendarWindow(calendarWindow) {
-  try {
-    if (calendarWindow && !calendarWindow.closed) calendarWindow.close();
-  } catch (error) {
-    // Ignore browser cross-window restrictions.
-  }
-}
-
-function navigateCalendarWindow(url, calendarWindow = null) {
-  if (calendarWindow && !calendarWindow.closed) {
-    try {
-      calendarWindow.location.href = url;
-      return;
-    } catch (error) {
-      // Fall through to the normal popup path.
-    }
-  }
+function navigateCalendarWindow(url) {
   const opened = window.open(url, "_blank", "noopener");
   if (!opened) window.location.href = url;
 }
 
-function openCalendarEvent(eventData, calendarWindow = null) {
-  if (!eventData?.start || !eventData?.end || !eventData?.title) {
-    closeReservedCalendarWindow(calendarWindow);
-    return;
-  }
+function openCalendarEvent(eventData) {
+  if (!eventData?.start || !eventData?.end || !eventData?.title) return;
   const providerKey = preferences.calendarProvider || "google";
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
   if (providerKey === "apple") {
-    closeReservedCalendarWindow(calendarWindow);
     downloadCalendarIcs(eventData);
     return;
   }
@@ -406,7 +378,7 @@ function openCalendarEvent(eventData, calendarWindow = null) {
       allday: eventData.allDay ? "true" : "false",
       ctz: timezone
     });
-    navigateCalendarWindow(`https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`, calendarWindow);
+    navigateCalendarWindow(`https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`);
     return;
   }
   const params = new URLSearchParams({
@@ -420,10 +392,10 @@ function openCalendarEvent(eventData, calendarWindow = null) {
     crm: eventData.availability || "BUSY",
     ctz: timezone
   });
-  navigateCalendarWindow(`https://calendar.google.com/calendar/render?${params.toString()}`, calendarWindow);
+  navigateCalendarWindow(`https://calendar.google.com/calendar/render?${params.toString()}`);
 }
 
-function openDeadlineInCalendar(deadline, calendarWindow = null) {
+function openDeadlineInCalendar(deadline) {
   if (!deadline?.date || !deadline?.mod) return;
   const start = new Date(deadline.date);
   const end = deadline.endDate ? new Date(deadline.endDate) : new Date(start.getTime() + 60 * 60 * 1000);
@@ -435,7 +407,7 @@ function openDeadlineInCalendar(deadline, calendarWindow = null) {
     location: deadline.location || "",
     details: getDeadlineCalendarDetails(deadline),
     availability: deadline.availability || "BUSY"
-  }, calendarWindow);
+  });
 }
 
 function openDeadlineInCalendarByIndex(index, event) {
@@ -446,12 +418,9 @@ function openDeadlineInCalendarByIndex(index, event) {
 }
 
 function saveDeadlineForm(openCalendar = false) {
-  const calendarWindow = openCalendar ? reserveCalendarWindow() : null;
   const deadlineData = buildDeadlineFromForm();
-  if (!deadlineData) {
-    closeReservedCalendarWindow(calendarWindow);
-    return;
-  }
+  if (!deadlineData) return;
+  if (openCalendar && deadlineData.type === "event") openDeadlineInCalendar(deadlineData);
   const store = getStore();
   if (editingDeadlineIndex !== null && store.customExams[editingDeadlineIndex]) {
     deadlineData.completed = !!store.customExams[editingDeadlineIndex].completed;
@@ -464,8 +433,6 @@ function saveDeadlineForm(openCalendar = false) {
   renderStickyExams();
   closeDeadlineForm();
   showDeadlineTab("upcoming");
-  if (openCalendar && deadlineData.type === "event") openDeadlineInCalendar(deadlineData, calendarWindow);
-  else closeReservedCalendarWindow(calendarWindow);
 }
 
 
@@ -570,25 +537,37 @@ function renderDeadlineTimeline(force = false) {
         : `${target.toLocaleString([], { dateStyle: "medium", timeStyle: "short" })} - ${end.toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}`)
       : timeText;
     const edgeColour = deadlinePriorityColour(exam);
+    const statusLabel = isEvent ? "Calendar event" : `${deadlinePriorityLabel(exam)} priority`;
+    const noteText = (exam.note || "").trim();
     return `
       <div class="timeline-item">
         <div class="timeline-rail">
           <button class="timeline-dot complete-toggle" type="button" onclick="toggleDeadlineComplete(${exam.originalIndex}, event)" title="Mark deadline complete" aria-label="Mark deadline complete"></button>
         </div>
         <div class="timeline-card deadline-card-clickable" style="--deadline-edge-colour: ${edgeColour};" onclick="editDeadline(${exam.originalIndex})">
-          <div class="deadline-card-top">
-            <div class="deadline-card-title-line"><div class="timeline-title">${escapeHtml(exam.mod)}</div></div>
+          <div class="deadline-card-main">
+            <div class="deadline-card-copy">
+              <div class="deadline-card-title-line">
+                <div class="timeline-title">${escapeHtml(exam.mod)}</div>
+                <span class="deadline-status-pill">${escapeHtml(statusLabel)}</span>
+              </div>
+              <div class="deadline-meta-line">
+                <span>${escapeHtml(timeText)}</span>
+                <span>${escapeHtml(deadlineModuleLabel(exam))}</span>
+                ${isEvent && exam.location ? `<span>${escapeHtml(exam.location)}</span>` : ""}
+              </div>
+              ${noteText ? `<div class="deadline-note-preview">${escapeHtml(noteText)}</div>` : ""}
+            </div>
             <div class="deadline-card-countdown ${isUrgent ? "urgent" : ""}" data-deadline-countdown="${escapeHtml(exam.date)}">Due in ${escapeHtml(formatCountdown(exam.date))}</div>
-            <div class="deadline-meta-line">${escapeHtml(timeText)} · ${escapeHtml(deadlineModuleLabel(exam))} · ${escapeHtml(isEvent ? "Calendar Event" : deadlinePriorityLabel(exam))}</div>
           </div>
           <div class="deadline-card-lower">
             <details class="deadline-details" onclick="event.stopPropagation()">
               <summary>Details</summary>
               <div class="deadline-detail-grid">
-                <div><strong>When:</strong> ${escapeHtml(rangeText)}</div>
-                ${isEvent && exam.location ? `<div><strong>Location:</strong> ${escapeHtml(exam.location)}</div>` : ""}
-                ${isEvent ? `<div><strong>Show as:</strong> ${escapeHtml(exam.availability || "Busy")}</div>` : ""}
-                <div><strong>Note:</strong> ${escapeHtml(exam.note || "None added")}</div>
+                <div><span>When</span><strong>${escapeHtml(rangeText)}</strong></div>
+                ${isEvent && exam.location ? `<div><span>Location</span><strong>${escapeHtml(exam.location)}</strong></div>` : ""}
+                ${isEvent ? `<div><span>Show as</span><strong>${escapeHtml(exam.availability || "Busy")}</strong></div>` : ""}
+                <div><span>Note</span><strong>${escapeHtml(noteText || "None added")}</strong></div>
               </div>
             </details>
             <div class="deadline-card-actions" onclick="event.stopPropagation()">

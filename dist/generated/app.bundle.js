@@ -15,6 +15,7 @@ const supabaseClient = !cloudConfigMissing && window.supabase?.createClient ? su
   }
 }) : null;
 let currentUser = null;
+let currentSession = null;
 let cloudReady = false;
 let cloudHadSave = false;
 let cloudLoadSucceeded = false;
@@ -1235,6 +1236,30 @@ function openPreferredCalendar() {
   openCalendarComposer();
 }
 
+let modalScrollY = 0;
+
+function isMobileViewport() {
+  return window.matchMedia?.("(max-width: 760px)")?.matches || window.innerWidth <= 760;
+}
+
+function lockPageScroll() {
+  if (document.body.classList.contains("modal-scroll-locked")) return;
+  modalScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  const fixedScrollLock = !isMobileViewport();
+  document.body.dataset.scrollLockFixed = fixedScrollLock ? "true" : "false";
+  if (fixedScrollLock) document.body.style.top = `-${modalScrollY}px`;
+  document.body.classList.add("modal-scroll-locked");
+}
+
+function unlockPageScroll() {
+  if (!document.body.classList.contains("modal-scroll-locked")) return;
+  const shouldRestoreScroll = document.body.dataset.scrollLockFixed === "true";
+  document.body.classList.remove("modal-scroll-locked");
+  document.body.style.top = "";
+  delete document.body.dataset.scrollLockFixed;
+  if (shouldRestoreScroll) window.scrollTo(0, modalScrollY);
+}
+
 function toDateInputValue(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
@@ -1246,14 +1271,14 @@ function toTimeInputValue(date) {
 function openSelectedCalendar() {
   const providerKey = preferences.calendarProvider || "google";
   if (providerKey === "outlook") {
-    window.open("https://outlook.live.com/calendar/0/view/month", "_blank", "noopener");
+    navigateCalendarWindow("https://outlook.live.com/calendar/0/view/month");
     return;
   }
   if (providerKey === "apple") {
-    window.open("https://www.icloud.com/calendar/", "_blank", "noopener");
+    navigateCalendarWindow("https://www.icloud.com/calendar/");
     return;
   }
-  window.open("https://calendar.google.com/calendar/u/0/r", "_blank", "noopener");
+  navigateCalendarWindow("https://calendar.google.com/calendar/u/0/r");
 }
 
 function openCalendarComposer(prefill = null) {
@@ -3074,6 +3099,11 @@ function downloadCalendarIcs(eventData) {
   setTimeout(() => URL.revokeObjectURL(url), 500);
 }
 
+function navigateCalendarWindow(url) {
+  const opened = window.open(url, "_blank", "noopener");
+  if (!opened) window.location.href = url;
+}
+
 function openCalendarEvent(eventData) {
   if (!eventData?.start || !eventData?.end || !eventData?.title) return;
   const providerKey = preferences.calendarProvider || "google";
@@ -3092,7 +3122,7 @@ function openCalendarEvent(eventData) {
       allday: eventData.allDay ? "true" : "false",
       ctz: timezone
     });
-    window.open(`https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`, "_blank", "noopener");
+    navigateCalendarWindow(`https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`);
     return;
   }
   const params = new URLSearchParams({
@@ -3106,7 +3136,7 @@ function openCalendarEvent(eventData) {
     crm: eventData.availability || "BUSY",
     ctz: timezone
   });
-  window.open(`https://calendar.google.com/calendar/render?${params.toString()}`, "_blank", "noopener");
+  navigateCalendarWindow(`https://calendar.google.com/calendar/render?${params.toString()}`);
 }
 
 function openDeadlineInCalendar(deadline) {
@@ -3134,6 +3164,7 @@ function openDeadlineInCalendarByIndex(index, event) {
 function saveDeadlineForm(openCalendar = false) {
   const deadlineData = buildDeadlineFromForm();
   if (!deadlineData) return;
+  if (openCalendar && deadlineData.type === "event") openDeadlineInCalendar(deadlineData);
   const store = getStore();
   if (editingDeadlineIndex !== null && store.customExams[editingDeadlineIndex]) {
     deadlineData.completed = !!store.customExams[editingDeadlineIndex].completed;
@@ -3146,7 +3177,6 @@ function saveDeadlineForm(openCalendar = false) {
   renderStickyExams();
   closeDeadlineForm();
   showDeadlineTab("upcoming");
-  if (openCalendar && deadlineData.type === "event") openDeadlineInCalendar(deadlineData);
 }
 
 
@@ -3251,25 +3281,37 @@ function renderDeadlineTimeline(force = false) {
         : `${target.toLocaleString([], { dateStyle: "medium", timeStyle: "short" })} - ${end.toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}`)
       : timeText;
     const edgeColour = deadlinePriorityColour(exam);
+    const statusLabel = isEvent ? "Calendar event" : `${deadlinePriorityLabel(exam)} priority`;
+    const noteText = (exam.note || "").trim();
     return `
       <div class="timeline-item">
         <div class="timeline-rail">
           <button class="timeline-dot complete-toggle" type="button" onclick="toggleDeadlineComplete(${exam.originalIndex}, event)" title="Mark deadline complete" aria-label="Mark deadline complete"></button>
         </div>
         <div class="timeline-card deadline-card-clickable" style="--deadline-edge-colour: ${edgeColour};" onclick="editDeadline(${exam.originalIndex})">
-          <div class="deadline-card-top">
-            <div class="deadline-card-title-line"><div class="timeline-title">${escapeHtml(exam.mod)}</div></div>
+          <div class="deadline-card-main">
+            <div class="deadline-card-copy">
+              <div class="deadline-card-title-line">
+                <div class="timeline-title">${escapeHtml(exam.mod)}</div>
+                <span class="deadline-status-pill">${escapeHtml(statusLabel)}</span>
+              </div>
+              <div class="deadline-meta-line">
+                <span>${escapeHtml(timeText)}</span>
+                <span>${escapeHtml(deadlineModuleLabel(exam))}</span>
+                ${isEvent && exam.location ? `<span>${escapeHtml(exam.location)}</span>` : ""}
+              </div>
+              ${noteText ? `<div class="deadline-note-preview">${escapeHtml(noteText)}</div>` : ""}
+            </div>
             <div class="deadline-card-countdown ${isUrgent ? "urgent" : ""}" data-deadline-countdown="${escapeHtml(exam.date)}">Due in ${escapeHtml(formatCountdown(exam.date))}</div>
-            <div class="deadline-meta-line">${escapeHtml(timeText)} · ${escapeHtml(deadlineModuleLabel(exam))} · ${escapeHtml(isEvent ? "Calendar Event" : deadlinePriorityLabel(exam))}</div>
           </div>
           <div class="deadline-card-lower">
             <details class="deadline-details" onclick="event.stopPropagation()">
               <summary>Details</summary>
               <div class="deadline-detail-grid">
-                <div><strong>When:</strong> ${escapeHtml(rangeText)}</div>
-                ${isEvent && exam.location ? `<div><strong>Location:</strong> ${escapeHtml(exam.location)}</div>` : ""}
-                ${isEvent ? `<div><strong>Show as:</strong> ${escapeHtml(exam.availability || "Busy")}</div>` : ""}
-                <div><strong>Note:</strong> ${escapeHtml(exam.note || "None added")}</div>
+                <div><span>When</span><strong>${escapeHtml(rangeText)}</strong></div>
+                ${isEvent && exam.location ? `<div><span>Location</span><strong>${escapeHtml(exam.location)}</strong></div>` : ""}
+                ${isEvent ? `<div><span>Show as</span><strong>${escapeHtml(exam.availability || "Busy")}</strong></div>` : ""}
+                <div><span>Note</span><strong>${escapeHtml(noteText || "None added")}</strong></div>
               </div>
             </details>
             <div class="deadline-card-actions" onclick="event.stopPropagation()">
@@ -3348,8 +3390,8 @@ function getTodoPanelState() {
       locked: false,
       top: null,
       left: null,
-      width: 460,
-      height: 430,
+      width: 560,
+      height: 520,
       compact: false,
       hasOpenedOnce: false
     };
@@ -3365,12 +3407,12 @@ function applyTodoPanelState(forceCenter = false) {
   const items = getTodoItems();
   const maxWidth = window.innerWidth - 18;
   const maxHeight = Math.min(window.innerHeight - 18, 720);
-  const width = Math.max(330, Math.min(panelState.width || 460, maxWidth));
+  const width = Math.max(420, Math.min(panelState.width || 560, maxWidth));
 
-  const compactHeight = 282 + Math.min(items.length || 1, 6) * 52;
-  const expandedHeight = 238 + Math.min(items.length || 1, 4) * 112;
+  const compactHeight = 300 + Math.min(items.length || 1, 6) * 54;
+  const expandedHeight = 310 + Math.min(items.length || 1, 4) * 118;
   const preferredHeight = compact ? compactHeight : Math.max(panelState.height || 0, Math.min(expandedHeight, 620));
-  const minHeight = compact ? 320 : 340;
+  const minHeight = compact ? 340 : 430;
   const height = Math.max(minHeight, Math.min(preferredHeight, maxHeight));
 
   const savedLeft = Number.isFinite(panelState.left) ? panelState.left : null;
@@ -3567,8 +3609,8 @@ function toggleTodoCompactView() {
   panelState.compact = !panelState.compact;
   const items = getTodoItems();
   panelState.height = panelState.compact
-    ? Math.min(window.innerHeight - 18, 282 + Math.min(items.length || 1, 6) * 52)
-    : Math.min(window.innerHeight - 18, 238 + Math.min(items.length || 1, 4) * 112);
+    ? Math.min(window.innerHeight - 18, 300 + Math.min(items.length || 1, 6) * 54)
+    : Math.min(window.innerHeight - 18, 310 + Math.min(items.length || 1, 4) * 118);
   save();
   renderTodoPlanner();
   applyTodoPanelState();
@@ -3616,27 +3658,31 @@ function renderTodoPlanner() {
     if (compact) {
       return `
         <div class="todo-task-row ${doneClass}" onclick="handleTodoCardClick(${index}, event)">
-          <button class="timeline-dot complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
+          <button class="todo-check-btn complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
           <div class="todo-row-main">
             <div class="todo-row-title" title="${title}">${title}</div>
             <div class="todo-row-meta">${moduleLabel}</div>
           </div>
-          <button class="mini-btn todo-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)" title="Delete task" aria-label="Delete task">Delete</button>
+          <button class="todo-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)" title="Delete task" aria-label="Delete task">Delete</button>
         </div>
       `;
     }
     return `
       <div class="todo-expanded-card ${doneClass}" onclick="handleTodoCardClick(${index}, event)">
-        <button class="timeline-dot complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
-        <div>
-          <div class="todo-expanded-title">${title}</div>
-          <div class="todo-badge">${moduleLabel}</div>
+        <button class="todo-check-btn complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
+        <div class="todo-expanded-main">
+          <div class="todo-expanded-head">
+            <div>
+              <div class="todo-expanded-title">${title}</div>
+              <div class="todo-badge">${moduleLabel}</div>
+            </div>
+            <button class="todo-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)" title="Delete task" aria-label="Delete task">Delete</button>
+          </div>
           <details class="todo-note-details">
             <summary>${item.note ? "View note" : "Add note"}</summary>
             <textarea class="timeline-notes todo-inline-note" data-todo-note-index="${index}" placeholder="Add context, next steps, or anything you need to remember...">${escapeHtml(item.note || "")}</textarea>
           </details>
         </div>
-        <button class="mini-btn todo-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)" title="Delete task" aria-label="Delete task">Delete</button>
       </div>
     `;
   }).join("");
@@ -3814,21 +3860,6 @@ function buildModules() {
       if (!components.length) {
         componentsHost.innerHTML = `
           <div class="coursework-empty">Add each assessment below, or type your overall coursework mark in the main coursework box above.</div>
-          <div class="coursework-component-row coursework-placeholder-row">
-            <div class="field">
-              <label>Component</label>
-              <input class="input cw-placeholder-name" placeholder="Lab report, quiz, project...">
-            </div>
-            <div class="field">
-              <label>Mark %</label>
-              <input class="input cw-placeholder-mark" type="number" min="0" max="100" step="0.1" placeholder="72">
-            </div>
-            <div class="field">
-              <label>Weight %</label>
-              <input class="input cw-placeholder-weight" type="number" min="0" max="100" step="0.1" placeholder="25">
-            </div>
-            <button class="mini-btn coursework-component-delete" type="button" onclick="commitCourseworkPlaceholder(${mi}, event)">Add</button>
-          </div>
         `;
       } else {
         components.forEach((component, ci) => {
@@ -4250,8 +4281,10 @@ async function waitForInitialAuth() {
 
   try {
     const { data } = await supabaseClient.auth.getSession();
+    currentSession = data?.session || null;
     currentUser = data?.session?.user || null;
   } catch (error) {
+    currentSession = null;
     currentUser = null;
     console.warn("Initial auth check failed:", error?.message || error);
   }
@@ -4656,26 +4689,36 @@ function ensureCloudAuthReady() {
   return false;
 }
 
-function withCloudTimeout(promise, label = "Cloud request") {
+function withCloudTimeout(promise, label = "Cloud request", timeoutMs = 12000) {
   return Promise.race([
     promise,
     new Promise((_, reject) => {
-      setTimeout(() => reject(new Error(`${label} took too long. Check your connection and try again.`)), 5000);
+      setTimeout(() => reject(new Error(`${label} took too long. Check your connection and try again.`)), timeoutMs);
     })
   ]);
 }
 
-async function getCloudAccessToken() {
+function getCachedAccessToken(session = currentSession) {
+  const expiresAt = Number(session?.expires_at || 0);
+  const stillFresh = !expiresAt || expiresAt * 1000 > Date.now() + 30000;
+  return session?.access_token && stillFresh ? session.access_token : "";
+}
+
+async function getCloudAccessToken(session = currentSession) {
+  const cachedToken = getCachedAccessToken(session);
+  if (cachedToken) return cachedToken;
   if (!supabaseClient) throw new Error("Cloud sign-in is not available.");
   const { data, error } = await withCloudTimeout(supabaseClient.auth.getSession(), "Session check");
   if (error) throw error;
+  currentSession = data?.session || null;
+  currentUser = currentSession?.user || currentUser;
   const token = data?.session?.access_token;
   if (!token) throw new Error("Your session expired. Please sign in again.");
   return token;
 }
 
-async function trackerApiRequest(method, body = null) {
-  const token = await getCloudAccessToken();
+async function trackerApiRequest(method, body = null, session = currentSession) {
+  const token = await getCloudAccessToken(session);
   const response = await withCloudTimeout(fetch("/api/tracker", {
     method,
     headers: {
@@ -4699,15 +4742,15 @@ async function trackerApiRequest(method, body = null) {
   return payload;
 }
 
-function loadTrackerProfileFromApi() {
-  return trackerApiRequest("GET");
+function loadTrackerProfileFromApi(session = currentSession) {
+  return trackerApiRequest("GET", null, session);
 }
 
-function saveTrackerProfileToApi(nextState = state, nextPreferences = preferences) {
+function saveTrackerProfileToApi(nextState = state, nextPreferences = preferences, session = currentSession) {
   return trackerApiRequest("PUT", {
     data: nextState,
     prefs: nextPreferences
-  });
+  }, session);
 }
 
 function togglePasswordVisibility(...ids) {
@@ -4853,6 +4896,7 @@ async function signUpFromModal() {
       console.warn("Post-signup sign out error:", signOutError?.message || signOutError);
     }
     currentUser = null;
+    currentSession = null;
     cloudReady = false;
   }
   accountCreationInProgress = false;
@@ -4896,7 +4940,8 @@ async function loginFromModal() {
       return;
     }
 
-    currentUser = data.session?.user || data.user || null;
+    currentSession = data.session || null;
+    currentUser = currentSession?.user || data.user || null;
     clearLogoutFlagForSignedInUser();
   } catch (error) {
     setAuthLoading(false);
@@ -4918,6 +4963,7 @@ async function logoutCloud() {
   }
 
   currentUser = null;
+  currentSession = null;
   cloudReady = false;
   cloudHadSave = false;
   cloudLoadSucceeded = false;
@@ -4937,12 +4983,27 @@ async function logoutCloud() {
   renderAuthGate("login");
 }
 
-async function loadCloudSave() {
+let cloudLoadPromise = null;
+
+async function loadCloudSave(options = {}) {
+  if (cloudLoadPromise) return cloudLoadPromise;
+  cloudLoadPromise = loadCloudSaveInner(options).finally(() => {
+    cloudLoadPromise = null;
+  });
+  return cloudLoadPromise;
+}
+
+async function loadCloudSaveInner(options = {}) {
   cloudLoadSucceeded = false;
   if (!supabaseClient) {
     cloudReady = false;
     setAuthError("Cloud sign-in did not load. Refresh the page and check your internet connection.");
     return;
+  }
+
+  if (options.session) {
+    currentSession = options.session;
+    currentUser = options.session.user || currentUser;
   }
 
   if (!currentUser) {
@@ -4961,7 +5022,8 @@ async function loadCloudSave() {
       return;
     }
 
-    currentUser = sessionData.session?.user || null;
+    currentSession = sessionData.session || null;
+    currentUser = currentSession?.user || null;
   }
 
   console.log("Cloud user:", currentUser?.email || "not logged in");
@@ -4975,7 +5037,7 @@ async function loadCloudSave() {
 
   let profile;
   try {
-    ({ profile } = await withCloudTimeout(loadTrackerProfileFromApi(), "Cloud data load"));
+    ({ profile } = await withCloudTimeout(loadTrackerProfileFromApi(currentSession), "Cloud data load"));
   } catch (cloudError) {
     console.warn("Cloud load error:", cloudError?.message || cloudError);
     cloudReady = true;
@@ -5032,7 +5094,8 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     return;
   }
 
-  currentUser = session?.user || null;
+  currentSession = session || null;
+  currentUser = currentSession?.user || null;
   markAuthStateKnown();
   clearLogoutFlagForSignedInUser();
   if (!currentUser) cloudReady = false;
@@ -5054,7 +5117,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
       cloudReady = false;
       pendingFirstRunSetup = false;
     }
-    await loadCloudSave();
+    await loadCloudSave({ session: currentSession });
     pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
     if (pendingFirstRunSetup && shouldBlockUi) {
       resetLocalAppState();

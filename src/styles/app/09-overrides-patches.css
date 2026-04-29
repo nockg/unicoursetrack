@@ -509,6 +509,268 @@ body.theme-dark .deadline-choice-card:hover {
   line-height: 1.35 !important;
 }
 
+/* Deadline timeline hierarchy: scan-first work queue, not a decorative card stack. */
+#timeline-list .deadline-view-shell {
+  gap: 12px !important;
+}
+
+#timeline-list .timeline-item {
+  grid-template-columns: 20px minmax(0, 1fr) !important;
+  gap: 12px !important;
+}
+
+#timeline-list .timeline-rail::before {
+  background: color-mix(in srgb, var(--border) 78%, transparent 22%) !important;
+}
+
+#timeline-list .timeline-dot.complete-toggle {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  margin-top: 24px !important;
+  border-width: 2px !important;
+  background: var(--paper3) !important;
+}
+
+.timeline-card.deadline-card-clickable {
+  display: grid !important;
+  gap: 14px !important;
+  padding: 18px 18px 14px !important;
+  border-radius: 8px !important;
+  border: 1px solid color-mix(in srgb, var(--border) 86%, transparent 14%) !important;
+  border-left: 4px solid var(--deadline-edge-colour, var(--border2)) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 86%, transparent 14%) !important;
+  background: color-mix(in srgb, var(--paper3) 72%, white 28%) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.55) inset, 0 10px 30px rgba(26,22,18,0.055) !important;
+}
+
+.timeline-card.deadline-card-clickable:hover {
+  border-color: color-mix(in srgb, var(--border2) 76%, transparent 24%) !important;
+  border-left-color: var(--deadline-edge-colour, var(--border2)) !important;
+  background: color-mix(in srgb, var(--paper3) 82%, white 18%) !important;
+}
+
+.deadline-card-main {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: start !important;
+  gap: 18px !important;
+}
+
+.deadline-card-copy {
+  min-width: 0 !important;
+  display: grid !important;
+  gap: 8px !important;
+}
+
+.deadline-card-title-line {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.deadline-card-clickable .timeline-title {
+  font-size: 17px !important;
+  line-height: 1.22 !important;
+  font-weight: 700 !important;
+  color: var(--ink) !important;
+}
+
+.deadline-status-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 22px !important;
+  padding: 3px 8px !important;
+  border-radius: 999px !important;
+  border: 1px solid color-mix(in srgb, var(--deadline-edge-colour, var(--border2)) 54%, transparent 46%) !important;
+  background: color-mix(in srgb, var(--deadline-edge-colour, var(--border2)) 10%, transparent 90%) !important;
+  color: color-mix(in srgb, var(--deadline-edge-colour, var(--muted)) 72%, var(--sumi) 28%) !important;
+  font-family: "DM Mono", monospace !important;
+  font-size: 9.5px !important;
+  line-height: 1 !important;
+  letter-spacing: 0.07em !important;
+  text-transform: uppercase !important;
+}
+
+.deadline-meta-line {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 12.5px !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0 !important;
+  color: var(--muted) !important;
+}
+
+.deadline-meta-line span {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 24px !important;
+  padding: 3px 8px !important;
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent 16%) !important;
+  border-radius: 6px !important;
+  background: rgba(26,22,18,0.022) !important;
+}
+
+.deadline-note-preview {
+  max-width: 64ch !important;
+  color: color-mix(in srgb, var(--muted) 90%, var(--sumi) 10%) !important;
+  font-size: 13.5px !important;
+  line-height: 1.45 !important;
+  font-weight: 400 !important;
+}
+
+.deadline-card-countdown {
+  justify-self: end !important;
+  min-width: 124px !important;
+  padding: 8px 10px !important;
+  border-radius: 7px !important;
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent 22%) !important;
+  background: rgba(26,22,18,0.035) !important;
+  text-align: center !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+  font-weight: 700 !important;
+  color: var(--sumi) !important;
+  text-transform: uppercase !important;
+}
+
+.deadline-card-countdown.urgent {
+  border-color: color-mix(in srgb, var(--vermillion) 45%, transparent 55%) !important;
+  background: color-mix(in srgb, var(--vermillion) 10%, transparent 90%) !important;
+  color: var(--vermillion) !important;
+}
+
+.deadline-card-lower {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-top: 0 !important;
+  padding-top: 12px !important;
+  border-top: 1px solid color-mix(in srgb, var(--border) 78%, transparent 22%) !important;
+}
+
+.deadline-details {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.deadline-details summary {
+  width: fit-content !important;
+  padding: 0 !important;
+  color: var(--muted) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.08em !important;
+}
+
+.deadline-details[open] summary {
+  margin-bottom: 10px !important;
+  color: var(--sumi) !important;
+}
+
+.deadline-detail-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  padding: 0 !important;
+  font-size: 12.5px !important;
+  line-height: 1.35 !important;
+}
+
+.deadline-detail-grid > div {
+  display: grid !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+  padding: 8px 10px !important;
+  border: 1px solid color-mix(in srgb, var(--border) 76%, transparent 24%) !important;
+  border-radius: 6px !important;
+  background: rgba(26,22,18,0.018) !important;
+}
+
+.deadline-detail-grid span {
+  font-family: "DM Mono", monospace !important;
+  font-size: 9px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+}
+
+.deadline-detail-grid strong {
+  min-width: 0 !important;
+  color: var(--sumi) !important;
+  font-weight: 500 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.deadline-card-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+.deadline-card-actions .mini-btn {
+  min-height: 32px !important;
+  border-radius: 6px !important;
+  padding: 7px 12px !important;
+  font-size: 10px !important;
+}
+
+body.theme-dark .timeline-card.deadline-card-clickable {
+  background: #1b1b1e !important;
+  border-color: rgba(255,255,255,0.1) !important;
+  border-left-color: var(--deadline-edge-colour, rgba(255,255,255,0.26)) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 14px 34px rgba(0,0,0,0.22) !important;
+}
+
+body.theme-dark .timeline-card.deadline-card-clickable:hover {
+  background: #202024 !important;
+  border-color: rgba(255,255,255,0.15) !important;
+  border-left-color: var(--deadline-edge-colour, rgba(255,255,255,0.3)) !important;
+}
+
+body.theme-dark .deadline-card-clickable .timeline-title,
+body.theme-dark .deadline-detail-grid strong {
+  color: #f1ede4 !important;
+}
+
+body.theme-dark .deadline-status-pill {
+  background: color-mix(in srgb, var(--deadline-edge-colour, #f1ede4) 16%, transparent 84%) !important;
+  border-color: color-mix(in srgb, var(--deadline-edge-colour, #f1ede4) 44%, transparent 56%) !important;
+  color: #f4efe7 !important;
+}
+
+body.theme-dark .deadline-meta-line,
+body.theme-dark .deadline-note-preview,
+body.theme-dark .deadline-details summary,
+body.theme-dark .deadline-detail-grid span {
+  color: rgba(241,237,228,0.68) !important;
+}
+
+body.theme-dark .deadline-meta-line span,
+body.theme-dark .deadline-detail-grid > div {
+  background: rgba(255,255,255,0.035) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+body.theme-dark .deadline-card-countdown {
+  background: rgba(255,255,255,0.055) !important;
+  border-color: rgba(255,255,255,0.11) !important;
+  color: #f4efe7 !important;
+}
+
+body.theme-dark .deadline-card-countdown.urgent {
+  background: rgba(240,139,128,0.12) !important;
+  border-color: rgba(240,139,128,0.28) !important;
+  color: #f08b80 !important;
+}
+
+body.theme-dark .deadline-card-lower {
+  border-top-color: rgba(255,255,255,0.08) !important;
+}
+
 /* Make Track a Date truly simple. Calendar-only fields stay hidden. */
 .deadline-field-hidden,
 #deadline-calendar-fields.deadline-field-hidden,
@@ -521,13 +783,13 @@ body.theme-dark .deadline-choice-card:hover {
   display: none !important;
 }
 
-/* Calendar fields should not become a weird separate nested card. */
+/* Calendar fields should read as one guided section, not a weird nested card. */
 #deadline-calendar-fields:not(.deadline-field-hidden) {
-  display: contents !important;
-  padding: 0 !important;
+  display: grid !important;
+  padding: 16px !important;
   margin: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
+  border: 1px solid color-mix(in srgb, var(--deadline-edge-colour, var(--border2)) 28%, var(--border) 72%) !important;
+  background: rgba(26,22,18,0.018) !important;
   box-shadow: none !important;
 }
 
@@ -540,9 +802,9 @@ body.theme-dark .deadline-choice-card:hover {
 /* Remove the glow/halo. Keep the normal UniTrack paper modal feel. */
 #deadline-form-modal.dashboard-modal,
 #calendar-modal.dashboard-modal {
-  background: rgba(8,8,8,0.48) !important;
-  backdrop-filter: blur(7px) !important;
-  -webkit-backdrop-filter: blur(7px) !important;
+  background: rgba(8,8,8,0.42) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 #deadline-form-modal .dashboard-content.deadline-form-content,
@@ -555,7 +817,7 @@ body.theme-dark .deadline-choice-card:hover {
   background: var(--paper3) !important;
   border: 1px solid var(--border2) !important;
   border-radius: 10px !important;
-  box-shadow: 0 18px 48px rgba(14,12,10,0.24) !important;
+  box-shadow: 0 12px 28px rgba(14,12,10,0.18) !important;
 }
 
 #deadline-form-modal .deadline-form-content > .timeline-subtitle,
@@ -575,6 +837,7 @@ body.theme-dark .deadline-choice-card:hover {
 
 #deadline-form-modal .deadline-form-grid,
 #calendar-modal .deadline-form-grid {
+  gap: 14px !important;
   min-height: 0 !important;
   max-height: none !important;
   overflow-y: auto !important;
@@ -583,19 +846,42 @@ body.theme-dark .deadline-choice-card:hover {
   scrollbar-width: thin;
 }
 
+#deadline-form-modal .deadline-form-section {
+  display: grid !important;
+  gap: 12px !important;
+  padding: 14px !important;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%) !important;
+  border-radius: 7px !important;
+  background: rgba(255,255,255,0.18) !important;
+}
+
+#deadline-form-modal .deadline-form-section-primary {
+  background: color-mix(in srgb, var(--paper3) 70%, white 30%) !important;
+}
+
+#deadline-form-modal .deadline-section-title {
+  color: var(--sumi) !important;
+  font-family: "DM Mono", monospace !important;
+  font-size: 10px !important;
+  line-height: 1.2 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+}
+
 #deadline-form-modal .deadline-form-row,
 #calendar-modal .deadline-form-row {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   gap: 12px !important;
-  align-items: end !important;
+  align-items: start !important;
 }
 
 #deadline-form-modal .deadline-title-module-row {
   display: grid !important;
   grid-template-columns: minmax(0, 1.25fr) minmax(180px, 0.75fr) !important;
   gap: 12px !important;
-  align-items: end !important;
+  align-items: start !important;
 }
 
 #deadline-form-modal .timeline-notes,
@@ -616,7 +902,7 @@ body.theme-dark .deadline-choice-card:hover {
   gap: 10px !important;
   margin: 6px -28px -22px !important;
   padding: 14px 28px 16px !important;
-  background: linear-gradient(to bottom, rgba(250,247,242,0.86), var(--paper3) 32%) !important;
+  background: var(--paper3) !important;
   border-top: 1px solid var(--border) !important;
 }
 
@@ -637,6 +923,14 @@ body.modal-scroll-locked .deadline-splash:not(.hidden) {
 body.modal-scroll-locked .deadline-form-grid,
 body.modal-scroll-locked .dashboard-content {
   overscroll-behavior: contain !important;
+}
+
+@media (max-width: 760px) {
+  body.modal-scroll-locked {
+    position: static !important;
+    top: auto !important;
+    width: auto !important;
+  }
 }
 
 /* Font preferences: titles and deadline UI must follow selected style. */
@@ -716,7 +1010,7 @@ body.theme-dark #deadline-form-modal .dashboard-content.deadline-form-content,
 body.theme-dark #calendar-modal .dashboard-content.calendar-form-content {
   background: #1b1b1e !important;
   border-color: rgba(255,255,255,0.12) !important;
-  box-shadow: 0 18px 48px rgba(0,0,0,0.34) !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.28) !important;
 }
 
 body.theme-dark #deadline-form-modal .input,
@@ -732,8 +1026,393 @@ body.theme-dark #calendar-modal .timeline-notes {
 
 body.theme-dark #deadline-form-modal .deadline-form-actions,
 body.theme-dark #calendar-modal .deadline-form-actions {
-  background: linear-gradient(to bottom, rgba(27,27,30,0.84), #1b1b1e 32%) !important;
+  background: #1b1b1e !important;
   border-top-color: rgba(255,255,255,0.1) !important;
+}
+
+body.theme-dark #deadline-form-modal .deadline-form-section,
+body.theme-dark #deadline-calendar-fields:not(.deadline-field-hidden) {
+  background: rgba(255,255,255,0.035) !important;
+  border-color: rgba(255,255,255,0.09) !important;
+}
+
+body.theme-dark #deadline-form-modal .deadline-section-title {
+  color: #f1ede4 !important;
+}
+
+/* Module card hierarchy: title first, controls second, dropdown content calm. */
+@media (min-width: 761px) {
+  .module {
+    margin-bottom: 14px !important;
+    border-radius: 6px !important;
+    padding-top: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .module:hover {
+    box-shadow: 0 8px 20px rgba(26,22,18,0.055) !important;
+  }
+
+  .module::before {
+    width: 4px !important;
+  }
+
+  .module-header {
+    grid-template-columns: minmax(260px, 1.7fr) minmax(190px, 0.9fr) minmax(220px, 0.95fr) minmax(72px, auto) 18px !important;
+    gap: 20px !important;
+    padding: 18px 22px 18px 24px !important;
+    align-items: center !important;
+  }
+
+  .module-header .mod-stripe,
+  .module-header .module-actions {
+    display: none !important;
+  }
+
+  .module-summary {
+    min-width: 0 !important;
+  }
+
+  .mod-name {
+    font-size: 19px !important;
+    line-height: 1.18 !important;
+    margin-bottom: 5px !important;
+    color: var(--ink) !important;
+  }
+
+  .mod-kanji {
+    font-family: "DM Mono", monospace !important;
+    font-size: 10.5px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.08em !important;
+    line-height: 1.35 !important;
+    margin-bottom: 10px !important;
+    color: var(--muted) !important;
+  }
+
+  .module-links {
+    gap: 7px !important;
+  }
+
+  .module-links .bb-link,
+  .module-links .formula-btn {
+    min-height: 30px !important;
+    padding: 6px 10px !important;
+    border-radius: 5px !important;
+    font-size: 9.5px !important;
+    letter-spacing: 0.06em !important;
+  }
+
+  .progress-section {
+    padding: 12px 14px !important;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%) !important;
+    border-radius: 7px !important;
+    background: rgba(26,22,18,0.018) !important;
+  }
+
+  .prog-header {
+    align-items: baseline !important;
+    margin-bottom: 9px !important;
+  }
+
+  .prog-done {
+    font-size: 24px !important;
+    line-height: 1 !important;
+  }
+
+  .prog-pct,
+  .prog-of {
+    font-size: 10px !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  .prog-track {
+    height: 5px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .module-header > .inputs-grid {
+    padding: 12px !important;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%) !important;
+    border-radius: 7px !important;
+    background: rgba(26,22,18,0.014) !important;
+  }
+
+  .module-header .field label {
+    font-size: 9px !important;
+    letter-spacing: 0.09em !important;
+    margin-bottom: 5px !important;
+  }
+
+  .module-header .input {
+    min-height: 38px !important;
+    padding: 8px 10px !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+  }
+
+  .final-col {
+    min-width: 68px !important;
+    text-align: right !important;
+  }
+
+  .final-mark {
+    font-size: 30px !important;
+    line-height: 0.95 !important;
+    margin-bottom: 5px !important;
+  }
+
+  .final-cls {
+    max-width: 112px !important;
+    font-size: 9px !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+  }
+
+  .chevron {
+    justify-self: end !important;
+    opacity: 0.72 !important;
+  }
+
+  .topic-list {
+    background: color-mix(in srgb, var(--paper2) 92%, white 8%) !important;
+  }
+
+  .module-edit-tools,
+  .notes-area-wrap,
+  .formula-links-wrap,
+  .relevant-links-wrap,
+  .module-section-head,
+  .module-section-body {
+    padding-left: 28px !important;
+    padding-right: 22px !important;
+  }
+
+  .module-edit-tools {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    background: rgba(26,22,18,0.018) !important;
+  }
+
+  .module-section-head {
+    padding-top: 13px !important;
+    padding-bottom: 13px !important;
+  }
+
+  .module-section-title,
+  .topic-tools-title,
+  .formula-links-title,
+  .relevant-links-title {
+    font-size: 10px !important;
+    letter-spacing: 0.11em !important;
+    font-weight: 700 !important;
+    color: color-mix(in srgb, var(--muted) 82%, var(--sumi) 18%) !important;
+  }
+
+  .module-section.coursework-section .module-section-title {
+    font-size: 10.5px !important;
+    letter-spacing: 0.12em !important;
+  }
+
+  .module-section-controls .mini-btn,
+  .module-edit-tools .bb-edit-btn,
+  .module-edit-tools .mini-btn,
+  .topic-entry-row .mini-btn {
+    min-height: 30px !important;
+    border-radius: 5px !important;
+    padding: 6px 10px !important;
+    font-size: 9.5px !important;
+  }
+
+  .topic-entry-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 10px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .topic-entry-help {
+    max-width: 78ch !important;
+    font-family: "Segoe UI", Arial, sans-serif !important;
+    font-size: 12.5px !important;
+    line-height: 1.42 !important;
+    color: var(--muted) !important;
+  }
+
+  .topic-row {
+    min-height: 40px !important;
+    padding: 9px 12px !important;
+    gap: 10px !important;
+  }
+
+  .topic-label {
+    font-size: 14px !important;
+    line-height: 1.34 !important;
+    font-weight: 500 !important;
+    color: var(--ink) !important;
+  }
+
+  .subtopic-row .topic-label {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: color-mix(in srgb, var(--ink) 84%, var(--muted) 16%) !important;
+  }
+
+  .subtopic-list {
+    margin-left: 26px !important;
+    border-left: 1px solid color-mix(in srgb, var(--border) 78%, transparent 22%) !important;
+  }
+}
+
+body.theme-dark .progress-section,
+body.theme-dark .module-header > .inputs-grid,
+body.theme-dark .module-edit-tools {
+  background: rgba(255,255,255,0.03) !important;
+  border-color: rgba(255,255,255,0.09) !important;
+}
+
+body.theme-dark .topic-list {
+  background: #171719 !important;
+}
+
+body.theme-dark .module-section-title,
+body.theme-dark .topic-tools-title,
+body.theme-dark .formula-links-title,
+body.theme-dark .relevant-links-title {
+  color: rgba(241,237,228,0.7) !important;
+}
+
+/* Calendar composer polish */
+#calendar-modal .dashboard-content.calendar-form-content {
+  width: min(760px, calc(100vw - 42px)) !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  border-radius: 8px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.36), rgba(255,255,255,0) 128px),
+    var(--paper3) !important;
+}
+
+#calendar-modal .calendar-form-content > .timeline-subtitle {
+  display: none !important;
+}
+
+#calendar-modal .calendar-form-content > .dashboard-title {
+  position: relative !important;
+  padding: 28px 70px 20px 30px !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 72%, transparent 28%) !important;
+  font-size: clamp(30px, 3vw, 40px) !important;
+  line-height: 1 !important;
+}
+
+#calendar-modal .calendar-form-content > .dashboard-title::before {
+  content: "Calendar";
+  display: block;
+  margin-bottom: 7px;
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+#calendar-modal .deadline-form-grid {
+  padding: 22px 30px 24px !important;
+  gap: 14px !important;
+}
+
+#calendar-modal .calendar-form-content .field {
+  gap: 6px !important;
+}
+
+#calendar-modal .calendar-form-content .field > label {
+  font-size: 9px !important;
+  letter-spacing: 0.13em !important;
+}
+
+#calendar-modal .calendar-form-content .input,
+#calendar-modal .calendar-form-content .nav-select,
+#calendar-modal .calendar-form-content .timeline-notes {
+  border-radius: 6px !important;
+  border-color: color-mix(in srgb, var(--border2) 62%, transparent 38%) !important;
+  background: color-mix(in srgb, var(--paper) 72%, white 28%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.38) !important;
+}
+
+#calendar-modal .calendar-form-content .input,
+#calendar-modal .calendar-form-content .nav-select {
+  min-height: 42px !important;
+}
+
+#calendar-modal .deadline-form-row {
+  grid-template-columns: minmax(0, 1fr) minmax(128px, 0.48fr) !important;
+  padding: 12px !important;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%) !important;
+  border-radius: 8px !important;
+  background: rgba(26,22,18,0.018) !important;
+}
+
+#calendar-modal .deadline-form-row:nth-of-type(4) {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+#calendar-modal .timeline-notes {
+  min-height: 92px !important;
+  height: 92px !important;
+  max-height: 92px !important;
+  line-height: 1.42 !important;
+}
+
+#calendar-modal .deadline-form-actions {
+  margin-top: 2px !important;
+  padding-top: 14px !important;
+}
+
+#calendar-modal .deadline-form-actions .nav-btn {
+  border-radius: 6px !important;
+  min-height: 42px !important;
+}
+
+#calendar-modal .deadline-form-actions .calendar-btn {
+  min-width: 168px !important;
+  background: var(--sumi) !important;
+  border-color: var(--sumi) !important;
+  color: var(--paper3) !important;
+}
+
+#calendar-modal .deadline-form-actions .calendar-btn:hover {
+  background: color-mix(in srgb, var(--sumi) 88%, var(--gold2) 12%) !important;
+  border-color: color-mix(in srgb, var(--sumi) 82%, var(--gold2) 18%) !important;
+}
+
+#calendar-modal .dashboard-close {
+  border-radius: 6px !important;
+}
+
+body.theme-dark #calendar-modal .dashboard-content.calendar-form-content {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0) 128px),
+    #1b1b1e !important;
+}
+
+body.theme-dark #calendar-modal .deadline-form-row {
+  background: rgba(255,255,255,0.026) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+body.theme-dark #calendar-modal .calendar-form-content .input,
+body.theme-dark #calendar-modal .calendar-form-content .nav-select,
+body.theme-dark #calendar-modal .calendar-form-content .timeline-notes {
+  background: #202024 !important;
+  border-color: rgba(255,255,255,0.13) !important;
+}
+
+body.theme-dark #calendar-modal .deadline-form-actions .calendar-btn {
+  background: #f1ede4 !important;
+  border-color: #f1ede4 !important;
+  color: #171719 !important;
 }
 
 @media (max-width: 700px) {
@@ -772,5 +1451,585 @@ body.theme-dark #calendar-modal .deadline-form-actions {
   #deadline-form-modal .deadline-form-actions .nav-btn,
   #calendar-modal .deadline-form-actions .nav-btn {
     width: 100% !important;
+  }
+
+  #calendar-modal .calendar-form-content > .dashboard-title {
+    padding: 24px 58px 18px 20px !important;
+  }
+
+  #calendar-modal .deadline-form-grid {
+    padding: 18px 20px 20px !important;
+  }
+
+  #calendar-modal .deadline-form-row,
+  #calendar-modal .deadline-form-row:nth-of-type(4) {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Mobile app shell */
+@media (max-width: 760px) {
+  body:not(.auth-required):not(.auth-loading):not(.setup-required) {
+    padding-top: 118px !important;
+  }
+
+  body.countdown-header-hidden:not(.auth-required):not(.auth-loading):not(.setup-required) {
+    padding-top: 58px !important;
+  }
+
+  .sticky-exams {
+    height: 58px !important;
+    padding: 0 10px !important;
+    scroll-snap-type: x proximity;
+  }
+
+  .exam-ticker {
+    min-width: 210px !important;
+    padding: 0 14px !important;
+    scroll-snap-align: start;
+  }
+
+  .ticker-time {
+    font-size: 15px !important;
+  }
+
+  .nav-bar {
+    top: 58px !important;
+    min-height: 60px !important;
+    padding: 8px 10px !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    align-items: center !important;
+    scrollbar-width: none;
+  }
+
+  body.countdown-header-hidden .nav-bar {
+    top: 0 !important;
+  }
+
+  .nav-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-brand {
+    width: 32px !important;
+    height: 32px !important;
+    flex-basis: 32px !important;
+  }
+
+  .year-controls {
+    min-width: 132px !important;
+    flex: 0 0 132px !important;
+  }
+
+  .nav-btn,
+  .nav-select,
+  .pref-toggle-pill,
+  .mini-btn,
+  .bb-link,
+  .bb-edit-btn,
+  .formula-btn {
+    min-height: 38px;
+    font-size: 10px;
+  }
+
+  .nav-bar > .nav-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 8px 12px !important;
+  }
+
+  .prefs-toggle-btn {
+    margin-left: 0 !important;
+  }
+
+  .hero {
+    margin-top: 0 !important;
+    padding: 20px 14px 18px !important;
+    overflow-x: hidden !important;
+  }
+
+  .hero-inner {
+    max-width: none !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  h1 {
+    max-width: 100% !important;
+    font-size: clamp(28px, 12vw, 38px) !important;
+    line-height: 1 !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+    margin-bottom: 12px !important;
+  }
+
+  .eyebrow {
+    font-size: 9px !important;
+    margin-bottom: 10px !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    letter-spacing: 0.12em !important;
+  }
+
+  .hero-grid,
+  .stats {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+  }
+
+  .stat-card,
+  .washi-card,
+  .dash-launch {
+    min-width: 0 !important;
+    border-radius: 6px !important;
+  }
+
+  .hero-grid > .washi-card {
+    padding: 14px !important;
+  }
+
+  .dash-actions-card {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: none !important;
+    gap: 8px !important;
+    min-height: 0 !important;
+  }
+
+  .dash-hero-btn {
+    min-height: 70px !important;
+    height: auto !important;
+    padding: 12px 10px !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .dash-hero-btn .dash-launch-icon {
+    font-size: clamp(15px, 5.2vw, 20px) !important;
+    line-height: 1.1 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .dash-launch::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  .global-big {
+    font-size: clamp(30px, 11vw, 42px) !important;
+    line-height: 1 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .meta-row,
+  .hero-summary {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 4px !important;
+  }
+
+  .predictor-hero-number {
+    font-size: clamp(42px, 16vw, 64px) !important;
+    line-height: 0.95 !important;
+  }
+
+  .content {
+    padding: 14px 10px 58px !important;
+  }
+
+  .module {
+    margin-bottom: 10px !important;
+    border-radius: 6px !important;
+  }
+
+  .module-header {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+    padding: 16px 14px !important;
+    align-items: stretch !important;
+  }
+
+  .module-header .mod-stripe,
+  .module-header .module-actions,
+  .module-header .chevron {
+    display: none !important;
+  }
+
+  .module-summary,
+  .progress-section,
+  .inputs-grid,
+  .final-col {
+    grid-column: 1 / -1 !important;
+  }
+
+  .module-summary {
+    min-width: 0 !important;
+  }
+
+  .mod-name {
+    font-size: 18px !important;
+    padding-right: 34px !important;
+  }
+
+  .mod-kanji {
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .progress-section {
+    width: 100% !important;
+    padding: 12px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    background: rgba(26,22,18,0.025) !important;
+  }
+
+  .prog-header {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    align-items: end !important;
+    gap: 10px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .prog-done {
+    font-size: 32px !important;
+    line-height: 0.9 !important;
+  }
+
+  .prog-pct {
+    justify-self: end !important;
+    text-align: right !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+  }
+
+  .prog-track {
+    height: 8px !important;
+    margin-bottom: 9px !important;
+    border-radius: 999px !important;
+  }
+
+  .prog-of {
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+    color: var(--muted) !important;
+  }
+
+  .module-header > .inputs-grid {
+    padding: 12px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    background: rgba(26,22,18,0.018) !important;
+  }
+
+  .module-header > .final-col {
+    text-align: left !important;
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 12px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    background: rgba(26,22,18,0.018) !important;
+  }
+
+  .final-mark {
+    font-size: 34px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .final-cls {
+    justify-self: start !important;
+    text-align: left !important;
+    line-height: 1.3 !important;
+  }
+
+  body.compact-ui .module-header {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+    padding: 16px 14px !important;
+  }
+
+  body.compact-ui .module-header > .inputs-grid,
+  body.compact-ui .module-header > .final-col {
+    display: grid !important;
+  }
+
+  body.compact-ui .prog-header {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    justify-content: initial !important;
+    margin-bottom: 10px !important;
+  }
+
+  body.compact-ui .prog-done,
+  body.compact-ui .prog-of {
+    display: block !important;
+  }
+
+  body.compact-ui .prog-pct {
+    font-size: 10px !important;
+    justify-self: end !important;
+  }
+
+  .module-links,
+  .module-edit-tools,
+  .module-edit-primary,
+  .module-edit-secondary {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .module-edit-tools,
+  .notes-area-wrap,
+  .formula-links-wrap,
+  .relevant-links-wrap,
+  .module-section-head {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .inputs-grid,
+  .deadline-title-module-row,
+  .deadline-card-lower,
+  .coursework-component-row,
+  .topic-entry-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .topic-entry-row {
+    display: grid !important;
+  }
+
+  .topic-row {
+    padding: 9px 12px 9px 14px !important;
+    gap: 8px !important;
+  }
+
+  .topic-row.subtopic-row {
+    padding-left: 34px !important;
+  }
+
+  .subtopic-list {
+    margin-left: 0 !important;
+  }
+
+  .topic-prefix {
+    width: 18px !important;
+    min-width: 18px !important;
+  }
+
+  .dashboard-modal {
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    padding: 8px !important;
+  }
+
+  .dashboard-content,
+  .timeline-content,
+  .deadline-form-content,
+  .calendar-form-content,
+  .module-library-content,
+  .onboarding-content,
+  .setup-content {
+    width: 100% !important;
+    max-width: none !important;
+    max-height: calc(100dvh - 16px) !important;
+    border-radius: 10px !important;
+  }
+
+  .dashboard-content {
+    padding: 18px !important;
+  }
+
+  .timeline-head,
+  #todo-modal .timeline-head {
+    padding-right: 44px !important;
+  }
+
+  .timeline-topline {
+    align-items: flex-start !important;
+  }
+
+  .timeline-page-title,
+  .dashboard-title {
+    font-size: 30px !important;
+    line-height: 1 !important;
+  }
+
+  .timeline-item {
+    grid-template-columns: 18px minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .timeline-card {
+    padding: 12px !important;
+  }
+
+  .deadline-card-top {
+    gap: 6px !important;
+  }
+
+  .deadline-card-actions,
+  .deadline-form-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  #todo-modal .todo-content {
+    inset: 8px !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    min-width: 0 !important;
+    border-radius: 10px !important;
+  }
+
+  #todo-modal .timeline-head {
+    padding: 16px !important;
+  }
+
+  #todo-modal .todo-toolbar,
+  #todo-modal.todo-compact-mode .todo-toolbar {
+    grid-template-columns: 1fr !important;
+  }
+
+  #todo-modal .todo-add-btn,
+  #todo-view-toggle {
+    width: 100% !important;
+  }
+
+  #todo-modal .todo-list {
+    padding: 12px 14px 18px !important;
+  }
+
+  .todo-view-row {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    padding: 12px 14px !important;
+  }
+
+  .todo-summary {
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  .todo-expanded-card,
+  .todo-task-row {
+    grid-template-columns: 22px minmax(0,1fr) 48px !important;
+    gap: 8px !important;
+  }
+
+  .todo-expanded-card {
+    grid-template-columns: 22px minmax(0,1fr) !important;
+  }
+
+  .todo-expanded-head {
+    grid-template-columns: minmax(0,1fr) 48px !important;
+  }
+
+  .todo-delete-btn {
+    width: 48px !important;
+    padding: 0 !important;
+    justify-self: end !important;
+  }
+
+  #deadline-form-modal .deadline-form-grid,
+  #calendar-modal .deadline-form-grid {
+    padding: 16px !important;
+  }
+
+  #deadline-form-modal .deadline-form-actions,
+  #calendar-modal .deadline-form-actions {
+    position: static !important;
+    margin: 8px 0 0 !important;
+    padding: 12px 0 0 !important;
+  }
+
+  #timeline-list .timeline-item {
+    grid-template-columns: 18px minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  #timeline-list .timeline-dot.complete-toggle {
+    margin-top: 22px !important;
+  }
+
+  .timeline-card.deadline-card-clickable {
+    padding: 14px !important;
+    gap: 12px !important;
+  }
+
+  .deadline-card-main,
+  .deadline-card-lower,
+  .deadline-detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .deadline-card-countdown {
+    justify-self: stretch !important;
+    min-width: 0 !important;
+    text-align: left !important;
+  }
+
+  .deadline-meta-line span {
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .deadline-card-actions {
+    justify-content: stretch !important;
+  }
+
+  .deadline-card-actions .mini-btn {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 420px) {
+  h1 {
+    font-size: clamp(25px, 11vw, 32px) !important;
+  }
+
+  .dash-actions-card {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dash-hero-btn {
+    min-height: 54px !important;
+  }
+
+  .module-header {
+    padding: 14px 12px !important;
+  }
+
+  .module-delete-corner {
+    top: 12px !important;
+    right: 12px !important;
+  }
+
+  .dashboard-modal {
+    padding: 0 !important;
+  }
+
+  .dashboard-content,
+  .timeline-content,
+  .deadline-form-content,
+  .calendar-form-content {
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
   }
 }

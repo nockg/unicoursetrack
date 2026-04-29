@@ -14,6 +14,7 @@ const supabaseClient = !cloudConfigMissing && window.supabase?.createClient ? su
   }
 }) : null;
 let currentUser = null;
+let currentSession = null;
 let cloudReady = false;
 let cloudHadSave = false;
 let cloudLoadSucceeded = false;
