@@ -1,4 +1,10 @@
+node_modules/
+dist/
 .env
-.env.local
+.env.*
 public/config.js
-public/generated/
+public/config.example.js
+public/config.local.js
+.DS_Store
+*.log
+.vercel/

@@ -105,7 +105,7 @@
   </button>
   <button class="nav-btn" onclick="addModuleToCurrentYear()">Add Module</button>
   <button class="nav-btn" onclick="openDeadlineTimeline()">Deadlines</button>
-  <button class="nav-btn" onclick="toggleTodoPlanner()">To-Do List</button>
+  <button class="nav-btn" onclick="openTodoPlanner()">To-Do List</button>
   <button class="nav-btn dashboard-nav-btn" onclick="openDashboard()">Dashboard</button>
   <button class="nav-btn prefs-toggle-btn" onclick="togglePreferences()">Preferences</button>
   <button class="nav-btn" id="auth-btn" onclick="openAuthModal()">Account</button>
@@ -150,28 +150,6 @@
         <option value="apple">Apple Calendar</option>
         <option value="outlook">Outlook Calendar</option>
       </select>
-    </div>
-    <div class="field">
-      <label for="pref-grading-system">Grading System</label>
-      <select class="nav-select" id="pref-grading-system" onchange="setGradingSystemPreference(this.value)">
-        <option value="uk">UK Honours Convention</option>
-        <option value="us4">US Common 4.00 GPA</option>
-        <option value="us43">US 4.30 GPA</option>
-        <option value="au7">Australia Common 7.00 GPA</option>
-        <option value="au4">Australia 4.00 GPA</option>
-        <option value="my4">Malaysia Common 4.00 GPA</option>
-        <option value="cn4">China Common 4.00 Conversion</option>
-        <option value="nz9">New Zealand 9.00 GPA</option>
-        <option value="de5">Germany 1.0-5.0 Grade</option>
-        <option value="custom">Custom Grade Mapping</option>
-      </select>
-    </div>
-    <div class="field prefs-inline-field prefs-span-2 hidden" id="custom-grade-map-field">
-      <div>
-        <label>Custom Mapping</label>
-        <div class="countdown-header-pref-copy">Define institution-specific grade-to-point pairs.</div>
-      </div>
-      <button class="nav-btn" type="button" onclick="editCustomGradeMapping()">Edit Mapping</button>
     </div>
     <div class="field prefs-inline-field prefs-span-2 countdown-header-pref">
       <div>
@@ -256,10 +234,6 @@
         <div class="dashboard-card-title">Overall Stats</div>
         <div class="dashboard-score" id="dash-completion">0%</div>
         <div class="dashboard-subtitle" id="dash-credits">0 / 120 credits</div>
-      </div>
-      <div class="dashboard-card dashboard-wide">
-        <div class="dashboard-card-title">Semester Breakdown</div>
-        <div class="term-summary-grid" id="dash-term-summary"></div>
       </div>
       <div class="dashboard-card dashboard-wide">
         <div class="dashboard-card-title">Module Progress</div>
@@ -514,16 +488,7 @@
       <div class="field"><label for="module-code-input">Module Code</label><input class="input" id="module-code-input" placeholder="NEW201"></div>
       <div class="field"><label for="module-name-input">Module Name</label><input class="input" id="module-name-input" placeholder="New Module"></div>
       <div class="deadline-form-row module-form-weights">
-        <div class="field">
-          <label for="module-term-input">Teaching Period</label>
-          <select class="nav-select" id="module-term-input">
-            <option value="sem1">Semester 1</option>
-            <option value="sem2">Semester 2</option>
-            <option value="sem3">Semester 3</option>
-            <option value="full">Full Year</option>
-          </select>
-        </div>
-        <div class="field"><label for="module-credits-input" id="module-credits-label">Credits</label><input class="input" id="module-credits-input" type="number" min="0" step="1" value="15"></div>
+        <div class="field"><label for="module-credits-input">Credits</label><input class="input" id="module-credits-input" type="number" min="0" step="1" value="15"></div>
         <div class="field"><label for="module-cw-input">Coursework %</label><input class="input" id="module-cw-input" type="number" min="0" max="100" step="0.1" value="50"></div>
         <div class="field"><label for="module-exam-input">Exam %</label><input class="input" id="module-exam-input" type="number" min="0" max="100" step="0.1" value="50"></div>
       </div>
@@ -551,7 +516,6 @@
       <div class="field" id="link-name-field"><label for="link-name-input">Name</label><input class="input" id="link-name-input" placeholder="Module Material"></div>
       <div class="field"><label for="link-url-input">URL</label><input class="input" id="link-url-input" placeholder="https://..."></div>
       <div class="deadline-form-row">
-        <div class="field" id="link-folder-field"><label for="link-folder-input">Folder</label><input class="input" id="link-folder-input" placeholder="Documents, Components, Week 1..."></div>
         <div class="field"><label for="link-tag-input">Tag</label><input class="input" id="link-tag-input" placeholder="Optional"></div>
         <div class="field"><label for="link-notes-input">Notes</label><input class="input" id="link-notes-input" placeholder="Optional"></div>
       </div>
@@ -568,8 +532,8 @@
       <div class="timeline-page-title" id="module-library-title">Module Library</div>
       <div class="module-library-top-actions">
         <button class="nav-btn hidden" type="button" id="module-library-open-all-btn" onclick="openModuleLibrary(null, 'both')">Open Full Library</button>
-        <button class="nav-btn" type="button" onclick="createCustomLibrary()">New Library</button>
-        <button class="nav-btn hidden" type="button" id="module-library-delete-custom-btn" onclick="deleteCustomLibrary()">Delete Library</button>
+        <button class="nav-btn" type="button" onclick="openLibraryAdd('formula')">Add Material</button>
+        <button class="nav-btn" type="button" onclick="openLibraryAdd('relevant')">Add Link</button>
       </div>
     </div>
     <div class="module-library-toolbar">
@@ -589,10 +553,6 @@
           </div>
           <span class="module-library-collapse-chevron" id="module-library-links-chevron"></span>
         </button>
-        <div class="module-library-section-actions">
-          <button class="nav-btn" type="button" onclick="createLibraryFolder('relevant')">New Folder</button>
-          <button class="nav-btn" type="button" onclick="openLibraryAdd('relevant')">Add Link</button>
-        </div>
         <div class="module-library-list hidden" id="module-library-links"></div>
       </section>
       <section class="module-library-section module-library-materials-section module-library-section-collapsible">
@@ -603,10 +563,6 @@
           </div>
           <span class="module-library-collapse-chevron" id="module-library-materials-chevron"></span>
         </button>
-        <div class="module-library-section-actions">
-          <button class="nav-btn" type="button" onclick="createLibraryFolder('formula')">New Folder</button>
-          <button class="nav-btn" type="button" onclick="openLibraryAdd('formula')">Add Material</button>
-        </div>
         <div class="module-library-list" id="module-library-materials"></div>
       </section>
     </div>
@@ -639,23 +595,8 @@
           <input class="input" id="setup-start-year-input" type="number" min="2000" max="2100" step="1">
         </div>
         <div class="field">
-          <label for="setup-credits-input" id="setup-credits-label">Target Credits</label>
+          <label for="setup-credits-input">Target Credits</label>
           <input class="input" id="setup-credits-input" type="number" min="0" step="1">
-        </div>
-        <div class="field">
-          <label for="setup-grading-system-input">Grading System</label>
-          <select class="nav-select" id="setup-grading-system-input">
-            <option value="uk">UK Honours Convention</option>
-            <option value="us4">US Common 4.00 GPA</option>
-            <option value="us43">US 4.30 GPA</option>
-            <option value="au7">Australia Common 7.00 GPA</option>
-            <option value="au4">Australia 4.00 GPA</option>
-            <option value="my4">Malaysia Common 4.00 GPA</option>
-            <option value="cn4">China Common 4.00 Conversion</option>
-            <option value="nz9">New Zealand 9.00 GPA</option>
-            <option value="de5">Germany 1.0-5.0 Grade</option>
-            <option value="custom">Custom Grade Mapping</option>
-          </select>
         </div>
       </div>
       <div class="setup-template-block" id="setup-template-block">
