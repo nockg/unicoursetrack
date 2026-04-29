@@ -1,4 +1,31 @@
 /* Readability + interaction patch */
+.context-menu {
+  position: fixed;
+  background: var(--paper, #faf8f3);
+  border: 1px solid var(--border, rgba(26,22,18,0.12));
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  z-index: 10000;
+  min-width: 120px;
+  overflow: hidden;
+}
+
+.context-menu button {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 13px;
+  color: var(--sumi, #17120e);
+  cursor: pointer;
+}
+
+.context-menu button:hover {
+  background: var(--border, rgba(26,22,18,0.08));
+}
+
 .nav-btn,
 .bb-link,
 .bb-edit-btn,

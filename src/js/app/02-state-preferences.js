@@ -1007,6 +1007,7 @@ function openCalendarComposer(prefill = null) {
   document.getElementById("calendar-show-as-input").value = prefill?.availability || "BUSY";
   document.getElementById("calendar-location-input").value = prefill?.location || "";
   document.getElementById("calendar-notes-input").value = prefill?.details || "";
+  if (typeof setCalendarComposerPriority === "function") setCalendarComposerPriority(prefill?.priority || "default");
   updateCalendarComposerMode();
   document.getElementById("calendar-modal").classList.remove("hidden");
   lockPageScroll();
@@ -1034,12 +1035,16 @@ function buildCalendarEventFromComposer() {
   const allDay = document.getElementById("calendar-all-day-input").value === "true";
   const availability = document.getElementById("calendar-show-as-input").value || "BUSY";
   const location = document.getElementById("calendar-location-input").value.trim();
-  const details = document.getElementById("calendar-notes-input").value.trim();
+  const rawDetails = document.getElementById("calendar-notes-input").value.trim();
+  const priority = typeof getSelectedCalendarComposerPriority === "function" ? getSelectedCalendarComposerPriority() : "default";
+  const details = priority !== "default"
+    ? [`Priority: ${priority.charAt(0).toUpperCase() + priority.slice(1)}`, rawDetails].filter(Boolean).join("\n\n")
+    : rawDetails;
   if (!title || !startDate || !endDate) return null;
   const start = allDay ? new Date(`${startDate}T00:00`) : new Date(`${startDate}T${startTime}`);
   const end = allDay ? new Date(new Date(`${endDate}T00:00`).getTime() + 24 * 60 * 60 * 1000) : new Date(`${endDate}T${endTime}`);
   if (!(start instanceof Date) || Number.isNaN(start.getTime()) || !(end instanceof Date) || Number.isNaN(end.getTime()) || end <= start) return null;
-  return { title, start, end, allDay, availability, location, details };
+  return { title, start, end, allDay, availability, location, details, priority };
 }
 
 function submitCalendarComposer() {

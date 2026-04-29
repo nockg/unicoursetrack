@@ -39,13 +39,23 @@ function getSelectedDeadlinePriority() {
   return document.querySelector("#deadline-priority-row .priority-choice.active")?.dataset.priority || "default";
 }
 
+function setCalendarComposerPriority(priority = "default") {
+  const selected = DEADLINE_PRIORITY_COLOURS[priority] ? priority : "default";
+  document.querySelectorAll("#calendar-priority-row .priority-choice").forEach((button) => {
+    button.classList.toggle("active", button.dataset.priority === selected);
+  });
+}
+
+function getSelectedCalendarComposerPriority() {
+  return document.querySelector("#calendar-priority-row .priority-choice.active")?.dataset.priority || "default";
+}
+
 function setDeadlineFormType(type = "date") {
   activeDeadlineFormType = type === "event" ? "event" : "date";
   const isEvent = activeDeadlineFormType === "event";
   document.getElementById("deadline-form-modal")?.classList.toggle("is-event-mode", isEvent);
   document.getElementById("deadline-calendar-fields")?.classList.toggle("deadline-field-hidden", !isEvent);
   document.getElementById("deadline-calendar-btn")?.classList.toggle("deadline-field-hidden", !isEvent);
-  document.getElementById("deadline-priority-field")?.classList.toggle("deadline-field-hidden", isEvent);
   const pill = document.getElementById("deadline-form-type-pill");
   if (pill) pill.textContent = isEvent ? "Calendar Event" : "Tracked Date";
   const title = document.getElementById("deadline-form-title");
@@ -301,6 +311,7 @@ function updateDeadlineFormMode() {
 function getDeadlineCalendarDetails(deadline) {
   const profile = Object.assign({}, defaultProfile, state.profile || {});
   const parts = [];
+  if (deadline.priority && deadline.priority !== "default") parts.push(`Priority: ${deadlinePriorityLabel(deadline)}`);
   if (deadline.note) parts.push(deadline.note.trim());
   if (profile.course) parts.push(`Course: ${profile.course}`);
   if (profile.university) parts.push(`University: ${profile.university}`);
