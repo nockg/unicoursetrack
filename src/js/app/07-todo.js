@@ -367,6 +367,7 @@ function deleteTodoItem(index, event) {
 
 function openTodoPlanner() {
   const modal = document.getElementById("todo-modal");
+  if (!modal) return;
   const panelState = getTodoPanelState();
   modal.classList.remove("hidden");
   renderTodoModuleOptions();
@@ -378,5 +379,14 @@ function openTodoPlanner() {
 }
 
 function closeTodoPlanner() {
-  document.getElementById("todo-modal").classList.add("hidden");
+  document.getElementById("todo-modal")?.classList.add("hidden");
+  todoPanelDrag = null;
+  todoPanelResize = null;
+}
+
+function toggleTodoPlanner() {
+  const modal = document.getElementById("todo-modal");
+  if (!modal) return;
+  if (modal.classList.contains("hidden")) openTodoPlanner();
+  else closeTodoPlanner();
 }

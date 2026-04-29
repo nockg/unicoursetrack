@@ -2,12 +2,16 @@ function handleYearDropdown(value) {
   if (value === "__new__") return createNewYear();
   if (value === "__archive__") return archiveCurrentYear();
   if (value === "__delete__") return deleteCurrentYear();
-  switchYear(value);
+  const parts = String(value || "").split(":");
+  if (parts[0] === "year" && parts[1]) return switchYear(parts[1], "all");
+  if (parts[0] === "term" && parts[1] && parts[2]) return switchYear(parts[1], parts[2]);
+  switchYear(value, "all");
 }
 
-function switchYear(yearId) {
+function switchYear(yearId, term = "all") {
   if (!state.years[yearId]) return;
   state.ui.currentYearId = yearId;
+  state.ui.currentTermFilter = isKnownTermValue(term, state.years[yearId].store) ? term : "all";
   refreshActiveYear();
   save();
   renderYearSelector();
@@ -27,6 +31,7 @@ function archiveCurrentYear() {
 function addModuleToCurrentYear() {
   const code = document.getElementById("module-code-input");
   const name = document.getElementById("module-name-input");
+  const term = document.getElementById("module-term-input");
   const credits = document.getElementById("module-credits-input");
   const cw = document.getElementById("module-cw-input");
   const exam = document.getElementById("module-exam-input");
@@ -36,13 +41,16 @@ function addModuleToCurrentYear() {
   editingModuleIndex = null;
   if (code) code.value = "NEW201";
   if (name) name.value = "New Module";
+  if (term) term.value = getActiveTermFilter() !== "all" ? getActiveTermFilter() : "sem1";
   if (credits) credits.value = "15";
   if (cw) cw.value = "50";
   if (exam) exam.value = "50";
   if (blackboard) blackboard.value = "";
   if (optionsFields) optionsFields.classList.add("hidden");
   if (colourField) colourField.classList.add("hidden");
-  syncModuleWeightInputs("cw");
+  updateModuleFormForGradingSystem();
+  populateModuleTermSelect();
+  if (getGradingSystem() === "uk") syncModuleWeightInputs("cw");
   const title = document.querySelector("#module-form-modal .dashboard-title");
   const saveBtn = document.querySelector("#module-form-modal .deadline-form-actions .nav-btn:last-child");
   if (title) title.textContent = "Add Module";
@@ -80,6 +88,65 @@ function syncModuleWeightInputs(source = "cw") {
   cwInput.value = formatWeightInputValue(100 - safeExam);
 }
 
+function updateModuleFormForGradingSystem() {
+  const ukMode = getGradingSystem() === "uk";
+  const creditsLabel = document.getElementById("module-credits-label");
+  const cwInput = document.getElementById("module-cw-input");
+  const examInput = document.getElementById("module-exam-input");
+  const cwField = cwInput?.closest(".field");
+  const examField = examInput?.closest(".field");
+  if (creditsLabel) creditsLabel.textContent = getModuleCreditFieldLabel();
+  if (cwField) cwField.classList.toggle("hidden", !ukMode);
+  if (examField) examField.classList.toggle("hidden", !ukMode);
+  populateModuleTermSelect();
+}
+
+function populateModuleTermSelect(selected = null) {
+  const termSelect = document.getElementById("module-term-input");
+  if (!termSelect) return;
+  const currentValue = selected || termSelect.value || getActiveTermFilter();
+  const options = getCurrentTermOptions();
+  termSelect.innerHTML = options.map((option) => (
+    `<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`
+  )).join("") + `<option value="__new__">+ Add Semester</option>`;
+  termSelect.value = options.some((option) => option.value === currentValue) ? currentValue : (getActiveTermFilter() !== "all" ? getActiveTermFilter() : "sem1");
+}
+
+async function handleModuleTermChange(select) {
+  if (!select || select.value !== "__new__") return;
+  const store = getStore();
+  const suggestion = createNextTermOption(store);
+  const result = await appPrompt({
+    label: "Semester",
+    title: "Add Teaching Period",
+    message: "Add another semester or teaching block for rare courses with more than three periods in one academic year.",
+    inputLabel: "Name",
+    defaultValue: suggestion.label,
+    placeholder: "Semester 4",
+    confirmText: "Add Semester"
+  });
+  const label = String(result?.value || "").trim();
+  if (!label) {
+    populateModuleTermSelect();
+    return;
+  }
+  const base = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || suggestion.value;
+  let value = /^semester\s*(\d+)$/i.test(label) ? `sem${label.match(/\d+/)[0]}` : base;
+  const existing = getCurrentTermOptions(store);
+  let suffix = 2;
+  const original = value;
+  while (existing.some((option) => option.value === value)) {
+    value = `${original}-${suffix}`;
+    suffix += 1;
+  }
+  store.termOptions = uniqueTermOptions([...existing, { value, label }]);
+  save();
+  populateModuleTermSelect(value);
+  renderYearSelector();
+}
+
+document.getElementById("module-term-input")?.addEventListener("change", (event) => handleModuleTermChange(event.target));
+
 document.getElementById("module-cw-input")?.addEventListener("input", () => syncModuleWeightInputs("cw"));
 document.getElementById("module-exam-input")?.addEventListener("input", () => syncModuleWeightInputs("exam"));
 document.getElementById("module-colour-input")?.addEventListener("input", (event) => {
@@ -101,6 +168,7 @@ function editModuleWeights(mi, event) {
   editingModuleIndex = mi;
   const code = document.getElementById("module-code-input");
   const name = document.getElementById("module-name-input");
+  const term = document.getElementById("module-term-input");
   const credits = document.getElementById("module-credits-input");
   const cw = document.getElementById("module-cw-input");
   const exam = document.getElementById("module-exam-input");
@@ -111,15 +179,18 @@ function editModuleWeights(mi, event) {
   const optionsFields = document.getElementById("module-options-fields");
   if (code) code.value = mod.kanji || "";
   if (name) name.value = mod.name || "";
+  if (term) term.value = getModuleTerm(mi);
   if (credits) credits.value = mod.credits ?? 15;
   if (cw) cw.value = mod.cw ?? 0;
   if (exam) exam.value = mod.exam ?? 0;
   if (blackboard) blackboard.value = getBlackboardLink(mi) || "";
+  updateModuleFormForGradingSystem();
+  populateModuleTermSelect(getModuleTerm(mi));
   if (optionsFields) optionsFields.classList.remove("hidden");
   if (colourField) colourField.classList.toggle("hidden", !isColourCustomisableTheme());
   if (colourInput) colourInput.value = getStoredModuleColourHex(mi);
   if (colourPreview) colourPreview.style.background = getModuleColourSet(mi).fill;
-  syncModuleWeightInputs("cw");
+  if (getGradingSystem() === "uk") syncModuleWeightInputs("cw");
   const title = document.querySelector("#module-form-modal .dashboard-title");
   const saveBtn = document.querySelector("#module-form-modal .deadline-form-actions .nav-btn:last-child");
   if (title) title.textContent = "Module Options";
@@ -130,6 +201,7 @@ function editModuleWeights(mi, event) {
 function saveModuleForm() {
   const codeInput = document.getElementById("module-code-input");
   const nameInput = document.getElementById("module-name-input");
+  const termInput = document.getElementById("module-term-input");
   const creditsInput = document.getElementById("module-credits-input");
   const cwInput = document.getElementById("module-cw-input");
   const examInput = document.getElementById("module-exam-input");
@@ -144,12 +216,17 @@ function saveModuleForm() {
   const credits = parseFloat(creditsInput.value || "");
   let courseworkWeight = parseFloat(cwInput.value || "");
   let examWeight = parseFloat(examInput.value || "");
+  if (getGradingSystem() !== "uk") {
+    courseworkWeight = 0;
+    examWeight = 100;
+  }
   if (Number.isFinite(courseworkWeight) && courseworkWeight >= 100) examWeight = 0;
   if (Number.isFinite(examWeight) && examWeight >= 100) courseworkWeight = 0;
   const moduleData = {
     name,
     kanji: code.toUpperCase(),
     short: code.toUpperCase(),
+    term: normalizeTermValue(termInput?.value || "sem1"),
     credits: Number.isFinite(credits) ? credits : 15,
     cw: Number.isFinite(courseworkWeight) ? courseworkWeight : 50,
     exam: Number.isFinite(examWeight) ? examWeight : 50,
@@ -222,9 +299,17 @@ function addCourseworkComponent(mi, event) {
   const nameInput = document.getElementById("cw-component-name-input");
   const markInput = document.getElementById("cw-component-mark-input");
   const weightInput = document.getElementById("cw-component-weight-input");
+  const gradeScale = getGradeScaleConfig();
   if (nameInput) nameInput.value = "";
-  if (markInput) markInput.value = "";
+  if (markInput) {
+    markInput.value = "";
+    markInput.max = String(gradeScale.max);
+    markInput.step = gradeScale.step;
+    markInput.placeholder = gradeScale.placeholder;
+  }
   if (weightInput) weightInput.value = "";
+  const markLabel = document.querySelector('label[for="cw-component-mark-input"]');
+  if (markLabel) markLabel.textContent = gradeScale.markLabel;
   document.getElementById("coursework-component-modal").classList.remove("hidden");
   setTimeout(() => nameInput && nameInput.focus(), 0);
 }
@@ -261,7 +346,7 @@ function saveCourseworkComponentForm() {
 
   const calculated = calculateCourseworkFromComponents(mi);
   if (calculated.mark !== null) {
-    getStore().coursework[mi] = calculated.mark.toFixed(1);
+    getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
   }
 
   save();
@@ -276,11 +361,11 @@ function updateCourseworkComponent(mi, ci, field, value) {
   components[ci][field] = value;
   const calculated = calculateCourseworkFromComponents(mi);
   if (calculated.mark !== null) {
-    getStore().coursework[mi] = calculated.mark.toFixed(1);
+    getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
     const cwInput = document.getElementById(`cw-${mi}`);
     const compactCw = document.querySelector(`#topics-${mi} .compact-cw`);
-    if (cwInput) cwInput.value = calculated.mark.toFixed(1);
-    if (compactCw) compactCw.value = calculated.mark.toFixed(1);
+    if (cwInput) cwInput.value = formatGradeInputValue(calculated.mark);
+    if (compactCw) compactCw.value = formatGradeInputValue(calculated.mark);
   }
   save();
   updateModule(mi);
@@ -295,12 +380,12 @@ function updateCourseworkSummary(mi) {
   const manual = parseMark(getStore().coursework[mi]);
 
   if (calculated.mark !== null) {
-    summary.textContent = `Calculated coursework: ${calculated.mark.toFixed(1)}% - Components override manual coursework input`;
+    summary.textContent = `Calculated coursework: ${formatSelectedGrade(calculated.mark).main} - Components override manual coursework input`;
     return;
   }
 
   if (manual !== null) {
-    summary.textContent = `Manual coursework override: ${manual.toFixed(1)}%`;
+    summary.textContent = `Manual coursework override: ${formatSelectedGrade(manual).main}`;
     return;
   }
 
@@ -319,7 +404,7 @@ function commitCourseworkPlaceholder(mi, event) {
   items.push({ name, mark, weight });
   getStore().courseworkComponents[mi] = items;
   const calculated = calculateCourseworkFromComponents(mi);
-  if (calculated.mark !== null) getStore().coursework[mi] = calculated.mark.toFixed(1);
+  if (calculated.mark !== null) getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
   save();
   buildModules();
   updateGlobal();

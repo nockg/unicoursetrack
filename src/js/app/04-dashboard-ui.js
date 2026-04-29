@@ -8,11 +8,12 @@ function updateModule(mi) {
   const final = getModuleFinal(mi);
   const finalEl = document.getElementById(`mfinal-${mi}`);
   const clsEl = document.getElementById(`mcls-${mi}`);
-  finalEl.textContent = final === null ? "-" : final.toFixed(1) + "%";
+  const displayGrade = formatModuleGradeDisplay(mi);
+  finalEl.textContent = displayGrade.main;
   if (final !== null) {
     const cls = classify(final);
     clsEl.className = "final-cls " + (cls.cls || "");
-    clsEl.textContent = cls.label;
+    clsEl.textContent = [displayGrade.label, displayGrade.secondary].filter(Boolean).join(" · ");
   } else {
     clsEl.className = "final-cls";
     clsEl.textContent = "";
@@ -22,29 +23,30 @@ function updateModule(mi) {
   const exInput = document.getElementById(`exam-${mi}`);
   const compactCw = document.querySelector(`#topics-${mi} .compact-cw`);
   const compactEx = document.querySelector(`#topics-${mi} .compact-ex`);
-  if (cwInput) {
+  if (getGradingSystem() === "uk" && cwInput) {
     const calculated = calculateCourseworkFromComponents(mi);
     cwInput.disabled = MODULES[mi].cw === 0;
     if (compactCw) compactCw.disabled = MODULES[mi].cw === 0;
     if (MODULES[mi].cw === 0) cwInput.placeholder = "N/A";
     else {
       if (calculated.mark !== null) {
-        getStore().coursework[mi] = calculated.mark.toFixed(1);
-        cwInput.value = calculated.mark.toFixed(1);
-        if (compactCw) compactCw.value = calculated.mark.toFixed(1);
-        cwInput.placeholder = `Calc ${calculated.mark.toFixed(1)}%`;
+        const calculatedValue = formatGradeInputValue(calculated.mark);
+        getStore().coursework[mi] = calculatedValue;
+        cwInput.value = calculatedValue;
+        if (compactCw) compactCw.value = calculatedValue;
+        cwInput.placeholder = `Calc ${formatSelectedGrade(calculated.mark).main}`;
       } else {
-        cwInput.placeholder = "-";
+        cwInput.placeholder = getGradeScaleConfig().placeholder;
       }
     }
   }
-  if (exInput) {
+  if (getGradingSystem() === "uk" && exInput) {
     exInput.disabled = MODULES[mi].exam === 0;
     if (compactEx) compactEx.disabled = MODULES[mi].exam === 0;
     exInput.placeholder = MODULES[mi].exam === 0 ? "N/A" : "-";
     if (MODULES[mi].exam === 0) exInput.value = "";
   }
-  updateCourseworkSummary(mi);
+  if (getGradingSystem() === "uk") updateCourseworkSummary(mi);
 }
 
 function updateGlobal() {
@@ -52,6 +54,7 @@ function updateGlobal() {
   let done = 0;
   let weightedCredits = 0;
   MODULES.forEach((mod, mi) => {
+    if (!isModuleVisibleInActiveTerm(mi)) return;
     total += getModuleTotal(mi);
     done += getModuleDone(mi);
     weightedCredits += mod.credits * (getModulePct(mi) / 100);
@@ -61,7 +64,12 @@ function updateGlobal() {
   document.getElementById("global-total").textContent = total;
   document.getElementById("global-fill").style.width = pct.toFixed(1) + "%";
   document.getElementById("global-pct-text").textContent = pct.toFixed(1) + "% complete";
-  document.getElementById("credits-text").textContent = weightedCredits.toFixed(1) + " / " + TOTAL_CREDITS + " credits";
+  const unitLabel = getCreditUnitLabel();
+  const activeTerm = getActiveTermFilter();
+  const creditTarget = activeTerm === "all"
+    ? TOTAL_CREDITS
+    : MODULES.reduce((sum, mod, mi) => isModuleVisibleInActiveTerm(mi) ? sum + (Number(mod.credits) || 0) : sum, 0);
+  document.getElementById("credits-text").textContent = weightedCredits.toFixed(1) + " / " + creditTarget + " " + unitLabel;
   updatePredictor();
   updateDashboard();
 }
@@ -78,25 +86,31 @@ function updatePredictor() {
     return;
   }
   const cls = classify(avg);
-  heroPredictor.textContent = avg.toFixed(1) + "%";
-  heroClass.textContent = cls.badge;
-  badgeHost.innerHTML = `<span class="classification-badge ${cls.heroCls}">${cls.badge}</span>`;
+  const grade = formatSelectedGrade(avg);
+  heroPredictor.textContent = grade.main;
+  heroClass.textContent = grade.label || cls.badge;
+  badgeHost.innerHTML = `<span class="classification-badge ${cls.heroCls}">${escapeHtml(grade.label || cls.badge)}</span>`;
 }
 
 function updateDashboard() {
   const avg = getWeightedAvg();
+  const aggregate = getGradeAggregate();
   let total = 0;
   let done = 0;
   let weightedCredits = 0;
-  let creditsWithMarks = 0;
   MODULES.forEach((mod, mi) => {
+    if (!isModuleVisibleInActiveTerm(mi)) return;
     total += getModuleTotal(mi);
     done += getModuleDone(mi);
     weightedCredits += mod.credits * (getModulePct(mi) / 100);
-    if (getModuleFinal(mi) !== null) creditsWithMarks += mod.credits;
   });
   document.getElementById("dash-completion").textContent = (total ? (done / total) * 100 : 0).toFixed(0) + "%";
-  document.getElementById("dash-credits").textContent = weightedCredits.toFixed(1) + " / " + TOTAL_CREDITS + " credits";
+  const unitLabel = getCreditUnitLabel();
+  const activeTerm = getActiveTermFilter();
+  const termCreditTarget = activeTerm === "all"
+    ? TOTAL_CREDITS
+    : MODULES.reduce((sum, mod, mi) => isModuleVisibleInActiveTerm(mi) ? sum + (Number(mod.credits) || 0) : sum, 0);
+  document.getElementById("dash-credits").textContent = weightedCredits.toFixed(1) + " / " + termCreditTarget + " " + unitLabel;
 
   const predictor = document.getElementById("dash-predictor");
   const status = document.getElementById("dash-status");
@@ -107,11 +121,49 @@ function updateDashboard() {
     badge.innerHTML = "";
   } else {
     const cls = classify(avg);
-    predictor.textContent = avg.toFixed(1) + "%";
-    status.textContent = `Full-year weighted average based on ${creditsWithMarks} / ${TOTAL_CREDITS} credits`;
-    badge.innerHTML = `<span class="classification-badge ${cls.heroCls}">${cls.badge}</span>`;
+    const grade = formatSelectedGrade(avg);
+    predictor.textContent = grade.main;
+    const major = getMajorGpa();
+    const majorText = major ? ` · Major GPA ${major.value.toFixed(2)} (${major.credits} ${unitLabel})` : "";
+    const scopeText = activeTerm === "all" ? "" : `${getTermLabel(activeTerm)} · `;
+    status.textContent = `${scopeText}${formatGradeAggregateStatus(aggregate)}${majorText}`;
+    badge.innerHTML = `<span class="classification-badge ${cls.heroCls}">${escapeHtml(grade.label || cls.badge)}</span>`;
   }
+  renderDashboardTermSummary();
   if (!document.getElementById("dashboard-modal").classList.contains("hidden")) renderDashboardChart();
+}
+
+function renderDashboardTermSummary() {
+  const host = document.getElementById("dash-term-summary");
+  if (!host) return;
+  const terms = getTermBreakdown();
+  if (!terms.length) {
+    host.innerHTML = `<div class="term-summary-empty">Add modules to see semester totals.</div>`;
+    return;
+  }
+  const system = getGradingSystem();
+  const metric = getAggregateMetricLabel();
+  const activeTerm = getActiveTermFilter();
+  host.innerHTML = terms.map((term) => {
+    const unitLabel = getCreditUnitLabel({ plural: term.attemptedCredits !== 1 });
+    const hasGrade = term.value !== null && term.value !== undefined;
+    const grade = hasGrade ? formatSelectedGrade(term.value) : { main: "-", label: "No grades yet", secondary: "" };
+    const gradePoints = system !== "uk" && system !== "de5" && hasGrade
+      ? `<span>${term.gradePoints.toFixed(2)} grade points</span>`
+      : "";
+    return `
+      <button class="term-summary-card ${activeTerm === term.term ? "active" : ""}" type="button" onclick="setActiveTermFilter('${escapeHtml(term.term)}')">
+        <div class="term-summary-label">${escapeHtml(term.label)}</div>
+        <div class="term-summary-value">${escapeHtml(grade.main)}</div>
+        <div class="term-summary-meta">
+          <span>${escapeHtml(metric)}</span>
+          <span>${term.credits} / ${term.attemptedCredits} ${escapeHtml(unitLabel)}</span>
+          ${gradePoints}
+          <span>${escapeHtml(grade.label || "")}</span>
+        </div>
+      </button>
+    `;
+  }).join("");
 }
 
 function openDashboard() {
@@ -157,6 +209,7 @@ document.getElementById("deadline-all-day-input")?.addEventListener("change", up
 document.getElementById("module-library-modal").addEventListener("click", (event) => {
   if (event.target.id === "module-library-modal") closeModuleLibrary();
 });
+document.getElementById("module-library-modal").addEventListener("keydown", handleModuleLibraryKeydown);
 
 document.getElementById("course-setup-modal").addEventListener("click", (event) => {
   if (event.target.id === "course-setup-modal") closeCourseSetupModal();
@@ -194,7 +247,10 @@ function renderDashboardChart() {
   const padLeft = 44;
   const chartWidth = width - padLeft - padRight;
   const chartHeight = height - padTop - padBottom;
-  const step = chartWidth / MODULES.length;
+  const visibleModules = MODULES
+    .map((mod, mi) => ({ mod, mi }))
+    .filter((item) => isModuleVisibleInActiveTerm(item.mi));
+  const step = chartWidth / Math.max(visibleModules.length, 1);
   const barWidth = Math.max(28, Math.min(42, Math.floor(step * 0.42)));
   const crisp = (value) => Math.round(value) + 0.5;
   const chartMonoFont = preferences.font === "sans"
@@ -208,7 +264,7 @@ function renderDashboardChart() {
       ? "'DM Mono', Consolas, monospace"
       : "'Shippori Mincho', serif";
 
-  const colors = MODULES.map((_, mi) => {
+  const colors = visibleModules.map(({ mi }) => {
     const choice = getModuleColourSet(mi);
     return choice.text || "#c0392b";
   });
@@ -229,12 +285,12 @@ function renderDashboardChart() {
     ctx.fillText(value + "%", padLeft - 8, y);
   }
 
-  MODULES.forEach((mod, mi) => {
+  visibleModules.forEach(({ mod, mi }, index) => {
     const pct = getModulePct(mi);
-    const x = Math.round(padLeft + (step * mi) + (step - barWidth) / 2);
+    const x = Math.round(padLeft + (step * index) + (step - barWidth) / 2);
     const barHeight = Math.round((chartHeight * pct) / 100);
     const y = Math.round(padTop + chartHeight - barHeight);
-    ctx.fillStyle = colors[mi];
+    ctx.fillStyle = colors[index];
     ctx.fillRect(x, y, barWidth, barHeight);
 
     ctx.fillStyle = dark ? "rgba(255,255,255,0.9)" : "rgba(26,22,18,0.84)";

@@ -26,6 +26,16 @@
   height: 100%;
   background: var(--module-accent, #c0392b);
 }
+.module-empty-state {
+  border: 1px dashed var(--border2);
+  border-radius: 8px;
+  padding: 24px;
+  color: var(--muted);
+  background: rgba(26,22,18,0.025);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 18px;
+  text-align: center;
+}
 .module-header {
   display: grid;
   grid-template-columns: 20px minmax(240px, 1.5fr) minmax(220px, 1fr) minmax(280px, 1fr) auto auto 20px;
@@ -71,6 +81,24 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+.module-major-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  padding: 5px 9px;
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  background: rgba(26,22,18,0.035);
+  color: var(--muted);
+  font-family: "DM Mono", monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.module-major-toggle input {
+  margin: 0;
 }
 .bb-link, .bb-edit-btn, .formula-btn, .formula-edit-btn, .mini-btn {
   background: rgba(26,22,18,0.04);
@@ -160,8 +188,21 @@ body.theme-dark .weight-edit-btn:hover{
 }
 .inputs-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 10px;
+  min-width: 0;
+}
+.inputs-grid.single-grade-input {
+  grid-template-columns: minmax(0, 1fr);
+}
+.inputs-grid .field {
+  min-width: 0;
+}
+.inputs-grid .nav-select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .field label {
   display: block;
@@ -174,6 +215,8 @@ body.theme-dark .weight-edit-btn:hover{
 }
 .input {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   background: var(--paper2);
   color: var(--ink);
   border: 1px solid var(--border2);

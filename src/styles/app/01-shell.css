@@ -361,12 +361,15 @@ body.countdown-header-hidden .nav-bar {
   border: 1px solid var(--border2);
   border-radius: 8px;
   padding: 10px 12px;
+  box-sizing: border-box;
   font-family: "DM Mono", monospace;
   font-size: 15px;
   line-height: 1.4;
   text-transform: uppercase;
   color: var(--slate);
   min-width: 120px;
+  max-width: 100%;
+  text-overflow: ellipsis;
   outline: none;
 }
 .nav-select:focus { border-color: var(--vermillion); }

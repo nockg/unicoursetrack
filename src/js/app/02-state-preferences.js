@@ -12,13 +12,15 @@ const defaultProfile = {
   university: "",
   course: "",
   startYear: new Date().getFullYear(),
-  creditsTarget: 120
+  creditsTarget: 120,
+  gradingSystem: "uk",
+  customGradeMapping: null
 };
 
 const defaultState = {
   profile: deepClone(defaultProfile),
   years: {},
-  ui: { currentYearId: "year1" },
+  ui: { currentYearId: "year1", currentTermFilter: "all" },
   setup: { templateChoiceMade: false }
 };
 
@@ -106,10 +108,14 @@ function createYearStore(modules) {
     coursework: {},
     courseworkComponents: {},
     exams: {},
+    finalGrades: {},
+    majorModules: {},
+    termOptions: deepClone(MODULE_TERM_OPTIONS),
     notes: {},
     blackboard: {},
     formulas: {},
     relevantLinks: {},
+    customLibraries: {},
     moduleColors: {},
     customExams: [],
     todos: [],
@@ -130,6 +136,7 @@ function normalizeTopicEntry(topic) {
 function normalizeModuleData(module) {
   if (!module || typeof module !== "object") return module;
   return Object.assign({}, module, {
+    term: normalizeTermValue(module.term || "full"),
     topics: Array.isArray(module.topics) ? module.topics.map(normalizeTopicEntry) : []
   });
 }
@@ -482,12 +489,17 @@ if (!state) {
 function ensureYearsState() {
   if (!state.profile) state.profile = deepClone(defaultProfile);
   if (!state.setup) state.setup = { templateChoiceMade: false };
+  if (!state.ui) state.ui = {};
+  if (!state.ui.currentTermFilter) state.ui.currentTermFilter = "all";
 
   if (state.years && Object.keys(state.years).length) {
-    if (!state.ui) state.ui = {};
     if (!state.ui.currentYearId || !state.years[state.ui.currentYearId]) {
       state.ui.currentYearId = Object.keys(state.years)[0];
     }
+    Object.values(state.years).forEach((year) => {
+      if (!year.store) year.store = createYearStore([]);
+      ensureStoreTermOptions(year.store);
+    });
     return;
   }
 
@@ -497,10 +509,14 @@ function ensureYearsState() {
     coursework: state.coursework || {},
     courseworkComponents: state.courseworkComponents || {},
     exams: state.exams || {},
+    finalGrades: state.finalGrades || {},
+    majorModules: state.majorModules || {},
+    termOptions: state.termOptions || deepClone(MODULE_TERM_OPTIONS),
     notes: state.notes || {},
     blackboard: state.blackboard || {},
     formulas: state.formulas || {},
     relevantLinks: state.relevantLinks || {},
+    customLibraries: state.customLibraries || {},
     customExams: state.customExams || [],
     todos: state.todos || [],
     archived: false
@@ -515,8 +531,9 @@ function ensureYearsState() {
         store: legacyStore
       }
     },
-    ui: { currentYearId: "year1" }
+    ui: { currentYearId: "year1", currentTermFilter: "all" }
   };
+  ensureStoreTermOptions(legacyStore);
   save();
 }
 
@@ -635,6 +652,10 @@ function openCourseSetupModal(isInitialSetup = false) {
   document.getElementById("setup-course-input").value = current.course || "";
   document.getElementById("setup-start-year-input").value = current.startYear || new Date().getFullYear();
   document.getElementById("setup-credits-input").value = current.creditsTarget || 120;
+  const setupCreditsLabel = document.getElementById("setup-credits-label");
+  const gradingInput = document.getElementById("setup-grading-system-input");
+  if (gradingInput) gradingInput.value = current.gradingSystem || "uk";
+  updateSetupCreditLabel();
   document.getElementById("setup-template-block").classList.toggle("hidden", !isInitialSetup);
   document.getElementById("course-setup-cancel").classList.toggle("hidden", isInitialSetup);
   document.getElementById("course-setup-close").classList.toggle("hidden", isInitialSetup);
@@ -668,6 +689,8 @@ function saveCourseSetup() {
   const courseInput = document.getElementById("setup-course-input").value.trim();
   const startYearInput = parseInt(document.getElementById("setup-start-year-input").value, 10);
   const creditsInput = parseFloat(document.getElementById("setup-credits-input").value);
+  const gradingInput = document.getElementById("setup-grading-system-input");
+  const gradingSystem = SUPPORTED_GRADING_SYSTEMS.includes(gradingInput?.value) ? gradingInput.value : "uk";
 
   const university = universityInput || (selectedSetupTemplate === "aero" ? "University of Sheffield" : "University");
   const course = courseInput || (selectedSetupTemplate === "aero" ? "Aerospace Engineering" : "Course");
@@ -677,12 +700,18 @@ function saveCourseSetup() {
     university,
     course,
     startYear: Number.isFinite(startYearInput) ? startYearInput : new Date().getFullYear(),
-    creditsTarget: Number.isFinite(creditsInput) ? creditsInput : 120
+    creditsTarget: Number.isFinite(creditsInput) ? creditsInput : 120,
+    gradingSystem,
+    customGradeMapping: Array.isArray(state.profile?.customGradeMapping) ? state.profile.customGradeMapping : null
   };
+  if (gradingSystem === "custom" && !Array.isArray(state.profile.customGradeMapping)) {
+    state.profile.customGradeMapping = deepClone(US_GRADE_OPTIONS);
+  }
 
   if (courseSetupInitial) {
     const currentYear = getCurrentYear();
     currentYear.store = createYearStore(selectedSetupTemplate === "aero" ? BASE_MODULES : []);
+    state.ui.currentTermFilter = "all";
     if (!state.setup) state.setup = {};
     state.setup.templateChoiceMade = true;
   }
@@ -702,6 +731,27 @@ function saveCourseSetup() {
   }
   if (pendingOnboarding) maybeShowOnboarding();
 }
+
+function getSetupCreditTargetLabel(system) {
+  if (system === "au7") return "Target Units";
+  if (system === "au4") return "Target Units";
+  if (system === "us4" || system === "us43") return "Target GPA Hours";
+  if (system === "nz9") return "Target Points";
+  if (system === "de5") return "Target ECTS";
+  return "Target Credits";
+}
+
+function updateSetupCreditLabel() {
+  const setupCreditsLabel = document.getElementById("setup-credits-label");
+  const gradingInput = document.getElementById("setup-grading-system-input");
+  if (!setupCreditsLabel) return;
+  const system = SUPPORTED_GRADING_SYSTEMS.includes(gradingInput?.value)
+    ? gradingInput.value
+    : (state.profile?.gradingSystem || "uk");
+  setupCreditsLabel.textContent = getSetupCreditTargetLabel(system);
+}
+
+document.getElementById("setup-grading-system-input")?.addEventListener("change", updateSetupCreditLabel);
 
 if (currentUser && pendingFirstRunSetup) {
   setupCourseIfNeeded();
@@ -740,6 +790,8 @@ function getStore() {
 
 function refreshActiveYear() {
   const currentYear = getCurrentYear();
+  ensureStoreTermOptions(currentYear.store);
+  if (!isKnownTermValue(state.ui.currentTermFilter)) state.ui.currentTermFilter = "all";
   currentYear.store.modules = (currentYear.store.modules || []).map(normalizeModuleData);
   MODULES = currentYear.store.modules;
   const moduleCredits = MODULES.reduce((sum, mod) => sum + mod.credits, 0);
@@ -765,6 +817,7 @@ function applyPreferences() {
   const densitySelect = document.getElementById("pref-density");
   const fontSelect = document.getElementById("pref-font");
   const calendarSelect = document.getElementById("pref-calendar");
+  const gradingSelect = document.getElementById("pref-grading-system");
   const countdownToggle = document.getElementById("pref-countdown-header-toggle");
   const customBgInput = document.getElementById("custom-bg-url");
   const bodyBgInput = document.getElementById("body-bg-url");
@@ -786,6 +839,8 @@ function applyPreferences() {
   if (densitySelect) densitySelect.value = preferences.density;
   if (fontSelect) fontSelect.value = preferences.font || "japanese";
   if (calendarSelect) calendarSelect.value = preferences.calendarProvider || "google";
+  if (gradingSelect) gradingSelect.value = getGradingSystem();
+  document.getElementById("custom-grade-map-field")?.classList.toggle("hidden", getGradingSystem() !== "custom");
   if (countdownToggle) {
     const countdownVisible = preferences.showCountdownHeader !== false;
     countdownToggle.textContent = countdownVisible ? "Shown" : "Hidden";
@@ -805,6 +860,46 @@ function setPreference(key, value) {
   buildModules();
   updateGlobal();
   if (!document.getElementById("dashboard-modal").classList.contains("hidden")) renderDashboardChart();
+}
+
+function setGradingSystemPreference(value) {
+  const gradingSystem = SUPPORTED_GRADING_SYSTEMS.includes(value) ? value : "uk";
+  if (!state.profile) state.profile = deepClone(defaultProfile);
+  state.profile.gradingSystem = gradingSystem;
+  if (gradingSystem === "custom" && !Array.isArray(state.profile.customGradeMapping)) {
+    state.profile.customGradeMapping = deepClone(US_GRADE_OPTIONS);
+  }
+  save();
+  applyPreferences();
+  buildModules();
+  updateGlobal();
+  if (!document.getElementById("dashboard-modal").classList.contains("hidden")) renderDashboardChart();
+}
+
+async function editCustomGradeMapping() {
+  if (!state.profile) state.profile = deepClone(defaultProfile);
+  const current = serializeGradeMapping(getCustomGradeOptions());
+  const result = await appPrompt({
+    label: "Grade Mapping",
+    title: "Edit Custom Grade Mapping",
+    message: "Use comma-separated grade=point pairs. Example: A+=4.30, A=4.00, B=3.00, F=0.00",
+    inputLabel: "Mapping",
+    defaultValue: current,
+    placeholder: "A=4.00, B=3.00, C=2.00, D=1.00, F=0.00",
+    confirmText: "Save Mapping"
+  });
+  if (!result) return;
+  const parsed = parseCustomGradeMapping(result.value);
+  if (!parsed.length) {
+    await showAppNotice("Mapping not saved", "Enter at least one grade=point pair, such as A=4.00.");
+    return;
+  }
+  state.profile.customGradeMapping = parsed;
+  state.profile.gradingSystem = "custom";
+  save();
+  applyPreferences();
+  buildModules();
+  updateGlobal();
 }
 
 function toggleCountdownHeaderPreference() {

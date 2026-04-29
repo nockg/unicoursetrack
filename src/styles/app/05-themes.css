@@ -115,6 +115,15 @@ body.theme-dark textarea:focus {
 body.theme-dark .dashboard-chart-wrap {
   background: rgba(255,255,255,0.04);
 }
+body.theme-dark .term-summary-card {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.12);
+}
+body.theme-dark .term-summary-card.active,
+body.theme-dark .term-summary-card:hover {
+  border-color: rgba(245,240,232,0.42);
+  box-shadow: 0 0 0 1px rgba(245,240,232,0.1);
+}
 body.theme-dark .topic-label {
   color: #e7e7e7;
 }
@@ -128,6 +137,7 @@ body.theme-dark .prog-done,
 body.theme-dark .final-mark,
 body.theme-dark .mod-name,
 body.theme-dark .dashboard-score,
+body.theme-dark .term-summary-value,
 body.theme-dark .dashboard-subtitle,
 body.theme-dark .formula-chip a,
 body.theme-dark .formula-empty {
@@ -138,6 +148,9 @@ body.theme-dark .prog-of,
 body.theme-dark .mod-kanji,
 body.theme-dark .field label,
 body.theme-dark .topic-tools-title,
+body.theme-dark .term-summary-label,
+body.theme-dark .term-summary-meta,
+body.theme-dark .term-summary-empty,
 body.theme-dark .formula-links-title,
 body.theme-dark .timeline-notes-label {
   color: #a3a3a3;

@@ -933,6 +933,62 @@ body.modal-scroll-locked .dashboard-content {
   }
 }
 
+/* Final state rules: checked topics must stay visually complete after layout/theme overrides. */
+.topic-row .topic-label.done,
+.topic-row.subtopic-row .topic-label.done,
+body.compact-ui .topic-row .topic-label.done,
+body.compact-ui .topic-row.subtopic-row .topic-label.done {
+  color: color-mix(in srgb, var(--muted) 62%, transparent 38%) !important;
+  opacity: 0.58 !important;
+  text-decoration: line-through !important;
+  text-decoration-color: currentColor !important;
+}
+
+.topic-row:has(input[type="checkbox"]:checked) {
+  opacity: 0.72;
+}
+
+body.theme-dark .topic-row .topic-label.done,
+body.theme-dark .topic-row.subtopic-row .topic-label.done,
+body.theme-dark.compact-ui .topic-row .topic-label.done,
+body.theme-dark.compact-ui .topic-row.subtopic-row .topic-label.done {
+  color: rgba(241,237,228,0.42) !important;
+}
+
+body.theme-dark .final-cls.cls-s-first,
+body.theme-dark .classification-badge.cls-first {
+  background: rgba(240,123,111,0.16) !important;
+  color: #f0a196 !important;
+  border-color: rgba(240,161,150,0.42) !important;
+}
+
+body.theme-dark .final-cls.cls-s-21,
+body.theme-dark .classification-badge.cls-21 {
+  background: rgba(229,182,76,0.15) !important;
+  color: #e6c97a !important;
+  border-color: rgba(230,201,122,0.4) !important;
+}
+
+body.theme-dark .final-cls.cls-s-22,
+body.theme-dark .classification-badge.cls-22 {
+  background: rgba(99,167,223,0.14) !important;
+  color: #8fc4ef !important;
+  border-color: rgba(143,196,239,0.38) !important;
+}
+
+body.theme-dark .final-cls.cls-s-third,
+body.theme-dark .classification-badge.cls-third {
+  background: rgba(255,255,255,0.08) !important;
+  color: rgba(241,237,228,0.82) !important;
+  border-color: rgba(255,255,255,0.22) !important;
+}
+
+body.theme-dark .module-major-toggle {
+  background: rgba(255,255,255,0.05) !important;
+  color: rgba(241,237,228,0.76) !important;
+  border-color: rgba(255,255,255,0.14) !important;
+}
+
 /* Font preferences: titles and deadline UI must follow selected style. */
 .timeline-page-title,
 .deadline-choice-title,
@@ -1151,6 +1207,16 @@ body.theme-dark #deadline-form-modal .deadline-section-title {
     font-size: 14px !important;
   }
 
+  .module-header .nav-select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 38px !important;
+    padding: 8px 10px !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+  }
+
   .final-col {
     min-width: 68px !important;
     text-align: right !important;
@@ -1282,6 +1348,152 @@ body.theme-dark .relevant-links-title {
   color: rgba(241,237,228,0.7) !important;
 }
 
+@media (min-width: 761px) {
+  body.compact-ui .module {
+    margin-bottom: 7px !important;
+  }
+
+  body.compact-ui .module-header {
+    grid-template-columns: minmax(180px, 1.15fr) minmax(145px, 0.72fr) minmax(164px, 0.68fr) minmax(78px, auto) 14px !important;
+    gap: 10px !important;
+    padding: 8px 14px 8px 18px !important;
+  }
+
+  body.compact-ui .module-summary {
+    min-width: 0 !important;
+  }
+
+  body.compact-ui .mod-name {
+    font-size: 15px !important;
+    line-height: 1.12 !important;
+    margin-bottom: 2px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  body.compact-ui .mod-kanji {
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+    margin-bottom: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  body.compact-ui .module-links {
+    display: none !important;
+  }
+
+  body.compact-ui .progress-section {
+    padding: 7px 9px !important;
+    border-radius: 5px !important;
+  }
+
+  body.compact-ui .prog-header {
+    display: flex !important;
+    align-items: baseline !important;
+    justify-content: space-between !important;
+    margin-bottom: 5px !important;
+  }
+
+  body.compact-ui .prog-done {
+    display: block !important;
+    font-size: 18px !important;
+  }
+
+  body.compact-ui .prog-pct {
+    font-size: 9px !important;
+    justify-self: auto !important;
+  }
+
+  body.compact-ui .prog-track {
+    height: 3px !important;
+    margin-bottom: 4px !important;
+  }
+
+  body.compact-ui .prog-of {
+    display: block !important;
+    font-size: 8.5px !important;
+  }
+
+  body.compact-ui .module-header > .inputs-grid {
+    display: grid !important;
+    gap: 6px !important;
+    padding: 7px !important;
+    border-radius: 5px !important;
+  }
+
+  body.compact-ui .module-header .field label {
+    font-size: 8px !important;
+    margin-bottom: 3px !important;
+  }
+
+  body.compact-ui .module-header .input {
+    min-height: 30px !important;
+    padding: 5px 7px !important;
+    border-radius: 5px !important;
+    font-size: 12px !important;
+  }
+
+  body.compact-ui .module-header > .final-col {
+    display: block !important;
+    min-width: 72px !important;
+  }
+
+  body.compact-ui .final-mark {
+    font-size: 24px !important;
+    margin-bottom: 2px !important;
+  }
+
+  body.compact-ui .final-cls {
+    max-width: 84px !important;
+    padding: 2px 5px !important;
+    font-size: 8px !important;
+    line-height: 1.18 !important;
+  }
+
+  body.compact-ui .chevron {
+    width: 14px !important;
+  }
+
+  body.compact-ui .compact-marks-wrap {
+    display: none !important;
+  }
+
+  body.compact-ui .module-edit-tools,
+  body.compact-ui .notes-area-wrap,
+  body.compact-ui .formula-links-wrap,
+  body.compact-ui .relevant-links-wrap,
+  body.compact-ui .module-section-head,
+  body.compact-ui .module-section-body {
+    padding-left: 18px !important;
+    padding-right: 14px !important;
+  }
+
+  body.compact-ui .module-edit-tools {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+
+  body.compact-ui .module-section-head {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  body.compact-ui .topic-row {
+    min-height: 30px !important;
+    padding: 5px 9px !important;
+    gap: 7px !important;
+  }
+
+  body.compact-ui .topic-label,
+  body.compact-ui .subtopic-row .topic-label {
+    font-size: 12.5px !important;
+    line-height: 1.25 !important;
+  }
+}
+
 /* Calendar composer polish */
 #calendar-modal .dashboard-content.calendar-form-content {
   width: min(760px, calc(100vw - 42px)) !important;
@@ -1389,6 +1601,69 @@ body.theme-dark .relevant-links-title {
 
 #calendar-modal .dashboard-close {
   border-radius: 6px !important;
+}
+
+#deadline-form-modal.is-event-mode .dashboard-content.deadline-form-content {
+  max-height: min(96dvh, 760px) !important;
+  grid-template-rows: auto auto minmax(0, 1fr) !important;
+}
+
+#deadline-form-modal.is-event-mode .deadline-form-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  overflow: visible !important;
+  padding: 10px 28px 0 !important;
+}
+
+#deadline-form-modal.is-event-mode .deadline-form-section {
+  gap: 6px !important;
+  padding: 8px 12px !important;
+}
+
+#deadline-form-modal.is-event-mode .deadline-form-content > .timeline-subtitle {
+  padding-top: 16px !important;
+}
+
+#deadline-form-modal.is-event-mode .deadline-form-content > .dashboard-title {
+  padding-bottom: 10px !important;
+}
+
+#deadline-form-modal.is-event-mode .deadline-form-type-pill {
+  padding: 3px 9px !important;
+}
+
+#deadline-form-modal.is-event-mode .deadline-form-row,
+#deadline-form-modal.is-event-mode .deadline-title-module-row {
+  gap: 8px !important;
+}
+
+#deadline-form-modal.is-event-mode .deadline-form-content .field {
+  gap: 5px !important;
+}
+
+#deadline-form-modal.is-event-mode .deadline-form-content .input,
+#deadline-form-modal.is-event-mode .deadline-form-content .nav-select {
+  min-height: 34px !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+#deadline-form-modal.is-event-mode .timeline-notes {
+  min-height: 44px !important;
+  height: 44px !important;
+  max-height: 44px !important;
+}
+
+#deadline-form-modal.is-event-mode .deadline-form-actions {
+  position: static !important;
+  margin: auto -28px 0 !important;
+  padding: 11px 28px 13px !important;
+  flex-shrink: 0 !important;
+}
+
+#deadline-form-modal.is-event-mode .deadline-form-actions .nav-btn {
+  min-height: 38px !important;
 }
 
 body.theme-dark #calendar-modal .dashboard-content.calendar-form-content {
@@ -2031,5 +2306,76 @@ body.theme-dark #calendar-modal .deadline-form-actions .calendar-btn {
     border-radius: 0 !important;
     border-left: 0 !important;
     border-right: 0 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  body.compact-ui .module {
+    margin-bottom: 6px !important;
+  }
+
+  body.compact-ui .module-header {
+    gap: 8px !important;
+    padding: 10px 12px !important;
+  }
+
+  body.compact-ui .module-links {
+    display: none !important;
+  }
+
+  body.compact-ui .mod-name {
+    font-size: 15px !important;
+    margin-bottom: 2px !important;
+  }
+
+  body.compact-ui .mod-kanji {
+    font-size: 9px !important;
+    margin-bottom: 0 !important;
+  }
+
+  body.compact-ui .progress-section,
+  body.compact-ui .module-header > .inputs-grid,
+  body.compact-ui .module-header > .final-col {
+    padding: 8px !important;
+  }
+
+  body.compact-ui .module-header > .inputs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  body.compact-ui .module-header .input {
+    min-height: 32px !important;
+    padding: 5px 7px !important;
+    font-size: 12px !important;
+  }
+
+  body.compact-ui .final-mark {
+    font-size: 26px !important;
+  }
+
+  body.compact-ui .compact-marks-wrap {
+    display: none !important;
+  }
+
+  body.compact-ui .module-edit-tools,
+  body.compact-ui .notes-area-wrap,
+  body.compact-ui .formula-links-wrap,
+  body.compact-ui .relevant-links-wrap,
+  body.compact-ui .module-section-head,
+  body.compact-ui .module-section-body {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  body.compact-ui .module-section-head {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  body.compact-ui .topic-row {
+    min-height: 30px !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
   }
 }

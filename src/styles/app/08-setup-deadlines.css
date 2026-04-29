@@ -28,6 +28,17 @@
   gap: 14px;
 }
 
+.setup-fields .field {
+  min-width: 0;
+}
+
+.setup-fields .input,
+.setup-fields .nav-select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
 .setup-fields .field:first-child,
 .setup-fields .field:nth-child(2),
 .setup-fields .field:nth-child(3) {

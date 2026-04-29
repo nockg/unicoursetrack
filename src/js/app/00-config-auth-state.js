@@ -65,10 +65,10 @@ const ONBOARDING_STEPS = [
   {
     label: "Marks",
     title: "Track your marks",
-    copy: "Enter coursework and exam estimates. UniTrack updates the prediction automatically.",
+    copy: "Enter marks in your selected grading system. UniTrack updates the prediction automatically.",
     preview: [
-      "Coursework + exam marks feed the final score",
-      "Use components for multi-part coursework",
+      "Semester and full-year results use the same course data",
+      "Use components for UK-style multi-part coursework",
       "Clear marks per module when needed"
     ]
   },
@@ -128,6 +128,15 @@ const CALENDAR_PROVIDERS = {
   outlook: { label: "Outlook Calendar", url: "https://outlook.live.com/calendar/" }
 };
 
+const SUPPORTED_GRADING_SYSTEMS = ["uk", "us4", "us43", "au7", "au4", "my4", "cn4", "nz9", "de5", "custom"];
+
+const MODULE_TERM_OPTIONS = [
+  { value: "sem1", label: "Semester 1" },
+  { value: "sem2", label: "Semester 2" },
+  { value: "sem3", label: "Semester 3" },
+  { value: "full", label: "Full Year" }
+];
+
 const LIGHT_MODULE_COLOURS = [
   { stripe: "#9c3a2e", fill: "linear-gradient(90deg, #c0392b, #e74c3c)", text: "#c0392b" },
   { stripe: "#7a5c1e", fill: "linear-gradient(90deg, #b8860b, #d4a017)", text: "#b8860b" },
@@ -166,9 +175,17 @@ let linkFormContext = null;
 let editingModuleIndex = null;
 let materialLibraryModuleIndex = null;
 let moduleLibraryScopeMi = null;
+let moduleLibraryScopeCustomId = null;
 let moduleLibraryViewMode = "list";
 let moduleLibrarySearch = "";
 let moduleLibraryFilter = "all";
+let moduleLibraryFolderFilter = "all";
+let moduleLibraryFolderFilters = { formula: "all", relevant: "all" };
+let moduleLibraryFolderHistory = { formula: ["all"], relevant: ["all"] };
+let moduleLibraryFolderHistoryIndex = { formula: 0, relevant: 0 };
+let moduleLibraryClipboard = null;
+let moduleLibrarySelectedFolders = { formula: null, relevant: null };
+let moduleLibraryActiveFolderType = "formula";
 let moduleLibraryLinksOpen = false;
 let moduleLibraryMaterialsOpen = false;
 let isDraggingTopics = false;

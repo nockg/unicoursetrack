@@ -42,6 +42,7 @@ function getSelectedDeadlinePriority() {
 function setDeadlineFormType(type = "date") {
   activeDeadlineFormType = type === "event" ? "event" : "date";
   const isEvent = activeDeadlineFormType === "event";
+  document.getElementById("deadline-form-modal")?.classList.toggle("is-event-mode", isEvent);
   document.getElementById("deadline-calendar-fields")?.classList.toggle("deadline-field-hidden", !isEvent);
   document.getElementById("deadline-calendar-btn")?.classList.toggle("deadline-field-hidden", !isEvent);
   document.getElementById("deadline-priority-field")?.classList.toggle("deadline-field-hidden", isEvent);

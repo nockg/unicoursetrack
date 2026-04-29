@@ -138,6 +138,7 @@ async function loadAeroTemplate() {
   if (!state.profile.university || state.profile.university === "University") state.profile.university = "University of Sheffield";
   if (!state.setup) state.setup = {};
   state.setup.templateChoiceMade = true;
+  state.ui.currentTermFilter = "all";
   refreshActiveYear();
   save();
   document.getElementById("template-splash").classList.add("hidden");
@@ -154,14 +155,18 @@ async function clearModuleMarks(mi, event) {
   if (!mod) return;
   const confirmed = await appConfirm({
     label: "Marks",
-    title: "Clear marks?",
-    message: `Clear coursework and exam marks for ${mod.kanji || mod.name}?`,
+    title: "Clear grade?",
+    message: getGradingSystem() === "uk"
+      ? `Clear coursework and exam marks for ${mod.kanji || mod.name}?`
+      : `Clear the course grade for ${mod.kanji || mod.name}?`,
     confirmText: "Clear",
     danger: true
   });
   if (!confirmed) return;
   delete store.coursework[mi];
   delete store.exams[mi];
+  if (store.finalGrades) delete store.finalGrades[mi];
+  if (store.majorModules) delete store.majorModules[mi];
   if (store.courseworkComponents) delete store.courseworkComponents[mi];
   save();
   buildModules();
@@ -216,14 +221,27 @@ function renderYearSelector() {
   const currentYear = getCurrentYear();
   const yearOptions = Object.values(state.years)
     .sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true }))
-    .map((year) => `<option value="${escapeHtml(year.id)}">${escapeHtml(year.label)}${year.store.archived ? " (Archived)" : ""}</option>`);
+    .map((year) => {
+      ensureStoreTermOptions(year.store);
+      const archived = year.store.archived ? " (Archived)" : "";
+      const activeTermForYear = year.id === state.ui.currentYearId ? getActiveTermFilter() : "all";
+      const terms = getCurrentTermOptions(year.store)
+        .filter((term) => term.value === activeTermForYear || year.store.modules?.some((mod) => normalizeTermValue(mod.term) === term.value))
+        .map((term) => `<option value="term:${escapeHtml(year.id)}:${escapeHtml(term.value)}">- ${escapeHtml(term.label)}</option>`)
+        .join("");
+      return `<optgroup label="${escapeHtml(year.label + archived)}">
+        <option value="year:${escapeHtml(year.id)}">${escapeHtml(year.label)} Overall</option>
+        ${terms}
+      </optgroup>`;
+    });
   const actionOptions = [
     '<option value="__new__">+ New Year</option>',
     `<option value="__archive__">${currentYear.store.archived ? "Unarchive Current Year" : "Archive Current Year"}</option>`,
     '<option value="__delete__">Delete Current Year</option>'
   ];
   select.innerHTML = yearOptions.join("") + actionOptions.join("");
-  select.value = state.ui.currentYearId;
+  const activeTerm = getActiveTermFilter();
+  select.value = activeTerm === "all" ? `year:${state.ui.currentYearId}` : `term:${state.ui.currentYearId}:${activeTerm}`;
   const profile = Object.assign({}, defaultProfile, state.profile || {});
   const yearNumber = parseInt(currentYear.label.match(/\d+/)?.[0] || "1", 10);
   const profileStartYear = parseInt(profile.startYear, 10);
@@ -233,14 +251,25 @@ function renderYearSelector() {
   const university = profile.university || "University";
   const course = profile.course || "Course";
   const eyebrow = document.getElementById("hero-eyebrow");
+  const termSuffix = activeTerm === "all" ? "" : ` - ${getTermLabel(activeTerm)}`;
   if (eyebrow) eyebrow.textContent = userName
-    ? `${userName} - ${university} - ${currentYear.label} - ${startYear}-${String(endYear).slice(2)}`
-    : `${university} - ${currentYear.label} - ${startYear}-${String(endYear).slice(2)}`;
+    ? `${userName} - ${university} - ${currentYear.label}${termSuffix} - ${startYear}-${String(endYear).slice(2)}`
+    : `${university} - ${currentYear.label}${termSuffix} - ${startYear}-${String(endYear).slice(2)}`;
   const title = document.getElementById("hero-title");
-  if (title) title.textContent = `Year ${yearNumber} ${course}`;
+  if (title) title.textContent = activeTerm === "all" ? `Year ${yearNumber} ${course}` : `${getTermLabel(activeTerm)} ${course}`;
   const footer = document.getElementById("footer-label");
-  if (footer) footer.textContent = `${university} ${currentYear.label} - Progress Tracker`;
-  document.title = `${course} ${currentYear.label} Tracker`;
+  if (footer) footer.textContent = `${university} ${currentYear.label}${termSuffix} - Progress Tracker`;
+  document.title = `${course} ${currentYear.label}${termSuffix} Tracker`;
+}
+
+function setActiveTermFilter(term = "all") {
+  if (!state.ui) state.ui = {};
+  state.ui.currentTermFilter = isKnownTermValue(term) ? term : "all";
+  save();
+  renderYearSelector();
+  buildModules();
+  renderStickyExams();
+  updateGlobal();
 }
 
 async function deleteCurrentYear() {
@@ -260,6 +289,7 @@ async function deleteCurrentYear() {
   if (!confirmed) return;
   delete state.years[year.id];
   state.ui.currentYearId = Object.keys(state.years)[0];
+  state.ui.currentTermFilter = "all";
   refreshActiveYear();
   save();
   renderYearSelector();
@@ -290,6 +320,7 @@ async function createNewYear() {
   }
   state.years[id] = { id, label, store: createYearStore(result.checked ? MODULES : []) };
   state.ui.currentYearId = id;
+  state.ui.currentTermFilter = "all";
   refreshActiveYear();
   save();
   renderYearSelector();

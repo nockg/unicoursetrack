@@ -2,8 +2,39 @@ function buildModules() {
   const container = document.getElementById("modules");
   container.innerHTML = "";
   const store = getStore();
+  let renderedModules = 0;
   MODULES.forEach((mod, mi) => {
+    if (!isModuleVisibleInActiveTerm(mi)) return;
+    renderedModules += 1;
     const moduleColours = getModuleColourSet(mi);
+    const gradeScale = getGradeScaleConfig();
+    const gradingSystem = getGradingSystem();
+    const gradeOptions = getGradeOptions(gradingSystem);
+    const usesFinalGradeOnly = gradingSystem !== "uk";
+    const usesUsGrades = ["us4", "us43"].includes(gradingSystem);
+    const termLabel = getTermLabel(getModuleTerm(mi));
+    const moduleMeta = gradingSystem === "uk"
+      ? `${escapeHtml(mod.kanji)} · CW ${mod.cw === 0 ? "N/A" : escapeHtml(String(mod.cw ?? 0)) + "%"} · EXAMS ${mod.exam === 0 ? "N/A" : escapeHtml(String(mod.exam ?? 0)) + "%"}`
+      : `${escapeHtml(mod.kanji)} · ${escapeHtml(String(mod.credits ?? 0))} ${escapeHtml(getCreditUnitLabel({ plural: Number(mod.credits) !== 1 }))}`;
+    const moduleMetaWithTerm = gradingSystem === "uk"
+      ? `${escapeHtml(mod.kanji)} &middot; ${escapeHtml(termLabel)} &middot; CW ${mod.cw === 0 ? "N/A" : escapeHtml(String(mod.cw ?? 0)) + "%"} &middot; EXAMS ${mod.exam === 0 ? "N/A" : escapeHtml(String(mod.exam ?? 0)) + "%"}`
+      : `${escapeHtml(mod.kanji)} &middot; ${escapeHtml(termLabel)} &middot; ${escapeHtml(String(mod.credits ?? 0))} ${escapeHtml(getCreditUnitLabel({ plural: Number(mod.credits) !== 1 }))}`;
+    const finalGradeControl = (id, className = "") => {
+      if (gradeOptions && gradeScale.freeformGradeInput) {
+        const listId = `${id}-options`;
+        return `<input class="input ${className}" type="text" id="${id}" list="${listId}" placeholder="${gradeScale.placeholder}" value="${store.finalGrades?.[mi] ?? ""}">
+          <datalist id="${listId}">
+            ${gradeOptions.map((option) => `<option value="${escapeHtml(option.code)}">${escapeHtml(formatGradeOptionLabel(option, gradingSystem))}</option>`).join("")}
+          </datalist>`;
+      }
+      if (gradeOptions) {
+        return `<select class="nav-select ${className}" id="${id}">
+          <option value="">Not graded yet</option>
+          ${gradeOptions.map((option) => `<option value="${escapeHtml(option.code)}">${escapeHtml(formatGradeOptionLabel(option, gradingSystem))}</option>`).join("")}
+        </select>`;
+      }
+      return `<input class="input ${className}" type="number" min="${gradeScale.min ?? 0}" max="${gradeScale.max}" step="${gradeScale.step}" id="${id}" placeholder="${gradeScale.placeholder}" value="${store.finalGrades?.[mi] ?? ""}">`;
+    };
     const customisableTheme = isColourCustomisableTheme();
     const themeFamilyLabel = preferences.theme === "dark" ? "Dark theme colour" : "Light theme colour";
     const wrap = document.createElement("div");
@@ -24,7 +55,7 @@ function buildModules() {
       <div class="mod-stripe c${mi}"></div>
       <div class="module-summary">
         <div class="mod-name">${escapeHtml(mod.name)}</div>
-        <div class="mod-kanji">${escapeHtml(mod.kanji)} · CW ${mod.cw === 0 ? "N/A" : escapeHtml(String(mod.cw ?? 0)) + "%"} · EXAMS ${mod.exam === 0 ? "N/A" : escapeHtml(String(mod.exam ?? 0)) + "%"}</div>
+        <div class="mod-kanji">${moduleMetaWithTerm}</div>
         <div class="module-links">
           <button class="bb-link" id="bb-link-${mi}" type="button" onclick="openBlackboardLink(${mi}, event)">Set Blackboard</button>
           <button class="formula-btn" id="formula-btn-${mi}" type="button" onclick="openFormulaLink(${mi}, event)">${escapeHtml(mod.kanji || mod.short || "Module")} Library</button>
@@ -38,15 +69,22 @@ function buildModules() {
         <div class="prog-track"><div class="prog-fill f${mi}" id="mfill-${mi}"></div></div>
         <div class="prog-of">of ${getModuleTotal(mi)} topics</div>
       </div>
-      <div class="inputs-grid">
+      <div class="inputs-grid ${usesFinalGradeOnly ? "single-grade-input" : ""}">
+        ${usesFinalGradeOnly ? `
         <div class="field">
-          <label>Coursework %</label>
-          <input class="input" type="number" min="0" max="100" step="0.1" id="cw-${mi}" placeholder="-" value="${store.coursework[mi] ?? ""}">
+          <label>${gradeScale.finalLabel}</label>
+          ${finalGradeControl(`final-grade-${mi}`)}
+        </div>
+        ` : `
+        <div class="field">
+          <label>${gradeScale.courseworkLabel}</label>
+          <input class="input" type="number" min="0" max="${gradeScale.max}" step="${gradeScale.step}" id="cw-${mi}" placeholder="${gradeScale.placeholder}" value="${store.coursework[mi] ?? ""}">
         </div>
         <div class="field">
-          <label>Exam %</label>
-          <input class="input" type="number" min="0" max="100" step="0.1" id="exam-${mi}" placeholder="-" value="${store.exams[mi] ?? ""}">
+          <label>${gradeScale.examLabel}</label>
+          <input class="input" type="number" min="0" max="${gradeScale.max}" step="${gradeScale.step}" id="exam-${mi}" placeholder="${gradeScale.placeholder}" value="${store.exams[mi] ?? ""}">
         </div>
+        `}
       </div>
       <div class="final-col">
         <div class="final-mark" id="mfinal-${mi}">-</div>
@@ -74,12 +112,13 @@ function buildModules() {
         <button class="bb-edit-btn weight-edit-btn" type="button" onclick="editModuleWeights(${mi}, event)">Module Options</button>
       </div>
       <div class="module-edit-secondary">
+        ${usesUsGrades ? `<label class="module-major-toggle"><input type="checkbox" id="major-module-${mi}" ${store.majorModules?.[mi] ? "checked" : ""}> Major / Program GPA</label>` : ""}
         <button class="bb-edit-btn" type="button" onclick="clearModuleMarks(${mi}, event)">Clear Marks</button>
       </div>
     `;
     list.appendChild(moduleEditTools);
 
-    if (mod.cw > 0) {
+    if (!usesFinalGradeOnly && mod.cw > 0) {
       const courseworkSection = createModuleSection(mi, "coursework", "Assessments", "");
       const courseworkWrap = courseworkSection.body;
       const components = getCourseworkComponents(mi);
@@ -108,8 +147,8 @@ function buildModules() {
               <input class="input cw-comp-name" value="${escapeHtml(component.name || "")}" placeholder="Coursework name">
             </div>
             <div class="field">
-              <label>Mark %</label>
-              <input class="input cw-comp-mark" type="number" min="0" max="100" step="0.1" value="${component.mark ?? ""}" placeholder="-">
+              <label>${gradeScale.markLabel}</label>
+              <input class="input cw-comp-mark" type="number" min="0" max="${gradeScale.max}" step="${gradeScale.step}" value="${component.mark ?? ""}" placeholder="${gradeScale.placeholder}">
             </div>
             <div class="field">
               <label>Weight %</label>
@@ -134,14 +173,21 @@ function buildModules() {
         <div class="topic-tools-title">Marks</div>
       </div>
       <div class="inputs-grid">
+        ${usesFinalGradeOnly ? `
         <div class="field">
-          <label>Coursework %</label>
-          <input class="input compact-cw" type="number" min="0" max="100" step="0.1" placeholder="-" value="${store.coursework[mi] ?? ""}">
+          <label>${gradeScale.finalLabel}</label>
+          ${finalGradeControl(`compact-final-grade-${mi}`, "compact-final-grade")}
+        </div>
+        ` : `
+        <div class="field">
+          <label>${gradeScale.courseworkLabel}</label>
+          <input class="input compact-cw" type="number" min="0" max="${gradeScale.max}" step="${gradeScale.step}" placeholder="${gradeScale.placeholder}" value="${store.coursework[mi] ?? ""}">
         </div>
         <div class="field">
-          <label>Exam %</label>
-          <input class="input compact-ex" type="number" min="0" max="100" step="0.1" placeholder="-" value="${store.exams[mi] ?? ""}">
+          <label>${gradeScale.examLabel}</label>
+          <input class="input compact-ex" type="number" min="0" max="${gradeScale.max}" step="${gradeScale.step}" placeholder="${gradeScale.placeholder}" value="${store.exams[mi] ?? ""}">
         </div>
+        `}
       </div>
     `;
     list.appendChild(compactMarksWrap);
@@ -373,7 +419,7 @@ function buildModules() {
     }
 
     header.addEventListener("click", (event) => {
-      if (event.target.closest("button") || event.target.closest("input") || event.target.closest("textarea") || event.target.closest("a")) return;
+      if (event.target.closest("button") || event.target.closest("input") || event.target.closest("select") || event.target.closest("textarea") || event.target.closest("a")) return;
       const open = list.classList.toggle("open");
       document.getElementById(`chev-${mi}`).classList.toggle("open", open);
       if (open) openModules.add(mi);
@@ -387,47 +433,94 @@ function buildModules() {
 
     const cwInput = document.getElementById(`cw-${mi}`);
     const exInput = document.getElementById(`exam-${mi}`);
+    const finalGradeInput = document.getElementById(`final-grade-${mi}`);
     const compactCw = compactMarksWrap.querySelector(".compact-cw");
     const compactEx = compactMarksWrap.querySelector(".compact-ex");
-    cwInput.addEventListener("click", (event) => event.stopPropagation());
-    exInput.addEventListener("click", (event) => event.stopPropagation());
-    compactCw.addEventListener("click", (event) => event.stopPropagation());
-    compactEx.addEventListener("click", (event) => event.stopPropagation());
+    const compactFinalGrade = compactMarksWrap.querySelector(".compact-final-grade");
+    if (finalGradeInput && gradeOptions) finalGradeInput.value = store.finalGrades?.[mi] ?? "";
+    if (compactFinalGrade && gradeOptions) compactFinalGrade.value = store.finalGrades?.[mi] ?? "";
+    const majorToggle = document.getElementById(`major-module-${mi}`);
+    majorToggle?.addEventListener("click", (event) => event.stopPropagation());
+    majorToggle?.addEventListener("change", (event) => {
+      if (!store.majorModules) store.majorModules = {};
+      store.majorModules[mi] = !!event.target.checked;
+      save();
+      updateDashboard();
+    });
+    cwInput?.addEventListener("click", (event) => event.stopPropagation());
+    exInput?.addEventListener("click", (event) => event.stopPropagation());
+    finalGradeInput?.addEventListener("click", (event) => event.stopPropagation());
+    compactCw?.addEventListener("click", (event) => event.stopPropagation());
+    compactEx?.addEventListener("click", (event) => event.stopPropagation());
+    compactFinalGrade?.addEventListener("click", (event) => event.stopPropagation());
 
     const syncMarks = () => {
-      cwInput.value = store.coursework[mi] ?? "";
-      exInput.value = store.exams[mi] ?? "";
-      compactCw.value = store.coursework[mi] ?? "";
-      compactEx.value = store.exams[mi] ?? "";
+      if (cwInput) cwInput.value = store.coursework[mi] ?? "";
+      if (exInput) exInput.value = store.exams[mi] ?? "";
+      if (compactCw) compactCw.value = store.coursework[mi] ?? "";
+      if (compactEx) compactEx.value = store.exams[mi] ?? "";
+      if (finalGradeInput) finalGradeInput.value = store.finalGrades?.[mi] ?? "";
+      if (compactFinalGrade) compactFinalGrade.value = store.finalGrades?.[mi] ?? "";
     };
 
     const handleCwChange = (value) => {
       store.coursework[mi] = value;
       save();
-      syncMarks();
       updateModule(mi);
       updateGlobal();
     };
     const handleExChange = (value) => {
       store.exams[mi] = value;
       save();
+      updateModule(mi);
+      updateGlobal();
+    };
+    const handleFinalGradeChange = (value) => {
+      if (!store.finalGrades) store.finalGrades = {};
+      store.finalGrades[mi] = value;
+      save();
+      updateModule(mi);
+      updateGlobal();
+    };
+    const clampAndSyncMark = (key, input) => {
+      if (!input) return;
+      if (key === "cw") store.coursework[mi] = clampGradeInputValue(input.value);
+      if (key === "exam") store.exams[mi] = clampGradeInputValue(input.value);
+      if (key === "final") {
+        if (!store.finalGrades) store.finalGrades = {};
+        store.finalGrades[mi] = clampGradeInputValue(input.value);
+      }
+      save();
       syncMarks();
       updateModule(mi);
       updateGlobal();
     };
 
-    cwInput.addEventListener("input", (event) => {
+    cwInput?.addEventListener("input", (event) => {
       handleCwChange(event.target.value);
     });
-    exInput.addEventListener("input", (event) => {
+    exInput?.addEventListener("input", (event) => {
       handleExChange(event.target.value);
     });
-    compactCw.addEventListener("input", (event) => {
+    const finalGradeEvent = gradeOptions && !gradeScale.freeformGradeInput ? "change" : "input";
+    finalGradeInput?.addEventListener(finalGradeEvent, (event) => {
+      handleFinalGradeChange(event.target.value);
+    });
+    compactCw?.addEventListener("input", (event) => {
       handleCwChange(event.target.value);
     });
-    compactEx.addEventListener("input", (event) => {
+    compactEx?.addEventListener("input", (event) => {
       handleExChange(event.target.value);
     });
+    compactFinalGrade?.addEventListener(finalGradeEvent, (event) => {
+      handleFinalGradeChange(event.target.value);
+    });
+    cwInput?.addEventListener("blur", () => clampAndSyncMark("cw", cwInput));
+    compactCw?.addEventListener("blur", () => clampAndSyncMark("cw", compactCw));
+    exInput?.addEventListener("blur", () => clampAndSyncMark("exam", exInput));
+    compactEx?.addEventListener("blur", () => clampAndSyncMark("exam", compactEx));
+    finalGradeInput?.addEventListener("blur", () => clampAndSyncMark("final", finalGradeInput));
+    compactFinalGrade?.addEventListener("blur", () => clampAndSyncMark("final", compactFinalGrade));
 
     syncMarks();
     updateModule(mi);
@@ -436,6 +529,10 @@ function buildModules() {
     renderRelevantLinks(mi);
     updateCourseworkSummary(mi);
   });
+  if (!renderedModules) {
+    const term = getActiveTermFilter();
+    container.innerHTML = `<div class="module-empty-state">${term === "all" ? "No modules yet." : `No modules in ${escapeHtml(getTermLabel(term))} yet.`}</div>`;
+  }
 }
 
 window.addEventListener("resize", () => {
