@@ -1312,8 +1312,8 @@ body.theme-dark #module-library-modal .library-v5-folder.selected {
   appearance: none;
   width: 100%;
   min-height: 78px;
-  border: 1px solid color-mix(in srgb, var(--gold2) 56%, var(--border2) 44%);
-  background: linear-gradient(135deg, color-mix(in srgb, var(--gold2) 14%, var(--paper) 86%) 0%, color-mix(in srgb, white 22%, var(--paper) 78%) 100%);
+  border: 1px solid color-mix(in srgb, var(--border2) 80%, var(--gold2) 20%);
+  background: color-mix(in srgb, var(--paper) 94%, white 6%);
   color: var(--sumi);
   display: grid;
   align-content: center;
@@ -1349,11 +1349,12 @@ body.theme-dark #module-library-modal .library-v5-folder.selected {
 }
 
 .library-v10-source-browse-tile strong {
-  font-family: "Cormorant Garamond", serif;
-  font-size: 24px;
-  line-height: 1.05;
+  font: inherit;
+  font-family: var(--font-heading, inherit);
+  font-size: 20px;
+  line-height: 1.25;
   font-weight: 600;
-  color: var(--sumi);
+  color: inherit;
 }
 
 .library-v10-source-browse-meta {
@@ -1937,7 +1938,7 @@ body.theme-dark .library-v10-source-browse-tile {
 
 body.theme-dark .library-v10-col-name,
 body.theme-dark .library-v10-row-name {
-  color: #f2ece0;
+  color: #f2ece0 !important;
 }
 
 body.theme-dark .library-v10-details-header,
@@ -1966,14 +1967,25 @@ body.theme-dark .library-v10-source-name {
   color: #f2ece0;
 }
 
+body.theme-dark .library-v10-source-browse-tile,
 body.theme-dark .library-v10-source-browse-tile.active {
-  background: rgba(255,255,255,0.07) !important;
-  border-color: rgba(216,200,176,0.42) !important;
+  background: rgba(255, 255, 255, 0.045) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+  color: #f2ece0;
+}
+
+body.theme-dark .library-v10-source-browse-tile:hover {
+  background: rgba(255, 255, 255, 0.065) !important;
+  border-color: rgba(216, 200, 176, 0.44) !important;
 }
 
 body.theme-dark .library-v10-source-browse-kicker,
 body.theme-dark .library-v10-source-browse-meta {
-  color: #cfc6b7;
+  color: #b8b1a4;
+}
+
+body.theme-dark .library-v10-source-browse-tile strong {
+  color: #f2ece0;
 }
 
 body.theme-dark .library-v10-breadcrumbs {
