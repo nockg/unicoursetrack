@@ -236,6 +236,10 @@ function renderAuthGate(mode = authViewMode) {
   if (authScreenLoading && !isRecovery) {
     host.innerHTML = `
       <div class="auth-gate-card">
+        <div class="auth-unitrack-logo-title auth-unitrack-logo-loading" aria-label="UniTrack">
+  <img src="/unitrack-logo-black.svg" alt="UniTrack" class="auth-unitrack-logo auth-unitrack-logo-black">
+  <img src="/unitrack-logo-white.svg" alt="UniTrack" class="auth-unitrack-logo auth-unitrack-logo-white">
+</div>
         <div class="deadline-splash-title" style="color: var(--ink);">${escapeHtml(authLoadingTitle)}</div>
         <div class="auth-gate-message">${escapeHtml(authLoadingMessage)}</div>
         <div id="auth-gate-feedback" class="auth-success"></div>
