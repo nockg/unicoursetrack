@@ -23,7 +23,6 @@ let recoveryModeActive = false;
 let authViewMode = "login";
 let authStatusMessage = "";
 let authStatusTone = "error";
-let authGateVisible = false;
 let pendingOnboarding = false;
 let pendingFirstRunSetup = false;
 let accountCreationInProgress = false;
@@ -437,10 +436,10 @@ const preferences = Object.assign(
 );
 
 function updateAuthLock() {
-  const requiresBlockingGate = authScreenLoading || authGateVisible || isRecoveryFlow();
-  document.body.classList.toggle("auth-required", requiresBlockingGate);
+  const requiresAuth = authScreenLoading || !currentUser || isRecoveryFlow();
+  document.body.classList.toggle("auth-required", requiresAuth);
   document.body.classList.toggle("auth-loading", authScreenLoading);
-  if (requiresBlockingGate) renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
+  if (requiresAuth) renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
 }
 
 function setAuthLoading(loading, title = "Restoring your session...", message = "Checking whether you are already signed in before showing anything.") {
@@ -7402,6 +7401,26 @@ function renderAuthGate(mode = authViewMode) {
       </div>
       <div class="deadline-splash-title" style="color: var(--ink);">${isSignup ? "Create your account" : loginTitle}</div>
       <div class="auth-gate-message">${isSignup ? "Create a new cloud account to keep your tracker, deadlines, and preferences synced." : "Sign in with your existing account to view your tracker."}</div>
+      <div class="auth-oauth-stack">
+        <button class="nav-btn auth-oauth-btn" id="auth-google-btn" type="button" onclick="signInWithGoogle()">
+          <span class="auth-oauth-icon" aria-hidden="true">
+            <span class="auth-google-mark auth-google-blue"></span>
+            <span class="auth-google-mark auth-google-red"></span>
+            <span class="auth-google-mark auth-google-yellow"></span>
+            <span class="auth-google-mark auth-google-green"></span>
+            <span class="auth-google-letter">G</span>
+          </span>
+          <span class="auth-oauth-copy">
+            <span class="auth-oauth-title">${isSignup ? "Continue with Google" : "Sign in with Google"}</span>
+            <span class="auth-oauth-meta">Official Google account chooser, then return to UniTrack</span>
+          </span>
+        </button>
+        <div class="auth-oauth-trust">
+          <strong>Secure redirect</strong>
+          <span>You will continue on Google to choose an account, then return here with the same UniTrack cloud session flow.</span>
+        </div>
+        <div class="auth-oauth-divider" role="presentation"><span>or use email</span></div>
+      </div>
       <div class="deadline-form-grid">
         <div class="field">
           <label for="auth-gate-email">Email</label>
@@ -7467,7 +7486,6 @@ function setAuthScreen(mode) {
 }
 
 function refreshAppAfterAuth() {
-  authGateVisible = false;
   ensureYearsState();
   refreshActiveYear();
   applyPreferences();
@@ -7510,7 +7528,6 @@ function resetLocalAppState() {
 
 function openAuthModal(mode = "login") {
   if (!currentUser) {
-    authGateVisible = true;
     setAuthScreen(isRecoveryFlow() ? "recovery" : mode);
     updateAuthLock();
     return;
@@ -7831,7 +7848,6 @@ async function signUpFromModal() {
     cloudReady = false;
   }
   accountCreationInProgress = false;
-  authGateVisible = true;
   authViewMode = "login";
   setAuthLoading(false);
   updateAuthLock();
@@ -7881,6 +7897,35 @@ async function loginFromModal() {
   }
 }
 
+async function signInWithGoogle() {
+  if (!ensureCloudAuthReady()) return;
+  clearAuthMessage();
+  setAuthMessage("Redirecting to Google...", "success");
+  setAuthButtonBusy("#auth-google-btn", true, "Redirecting...");
+
+  try {
+    const { data, error } = await withCloudTimeout(supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: getAuthRedirectUrl(),
+        queryParams: {
+          access_type: "offline",
+          prompt: "select_account"
+        }
+      }
+    }), "Google sign-in");
+
+    if (error) throw error;
+    if (!data?.url) {
+      setAuthButtonBusy("#auth-google-btn", false);
+      setAuthError("Google sign-in did not return a redirect URL.");
+    }
+  } catch (error) {
+    setAuthButtonBusy("#auth-google-btn", false);
+    setAuthError(error?.message || "Google sign-in failed. Please try again.");
+  }
+}
+
 async function logoutCloud() {
   if (!ensureCloudAuthReady()) return;
   sessionStorage.setItem("justLoggedOut", "true");
@@ -7896,7 +7941,6 @@ async function logoutCloud() {
 
   currentUser = null;
   currentSession = null;
-  authGateVisible = false;
   cloudReady = false;
   cloudHadSave = false;
   cloudLoadSucceeded = false;
@@ -8029,7 +8073,6 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
 
   currentSession = session || null;
   currentUser = currentSession?.user || null;
-  if (currentUser) authGateVisible = false;
   markAuthStateKnown();
   clearLogoutFlagForSignedInUser();
   if (!currentUser) cloudReady = false;

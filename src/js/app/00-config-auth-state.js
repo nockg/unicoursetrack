@@ -22,7 +22,6 @@ let recoveryModeActive = false;
 let authViewMode = "login";
 let authStatusMessage = "";
 let authStatusTone = "error";
-let authGateVisible = false;
 let pendingOnboarding = false;
 let pendingFirstRunSetup = false;
 let accountCreationInProgress = false;
