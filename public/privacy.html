@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html lang="en-GB">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UniTrack Privacy Notice</title>
   <meta name="description" content="Privacy notice for UniTrack, operated by SNTutors." />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400;500;700&family=Shippori+Mincho:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap"
+    rel="stylesheet">
   <style>
     :root {
       --page-bg: #f7f3ea;
@@ -31,9 +35,25 @@
         radial-gradient(circle at top left, rgba(77, 93, 115, 0.10), transparent 34rem),
         linear-gradient(180deg, #f8f4ec 0%, var(--page-bg) 100%);
       color: var(--ink);
-      font-family: Georgia, "Times New Roman", Times, serif;
+      font-family: var(--privacy-font, "Shippori Mincho", "Noto Serif JP", Georgia, "Times New Roman", serif);
       line-height: 1.65;
       font-size: 16px;
+    }
+
+    body[data-font="japanese"] {
+      --privacy-font: "Shippori Mincho", "Noto Serif JP", Georgia, "Times New Roman", serif;
+    }
+
+    body[data-font="serif"] {
+      --privacy-font: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    }
+
+    body[data-font="sans"] {
+      --privacy-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body[data-font="mono"] {
+      --privacy-font: "DM Mono", "SFMono-Regular", Consolas, monospace;
     }
 
     .page {
@@ -235,30 +255,44 @@
     }
   </style>
 </head>
+
 <body>
   <main class="page">
     <header class="notice-header">
       <p class="eyebrow">Operated by SNTutors</p>
       <h1>UniTrack Privacy Notice</h1>
-      <p class="subtitle">For users in the United Kingdom, Germany, Malaysia, Australia, New Zealand and other supported locations</p>
+      <p class="subtitle">For users in the United Kingdom, Germany, Malaysia, Australia, New Zealand and other supported
+        locations</p>
       <p class="updated"><strong>Last updated:</strong> 30 April 2026</p>
       <div class="important-note">
-        <strong>Important note.</strong> This notice has been prepared for UniTrack as a student-facing academic productivity service. It should be reviewed if UniTrack’s functionality, user base, analytics, hosting arrangements, or commercial use materially changes.
+        <strong>Important note.</strong> This notice has been prepared for UniTrack as a student-facing academic
+        productivity service. It should be reviewed if UniTrack’s functionality, user base, analytics, hosting
+        arrangements, or commercial use materially changes.
       </div>
     </header>
 
     <section class="notice-section">
       <h2>1. Who we are</h2>
-      <p>UniTrack is an academic tracking and study management application operated by SNTutors (“UniTrack”, “we”, “us” or “our”). The application allows users to organise academic information, including modules, assessments, grades, course notes, deadlines, tasks, saved hyperlinks, library resources, interface preferences and related study data.</p>
-      <p>SNTutors is the data controller for the personal information described in this notice. This means that SNTutors decides why and how that information is processed for the purposes of operating UniTrack.</p>
-      <p>Privacy, support and data rights requests should be sent to: <a href="mailto:ssnnckg@gmail.com">ssnnckg@gmail.com</a>.</p>
-      <p>Application URL: <a href="https://unicoursetrack.vercel.app/" target="_blank" rel="noopener noreferrer">https://unicoursetrack.vercel.app/</a>.</p>
+      <p>UniTrack is an academic tracking and study management application operated by SNTutors (“UniTrack”, “we”, “us”
+        or “our”). The application allows users to organise academic information, including modules, assessments,
+        grades, course notes, deadlines, tasks, saved hyperlinks, library resources, interface preferences and related
+        study data.</p>
+      <p>SNTutors is the data controller for the personal information described in this notice. This means that SNTutors
+        decides why and how that information is processed for the purposes of operating UniTrack.</p>
+      <p>Privacy, support and data rights requests should be sent to: <a
+          href="mailto:ssnnckg@gmail.com">ssnnckg@gmail.com</a>.</p>
+      <p>Application URL: <a href="https://unicoursetrack.vercel.app/" target="_blank"
+          rel="noopener noreferrer">https://unicoursetrack.vercel.app/</a>.</p>
     </section>
 
     <section class="notice-section">
       <h2>2. Scope of this notice</h2>
-      <p>This privacy notice applies to personal information processed through UniTrack, including information used for account access, authentication, academic tracking, cloud synchronisation, backup import and export, recovery functionality, user preferences, support requests and service security.</p>
-      <p>UniTrack is designed as a private academic productivity tool. It is not currently intended to function as, or provide the features of, a public social network, marketplace, payment service, advertising platform, public media-sharing service, direct messaging platform or public profile directory.</p>
+      <p>This privacy notice applies to personal information processed through UniTrack, including information used for
+        account access, authentication, academic tracking, cloud synchronisation, backup import and export, recovery
+        functionality, user preferences, support requests and service security.</p>
+      <p>UniTrack is designed as a private academic productivity tool. It is not currently intended to function as, or
+        provide the features of, a public social network, marketplace, payment service, advertising platform, public
+        media-sharing service, direct messaging platform or public profile directory.</p>
     </section>
 
     <section class="notice-section">
@@ -285,7 +319,8 @@
             </tr>
             <tr>
               <td>Academic tracker data</td>
-              <td>Modules, assessments, predicted marks, grades, notes, deadlines, tasks, saved hyperlinks and library materials entered by the user.</td>
+              <td>Modules, assessments, predicted marks, grades, notes, deadlines, tasks, saved hyperlinks and library
+                materials entered by the user.</td>
               <td>To store, display, organise and synchronise the user’s academic information.</td>
             </tr>
             <tr>
@@ -295,12 +330,14 @@
             </tr>
             <tr>
               <td>Preferences and settings</td>
-              <td>Theme, display density, font preferences, calendar settings, dashboard layout and similar interface choices.</td>
+              <td>Theme, display density, font preferences, calendar settings, dashboard layout and similar interface
+                choices.</td>
               <td>To preserve the user’s preferred application experience.</td>
             </tr>
             <tr>
               <td>Technical and diagnostic data</td>
-              <td>IP address, device and browser information, timestamps, error logs, hosting logs and security events.</td>
+              <td>IP address, device and browser information, timestamps, error logs, hosting logs and security events.
+              </td>
               <td>To maintain availability, diagnose issues, prevent misuse and protect the application.</td>
             </tr>
           </tbody>
@@ -310,13 +347,19 @@
 
     <section class="notice-section">
       <h2>4. Information we do not intentionally collect</h2>
-      <p>UniTrack does not intentionally request payment card details, government identification numbers, passport details, full residential addresses, precise location data, telephone numbers, biometric identifiers, health information, contact lists, profile photographs, audio recordings, video files or public social media content.</p>
-      <p>Some parts of UniTrack allow free-text input, including notes, tasks and library entries. Users should avoid entering confidential, sensitive or unnecessary personal information into those fields. If a user chooses to enter such information, it may form part of that user’s stored tracker data.</p>
+      <p>UniTrack does not intentionally request payment card details, government identification numbers, passport
+        details, full residential addresses, precise location data, telephone numbers, biometric identifiers, health
+        information, contact lists, profile photographs, audio recordings, video files or public social media content.
+      </p>
+      <p>Some parts of UniTrack allow free-text input, including notes, tasks and library entries. Users should avoid
+        entering confidential, sensitive or unnecessary personal information into those fields. If a user chooses to
+        enter such information, it may form part of that user’s stored tracker data.</p>
     </section>
 
     <section class="notice-section">
       <h2>5. How we use personal information</h2>
-      <p>We process personal information only for purposes connected with providing, maintaining and protecting UniTrack. These purposes include:</p>
+      <p>We process personal information only for purposes connected with providing, maintaining and protecting
+        UniTrack. These purposes include:</p>
       <ul>
         <li>creating and managing user accounts;</li>
         <li>saving, displaying, synchronising and restoring academic tracker data;</li>
@@ -326,7 +369,8 @@
         <li>preventing unauthorised access, misuse, data loss and service disruption; and</li>
         <li>complying with legal, regulatory or security obligations where applicable.</li>
       </ul>
-      <p>We do not sell personal information. We do not use academic tracker data for advertising, behavioural profiling, targeted marketing, sale to third parties or unrelated commercial exploitation.</p>
+      <p>We do not sell personal information. We do not use academic tracker data for advertising, behavioural
+        profiling, targeted marketing, sale to third parties or unrelated commercial exploitation.</p>
     </section>
 
     <section class="notice-section">
@@ -343,19 +387,25 @@
           <tbody>
             <tr>
               <td>Performance of a contract</td>
-              <td>Used where processing is necessary to provide the core UniTrack service requested by the user, including account access, data storage, synchronisation, import, export and application functionality.</td>
+              <td>Used where processing is necessary to provide the core UniTrack service requested by the user,
+                including account access, data storage, synchronisation, import, export and application functionality.
+              </td>
             </tr>
             <tr>
               <td>Legitimate interests</td>
-              <td>Used where processing is necessary for service reliability, security, troubleshooting, abuse prevention, product maintenance and responding to user support requests, provided those interests are not overridden by user rights.</td>
+              <td>Used where processing is necessary for service reliability, security, troubleshooting, abuse
+                prevention, product maintenance and responding to user support requests, provided those interests are
+                not overridden by user rights.</td>
             </tr>
             <tr>
               <td>Consent</td>
-              <td>Used where consent is legally required, including for optional analytics or non-essential tracking technologies if such features are introduced.</td>
+              <td>Used where consent is legally required, including for optional analytics or non-essential tracking
+                technologies if such features are introduced.</td>
             </tr>
             <tr>
               <td>Legal obligation</td>
-              <td>Used where processing is necessary to comply with applicable law, lawful requests, regulatory requirements or legal proceedings.</td>
+              <td>Used where processing is necessary to comply with applicable law, lawful requests, regulatory
+                requirements or legal proceedings.</td>
             </tr>
           </tbody>
         </table>
@@ -364,14 +414,19 @@
 
     <section class="notice-section">
       <h2>7. Browser storage, cookies and similar technologies</h2>
-      <p>UniTrack may use browser storage, local storage, session storage and similar technologies to keep users signed in, preserve application state, remember preferences, support backup and recovery features, and ensure the application functions correctly.</p>
-      <p>These technologies are used for service operation rather than advertising. UniTrack does not use targeted advertising cookies, cross-site advertising trackers or behavioural marketing profiles.</p>
-      <p>If optional analytics or additional cookie-based features are introduced, UniTrack will provide appropriate information and, where required by law, a valid consent mechanism before such technologies are used.</p>
+      <p>UniTrack may use browser storage, local storage, session storage and similar technologies to keep users signed
+        in, preserve application state, remember preferences, support backup and recovery features, and ensure the
+        application functions correctly.</p>
+      <p>These technologies are used for service operation rather than advertising. UniTrack does not use targeted
+        advertising cookies, cross-site advertising trackers or behavioural marketing profiles.</p>
+      <p>If optional analytics or additional cookie-based features are introduced, UniTrack will provide appropriate
+        information and, where required by law, a valid consent mechanism before such technologies are used.</p>
     </section>
 
     <section class="notice-section">
       <h2>8. Service providers and recipients</h2>
-      <p>We use third-party infrastructure providers to operate UniTrack. Those providers process information only as necessary to provide their services to UniTrack.</p>
+      <p>We use third-party infrastructure providers to operate UniTrack. Those providers process information only as
+        necessary to provide their services to UniTrack.</p>
       <div class="table-wrap two-col">
         <table>
           <thead>
@@ -383,26 +438,36 @@
           <tbody>
             <tr>
               <td>Supabase</td>
-              <td>Authentication, account management, database hosting, security controls and cloud synchronisation.</td>
+              <td>Authentication, account management, database hosting, security controls and cloud synchronisation.
+              </td>
             </tr>
             <tr>
               <td>Vercel</td>
-              <td>Application hosting, deployment, content delivery, performance monitoring and optional usage analytics if enabled.</td>
+              <td>Application hosting, deployment, content delivery, performance monitoring and optional usage analytics
+                if enabled.</td>
             </tr>
             <tr>
               <td>Legal, regulatory or security recipients</td>
-              <td>Disclosure only where necessary for legal compliance, investigation of misuse, protection of rights, security incidents or valid legal proceedings.</td>
+              <td>Disclosure only where necessary for legal compliance, investigation of misuse, protection of rights,
+                security incidents or valid legal proceedings.</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <p>We do not provide personal information to advertising networks, data brokers or unrelated marketing partners.</p>
+      <p>We do not provide personal information to advertising networks, data brokers or unrelated marketing partners.
+      </p>
     </section>
 
     <section class="notice-section">
       <h2>9. International data transfers</h2>
-      <p>UniTrack may be accessed by users in the United Kingdom, Germany, Malaysia, Australia, New Zealand and other jurisdictions. The cloud and hosting providers used to operate UniTrack may process or store personal information outside the country in which a user is located.</p>
-      <p>Where UK GDPR or EU GDPR applies to an international transfer of personal information, we aim to rely on appropriate safeguards or recognised transfer mechanisms. These may include adequacy regulations or decisions, standard contractual clauses, the UK International Data Transfer Agreement or UK Addendum, processor terms, data processing agreements, and provider security commitments, depending on the relevant transfer and provider arrangements.</p>
+      <p>UniTrack may be accessed by users in the United Kingdom, Germany, Malaysia, Australia, New Zealand and other
+        jurisdictions. The cloud and hosting providers used to operate UniTrack may process or store personal
+        information outside the country in which a user is located.</p>
+      <p>Where UK GDPR or EU GDPR applies to an international transfer of personal information, we aim to rely on
+        appropriate safeguards or recognised transfer mechanisms. These may include adequacy regulations or decisions,
+        standard contractual clauses, the UK International Data Transfer Agreement or UK Addendum, processor terms, data
+        processing agreements, and provider security commitments, depending on the relevant transfer and provider
+        arrangements.</p>
     </section>
 
     <section class="notice-section">
@@ -418,23 +483,28 @@
           <tbody>
             <tr>
               <td>Account and cloud tracker data</td>
-              <td>Retained while the account remains active, or until the user deletes the data or requests deletion, subject to limited retention where necessary for legal, security or operational reasons.</td>
+              <td>Retained while the account remains active, or until the user deletes the data or requests deletion,
+                subject to limited retention where necessary for legal, security or operational reasons.</td>
             </tr>
             <tr>
               <td>Browser and local storage</td>
-              <td>Stored on the user’s device until cleared by the user, removed by browser settings, replaced by later application data or removed when signing out or resetting local data.</td>
+              <td>Stored on the user’s device until cleared by the user, removed by browser settings, replaced by later
+                application data or removed when signing out or resetting local data.</td>
             </tr>
             <tr>
               <td>Exported backups</td>
-              <td>Controlled by the user after download. UniTrack does not control backup copies stored outside the application by the user.</td>
+              <td>Controlled by the user after download. UniTrack does not control backup copies stored outside the
+                application by the user.</td>
             </tr>
             <tr>
               <td>Local recovery snapshots</td>
-              <td>Stored locally for recovery purposes and normally replaced by newer snapshots or removed when local browser data is cleared.</td>
+              <td>Stored locally for recovery purposes and normally replaced by newer snapshots or removed when local
+                browser data is cleared.</td>
             </tr>
             <tr>
               <td>Technical and security logs</td>
-              <td>Retained only for as long as reasonably necessary for reliability, security, troubleshooting, provider operations or legal compliance.</td>
+              <td>Retained only for as long as reasonably necessary for reliability, security, troubleshooting, provider
+                operations or legal compliance.</td>
             </tr>
           </tbody>
         </table>
@@ -443,8 +513,14 @@
 
     <section class="notice-section">
       <h2>11. Security</h2>
-      <p>We use technical and organisational measures intended to protect personal information in a manner proportionate to the nature and scale of UniTrack. These measures may include account authentication, access controls, cloud database segregation, Supabase row-level security where configured, validation of server-side requests, restrictions on payload size, safeguards against accidental credential exposure, and monitoring of technical errors or misuse.</p>
-      <p>No online service can guarantee absolute security. Users should use a secure email account, protect login credentials, avoid sharing accounts, and take care when entering confidential information into free-text fields.</p>
+      <p>We use technical and organisational measures intended to protect personal information in a manner proportionate
+        to the nature and scale of UniTrack. These measures may include account authentication, access controls, cloud
+        database segregation, Supabase row-level security where configured, validation of server-side requests,
+        restrictions on payload size, safeguards against accidental credential exposure, and monitoring of technical
+        errors or misuse.</p>
+      <p>No online service can guarantee absolute security. Users should use a secure email account, protect login
+        credentials, avoid sharing accounts, and take care when entering confidential information into free-text fields.
+      </p>
     </section>
 
     <section class="notice-section">
@@ -472,7 +548,8 @@
             </tr>
             <tr>
               <td>Delete cloud data</td>
-              <td>Allows a user to remove cloud-stored tracker profile data. This does not delete downloaded backups or browser-local copies.</td>
+              <td>Allows a user to remove cloud-stored tracker profile data. This does not delete downloaded backups or
+                browser-local copies.</td>
             </tr>
             <tr>
               <td>Edit profile and settings</td>
@@ -496,45 +573,72 @@
         <li>withdraw consent where processing is based on consent; and</li>
         <li>complain to a data protection regulator or supervisory authority.</li>
       </ul>
-      <p>Requests should be sent to <a href="mailto:ssnnckg@gmail.com">ssnnckg@gmail.com</a>. We may need to verify that the request comes from the account holder before acting on it. Some rights may be limited where an exemption applies, where data has already been deleted, where we must retain information for legal or security reasons, or where we cannot reasonably identify the relevant data.</p>
+      <p>Requests should be sent to <a href="mailto:ssnnckg@gmail.com">ssnnckg@gmail.com</a>. We may need to verify that
+        the request comes from the account holder before acting on it. Some rights may be limited where an exemption
+        applies, where data has already been deleted, where we must retain information for legal or security reasons, or
+        where we cannot reasonably identify the relevant data.</p>
     </section>
 
     <section class="notice-section">
       <h2>14. Jurisdiction-specific information</h2>
 
       <h3>14.1 United Kingdom</h3>
-      <p>Where UK data protection law applies, users may have rights under the UK GDPR and the Data Protection Act 2018. Users may complain to the Information Commissioner’s Office if they are not satisfied with how their personal information has been handled.</p>
+      <p>Where UK data protection law applies, users may have rights under the UK GDPR and the Data Protection Act 2018.
+        Users may complain to the Information Commissioner’s Office if they are not satisfied with how their personal
+        information has been handled.</p>
 
       <h3>14.2 Germany and the European Union / European Economic Area</h3>
-      <p>Where UniTrack is used by individuals in Germany or another EU/EEA country and EU data protection law applies, references to “GDPR” include Regulation (EU) 2016/679, commonly referred to in Germany as the Datenschutz-Grundverordnung or DSGVO.</p>
-      <p>EU/EEA users may have rights under Articles 12 to 22 of the GDPR, including the right of access, rectification, erasure, restriction, portability, objection, and the right not to be subject to certain solely automated decisions where applicable. Users may also withdraw consent at any time where processing is based on consent.</p>
-      <p>Users in Germany may lodge a complaint with a competent German data protection supervisory authority. The competent authority may depend on the user’s federal state, the nature of the processing and the organisation involved. This right is in addition to the ability to contact us directly.</p>
-      <p>SNTutors has not appointed a data protection officer for UniTrack at this stage. Privacy requests should be directed to the contact address stated in this notice. If UniTrack’s activities change in a way that requires a data protection officer, EU representative or additional local compliance arrangements, this notice will be updated accordingly.</p>
+      <p>Where UniTrack is used by individuals in Germany or another EU/EEA country and EU data protection law applies,
+        references to “GDPR” include Regulation (EU) 2016/679, commonly referred to in Germany as the
+        Datenschutz-Grundverordnung or DSGVO.</p>
+      <p>EU/EEA users may have rights under Articles 12 to 22 of the GDPR, including the right of access, rectification,
+        erasure, restriction, portability, objection, and the right not to be subject to certain solely automated
+        decisions where applicable. Users may also withdraw consent at any time where processing is based on consent.
+      </p>
+      <p>Users in Germany may lodge a complaint with a competent German data protection supervisory authority. The
+        competent authority may depend on the user’s federal state, the nature of the processing and the organisation
+        involved. This right is in addition to the ability to contact us directly.</p>
+      <p>SNTutors has not appointed a data protection officer for UniTrack at this stage. Privacy requests should be
+        directed to the contact address stated in this notice. If UniTrack’s activities change in a way that requires a
+        data protection officer, EU representative or additional local compliance arrangements, this notice will be
+        updated accordingly.</p>
 
       <h3>14.3 Malaysia</h3>
-      <p>Where Malaysian data protection law applies, users may have rights to access and correct personal data and may exercise rights available under the Personal Data Protection Act 2010 and related requirements.</p>
+      <p>Where Malaysian data protection law applies, users may have rights to access and correct personal data and may
+        exercise rights available under the Personal Data Protection Act 2010 and related requirements.</p>
 
       <h3>14.4 Australia</h3>
-      <p>Where Australian privacy law applies, users may request access to and correction of personal information and may complain to the Office of the Australian Information Commissioner where appropriate.</p>
+      <p>Where Australian privacy law applies, users may request access to and correction of personal information and
+        may complain to the Office of the Australian Information Commissioner where appropriate.</p>
 
       <h3>14.5 New Zealand</h3>
-      <p>Where New Zealand privacy law applies, users may request access to and correction of personal information and may complain to the Office of the Privacy Commissioner where appropriate.</p>
+      <p>Where New Zealand privacy law applies, users may request access to and correction of personal information and
+        may complain to the Office of the Privacy Commissioner where appropriate.</p>
     </section>
 
     <section class="notice-section">
       <h2>15. Children and younger users</h2>
-      <p>UniTrack is primarily intended for students and young adults who can manage their own academic information. It is not designed for children under 13 years of age.</p>
-      <p>If a user is below the age at which their country allows them to use online services independently, the user should use UniTrack only with appropriate parent or guardian consent and supervision. We aim to collect only information that is reasonably necessary for the service and to explain our practices in clear language.</p>
+      <p>UniTrack is primarily intended for students and young adults who can manage their own academic information. It
+        is not designed for children under 13 years of age.</p>
+      <p>If a user is below the age at which their country allows them to use online services independently, the user
+        should use UniTrack only with appropriate parent or guardian consent and supervision. We aim to collect only
+        information that is reasonably necessary for the service and to explain our practices in clear language.</p>
     </section>
 
     <section class="notice-section">
       <h2>16. Data breach notification</h2>
-      <p>If we become aware of a security incident affecting personal information, we will investigate the matter, take appropriate steps to contain and remedy the issue, and notify affected users and regulators where required by applicable law. The timing and content of any notification will depend on the nature of the incident, the risk to users and the legal requirements that apply.</p>
+      <p>If we become aware of a security incident affecting personal information, we will investigate the matter, take
+        appropriate steps to contain and remedy the issue, and notify affected users and regulators where required by
+        applicable law. The timing and content of any notification will depend on the nature of the incident, the risk
+        to users and the legal requirements that apply.</p>
     </section>
 
     <section class="notice-section">
       <h2>17. Changes to this notice</h2>
-      <p>We may update this notice to reflect changes to UniTrack, service providers, security practices, legal requirements or the way personal information is processed. Where a change is material, we will take reasonable steps to draw it to users’ attention, such as by in-application notice or email where feasible. The “Last updated” date at the top of this document will indicate when the notice was last revised.</p>
+      <p>We may update this notice to reflect changes to UniTrack, service providers, security practices, legal
+        requirements or the way personal information is processed. Where a change is material, we will take reasonable
+        steps to draw it to users’ attention, such as by in-application notice or email where feasible. The “Last
+        updated” date at the top of this document will indicate when the notice was last revised.</p>
     </section>
 
     <section class="notice-section">
@@ -556,7 +660,8 @@
             </tr>
             <tr>
               <td>Application URL</td>
-              <td><a href="https://unicoursetrack.vercel.app/" target="_blank" rel="noopener noreferrer">https://unicoursetrack.vercel.app/</a></td>
+              <td><a href="https://unicoursetrack.vercel.app/" target="_blank"
+                  rel="noopener noreferrer">https://unicoursetrack.vercel.app/</a></td>
             </tr>
           </tbody>
         </table>
@@ -566,5 +671,20 @@
 
     <a class="site-link" href="/">Return to UniTrack</a>
   </main>
+  <script>
+    (function applySavedFontPreference() {
+      try {
+        const rawPrefs = localStorage.getItem("course_progress_prefs_v1");
+        const prefs = rawPrefs ? JSON.parse(rawPrefs) : {};
+        const font = prefs.font || "japanese";
+
+        const allowedFonts = new Set(["japanese", "serif", "sans", "mono"]);
+        document.body.dataset.font = allowedFonts.has(font) ? font : "japanese";
+      } catch (error) {
+        document.body.dataset.font = "japanese";
+      }
+    })();
+  </script>
 </body>
+
 </html>
