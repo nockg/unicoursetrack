@@ -356,7 +356,7 @@
           <div class="account-clean-header-copy">
             <div class="account-clean-kicker">Account Overview</div>
             <h2>Account</h2>
-            <p>Signed in as <strong>${profileName}</strong>. Your everyday settings are grouped below so the important actions are easier to read, manage, and revisit.</p>
+            <p>Signed in as <strong>${profileName}</strong>.</p>
           </div>
           <div class="account-clean-status" aria-label="Account status">
             <div class="account-clean-status-label">Sync Status</div>
