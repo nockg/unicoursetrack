@@ -1,5 +1,5 @@
-/* UniTrack Account consolidated cleanup
-   Clean account UI, theme-aware fonts, no Preferences backup styling. */
+/* UniTrack account panel UI
+   Theme-aware account layout, privacy controls, and backup actions. */
 
 #auth-modal .deadline-splash-card.deadline-form-content {
   width: min(860px, calc(100vw - 28px));
@@ -18,7 +18,7 @@
   content: none !important;
 }
 
-#auth-modal .deadline-splash-card.deadline-form-content > .deadline-splash-label:first-child {
+#auth-modal .deadline-splash-card.deadline-form-content > .deadline-splash-label {
   display: none !important;
 }
 
@@ -375,11 +375,15 @@
 .account-clean-danger {
   border-color: color-mix(in srgb, var(--vermillion) 28%, var(--border) 72%);
   background: color-mix(in srgb, var(--paper2) 92%, var(--vermillion) 8%);
+  overflow: hidden;
 }
 
 .account-clean-danger-toggle {
-  width: calc(100% - 32px);
-  margin: 0 16px 16px;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--vermillion) 22%, var(--border) 78%);
+  padding: 15px 16px;
   color: var(--vermillion);
   background: color-mix(in srgb, var(--paper) 94%, white 6%);
 }
@@ -395,6 +399,10 @@
 
 .account-clean-danger-body.open {
   display: grid;
+}
+
+.account-clean-danger:not(.open) .account-clean-danger-toggle {
+  border-top: 0;
 }
 
 .account-clean-danger-body p {

@@ -1,4 +1,4 @@
-/* Readability + interaction patch */
+/* Global UI readability, responsive shell behaviour, and interaction polish */
 .context-menu {
   position: fixed;
   background: var(--paper, #faf8f3);
@@ -171,7 +171,7 @@ body.setup-required .dashboard-close {
   }
 }
 
-/* Premium calendar/deadline form + smooth timeline switch patch */
+/* Premium calendar and deadline form layout */
 #deadline-form-modal .dashboard-content.deadline-form-content,
 #calendar-modal .dashboard-content.calendar-form-content {
   width: min(720px, calc(100vw - 28px));
@@ -475,8 +475,8 @@ body.theme-dark .deadline-choice-card:hover {
 }
 
 /* =========================================================
-   FINAL PATCH: deadline modal cleanup, no tab animation,
-   font preference compliance, and scroll lock
+   Deadline modal cleanup, font preference compliance,
+   and scroll lock
    ========================================================= */
 
 /* No animation between Upcoming and Add New. Instant switch only. */
@@ -960,7 +960,7 @@ body.modal-scroll-locked .dashboard-content {
   }
 }
 
-/* Final state rules: checked topics must stay visually complete after layout/theme overrides. */
+/* Final state rules: checked topics must stay visually complete across themes and layouts. */
 .topic-row .topic-label.done,
 .topic-row.subtopic-row .topic-label.done,
 body.compact-ui .topic-row .topic-label.done,

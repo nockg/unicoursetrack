@@ -405,6 +405,10 @@ function renderAuthModal(mode = "login") {
     updateAuthLock();
     return;
   }
+  if (typeof window.unitrackRenderProfessionalAccountPanel === "function") {
+    window.unitrackRenderProfessionalAccountPanel();
+    return;
+  }
   const body = document.getElementById("auth-modal-body");
   if (!body) return;
 

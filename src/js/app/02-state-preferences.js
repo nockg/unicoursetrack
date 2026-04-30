@@ -1075,6 +1075,7 @@ function clearLocalTrackerStorage() {
 
 function save() {
   rememberUndoState();
+  if (typeof ensureLibraryState === "function") ensureLibraryState();
   localStorage.setItem(KEY, JSON.stringify(state));
   saveCloudDebounced();
 }

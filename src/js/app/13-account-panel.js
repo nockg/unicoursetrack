@@ -1,5 +1,5 @@
 /* UniTrack Account Panel - Consolidated Account/Privacy/Backup Controls
-   No Preferences backup injection. No extra patch file. */
+   Account-only backup tools and privacy controls. */
 
 (function () {
   "use strict";
@@ -320,8 +320,10 @@
   function toggleDangerZone() {
     const zone = document.getElementById("unitrack-danger-zone-body");
     const btn = document.getElementById("unitrack-danger-zone-toggle");
+    const section = btn?.closest(".account-clean-danger");
     if (!zone || !btn) return;
     const open = zone.classList.toggle("open");
+    if (section) section.classList.toggle("open", open);
     btn.setAttribute("aria-expanded", String(open));
     btn.textContent = open ? "Hide deletion options" : "Show deletion options";
   }
@@ -428,29 +430,6 @@
     `;
   }
 
-  function patchAccountFunctions() {
-    if (window.__unitrackAccountConsolidatedPatched) return;
-    window.__unitrackAccountConsolidatedPatched = true;
-
-    const originalOpen = window.openAuthModal;
-    if (typeof originalOpen === "function") {
-      window.openAuthModal = function patchedOpenAuthModal(...args) {
-        const result = originalOpen.apply(this, args);
-        renderAccountPanel();
-        return result;
-      };
-    }
-
-    const originalRender = window.renderAuthModal;
-    if (typeof originalRender === "function") {
-      window.renderAuthModal = function patchedRenderAuthModal(...args) {
-        const result = originalRender.apply(this, args);
-        renderAccountPanel();
-        return result;
-      };
-    }
-  }
-
   window.unitrackExportBackup = exportBackup;
   window.unitrackImportBackup = importBackup;
   window.unitrackExportRecoveryBackup = exportRecoveryBackup;
@@ -464,7 +443,4 @@
   window.importUniTrackBackup = importBackup;
   window.exportSafetySnapshot = exportRecoveryBackup;
   window.deleteCloudTrackerData = deleteCloudSyncData;
-
-  patchAccountFunctions();
-  document.addEventListener("DOMContentLoaded", patchAccountFunctions);
 })();

@@ -527,6 +527,81 @@ function getLibraryTarget() {
   if (moduleLibraryScopeMi !== null && moduleLibraryScopeMi !== undefined) return { customId: null, mi: moduleLibraryScopeMi };
   return parseLibraryFilterValue(moduleLibraryFilter);
 }
+function libraryStateIsPlainObject(value) {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+function libraryUniqueSortedPaths(paths) {
+  const out = new Set();
+  (paths || []).forEach((path) => {
+    const clean = normaliseLibraryFolderPath(path);
+    if (!clean) return;
+    const parts = clean.split("/");
+    parts.forEach((_, index) => out.add(parts.slice(0, index + 1).join("/")));
+  });
+  return Array.from(out).sort((a, b) => a.localeCompare(b));
+}
+function ensureLibraryRegistryArray(container, key) {
+  if (!Array.isArray(container[key])) container[key] = [];
+  container[key] = libraryUniqueSortedPaths(container[key]);
+  return container[key];
+}
+function ensureLibraryState() {
+  const store = getStore();
+  if (!store) return null;
+  if (!store.libraryFolders || !libraryStateIsPlainObject(store.libraryFolders)) {
+    store.libraryFolders = { formula: {}, relevant: {}, custom: {} };
+  }
+  if (!libraryStateIsPlainObject(store.libraryFolders.formula)) store.libraryFolders.formula = {};
+  if (!libraryStateIsPlainObject(store.libraryFolders.relevant)) store.libraryFolders.relevant = {};
+  if (!libraryStateIsPlainObject(store.libraryFolders.custom)) store.libraryFolders.custom = {};
+
+  const moduleCount = Array.isArray(store.modules) ? store.modules.length : MODULES.length;
+  for (let mi = 0; mi < moduleCount; mi += 1) {
+    const formulaRegistry = ensureLibraryRegistryArray(store.libraryFolders.formula, String(mi));
+    const relevantRegistry = ensureLibraryRegistryArray(store.libraryFolders.relevant, String(mi));
+    libraryUniqueSortedPaths(getFormulaLinks(mi).map((item) => item?.folder)).forEach((path) => {
+      if (!formulaRegistry.includes(path)) formulaRegistry.push(path);
+    });
+    libraryUniqueSortedPaths(getRelevantLinks(mi).map((item) => item?.folder)).forEach((path) => {
+      if (!relevantRegistry.includes(path)) relevantRegistry.push(path);
+    });
+    store.libraryFolders.formula[String(mi)] = libraryUniqueSortedPaths(formulaRegistry);
+    store.libraryFolders.relevant[String(mi)] = libraryUniqueSortedPaths(relevantRegistry);
+  }
+
+  const customLibraries = getCustomLibraries();
+  Object.keys(customLibraries).forEach((customId) => {
+    if (!store.libraryFolders.custom[customId] || !libraryStateIsPlainObject(store.libraryFolders.custom[customId])) {
+      store.libraryFolders.custom[customId] = { formula: [], relevant: [] };
+    }
+    const customFolderStore = store.libraryFolders.custom[customId];
+    const formulaRegistry = ensureLibraryRegistryArray(customFolderStore, "formula");
+    const relevantRegistry = ensureLibraryRegistryArray(customFolderStore, "relevant");
+    libraryUniqueSortedPaths(getCustomLibraryItems(customId, "formula").map((item) => item?.folder)).forEach((path) => {
+      if (!formulaRegistry.includes(path)) formulaRegistry.push(path);
+    });
+    libraryUniqueSortedPaths(getCustomLibraryItems(customId, "relevant").map((item) => item?.folder)).forEach((path) => {
+      if (!relevantRegistry.includes(path)) relevantRegistry.push(path);
+    });
+    customFolderStore.formula = libraryUniqueSortedPaths(formulaRegistry);
+    customFolderStore.relevant = libraryUniqueSortedPaths(relevantRegistry);
+  });
+  return store.libraryFolders;
+}
+function setLibraryItemFolder(type, itemIndex, folderPath) {
+  const clean = normaliseLibraryFolderPath(folderPath);
+  const items = getLibrarySourceArray(type);
+  if (!Array.isArray(items) || !items[itemIndex]) return false;
+  items[itemIndex].folder = clean;
+  if (clean) addLibraryFolderToRegistry(type, clean);
+  ensureLibraryState();
+  save();
+  renderModuleLibrary();
+  return true;
+}
+window.unitrackEnsureLibraryState = ensureLibraryState;
+window.unitrackGetActiveLibraryTarget = getLibraryTarget;
+window.unitrackSetItemFolder = setLibraryItemFolder;
 function getLibraryFolderRegistry(type, target = null) {
   const store = getStore();
   if (!store.libraryFolders || typeof store.libraryFolders !== "object" || Array.isArray(store.libraryFolders)) {
@@ -1109,6 +1184,7 @@ function closeLinkForm() {
 
 function saveLinkForm() {
   if (!linkFormContext) return;
+  ensureLibraryState();
   const nameInput = document.getElementById("link-name-input");
   const urlInput = document.getElementById("link-url-input");
   const tagInput = document.getElementById("link-tag-input");
@@ -2113,6 +2189,11 @@ function libraryCleanSourceRailHtml() {
   });
   const remaining = allSources.filter((source) => source.key !== "all" && !quickAccess.some((item) => item.key === source.key));
   const showAll = libraryCleanState().showAllSources;
+  const browseTile = remaining.length ? `<button class="library-v10-source-browse-tile ${showAll ? "active" : ""}" type="button" onclick="libraryCleanToggleAllSources(event)">
+      <span class="library-v10-source-browse-kicker">Discover</span>
+      <strong>Browse Libraries</strong>
+      <span class="library-v10-source-browse-meta">${remaining.length} more librar${remaining.length === 1 ? "y" : "ies"} beyond quick access</span>
+    </button>` : "";
 
   function sourceCardHtml(source, options = {}) {
     const counts = libraryCleanCountsForSource(source);
@@ -2141,10 +2222,9 @@ function libraryCleanSourceRailHtml() {
   return `<div class="library-v10-source-browser">
     <div class="library-v10-source-browser-head">
       <div class="library-v10-source-browser-title">Quick Access</div>
-      ${remaining.length ? `<button class="mini-btn library-v10-source-toggle" type="button" onclick="libraryCleanToggleAllSources(event)">${showAll ? "Hide Libraries" : `Browse Libraries (${remaining.length})`}</button>` : ""}
     </div>
     <div class="library-v10-source-rail library-v10-source-rail-quick">
-      ${quickAccess.map((source) => sourceCardHtml(source, { compact: true })).join("")}
+      ${quickAccess.map((source, index) => `${sourceCardHtml(source, { compact: true })}${index === 0 ? browseTile : ""}`).join("")}
     </div>
     ${remaining.length ? `<div class="library-v10-source-browser-panel ${showAll ? "open" : ""}">
       <div class="library-v10-source-browser-title">More Libraries</div>
@@ -2619,6 +2699,7 @@ function libraryCleanRenderBody() {
 }
 
 function renderModuleLibrary() {
+  ensureLibraryState();
   const modal = document.getElementById("module-library-modal");
   const materialsHost = document.getElementById("module-library-materials");
   if (!materialsHost) return;
@@ -2694,6 +2775,7 @@ function renderModuleLibrary() {
 
   materialsHost.className = "module-library-list library-v10-list";
   materialsHost.innerHTML = actionsHtml + libraryCleanRenderBody();
+  window.unitrackEnhanceLibraryDom?.();
   modal?.classList.add("library-v10-active");
 }
 
@@ -2726,6 +2808,7 @@ function libraryCleanSetupSourceRailEvents() {
 
 function openModuleLibrary(mi = null, focus = "both", event) {
   if (event) event.stopPropagation();
+  ensureLibraryState();
   materialLibraryModuleIndex = mi;
   moduleLibrarySearch = "";
   if (Number.isInteger(mi)) libraryCleanSetSource(`module:${mi}`, { silent: true });

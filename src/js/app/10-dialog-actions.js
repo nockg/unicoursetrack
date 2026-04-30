@@ -3,6 +3,36 @@ let appDialogResolver = null;
 let appDialogMode = "confirm";
 let appDialogRequireYes = false;
 
+function closeVisibleEscapeModal() {
+  const modalSelectors = [
+    "#prefs-panel",
+    "#dashboard-modal",
+    "#timeline-modal",
+    "#todo-modal",
+    "#calendar-modal",
+    "#deadline-form-modal",
+    "#module-library-modal"
+  ];
+
+  for (const selector of modalSelectors) {
+    const node = document.querySelector(selector);
+    if (!node || node.classList.contains("hidden")) continue;
+
+    if (selector === "#prefs-panel") {
+      node.classList.add("hidden");
+      return true;
+    }
+
+    const closeButton = node.querySelector(".deadline-splash-close, [data-close], button[aria-label='Close']");
+    if (closeButton) {
+      closeButton.click();
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function openAppDialog(options = {}) {
   const modal = document.getElementById("app-dialog-modal");
   if (!modal) return Promise.resolve(null);
@@ -84,7 +114,10 @@ function resolveAppDialog(confirmed) {
 
 document.addEventListener("keydown", (event) => {
   const modal = document.getElementById("app-dialog-modal");
-  if (!modal || modal.classList.contains("hidden")) return;
+  if (!modal || modal.classList.contains("hidden")) {
+    if (event.key === "Escape") closeVisibleEscapeModal();
+    return;
+  }
   if (event.key === "Escape") resolveAppDialog(false);
   if (event.key === "Enter" && !event.shiftKey) resolveAppDialog(true);
 });

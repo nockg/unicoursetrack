@@ -1,5 +1,11 @@
+function applyReducedMotionPreference() {
+  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  document.documentElement.classList.toggle("reduce-motion", !!reduceMotion);
+}
+
 // Wait for Supabase to check/restore the session before showing login or the dashboard.
 (async function bootApp() {
+  applyReducedMotionPreference();
   setAuthLoading(true, "Restoring your session...", "Checking whether you are already signed in before showing anything.");
   await waitForInitialAuth();
 
@@ -45,3 +51,7 @@
 
   setInterval(renderStickyExams, 1000);
 })();
+
+try {
+  window.matchMedia?.("(prefers-reduced-motion: reduce)")?.addEventListener("change", applyReducedMotionPreference);
+} catch {}

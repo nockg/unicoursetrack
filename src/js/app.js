@@ -11,3 +11,5 @@
 // 09-auth-cloud.js
 // 10-dialog-actions.js
 // 11-boot.js
+// 12-library-render.js
+// 13-account-panel.js

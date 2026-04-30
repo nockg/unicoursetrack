@@ -14,8 +14,8 @@ const cssFiles = [
   '06-dashboard-timeline.css',
   '07-todo.css',
   '08-setup-deadlines.css',
-  '09-overrides-patches.css',
-  '10-accessibility-backup.css'
+  '09-responsive-polish.css',
+  '10-account-panel.css'
 ].filter((file) => existsSync(join(root, 'src/styles/app', file)));
 
 const jsFiles = [
@@ -31,10 +31,8 @@ const jsFiles = [
   '09-auth-cloud.js',
   '10-dialog-actions.js',
   '11-boot.js',
-  '12-library-state.js',
-  '13-library-render.js',
-  '14-backup-accessibility.js',
-  '15-security-guardrails.js'
+  '12-library-render.js',
+  '13-account-panel.js'
 ].filter((file) => existsSync(join(root, 'src/js/app', file)));
 
 function parseEnvFile(file) {

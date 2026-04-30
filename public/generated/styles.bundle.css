@@ -2491,7 +2491,7 @@ body.theme-dark .coursework-empty{
 .topic-drag-handle:hover { color: var(--muted); }
 
 
-/* UniTrack Library Clean V8 UI override */
+/* UniTrack library source browser layout */
 #module-library-modal.library-v8-active .module-library-content {
   width: min(1680px, calc(100vw - 20px));
   max-height: 94vh;
@@ -2814,7 +2814,7 @@ body.theme-dark #module-library-modal .library-v5-folder.selected {
 }
 
 
-/* UniTrack Library Clean V10 overrides */
+/* UniTrack unified library view */
 #module-library-modal.library-v10-active,
 #module-library-modal .library-v10-active {
   user-select: none;
@@ -2869,6 +2869,10 @@ body.theme-dark #module-library-modal .library-v5-folder.selected {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
+.library-v10-source-rail-quick .library-v10-source-shell:first-child {
+  order: 1;
+}
+
 .library-v10-source-rail-all {
   margin-top: 6px;
 }
@@ -2879,6 +2883,62 @@ body.theme-dark #module-library-modal .library-v5-folder.selected {
 
 .library-v10-source-shell-compact {
   position: relative;
+}
+
+.library-v10-source-browse-tile {
+  appearance: none;
+  width: 100%;
+  min-height: 78px;
+  border: 1px solid color-mix(in srgb, var(--gold2) 56%, var(--border2) 44%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--gold2) 14%, var(--paper) 86%) 0%, color-mix(in srgb, white 22%, var(--paper) 78%) 100%);
+  color: var(--sumi);
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 14px 18px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 0;
+  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+  order: 2;
+  grid-column: span 2;
+}
+
+.library-v10-source-browse-tile:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--gold2) 76%, var(--sumi) 24%);
+  box-shadow: 0 10px 20px rgba(26, 22, 18, 0.10);
+}
+
+.library-v10-source-browse-tile.active {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--gold2) 22%, var(--paper) 78%) 0%, color-mix(in srgb, white 18%, var(--paper) 82%) 100%);
+  border-color: color-mix(in srgb, var(--gold2) 78%, var(--sumi) 22%);
+  box-shadow: inset 4px 0 0 var(--gold2), 0 10px 20px rgba(26, 22, 18, 0.08);
+}
+
+.library-v10-source-browse-kicker {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.library-v10-source-browse-tile strong {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 24px;
+  line-height: 1.05;
+  font-weight: 600;
+  color: var(--sumi);
+}
+
+.library-v10-source-browse-meta {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .library-v10-source-browser-panel {
@@ -3445,7 +3505,8 @@ body.theme-dark .library-v10-folder,
 body.theme-dark .library-v10-item,
 body.theme-dark .library-v10-details,
 body.theme-dark .library-v10-row,
-body.theme-dark .library-v10-source-menu {
+body.theme-dark .library-v10-source-menu,
+body.theme-dark .library-v10-source-browse-tile {
   background: rgba(255,255,255,0.045) !important;
   border-color: rgba(255,255,255,0.10) !important;
   color: #f2ece0;
@@ -3464,6 +3525,16 @@ body.theme-dark .library-v10-crumb.active {
 
 body.theme-dark .library-v10-source-name {
   color: #d3cec3;
+}
+
+body.theme-dark .library-v10-source-browse-tile.active {
+  background: rgba(255,255,255,0.07) !important;
+  border-color: rgba(216,200,176,0.42) !important;
+}
+
+body.theme-dark .library-v10-source-browse-kicker,
+body.theme-dark .library-v10-source-browse-meta {
+  color: #cfc6b7;
 }
 
 body.theme-dark .library-v10-breadcrumbs {
@@ -3517,6 +3588,9 @@ body.theme-dark .library-v10-details-header {
   }
   .library-v10-source-shell {
     grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .library-v10-source-browse-tile {
+    grid-column: span 1;
   }
   .library-v10-action-buttons {
     justify-content: flex-start;
@@ -5420,8 +5494,8 @@ body.theme-dark .priority-choice.active { color: #fff; background: rgba(255,255,
 body.theme-quiet .sticky-exams{ border-bottom-color: rgba(245,240,232,0.16) !important; }
 .module-library-section-collapsible.is-collapsed .module-library-list { display: none !important; }
 
-/* 09-overrides-patches.css */
-/* Readability + interaction patch */
+/* 09-responsive-polish.css */
+/* Global UI readability, responsive shell behaviour, and interaction polish */
 .context-menu {
   position: fixed;
   background: var(--paper, #faf8f3);
@@ -5594,7 +5668,7 @@ body.setup-required .dashboard-close {
   }
 }
 
-/* Premium calendar/deadline form + smooth timeline switch patch */
+/* Premium calendar and deadline form layout */
 #deadline-form-modal .dashboard-content.deadline-form-content,
 #calendar-modal .dashboard-content.calendar-form-content {
   width: min(720px, calc(100vw - 28px));
@@ -5898,8 +5972,8 @@ body.theme-dark .deadline-choice-card:hover {
 }
 
 /* =========================================================
-   FINAL PATCH: deadline modal cleanup, no tab animation,
-   font preference compliance, and scroll lock
+   Deadline modal cleanup, font preference compliance,
+   and scroll lock
    ========================================================= */
 
 /* No animation between Upcoming and Add New. Instant switch only. */
@@ -6383,7 +6457,7 @@ body.modal-scroll-locked .dashboard-content {
   }
 }
 
-/* Final state rules: checked topics must stay visually complete after layout/theme overrides. */
+/* Final state rules: checked topics must stay visually complete across themes and layouts. */
 .topic-row .topic-label.done,
 .topic-row.subtopic-row .topic-label.done,
 body.compact-ui .topic-row .topic-label.done,
@@ -7843,9 +7917,9 @@ body.theme-dark :focus-visible {
   box-shadow: 0 0 0 2px rgba(241, 237, 228, 0.28);
 }
 
-/* 10-accessibility-backup.css */
-/* UniTrack Account consolidated cleanup
-   Clean account UI, theme-aware fonts, no Preferences backup styling. */
+/* 10-account-panel.css */
+/* UniTrack account panel UI
+   Theme-aware account layout, privacy controls, and backup actions. */
 
 #auth-modal .deadline-splash-card.deadline-form-content {
   width: min(860px, calc(100vw - 28px));
@@ -7864,7 +7938,7 @@ body.theme-dark :focus-visible {
   content: none !important;
 }
 
-#auth-modal .deadline-splash-card.deadline-form-content > .deadline-splash-label:first-child {
+#auth-modal .deadline-splash-card.deadline-form-content > .deadline-splash-label {
   display: none !important;
 }
 
@@ -8221,11 +8295,15 @@ body.theme-dark :focus-visible {
 .account-clean-danger {
   border-color: color-mix(in srgb, var(--vermillion) 28%, var(--border) 72%);
   background: color-mix(in srgb, var(--paper2) 92%, var(--vermillion) 8%);
+  overflow: hidden;
 }
 
 .account-clean-danger-toggle {
-  width: calc(100% - 32px);
-  margin: 0 16px 16px;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--vermillion) 22%, var(--border) 78%);
+  padding: 15px 16px;
   color: var(--vermillion);
   background: color-mix(in srgb, var(--paper) 94%, white 6%);
 }
@@ -8241,6 +8319,10 @@ body.theme-dark :focus-visible {
 
 .account-clean-danger-body.open {
   display: grid;
+}
+
+.account-clean-danger:not(.open) .account-clean-danger-toggle {
+  border-top: 0;
 }
 
 .account-clean-danger-body p {

@@ -1477,6 +1477,7 @@ function clearLocalTrackerStorage() {
 
 function save() {
   rememberUndoState();
+  if (typeof ensureLibraryState === "function") ensureLibraryState();
   localStorage.setItem(KEY, JSON.stringify(state));
   saveCloudDebounced();
 }
@@ -2017,6 +2018,81 @@ function getLibraryTarget() {
   if (moduleLibraryScopeMi !== null && moduleLibraryScopeMi !== undefined) return { customId: null, mi: moduleLibraryScopeMi };
   return parseLibraryFilterValue(moduleLibraryFilter);
 }
+function libraryStateIsPlainObject(value) {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+function libraryUniqueSortedPaths(paths) {
+  const out = new Set();
+  (paths || []).forEach((path) => {
+    const clean = normaliseLibraryFolderPath(path);
+    if (!clean) return;
+    const parts = clean.split("/");
+    parts.forEach((_, index) => out.add(parts.slice(0, index + 1).join("/")));
+  });
+  return Array.from(out).sort((a, b) => a.localeCompare(b));
+}
+function ensureLibraryRegistryArray(container, key) {
+  if (!Array.isArray(container[key])) container[key] = [];
+  container[key] = libraryUniqueSortedPaths(container[key]);
+  return container[key];
+}
+function ensureLibraryState() {
+  const store = getStore();
+  if (!store) return null;
+  if (!store.libraryFolders || !libraryStateIsPlainObject(store.libraryFolders)) {
+    store.libraryFolders = { formula: {}, relevant: {}, custom: {} };
+  }
+  if (!libraryStateIsPlainObject(store.libraryFolders.formula)) store.libraryFolders.formula = {};
+  if (!libraryStateIsPlainObject(store.libraryFolders.relevant)) store.libraryFolders.relevant = {};
+  if (!libraryStateIsPlainObject(store.libraryFolders.custom)) store.libraryFolders.custom = {};
+
+  const moduleCount = Array.isArray(store.modules) ? store.modules.length : MODULES.length;
+  for (let mi = 0; mi < moduleCount; mi += 1) {
+    const formulaRegistry = ensureLibraryRegistryArray(store.libraryFolders.formula, String(mi));
+    const relevantRegistry = ensureLibraryRegistryArray(store.libraryFolders.relevant, String(mi));
+    libraryUniqueSortedPaths(getFormulaLinks(mi).map((item) => item?.folder)).forEach((path) => {
+      if (!formulaRegistry.includes(path)) formulaRegistry.push(path);
+    });
+    libraryUniqueSortedPaths(getRelevantLinks(mi).map((item) => item?.folder)).forEach((path) => {
+      if (!relevantRegistry.includes(path)) relevantRegistry.push(path);
+    });
+    store.libraryFolders.formula[String(mi)] = libraryUniqueSortedPaths(formulaRegistry);
+    store.libraryFolders.relevant[String(mi)] = libraryUniqueSortedPaths(relevantRegistry);
+  }
+
+  const customLibraries = getCustomLibraries();
+  Object.keys(customLibraries).forEach((customId) => {
+    if (!store.libraryFolders.custom[customId] || !libraryStateIsPlainObject(store.libraryFolders.custom[customId])) {
+      store.libraryFolders.custom[customId] = { formula: [], relevant: [] };
+    }
+    const customFolderStore = store.libraryFolders.custom[customId];
+    const formulaRegistry = ensureLibraryRegistryArray(customFolderStore, "formula");
+    const relevantRegistry = ensureLibraryRegistryArray(customFolderStore, "relevant");
+    libraryUniqueSortedPaths(getCustomLibraryItems(customId, "formula").map((item) => item?.folder)).forEach((path) => {
+      if (!formulaRegistry.includes(path)) formulaRegistry.push(path);
+    });
+    libraryUniqueSortedPaths(getCustomLibraryItems(customId, "relevant").map((item) => item?.folder)).forEach((path) => {
+      if (!relevantRegistry.includes(path)) relevantRegistry.push(path);
+    });
+    customFolderStore.formula = libraryUniqueSortedPaths(formulaRegistry);
+    customFolderStore.relevant = libraryUniqueSortedPaths(relevantRegistry);
+  });
+  return store.libraryFolders;
+}
+function setLibraryItemFolder(type, itemIndex, folderPath) {
+  const clean = normaliseLibraryFolderPath(folderPath);
+  const items = getLibrarySourceArray(type);
+  if (!Array.isArray(items) || !items[itemIndex]) return false;
+  items[itemIndex].folder = clean;
+  if (clean) addLibraryFolderToRegistry(type, clean);
+  ensureLibraryState();
+  save();
+  renderModuleLibrary();
+  return true;
+}
+window.unitrackEnsureLibraryState = ensureLibraryState;
+window.unitrackGetActiveLibraryTarget = getLibraryTarget;
+window.unitrackSetItemFolder = setLibraryItemFolder;
 function getLibraryFolderRegistry(type, target = null) {
   const store = getStore();
   if (!store.libraryFolders || typeof store.libraryFolders !== "object" || Array.isArray(store.libraryFolders)) {
@@ -2599,6 +2675,7 @@ function closeLinkForm() {
 
 function saveLinkForm() {
   if (!linkFormContext) return;
+  ensureLibraryState();
   const nameInput = document.getElementById("link-name-input");
   const urlInput = document.getElementById("link-url-input");
   const tagInput = document.getElementById("link-tag-input");
@@ -3603,6 +3680,11 @@ function libraryCleanSourceRailHtml() {
   });
   const remaining = allSources.filter((source) => source.key !== "all" && !quickAccess.some((item) => item.key === source.key));
   const showAll = libraryCleanState().showAllSources;
+  const browseTile = remaining.length ? `<button class="library-v10-source-browse-tile ${showAll ? "active" : ""}" type="button" onclick="libraryCleanToggleAllSources(event)">
+      <span class="library-v10-source-browse-kicker">Discover</span>
+      <strong>Browse Libraries</strong>
+      <span class="library-v10-source-browse-meta">${remaining.length} more librar${remaining.length === 1 ? "y" : "ies"} beyond quick access</span>
+    </button>` : "";
 
   function sourceCardHtml(source, options = {}) {
     const counts = libraryCleanCountsForSource(source);
@@ -3631,10 +3713,9 @@ function libraryCleanSourceRailHtml() {
   return `<div class="library-v10-source-browser">
     <div class="library-v10-source-browser-head">
       <div class="library-v10-source-browser-title">Quick Access</div>
-      ${remaining.length ? `<button class="mini-btn library-v10-source-toggle" type="button" onclick="libraryCleanToggleAllSources(event)">${showAll ? "Hide Libraries" : `Browse Libraries (${remaining.length})`}</button>` : ""}
     </div>
     <div class="library-v10-source-rail library-v10-source-rail-quick">
-      ${quickAccess.map((source) => sourceCardHtml(source, { compact: true })).join("")}
+      ${quickAccess.map((source, index) => `${sourceCardHtml(source, { compact: true })}${index === 0 ? browseTile : ""}`).join("")}
     </div>
     ${remaining.length ? `<div class="library-v10-source-browser-panel ${showAll ? "open" : ""}">
       <div class="library-v10-source-browser-title">More Libraries</div>
@@ -4109,6 +4190,7 @@ function libraryCleanRenderBody() {
 }
 
 function renderModuleLibrary() {
+  ensureLibraryState();
   const modal = document.getElementById("module-library-modal");
   const materialsHost = document.getElementById("module-library-materials");
   if (!materialsHost) return;
@@ -4184,6 +4266,7 @@ function renderModuleLibrary() {
 
   materialsHost.className = "module-library-list library-v10-list";
   materialsHost.innerHTML = actionsHtml + libraryCleanRenderBody();
+  window.unitrackEnhanceLibraryDom?.();
   modal?.classList.add("library-v10-active");
 }
 
@@ -4216,6 +4299,7 @@ function libraryCleanSetupSourceRailEvents() {
 
 function openModuleLibrary(mi = null, focus = "both", event) {
   if (event) event.stopPropagation();
+  ensureLibraryState();
   materialLibraryModuleIndex = mi;
   moduleLibrarySearch = "";
   if (Number.isInteger(mi)) libraryCleanSetSource(`module:${mi}`, { silent: true });
@@ -7392,6 +7476,10 @@ function renderAuthModal(mode = "login") {
     updateAuthLock();
     return;
   }
+  if (typeof window.unitrackRenderProfessionalAccountPanel === "function") {
+    window.unitrackRenderProfessionalAccountPanel();
+    return;
+  }
   const body = document.getElementById("auth-modal-body");
   if (!body) return;
 
@@ -7923,6 +8011,36 @@ let appDialogResolver = null;
 let appDialogMode = "confirm";
 let appDialogRequireYes = false;
 
+function closeVisibleEscapeModal() {
+  const modalSelectors = [
+    "#prefs-panel",
+    "#dashboard-modal",
+    "#timeline-modal",
+    "#todo-modal",
+    "#calendar-modal",
+    "#deadline-form-modal",
+    "#module-library-modal"
+  ];
+
+  for (const selector of modalSelectors) {
+    const node = document.querySelector(selector);
+    if (!node || node.classList.contains("hidden")) continue;
+
+    if (selector === "#prefs-panel") {
+      node.classList.add("hidden");
+      return true;
+    }
+
+    const closeButton = node.querySelector(".deadline-splash-close, [data-close], button[aria-label='Close']");
+    if (closeButton) {
+      closeButton.click();
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function openAppDialog(options = {}) {
   const modal = document.getElementById("app-dialog-modal");
   if (!modal) return Promise.resolve(null);
@@ -8004,7 +8122,10 @@ function resolveAppDialog(confirmed) {
 
 document.addEventListener("keydown", (event) => {
   const modal = document.getElementById("app-dialog-modal");
-  if (!modal || modal.classList.contains("hidden")) return;
+  if (!modal || modal.classList.contains("hidden")) {
+    if (event.key === "Escape") closeVisibleEscapeModal();
+    return;
+  }
   if (event.key === "Escape") resolveAppDialog(false);
   if (event.key === "Enter" && !event.shiftKey) resolveAppDialog(true);
 });
@@ -8662,8 +8783,14 @@ document.addEventListener("keydown", (event) => {
 });
 
 /* 11-boot.js */
+function applyReducedMotionPreference() {
+  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  document.documentElement.classList.toggle("reduce-motion", !!reduceMotion);
+}
+
 // Wait for Supabase to check/restore the session before showing login or the dashboard.
 (async function bootApp() {
+  applyReducedMotionPreference();
   setAuthLoading(true, "Restoring your session...", "Checking whether you are already signed in before showing anything.");
   await waitForInitialAuth();
 
@@ -8710,167 +8837,11 @@ document.addEventListener("keydown", (event) => {
   setInterval(renderStickyExams, 1000);
 })();
 
-/* 12-library-state.js */
-/* Library state hardening helpers.
-   Loaded after the main app so it can normalise old saved data without replacing core functions. */
-(function unitrackLibraryStateHardening() {
-  function isPlainObject(value) {
-    return !!value && typeof value === 'object' && !Array.isArray(value);
-  }
+try {
+  window.matchMedia?.("(prefers-reduced-motion: reduce)")?.addEventListener("change", applyReducedMotionPreference);
+} catch {}
 
-  function normalisePath(path) {
-    return String(path || '')
-      .replace(/\\+/g, '/')
-      .split('/')
-      .map((part) => part.trim())
-      .filter(Boolean)
-      .join('/');
-  }
-
-  function uniqueSortedPaths(paths) {
-    const out = new Set();
-    (paths || []).forEach((path) => {
-      const clean = normalisePath(path);
-      if (!clean) return;
-      const parts = clean.split('/');
-      parts.forEach((_, index) => out.add(parts.slice(0, index + 1).join('/')));
-    });
-    return Array.from(out).sort((a, b) => a.localeCompare(b));
-  }
-
-  function getSafeStore() {
-    try {
-      if (typeof getStore === 'function') return getStore();
-    } catch (error) {
-      return null;
-    }
-    return null;
-  }
-
-  function getCustomLibraries(store) {
-    if (!store.customLibraries || !isPlainObject(store.customLibraries)) store.customLibraries = {};
-    return store.customLibraries;
-  }
-
-  function collectFoldersFromModuleStore(store, type, mi) {
-    const source = type === 'formula' ? store.formulas?.[mi] : store.relevantLinks?.[mi];
-    return uniqueSortedPaths((Array.isArray(source) ? source : []).map((item) => item?.folder));
-  }
-
-  function collectFoldersFromCustomLibrary(library, type) {
-    const key = type === 'formula' ? 'materials' : 'relevantLinks';
-    return uniqueSortedPaths((Array.isArray(library?.[key]) ? library[key] : []).map((item) => item?.folder));
-  }
-
-  function ensureRegistryArray(container, key) {
-    if (!Array.isArray(container[key])) container[key] = [];
-    container[key] = uniqueSortedPaths(container[key]);
-    return container[key];
-  }
-
-  window.unitrackEnsureLibraryState = function unitrackEnsureLibraryState() {
-    const store = getSafeStore();
-    if (!store) return null;
-
-    if (!store.libraryFolders || !isPlainObject(store.libraryFolders)) {
-      store.libraryFolders = { formula: {}, relevant: {}, custom: {} };
-    }
-    if (!isPlainObject(store.libraryFolders.formula)) store.libraryFolders.formula = {};
-    if (!isPlainObject(store.libraryFolders.relevant)) store.libraryFolders.relevant = {};
-    if (!isPlainObject(store.libraryFolders.custom)) store.libraryFolders.custom = {};
-
-    const moduleCount = Array.isArray(store.modules) ? store.modules.length : (Array.isArray(window.MODULES) ? window.MODULES.length : 0);
-    for (let mi = 0; mi < moduleCount; mi += 1) {
-      const formulaKey = String(mi);
-      const relevantKey = String(mi);
-      const formulaRegistry = ensureRegistryArray(store.libraryFolders.formula, formulaKey);
-      const relevantRegistry = ensureRegistryArray(store.libraryFolders.relevant, relevantKey);
-      collectFoldersFromModuleStore(store, 'formula', mi).forEach((path) => {
-        if (!formulaRegistry.includes(path)) formulaRegistry.push(path);
-      });
-      collectFoldersFromModuleStore(store, 'relevant', mi).forEach((path) => {
-        if (!relevantRegistry.includes(path)) relevantRegistry.push(path);
-      });
-      store.libraryFolders.formula[formulaKey] = uniqueSortedPaths(formulaRegistry);
-      store.libraryFolders.relevant[relevantKey] = uniqueSortedPaths(relevantRegistry);
-    }
-
-    const customLibraries = getCustomLibraries(store);
-    Object.keys(customLibraries).forEach((customId) => {
-      if (!store.libraryFolders.custom[customId] || !isPlainObject(store.libraryFolders.custom[customId])) {
-        store.libraryFolders.custom[customId] = { formula: [], relevant: [] };
-      }
-      const customFolderStore = store.libraryFolders.custom[customId];
-      const formulaRegistry = ensureRegistryArray(customFolderStore, 'formula');
-      const relevantRegistry = ensureRegistryArray(customFolderStore, 'relevant');
-      collectFoldersFromCustomLibrary(customLibraries[customId], 'formula').forEach((path) => {
-        if (!formulaRegistry.includes(path)) formulaRegistry.push(path);
-      });
-      collectFoldersFromCustomLibrary(customLibraries[customId], 'relevant').forEach((path) => {
-        if (!relevantRegistry.includes(path)) relevantRegistry.push(path);
-      });
-      customFolderStore.formula = uniqueSortedPaths(formulaRegistry);
-      customFolderStore.relevant = uniqueSortedPaths(relevantRegistry);
-    });
-
-    return store.libraryFolders;
-  };
-
-  window.unitrackGetActiveLibraryTarget = function unitrackGetActiveLibraryTarget() {
-    if (typeof getLibraryTarget === 'function') {
-      try { return getLibraryTarget(); } catch (error) { /* fall through */ }
-    }
-    return { mi: null, customId: null };
-  };
-
-  window.unitrackSetItemFolder = function unitrackSetItemFolder(type, itemIndex, folderPath) {
-    const clean = normalisePath(folderPath);
-    if (typeof getLibrarySourceArray !== 'function') return false;
-    const items = getLibrarySourceArray(type);
-    if (!Array.isArray(items) || !items[itemIndex]) return false;
-    items[itemIndex].folder = clean;
-    if (typeof addLibraryFolderToRegistry === 'function' && clean) addLibraryFolderToRegistry(type, clean);
-    window.unitrackEnsureLibraryState?.();
-    if (typeof save === 'function') save();
-    if (typeof renderModuleLibrary === 'function') renderModuleLibrary();
-    return true;
-  };
-
-  function patchFunction(name, wrapper) {
-    const original = window[name];
-    if (typeof original !== 'function' || original.__unitrackPatched) return;
-    const patched = wrapper(original);
-    patched.__unitrackPatched = true;
-    window[name] = patched;
-  }
-
-  patchFunction('openModuleLibrary', (original) => function patchedOpenModuleLibrary(...args) {
-    window.unitrackEnsureLibraryState?.();
-    return original.apply(this, args);
-  });
-
-  patchFunction('renderModuleLibrary', (original) => function patchedRenderModuleLibrary(...args) {
-    window.unitrackEnsureLibraryState?.();
-    const result = original.apply(this, args);
-    window.unitrackEnhanceLibraryDom?.();
-    return result;
-  });
-
-  patchFunction('saveLinkForm', (original) => function patchedSaveLinkForm(...args) {
-    const result = original.apply(this, args);
-    window.unitrackEnsureLibraryState?.();
-    return result;
-  });
-
-  patchFunction('save', (original) => function patchedSave(...args) {
-    window.unitrackEnsureLibraryState?.();
-    return original.apply(this, args);
-  });
-
-  document.addEventListener('DOMContentLoaded', () => window.unitrackEnsureLibraryState?.());
-})();
-
-/* 13-library-render.js */
+/* 12-library-render.js */
 /* Library DOM enhancement layer.
    Adds predictable keyboard/select/double-click behaviour without rewriting the original renderer. */
 (function unitrackLibraryRenderHardening() {
@@ -9061,61 +9032,9 @@ document.addEventListener("keydown", (event) => {
   document.addEventListener('DOMContentLoaded', () => window.unitrackEnhanceLibraryDom?.());
 })();
 
-/* 14-backup-accessibility.js */
-/* UniTrack backup/accessibility compatibility layer
-   Consolidated cleanup version.
-   Backup UI is handled only inside Account by 15-security-guardrails.js.
-   This file intentionally does not inject backup controls into Preferences. */
-
-(function () {
-  "use strict";
-
-  function addEscapeCloseForVisibleModals(event) {
-    if (event.key !== "Escape") return;
-
-    const modalSelectors = [
-      "#prefs-panel",
-      "#dashboard-modal",
-      "#timeline-modal",
-      "#todo-modal",
-      "#calendar-modal",
-      "#deadline-form-modal",
-      "#module-library-modal"
-    ];
-
-    for (const selector of modalSelectors) {
-      const node = document.querySelector(selector);
-      if (!node || node.classList.contains("hidden")) continue;
-
-      if (selector === "#prefs-panel") {
-        node.classList.add("hidden");
-        return;
-      }
-
-      const closeButton = node.querySelector(".deadline-splash-close, [data-close], button[aria-label='Close']");
-      if (closeButton) {
-        closeButton.click();
-        return;
-      }
-    }
-  }
-
-  function applyReducedMotionPreference() {
-    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    document.documentElement.classList.toggle("reduce-motion", !!reduceMotion);
-  }
-
-  document.addEventListener("keydown", addEscapeCloseForVisibleModals);
-  document.addEventListener("DOMContentLoaded", applyReducedMotionPreference);
-
-  try {
-    window.matchMedia?.("(prefers-reduced-motion: reduce)")?.addEventListener("change", applyReducedMotionPreference);
-  } catch {}
-})();
-
-/* 15-security-guardrails.js */
+/* 13-account-panel.js */
 /* UniTrack Account Panel - Consolidated Account/Privacy/Backup Controls
-   No Preferences backup injection. No extra patch file. */
+   Account-only backup tools and privacy controls. */
 
 (function () {
   "use strict";
@@ -9436,8 +9355,10 @@ document.addEventListener("keydown", (event) => {
   function toggleDangerZone() {
     const zone = document.getElementById("unitrack-danger-zone-body");
     const btn = document.getElementById("unitrack-danger-zone-toggle");
+    const section = btn?.closest(".account-clean-danger");
     if (!zone || !btn) return;
     const open = zone.classList.toggle("open");
+    if (section) section.classList.toggle("open", open);
     btn.setAttribute("aria-expanded", String(open));
     btn.textContent = open ? "Hide deletion options" : "Show deletion options";
   }
@@ -9544,29 +9465,6 @@ document.addEventListener("keydown", (event) => {
     `;
   }
 
-  function patchAccountFunctions() {
-    if (window.__unitrackAccountConsolidatedPatched) return;
-    window.__unitrackAccountConsolidatedPatched = true;
-
-    const originalOpen = window.openAuthModal;
-    if (typeof originalOpen === "function") {
-      window.openAuthModal = function patchedOpenAuthModal(...args) {
-        const result = originalOpen.apply(this, args);
-        renderAccountPanel();
-        return result;
-      };
-    }
-
-    const originalRender = window.renderAuthModal;
-    if (typeof originalRender === "function") {
-      window.renderAuthModal = function patchedRenderAuthModal(...args) {
-        const result = originalRender.apply(this, args);
-        renderAccountPanel();
-        return result;
-      };
-    }
-  }
-
   window.unitrackExportBackup = exportBackup;
   window.unitrackImportBackup = importBackup;
   window.unitrackExportRecoveryBackup = exportRecoveryBackup;
@@ -9580,7 +9478,4 @@ document.addEventListener("keydown", (event) => {
   window.importUniTrackBackup = importBackup;
   window.exportSafetySnapshot = exportRecoveryBackup;
   window.deleteCloudTrackerData = deleteCloudSyncData;
-
-  patchAccountFunctions();
-  document.addEventListener("DOMContentLoaded", patchAccountFunctions);
 })();
