@@ -3547,8 +3547,24 @@ body.theme-dark .library-v10-details,
 body.theme-dark .library-v10-row,
 body.theme-dark .library-v10-source-menu,
 body.theme-dark .library-v10-source-browse-tile {
-  background: rgba(255,255,255,0.045) !important;
-  border-color: rgba(255,255,255,0.10) !important;
+  background: rgba(255, 255, 255, 0.045) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+  color: #f2ece0;
+}
+
+body.theme-dark .library-v10-col-name,
+body.theme-dark .library-v10-row-name {
+  color: #f2ece0;
+}
+
+body.theme-dark .library-v10-details-header,
+body.theme-dark .library-v10-details-header .library-v10-col,
+body.theme-dark .library-v10-column-btn {
+  color: #b8b1a4;
+}
+
+body.theme-dark .library-v10-column-btn.active,
+body.theme-dark .library-v10-column-btn:hover {
   color: #f2ece0;
 }
 
