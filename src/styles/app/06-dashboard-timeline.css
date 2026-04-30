@@ -7,8 +7,9 @@
   align-items: center;
   justify-content: center;
 
-  background: rgba(14,12,10,0.55);
-  backdrop-filter: blur(6px);
+  background: rgba(14,12,10,0.52);
+  backdrop-filter: blur(10px) saturate(0.96);
+  -webkit-backdrop-filter: blur(10px) saturate(0.96);
 
   animation: dashboardBackdropFade 0.22s ease;
 }
@@ -44,34 +45,60 @@
   max-height: 88vh;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 22px;
-
-  background: var(--paper);
-  border: 1px solid var(--border);
-  border-radius: 8px;
   padding: 28px;
-  box-shadow: var(--shadow);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.58), rgba(255,255,255,0.14)),
+    var(--paper3);
+  border: 1px solid color-mix(in srgb, var(--border) 78%, var(--gold2) 22%);
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 24px 72px rgba(14,12,10,0.22), 0 1px 0 rgba(255,255,255,0.46) inset;
   position: relative;
 
   animation: dashboardCardIn 0.32s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: center center;
 }
+.dashboard-content::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--gold2) 78%, white 22%), transparent 78%);
+  pointer-events: none;
+}
 .dashboard-close {
   position: absolute;
-  top: 12px;
-  right: 14px;
-  background: none;
-  border: none;
-  font-size: 26px;
+  top: 16px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent 22%);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.42);
+  font-size: 21px;
+  line-height: 1;
   color: var(--muted);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.16s ease, border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
 }
-.dashboard-close:hover { color: var(--vermillion); }
+.dashboard-close:hover {
+  color: var(--sumi);
+  border-color: color-mix(in srgb, var(--gold2) 52%, var(--border) 48%);
+  background: rgba(255,255,255,0.66);
+  transform: translateY(-1px);
+}
 
 .dashboard-title {
   font-family: "Shippori Mincho", serif;
-  font-size: 20px;
-  margin-bottom: 22px;
+  font-size: clamp(24px, 3vw, 30px);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
   color: var(--ink);
 }
 .dashboard-grid {
@@ -80,9 +107,9 @@
   gap: 14px;
 }
 .dashboard-card {
-  background: var(--paper2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  background: color-mix(in srgb, var(--paper2) 84%, white 16%);
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%);
+  border-radius: 8px;
   padding: 18px;
 }
 .dashboard-card-title {
@@ -163,7 +190,7 @@
 .dashboard-chart-wrap {
   background: rgba(255,255,255,0.72);
   border: 1px solid rgba(26,22,18,0.08);
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 14px;
 }
 #dashboard-chart {

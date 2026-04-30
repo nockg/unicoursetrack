@@ -64,7 +64,7 @@
 
 <div id="deadline-splash" class="deadline-splash hidden">
   <div class="deadline-splash-card">
-    <button class="deadline-splash-close" type="button" onclick="closeDeadlineSplash()">X</button>
+    <button class="deadline-splash-close" type="button" aria-label="Close welcome" onclick="closeDeadlineSplash()">&times;</button>
     <div class="deadline-splash-label">Upcoming Deadline</div>
     <div id="deadline-splash-title" class="deadline-splash-title"></div>
     <div id="deadline-splash-time" class="deadline-splash-time"></div>
@@ -73,7 +73,7 @@
 
 <div id="template-splash" class="deadline-splash hidden">
   <div class="deadline-splash-card template-splash-card">
-    <button class="deadline-splash-close" type="button" onclick="dismissTemplateSplash()">X</button>
+    <button class="deadline-splash-close" type="button" aria-label="Close template chooser" onclick="dismissTemplateSplash()">&times;</button>
     <div class="deadline-splash-label">Starter Template</div>
     <div class="deadline-splash-title">Choose how to start</div>
     <div class="template-splash-copy">
@@ -94,7 +94,7 @@
 
 <div id="auth-modal" class="deadline-splash hidden">
   <div class="deadline-splash-card deadline-form-content">
-    <button class="deadline-splash-close" type="button" onclick="closeAuthModal()">X</button>
+    <button class="deadline-splash-close" type="button" aria-label="Close account panel" onclick="closeAuthModal()">&times;</button>
     <div class="deadline-splash-label">Cloud Account</div>
     <div id="auth-modal-body"></div>
 
@@ -115,7 +115,7 @@
 
 <div id="app-dialog-modal" class="deadline-splash hidden" role="dialog" aria-modal="true" aria-labelledby="app-dialog-title">
   <div class="deadline-splash-card app-dialog-card">
-    <button class="deadline-splash-close" type="button" onclick="resolveAppDialog(false)">X</button>
+    <button class="deadline-splash-close" type="button" aria-label="Close dialog" onclick="resolveAppDialog(false)">&times;</button>
     <div class="deadline-splash-label" id="app-dialog-label">Confirm</div>
     <div class="deadline-splash-title" id="app-dialog-title">Are you sure?</div>
     <div class="app-dialog-message" id="app-dialog-message"></div>
@@ -286,7 +286,7 @@
 
 <div id="dashboard-modal" class="dashboard-modal hidden">
   <div class="dashboard-content">
-    <button class="dashboard-close" onclick="closeDashboard()">X</button>
+    <button class="dashboard-close" type="button" aria-label="Close dashboard" onclick="closeDashboard()">&times;</button>
     <div class="dashboard-title">Dashboard</div>
     <div class="dashboard-grid">
       <div class="dashboard-card">
@@ -316,7 +316,7 @@
 
 <div id="timeline-modal" class="dashboard-modal hidden">
   <div class="dashboard-content timeline-content">
-    <button class="dashboard-close" onclick="closeDeadlineTimeline()">X</button>
+    <button class="dashboard-close" type="button" aria-label="Close timeline" onclick="closeDeadlineTimeline()">&times;</button>
     <div class="timeline-head">
       <div class="timeline-subtitle">Deadlines</div>
       <div class="timeline-topline">
@@ -339,7 +339,7 @@
         <div class="timeline-page-title">To-Do List</div>
         <div class="todo-header-actions">
           <button class="mini-btn" type="button" id="todo-lock-btn" onclick="toggleTodoPanelLock()">Pin</button>
-          <button class="dashboard-close" onclick="closeTodoPlanner()">X</button>
+          <button class="dashboard-close" type="button" aria-label="Close planner" onclick="closeTodoPlanner()">&times;</button>
         </div>
       </div>
       <div class="todo-toolbar">
@@ -364,7 +364,7 @@
 
 <div id="deadline-form-modal" class="dashboard-modal hidden">
   <div class="dashboard-content deadline-form-content">
-    <button class="dashboard-close" onclick="closeDeadlineForm()">X</button>
+    <button class="dashboard-close" type="button" aria-label="Close deadline form" onclick="closeDeadlineForm()">&times;</button>
     <div class="timeline-subtitle">Deadlines</div>
     <div class="dashboard-title" id="deadline-form-title">Add Deadline</div>
     <div class="deadline-form-grid">
@@ -456,7 +456,7 @@
 
 <div id="calendar-modal" class="dashboard-modal hidden">
   <div class="dashboard-content deadline-form-content calendar-form-content">
-    <button class="dashboard-close" onclick="closeCalendarComposer()">X</button>
+    <button class="dashboard-close" type="button" aria-label="Close calendar composer" onclick="closeCalendarComposer()">&times;</button>
     <div class="timeline-subtitle">Calendar</div>
     <div class="dashboard-title" id="calendar-form-title">Add Calendar Event</div>
     <div class="deadline-form-grid">
@@ -528,7 +528,7 @@
 
 <div id="coursework-component-modal" class="dashboard-modal hidden">
   <div class="dashboard-content deadline-form-content">
-    <button class="dashboard-close" onclick="closeCourseworkComponentForm()">X</button>
+    <button class="dashboard-close" type="button" aria-label="Close coursework component form" onclick="closeCourseworkComponentForm()">&times;</button>
     <div class="timeline-subtitle">Coursework Calculator</div>
     <div class="dashboard-title">Add Coursework Component</div>
     <div class="deadline-form-grid">
@@ -559,7 +559,7 @@
 
 <div id="module-form-modal" class="dashboard-modal hidden">
   <div class="dashboard-content deadline-form-content">
-    <button class="dashboard-close" onclick="closeModuleForm()">X</button>
+    <button class="dashboard-close" type="button" aria-label="Close module form" onclick="closeModuleForm()">&times;</button>
     <div class="timeline-subtitle">Modules</div>
     <div class="dashboard-title">Add Module</div>
     <div class="deadline-form-grid">
@@ -596,7 +596,7 @@
 
 <div id="link-form-modal" class="dashboard-modal hidden">
   <div class="dashboard-content deadline-form-content">
-    <button class="dashboard-close" onclick="closeLinkForm()">X</button>
+    <button class="dashboard-close" type="button" aria-label="Close link form" onclick="closeLinkForm()">&times;</button>
     <div class="timeline-subtitle" id="link-form-subtitle">Links</div>
     <div class="dashboard-title" id="link-form-title">Add Link</div>
     <div class="deadline-form-grid">
@@ -614,7 +614,7 @@
 
 <div id="module-library-modal" class="dashboard-modal hidden">
   <div class="dashboard-content module-library-content">
-    <button class="dashboard-close" onclick="closeModuleLibrary()">X</button>
+    <button class="dashboard-close" type="button" aria-label="Close library" onclick="closeModuleLibrary()">&times;</button>
     <div class="timeline-subtitle">Library</div>
     <div class="timeline-topline module-library-topline">
       <div class="timeline-page-title" id="module-library-title">All Libraries</div>
@@ -645,7 +645,7 @@
 
 <div id="course-setup-modal" class="dashboard-modal hidden">
   <div class="dashboard-content setup-content">
-    <button class="dashboard-close" id="course-setup-close" type="button" onclick="closeCourseSetupModal()">X</button>
+    <button class="dashboard-close" id="course-setup-close" type="button" aria-label="Close course setup" onclick="closeCourseSetupModal()">&times;</button>
     <div class="timeline-subtitle">Course Setup</div>
     <div class="dashboard-title" id="course-setup-title">Set Up Your Tracker</div>
     <div class="setup-grid">
@@ -711,7 +711,7 @@
 
 <div id="onboarding-modal" class="dashboard-modal hidden">
   <div class="dashboard-content onboarding-content">
-    <button class="dashboard-close" type="button" onclick="closeOnboardingModal()">X</button>
+    <button class="dashboard-close" type="button" aria-label="Close onboarding" onclick="closeOnboardingModal()">&times;</button>
     <div class="timeline-subtitle">Getting Started</div>
     <div class="dashboard-title" id="onboarding-title">Welcome to UniTrack</div>
     <div class="onboarding-tour">

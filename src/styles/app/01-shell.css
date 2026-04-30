@@ -64,14 +64,14 @@
 .deadline-splash-card {
   width: min(420px, calc(100vw - 32px));
   padding: 26px 28px;
-  border-radius: 10px;
+  border-radius: 12px;
 
-  background: rgba(20, 24, 32, 0.55);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(18, 22, 30, 0.58);
+  backdrop-filter: blur(14px) saturate(0.98);
+  -webkit-backdrop-filter: blur(14px) saturate(0.98);
 
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 22px 60px rgba(0,0,0,0.42), 0 1px 0 rgba(255,255,255,0.06) inset;
 
   position: relative;
   overflow: hidden;
@@ -95,17 +95,28 @@
 /* close button */
 .deadline-splash-close {
   position: absolute;
-  top: 12px;
-  right: 14px;
-  border: none;
-  background: none;
-  color: rgba(255,255,255,0.5);
-  font-size: 20px;
+  top: 14px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.56);
+  font-size: 18px;
+  line-height: 1;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.16s ease, border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
 }
 
 .deadline-splash-close:hover {
   color: white;
+  border-color: rgba(216,200,176,0.36);
+  background: rgba(255,255,255,0.12);
+  transform: translateY(-1px);
 }
 
 /* label */
@@ -178,8 +189,11 @@
   flex-wrap: wrap;
 }
 body:not(.theme-dark) .app-dialog-card {
-  background: rgba(250,247,242,0.98);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.58), rgba(255,255,255,0.12)),
+    rgba(250,247,242,0.98);
   border-color: rgba(26,22,18,0.16);
+  box-shadow: 0 22px 64px rgba(14,12,10,0.18), 0 1px 0 rgba(255,255,255,0.54) inset;
 }
 body:not(.theme-dark) .app-dialog-card .deadline-splash-title { color: var(--ink); }
 body:not(.theme-dark) .app-dialog-card .deadline-splash-label,
