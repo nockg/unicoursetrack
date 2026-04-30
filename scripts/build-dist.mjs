@@ -9,6 +9,7 @@ rmSync(dist, { recursive: true, force: true });
 mkdirSync(dist, { recursive: true });
 
 copyFileSync(join(root, 'index.html'), join(dist, 'index.html'));
+copyFileSync(join(root, 'sntutors-logo.png'), join(dist, 'sntutors-logo.png'));
 cpSync(join(root, 'public'), dist, { recursive: true });
 
 console.log('Built static dist directory.');
