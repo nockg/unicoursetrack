@@ -5189,9 +5189,7 @@ function saveModuleForm() {
   }
   save();
   refreshActiveYear();
-  renderYearSelector();
   buildModules();
-  renderStickyExams();
   updateGlobal();
   closeModuleForm();
 }
@@ -6455,16 +6453,10 @@ function renderTodoPlanner() {
     const moduleLabel = escapeHtml(Number.isInteger(item.moduleIndex) && MODULES[item.moduleIndex] ? (MODULES[item.moduleIndex].kanji || MODULES[item.moduleIndex].short || MODULES[item.moduleIndex].name) : "General");
     const title = escapeHtml(item.title || "Untitled task");
     const doneClass = item.completed ? "is-done" : "";
-    const toggleTitle = item.completed ? "Mark task as open again" : "Mark task complete";
-    const toggleLabel = item.completed ? "Mark task as open again" : "Mark task complete";
-    const toggleText = item.completed ? "Completed" : "Mark done";
     if (compact) {
       return `
-        <div class="todo-task-row ${doneClass}">
-          <button class="todo-check-btn complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="${toggleTitle}" aria-label="${toggleLabel}">
-            <span class="todo-check-indicator" aria-hidden="true"></span>
-            <span class="todo-check-text">${toggleText}</span>
-          </button>
+        <div class="todo-task-row ${doneClass}" onclick="handleTodoCardClick(${index}, event)">
+          <button class="todo-check-btn complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
           <div class="todo-row-main">
             <div class="todo-row-title" title="${title}">${title}</div>
             <div class="todo-row-meta">${moduleLabel}</div>
@@ -6474,11 +6466,8 @@ function renderTodoPlanner() {
       `;
     }
     return `
-      <div class="todo-expanded-card ${doneClass}">
-        <button class="todo-check-btn complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="${toggleTitle}" aria-label="${toggleLabel}">
-          <span class="todo-check-indicator" aria-hidden="true"></span>
-          <span class="todo-check-text">${toggleText}</span>
-        </button>
+      <div class="todo-expanded-card ${doneClass}" onclick="handleTodoCardClick(${index}, event)">
+        <button class="todo-check-btn complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
         <div class="todo-expanded-main">
           <div class="todo-expanded-head">
             <div>
@@ -6523,7 +6512,9 @@ function handleTodoInputKeydown(event) {
 }
 
 function handleTodoCardClick(index, event) {
-  return;
+  const ignored = event?.target?.closest?.("button, textarea, input, select, option, summary, details, a, label");
+  if (ignored) return;
+  toggleTodoComplete(index, event);
 }
 
 function toggleTodoComplete(index, event) {
@@ -7401,26 +7392,6 @@ function renderAuthGate(mode = authViewMode) {
       </div>
       <div class="deadline-splash-title" style="color: var(--ink);">${isSignup ? "Create your account" : loginTitle}</div>
       <div class="auth-gate-message">${isSignup ? "Create a new cloud account to keep your tracker, deadlines, and preferences synced." : "Sign in with your existing account to view your tracker."}</div>
-      <div class="auth-oauth-stack">
-        <button class="nav-btn auth-oauth-btn" id="auth-google-btn" type="button" onclick="signInWithGoogle()">
-          <span class="auth-oauth-icon" aria-hidden="true">
-            <span class="auth-google-mark auth-google-blue"></span>
-            <span class="auth-google-mark auth-google-red"></span>
-            <span class="auth-google-mark auth-google-yellow"></span>
-            <span class="auth-google-mark auth-google-green"></span>
-            <span class="auth-google-letter">G</span>
-          </span>
-          <span class="auth-oauth-copy">
-            <span class="auth-oauth-title">${isSignup ? "Continue with Google" : "Sign in with Google"}</span>
-            <span class="auth-oauth-meta">Official Google account chooser, then return to UniTrack</span>
-          </span>
-        </button>
-        <div class="auth-oauth-trust">
-          <strong>Secure redirect</strong>
-          <span>You will continue on Google to choose an account, then return here with the same UniTrack cloud session flow.</span>
-        </div>
-        <div class="auth-oauth-divider" role="presentation"><span>or use email</span></div>
-      </div>
       <div class="deadline-form-grid">
         <div class="field">
           <label for="auth-gate-email">Email</label>
@@ -7642,10 +7613,6 @@ function withCloudTimeout(promise, label = "Cloud request", timeoutMs = 12000) {
   ]);
 }
 
-function getAuthRedirectUrl() {
-  return `${window.location.origin}${window.location.pathname}${window.location.search}`;
-}
-
 function getCachedAccessToken(session = currentSession) {
   const expiresAt = Number(session?.expires_at || 0);
   const stillFresh = !expiresAt || expiresAt * 1000 > Date.now() + 30000;
@@ -7739,7 +7706,7 @@ async function resetPasswordFromModal() {
   let error;
   try {
     ({ error } = await withCloudTimeout(supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: getAuthRedirectUrl()
+      redirectTo: window.location.origin + window.location.pathname
     }), "Password reset"));
   } catch (cloudError) {
     setAuthError(cloudError?.message || "Password reset failed. Please try again.");
@@ -7819,7 +7786,7 @@ async function signUpFromModal() {
       email,
       password,
       options: {
-        emailRedirectTo: getAuthRedirectUrl()
+        emailRedirectTo: window.location.origin + window.location.pathname
       }
     }), "Account creation"));
   } catch (cloudError) {
@@ -7894,35 +7861,6 @@ async function loginFromModal() {
   } catch (error) {
     setAuthLoading(false);
     setAuthError(error?.message || "Sign in failed. Please check your connection and try again.");
-  }
-}
-
-async function signInWithGoogle() {
-  if (!ensureCloudAuthReady()) return;
-  clearAuthMessage();
-  setAuthMessage("Redirecting to Google...", "success");
-  setAuthButtonBusy("#auth-google-btn", true, "Redirecting...");
-
-  try {
-    const { data, error } = await withCloudTimeout(supabaseClient.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: getAuthRedirectUrl(),
-        queryParams: {
-          access_type: "offline",
-          prompt: "select_account"
-        }
-      }
-    }), "Google sign-in");
-
-    if (error) throw error;
-    if (!data?.url) {
-      setAuthButtonBusy("#auth-google-btn", false);
-      setAuthError("Google sign-in did not return a redirect URL.");
-    }
-  } catch (error) {
-    setAuthButtonBusy("#auth-google-btn", false);
-    setAuthError(error?.message || "Google sign-in failed. Please try again.");
   }
 }
 
@@ -8099,8 +8037,6 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     if (pendingFirstRunSetup && shouldBlockUi) {
       resetLocalAppState();
       cloudReady = true;
-    } else {
-      applyPreferences();
     }
     if (shouldBlockUi) setAuthLoading(false);
     updateAuthLock();
@@ -8978,13 +8914,17 @@ function applyReducedMotionPreference() {
   if (pendingFirstRunSetup) {
     resetLocalAppState();
     cloudReady = true;
-  } else {
-    applyPreferences();
   }
 
   setAuthLoading(false);
   updateAuthLock();
   refreshAppAfterAuth();
+
+  setTimeout(() => {
+    if (currentUser && document.getElementById("template-splash")?.classList.contains("hidden")) {
+      showDeadlineSplash();
+    }
+  }, 500);
 
   setInterval(renderStickyExams, 1000);
 })();
@@ -9557,6 +9497,7 @@ try {
             <div>
               <div class="account-clean-kicker">Main Settings</div>
               <h3>${trackerLabel}</h3>
+              <p>Update the core details tied to this tracker before changing anything more advanced.</p>
             </div>
           </div>
           <div class="account-clean-rows">
@@ -9575,6 +9516,7 @@ try {
             <span>
               <span class="account-clean-kicker">Privacy</span>
               <strong>Privacy notice and data use</strong>
+              <small>Open the full privacy notice in a separate tab before making account or deletion changes.</small>
             </span>
             <span class="account-clean-toggle-label">Open notice</span>
           </button>
@@ -9585,6 +9527,7 @@ try {
             <div>
               <div class="account-clean-kicker">Backup Tools</div>
               <h3>Export or restore a backup</h3>
+              <p>Download a copy, restore one, or grab the latest recovery backup.</p>
             </div>
           </div>
           <div class="account-clean-actions">
@@ -9598,6 +9541,7 @@ try {
           <div class="account-clean-session-copy">
             <div class="account-clean-kicker">Session</div>
             <h3>Sign out of this browser</h3>
+            <p>Use this when you are done on a shared or temporary device.</p>
           </div>
           <button type="button" onclick="logoutCloud()">Logout</button>
         </section>

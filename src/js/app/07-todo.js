@@ -286,16 +286,10 @@ function renderTodoPlanner() {
     const moduleLabel = escapeHtml(Number.isInteger(item.moduleIndex) && MODULES[item.moduleIndex] ? (MODULES[item.moduleIndex].kanji || MODULES[item.moduleIndex].short || MODULES[item.moduleIndex].name) : "General");
     const title = escapeHtml(item.title || "Untitled task");
     const doneClass = item.completed ? "is-done" : "";
-    const toggleTitle = item.completed ? "Mark task as open again" : "Mark task complete";
-    const toggleLabel = item.completed ? "Mark task as open again" : "Mark task complete";
-    const toggleText = item.completed ? "Completed" : "Mark done";
     if (compact) {
       return `
-        <div class="todo-task-row ${doneClass}">
-          <button class="todo-check-btn complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="${toggleTitle}" aria-label="${toggleLabel}">
-            <span class="todo-check-indicator" aria-hidden="true"></span>
-            <span class="todo-check-text">${toggleText}</span>
-          </button>
+        <div class="todo-task-row ${doneClass}" onclick="handleTodoCardClick(${index}, event)">
+          <button class="todo-check-btn complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
           <div class="todo-row-main">
             <div class="todo-row-title" title="${title}">${title}</div>
             <div class="todo-row-meta">${moduleLabel}</div>
@@ -305,11 +299,8 @@ function renderTodoPlanner() {
       `;
     }
     return `
-      <div class="todo-expanded-card ${doneClass}">
-        <button class="todo-check-btn complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="${toggleTitle}" aria-label="${toggleLabel}">
-          <span class="todo-check-indicator" aria-hidden="true"></span>
-          <span class="todo-check-text">${toggleText}</span>
-        </button>
+      <div class="todo-expanded-card ${doneClass}" onclick="handleTodoCardClick(${index}, event)">
+        <button class="todo-check-btn complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
         <div class="todo-expanded-main">
           <div class="todo-expanded-head">
             <div>
@@ -354,7 +345,9 @@ function handleTodoInputKeydown(event) {
 }
 
 function handleTodoCardClick(index, event) {
-  return;
+  const ignored = event?.target?.closest?.("button, textarea, input, select, option, summary, details, a, label");
+  if (ignored) return;
+  toggleTodoComplete(index, event);
 }
 
 function toggleTodoComplete(index, event) {

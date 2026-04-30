@@ -1950,12 +1950,6 @@ body.theme-dark .library-v10-source-name {
   color: #d3cec3;
 }
 
-body.theme-dark .library-v10-source-browse-tile strong,
-body.theme-dark .library-v10-col-name,
-body.theme-dark .library-v10-row-name {
-  color: #f2ece0;
-}
-
 body.theme-dark .library-v10-source-browse-tile.active {
   background: rgba(255,255,255,0.07) !important;
   border-color: rgba(216,200,176,0.42) !important;

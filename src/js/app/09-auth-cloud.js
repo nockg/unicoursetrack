@@ -268,26 +268,6 @@ function renderAuthGate(mode = authViewMode) {
       </div>
       <div class="deadline-splash-title" style="color: var(--ink);">${isSignup ? "Create your account" : loginTitle}</div>
       <div class="auth-gate-message">${isSignup ? "Create a new cloud account to keep your tracker, deadlines, and preferences synced." : "Sign in with your existing account to view your tracker."}</div>
-      <div class="auth-oauth-stack">
-        <button class="nav-btn auth-oauth-btn" id="auth-google-btn" type="button" onclick="signInWithGoogle()">
-          <span class="auth-oauth-icon" aria-hidden="true">
-            <span class="auth-google-mark auth-google-blue"></span>
-            <span class="auth-google-mark auth-google-red"></span>
-            <span class="auth-google-mark auth-google-yellow"></span>
-            <span class="auth-google-mark auth-google-green"></span>
-            <span class="auth-google-letter">G</span>
-          </span>
-          <span class="auth-oauth-copy">
-            <span class="auth-oauth-title">${isSignup ? "Continue with Google" : "Sign in with Google"}</span>
-            <span class="auth-oauth-meta">Official Google account chooser, then return to UniTrack</span>
-          </span>
-        </button>
-        <div class="auth-oauth-trust">
-          <strong>Secure redirect</strong>
-          <span>You will continue on Google to choose an account, then return here with the same UniTrack cloud session flow.</span>
-        </div>
-        <div class="auth-oauth-divider" role="presentation"><span>or use email</span></div>
-      </div>
       <div class="deadline-form-grid">
         <div class="field">
           <label for="auth-gate-email">Email</label>
@@ -509,10 +489,6 @@ function withCloudTimeout(promise, label = "Cloud request", timeoutMs = 12000) {
   ]);
 }
 
-function getAuthRedirectUrl() {
-  return `${window.location.origin}${window.location.pathname}${window.location.search}`;
-}
-
 function getCachedAccessToken(session = currentSession) {
   const expiresAt = Number(session?.expires_at || 0);
   const stillFresh = !expiresAt || expiresAt * 1000 > Date.now() + 30000;
@@ -606,7 +582,7 @@ async function resetPasswordFromModal() {
   let error;
   try {
     ({ error } = await withCloudTimeout(supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: getAuthRedirectUrl()
+      redirectTo: window.location.origin + window.location.pathname
     }), "Password reset"));
   } catch (cloudError) {
     setAuthError(cloudError?.message || "Password reset failed. Please try again.");
@@ -686,7 +662,7 @@ async function signUpFromModal() {
       email,
       password,
       options: {
-        emailRedirectTo: getAuthRedirectUrl()
+        emailRedirectTo: window.location.origin + window.location.pathname
       }
     }), "Account creation"));
   } catch (cloudError) {
@@ -761,35 +737,6 @@ async function loginFromModal() {
   } catch (error) {
     setAuthLoading(false);
     setAuthError(error?.message || "Sign in failed. Please check your connection and try again.");
-  }
-}
-
-async function signInWithGoogle() {
-  if (!ensureCloudAuthReady()) return;
-  clearAuthMessage();
-  setAuthMessage("Redirecting to Google...", "success");
-  setAuthButtonBusy("#auth-google-btn", true, "Redirecting...");
-
-  try {
-    const { data, error } = await withCloudTimeout(supabaseClient.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: getAuthRedirectUrl(),
-        queryParams: {
-          access_type: "offline",
-          prompt: "select_account"
-        }
-      }
-    }), "Google sign-in");
-
-    if (error) throw error;
-    if (!data?.url) {
-      setAuthButtonBusy("#auth-google-btn", false);
-      setAuthError("Google sign-in did not return a redirect URL.");
-    }
-  } catch (error) {
-    setAuthButtonBusy("#auth-google-btn", false);
-    setAuthError(error?.message || "Google sign-in failed. Please try again.");
   }
 }
 
@@ -966,8 +913,6 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     if (pendingFirstRunSetup && shouldBlockUi) {
       resetLocalAppState();
       cloudReady = true;
-    } else {
-      applyPreferences();
     }
     if (shouldBlockUi) setAuthLoading(false);
     updateAuthLock();
