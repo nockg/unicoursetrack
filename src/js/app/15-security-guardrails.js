@@ -323,7 +323,7 @@
     if (!zone || !btn) return;
     const open = zone.classList.toggle("open");
     btn.setAttribute("aria-expanded", String(open));
-    btn.textContent = open ? "Hide danger zone" : "Show danger zone";
+    btn.textContent = open ? "Hide permanent delete" : "Show permanent delete";
   }
 
   function togglePrivacyDetails() {
@@ -388,15 +388,15 @@
           <button id="unitrack-privacy-toggle" class="account-clean-privacy-toggle" type="button" aria-expanded="false" onclick="unitrackTogglePrivacyDetails()">
             <span>
               <span class="account-clean-kicker">Legal & Privacy</span>
-              <strong>Your tracker data</strong>
+              <strong>Privacy notice and data use</strong>
             </span>
             <span class="account-clean-toggle-label">Read details</span>
             <span class="account-clean-chevron" aria-hidden="true"></span>
           </button>
           <div id="unitrack-privacy-body" class="account-clean-privacy-body">
-            <p>UniTrack saves the academic data you add to your tracker so your account can sync across devices. This can include your modules, marks, coursework information, notes, deadlines, todos, saved links, library items, and display preferences.</p>
-            <p>Backups are created as downloadable files controlled by you. They are meant to help you recover your tracker if something goes wrong or if you move devices.</p>
-            <p>Backups and recovery backups do not include your password, Supabase service keys, or active login session. If you want to remove your tracker data completely from cloud sync, you can do that in the danger zone below.</p>
+            <p>Read how UniTrack handles account access, cloud sync, backups, and deletion before making major account changes.</p>
+            <p>Backups are downloadable files you control. They do not include your password, Supabase service keys, or active login session.</p>
+            <p>If you want to remove synced tracker information completely, use the permanent delete control at the bottom of this page.</p>
           </div>
         </section>
 
@@ -404,8 +404,8 @@
           <div class="account-clean-section-head">
             <div>
               <div class="account-clean-kicker">Backup Tools</div>
-              <h3>Protect or move your data</h3>
-              <p>Use backups when you want a safety copy, need to restore progress, or move to another device.</p>
+              <h3>Export or restore a backup</h3>
+              <p>Download a copy, restore one, or grab the latest recovery backup.</p>
             </div>
           </div>
           <div class="account-clean-actions">
@@ -425,7 +425,6 @@
         </section>
 
         <section class="account-clean-section account-clean-danger">
-          <button id="unitrack-danger-zone-toggle" class="account-clean-danger-toggle" type="button" aria-expanded="false" onclick="unitrackToggleDangerZone()">Show danger zone</button>
           <div id="unitrack-danger-zone-body" class="account-clean-danger-body">
             <div>
               <div class="account-clean-kicker">Danger Zone</div>
@@ -434,6 +433,7 @@
             </div>
             <button type="button" onclick="unitrackDeleteCloudSyncData()">Delete Cloud Sync Data</button>
           </div>
+          <button id="unitrack-danger-zone-toggle" class="account-clean-danger-toggle" type="button" aria-expanded="false" onclick="unitrackToggleDangerZone()">Show permanent delete</button>
         </section>
       </div>
     `;
@@ -447,7 +447,7 @@
     if (typeof originalOpen === "function") {
       window.openAuthModal = function patchedOpenAuthModal(...args) {
         const result = originalOpen.apply(this, args);
-        setTimeout(renderAccountPanel, 0);
+        renderAccountPanel();
         return result;
       };
     }
@@ -456,7 +456,7 @@
     if (typeof originalRender === "function") {
       window.renderAuthModal = function patchedRenderAuthModal(...args) {
         const result = originalRender.apply(this, args);
-        setTimeout(renderAccountPanel, 0);
+        renderAccountPanel();
         return result;
       };
     }

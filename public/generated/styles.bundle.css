@@ -8013,7 +8013,7 @@ body.theme-dark :focus-visible {
   text-align: left;
   cursor: pointer;
   font: inherit;
-  border-radius: 6px;
+  border-radius: 2px;
 }
 
 .account-clean-row:hover {
@@ -8025,7 +8025,7 @@ body.theme-dark :focus-visible {
 .account-clean-row strong {
   display: block;
   font-family: inherit;
-  font-size: 19px;
+  font-size: 20px;
   line-height: 1.1;
   color: var(--sumi);
 }
@@ -8034,7 +8034,7 @@ body.theme-dark :focus-visible {
   display: block;
   margin-top: 4px;
   font-family: "DM Mono", Consolas, monospace;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
@@ -8051,7 +8051,7 @@ body.theme-dark :focus-visible {
   border: 1px solid color-mix(in srgb, var(--border2) 72%, var(--gold2) 28%);
   padding: 6px 9px;
   background: rgba(255,255,255,0.28);
-  border-radius: 999px;
+  border-radius: 2px;
 }
 
 .account-clean-actions {
@@ -8071,11 +8071,11 @@ body.theme-dark :focus-visible {
   background: color-mix(in srgb, var(--paper) 92%, white 8%);
   color: var(--sumi);
   font-family: inherit;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.03em;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 2px;
   padding: 0 14px;
 }
 
@@ -8085,7 +8085,8 @@ body.theme-dark :focus-visible {
 
 .account-clean-actions button:hover,
 .account-clean-session button:hover,
-.account-clean-danger-toggle:hover {
+.account-clean-danger-toggle:hover,
+.account-clean-danger-body button:hover {
   border-color: var(--gold2);
   background: color-mix(in srgb, var(--paper) 80%, white 20%);
   box-shadow: 0 8px 18px rgba(26,22,18,0.08);
@@ -8106,7 +8107,7 @@ body.theme-dark :focus-visible {
   gap: 12px;
   align-items: center;
   text-align: left;
-  padding: 14px 16px;
+  padding: 15px 16px;
   cursor: pointer;
   font: inherit;
 }
@@ -8114,7 +8115,7 @@ body.theme-dark :focus-visible {
 .account-clean-privacy-toggle strong {
   display: block;
   font-family: inherit;
-  font-size: 22px;
+  font-size: 24px;
   line-height: 1.08;
   font-weight: 600;
   color: var(--sumi);
@@ -8122,14 +8123,14 @@ body.theme-dark :focus-visible {
 
 .account-clean-toggle-label {
   font-family: "DM Mono", Consolas, monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--gold);
   border: 1px solid color-mix(in srgb, var(--border2) 72%, var(--gold2) 28%);
   padding: 6px 9px;
   background: rgba(255,255,255,0.22);
-  border-radius: 999px;
+  border-radius: 2px;
 }
 
 .account-clean-chevron {
@@ -8158,7 +8159,7 @@ body.theme-dark :focus-visible {
 
 .account-clean-privacy-body p {
   max-width: 760px;
-  font-size: 16.5px;
+  font-size: 17px;
   line-height: 1.52;
   margin-top: 12px;
 }
@@ -8179,6 +8180,10 @@ body.theme-dark :focus-visible {
   min-width: 128px;
 }
 
+.account-clean-session p {
+  font-size: 16px;
+}
+
 .account-clean-danger {
   border-color: color-mix(in srgb, var(--vermillion) 28%, var(--border) 72%);
   background: color-mix(in srgb, var(--paper2) 92%, var(--vermillion) 8%);
@@ -8186,7 +8191,7 @@ body.theme-dark :focus-visible {
 
 .account-clean-danger-toggle {
   width: calc(100% - 32px);
-  margin: 14px 16px;
+  margin: 0 16px 16px;
   color: var(--vermillion);
   background: color-mix(in srgb, var(--paper) 94%, white 6%);
 }
@@ -8196,7 +8201,8 @@ body.theme-dark :focus-visible {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
   align-items: center;
-  padding: 0 16px 16px;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--vermillion) 22%, var(--border) 78%);
 }
 
 .account-clean-danger-body.open {
