@@ -1,16 +1,19 @@
 /* Supabase config, app state, constants and onboarding data */
 
-const SUPABASE_URL = "https://ifktohckrkqbpzcssrnu.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_Ny7C4xhGJJ8EgWmsmaF-DA_P6N20C5M";
+const SUPABASE_URL = window.UNITRACK_CONFIG?.SUPABASE_URL || "";
+const SUPABASE_ANON_KEY = window.UNITRACK_CONFIG?.SUPABASE_ANON_KEY || "";
 
-const supabaseClient = window.supabase?.createClient ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    storageKey: "unitrack-cloud-auth",
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true
-  }
-}) : null;
+const supabaseClient =
+  window.supabase?.createClient && SUPABASE_URL && SUPABASE_ANON_KEY
+    ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+          storageKey: "unitrack-cloud-auth",
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
+      })
+    : null;
 let currentUser = null;
 let cloudReady = false;
 let cloudHadSave = false;
