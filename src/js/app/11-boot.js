@@ -37,17 +37,13 @@ function applyReducedMotionPreference() {
   if (pendingFirstRunSetup) {
     resetLocalAppState();
     cloudReady = true;
+  } else {
+    applyPreferences();
   }
 
   setAuthLoading(false);
   updateAuthLock();
   refreshAppAfterAuth();
-
-  setTimeout(() => {
-    if (currentUser && document.getElementById("template-splash")?.classList.contains("hidden")) {
-      showDeadlineSplash();
-    }
-  }, 500);
 
   setInterval(renderStickyExams, 1000);
 })();

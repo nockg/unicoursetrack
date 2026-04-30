@@ -256,7 +256,9 @@ function saveModuleForm() {
   }
   save();
   refreshActiveYear();
+  renderYearSelector();
   buildModules();
+  renderStickyExams();
   updateGlobal();
   closeModuleForm();
 }
