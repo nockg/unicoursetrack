@@ -1761,7 +1761,7 @@ body.theme-dark #module-library-modal .library-v5-folder.selected {
   align-items: center;
   gap: 10px;
   font-weight: 600;
-  color: var(--sumi);
+  color: inherit;
 }
 
 .library-v10-row-name {
@@ -1817,7 +1817,7 @@ body.theme-dark #module-library-modal .library-v5-folder.selected {
 
 .library-v10-column-btn.active,
 .library-v10-column-btn:hover {
-  color: var(--sumi);
+  color: currentColor;
 }
 
 .library-v10-list {
@@ -1947,7 +1947,7 @@ body.theme-dark .library-v10-crumb.active {
 }
 
 body.theme-dark .library-v10-source-name {
-  color: #d3cec3;
+  color: #f2ece0;
 }
 
 body.theme-dark .library-v10-source-browse-tile.active {
@@ -1966,8 +1966,9 @@ body.theme-dark .library-v10-breadcrumbs {
 }
 
 body.theme-dark .library-v10-details-header {
-  background: rgba(255,255,255,0.06);
-  border-color: rgba(255,255,255,0.10);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.10);
+  color: #b8b1a4;
 }
 
 .module-library-breadcrumbs {
