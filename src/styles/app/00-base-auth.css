@@ -122,6 +122,39 @@ body {
   letter-spacing: 0;
   color: var(--ink);
 }
+
+.auth-unitrack-logo-title {
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.auth-unitrack-logo {
+  height: clamp(42px, 4.8vw, 58px);
+  width: auto;
+  display: block;
+}
+
+.auth-unitrack-logo-white {
+  display: none;
+}
+
+body.theme-dark .auth-unitrack-logo-black,
+body.theme-charcoal .auth-unitrack-logo-black {
+  display: none;
+}
+
+body.theme-dark .auth-unitrack-logo-white,
+body.theme-charcoal .auth-unitrack-logo-white {
+  display: block;
+}
+
+@media (max-width: 700px) {
+  .auth-unitrack-logo {
+    height: 38px;
+  }
+}
+
 .auth-gate-copy,
 .auth-gate-message {
   font-family: "Cormorant Garamond", serif;
