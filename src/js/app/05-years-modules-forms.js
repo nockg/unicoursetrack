@@ -56,12 +56,14 @@ function addModuleToCurrentYear() {
   if (title) title.textContent = "Add Module";
   if (saveBtn) saveBtn.textContent = "Add Module";
   document.getElementById("module-form-modal").classList.remove("hidden");
+  syncModalScrollLock();
   setTimeout(() => code && code.focus(), 0);
 }
 
 function closeModuleForm() {
   document.getElementById("module-form-modal").classList.add("hidden");
   editingModuleIndex = null;
+  syncModalScrollLock();
 }
 
 function formatWeightInputValue(value) {
@@ -196,6 +198,7 @@ function editModuleWeights(mi, event) {
   if (title) title.textContent = "Module Options";
   if (saveBtn) saveBtn.textContent = "Save Module";
   document.getElementById("module-form-modal").classList.remove("hidden");
+  syncModalScrollLock();
 }
 
 function saveModuleForm() {

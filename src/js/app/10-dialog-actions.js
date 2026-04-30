@@ -2,6 +2,8 @@
 let appDialogResolver = null;
 let appDialogMode = "confirm";
 let appDialogRequireYes = false;
+let appDialogCheckboxRequired = false;
+let appDialogCheckboxChecked = false;
 
 function closeVisibleEscapeModal() {
   const modalSelectors = [
@@ -51,6 +53,8 @@ function openAppDialog(options = {}) {
 
   appDialogMode = options.mode || "confirm";
   appDialogRequireYes = !!options.requireYes;
+  appDialogCheckboxRequired = !!options.checkboxRequired;
+  appDialogCheckboxChecked = !!options.checkboxDefault;
 
   if (label) label.textContent = options.label || (options.danger ? "Delete" : "Confirm");
   if (title) title.textContent = options.title || "Are you sure?";
@@ -66,15 +70,29 @@ function openAppDialog(options = {}) {
 
   if (checkWrap) checkWrap.classList.toggle("hidden", !options.checkboxLabel);
   if (checkLabel) checkLabel.textContent = options.checkboxLabel || "";
-  if (check) check.checked = !!options.checkboxDefault;
+  if (check) {
+    check.checked = !!options.checkboxDefault;
+    appDialogCheckboxChecked = !!check.checked;
+  }
 
   if (confirmBtn) {
     confirmBtn.textContent = options.confirmText || (options.danger ? "Delete" : "Continue");
     confirmBtn.classList.toggle("danger-action", !!options.danger);
   }
   if (cancelBtn) cancelBtn.textContent = options.cancelText || "Cancel";
+  if (check && confirmBtn) {
+    const syncConfirmState = () => {
+      appDialogCheckboxChecked = !!check.checked;
+      confirmBtn.disabled = appDialogCheckboxRequired && !appDialogCheckboxChecked;
+    };
+    check.onchange = syncConfirmState;
+    syncConfirmState();
+  } else if (confirmBtn) {
+    confirmBtn.disabled = false;
+  }
 
   modal.classList.remove("hidden");
+  syncModalScrollLock?.();
   setTimeout(() => {
     if (needsInput && input) {
       input.focus();
@@ -94,6 +112,7 @@ function resolveAppDialog(confirmed) {
   const input = document.getElementById("app-dialog-input");
   const check = document.getElementById("app-dialog-check");
   if (modal) modal.classList.add("hidden");
+  syncModalScrollLock?.();
 
   if (!appDialogResolver) return;
   const resolver = appDialogResolver;
@@ -109,7 +128,7 @@ function resolveAppDialog(confirmed) {
     return;
   }
 
-  resolver(true);
+  resolver({ confirmed: true, checked: !!check?.checked });
 }
 
 document.addEventListener("keydown", (event) => {
@@ -122,9 +141,9 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Enter" && !event.shiftKey) resolveAppDialog(true);
 });
 
-async function appConfirm({ title, message, label = "Confirm", confirmText = "Continue", danger = false, requireYes = false } = {}) {
-  const result = await openAppDialog({ mode: "confirm", title, message, label, confirmText, danger, requireYes });
-  return result === true;
+async function appConfirm({ title, message, label = "Confirm", confirmText = "Continue", danger = false, requireYes = false, checkboxLabel = "", checkboxRequired = false } = {}) {
+  const result = await openAppDialog({ mode: "confirm", title, message, label, confirmText, danger, requireYes, checkboxLabel, checkboxRequired });
+  return !!result?.confirmed && (!checkboxRequired || !!result.checked);
 }
 
 async function appPrompt({ title, message, label = "Input", inputLabel = "Value", defaultValue = "", placeholder = "", confirmText = "Save", checkboxLabel = "", checkboxDefault = false } = {}) {
@@ -136,6 +155,20 @@ async function appPrompt({ title, message, label = "Input", inputLabel = "Value"
 function showAppNotice(title, message = "") {
   return openAppDialog({ mode: "confirm", label: "Notice", title, message, confirmText: "Okay", cancelText: "Close" });
 }
+
+function openTrustedUrl(url, target = "_blank") {
+  const text = String(url || "").trim();
+  if (!text) return null;
+  try {
+    const parsed = new URL(text, window.location.origin);
+    if (!["https:", "http:", "mailto:"].includes(parsed.protocol)) throw new Error("Unsupported link protocol.");
+    return window.open(parsed.href, target, "noopener,noreferrer");
+  } catch (error) {
+    showAppNotice?.("Could not open link", error?.message || "This link is not safe to open.");
+    return null;
+  }
+}
+window.openTrustedUrl = openTrustedUrl;
 
 async function deleteCustomBackground(key) {
   if (!preferences.customBackgrounds || !preferences.customBackgrounds[key]) return;
@@ -212,7 +245,9 @@ async function clearTrackerStorage() {
     title: "Reset everything?",
     message: "This will reset progress, marks, notes, links, and cloud saves for this account.",
     confirmText: "Reset",
-    danger: true
+    danger: true,
+    checkboxLabel: "I understand this clears both local and cloud tracker data.",
+    checkboxRequired: true
   });
   if (!confirmClear) return;
   clearTimeout(cloudSaveTimer);

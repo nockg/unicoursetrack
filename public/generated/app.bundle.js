@@ -1069,6 +1069,7 @@ function openCourseSetupModal(isInitialSetup = false) {
   }
   document.body.classList.toggle("setup-required", isInitialSetup);
   document.getElementById("course-setup-modal").classList.remove("hidden");
+  syncModalScrollLock();
   if (!isEditingExisting && isInitialSetup) {
     document.getElementById("setup-name-input").focus();
   }
@@ -1078,6 +1079,7 @@ function closeCourseSetupModal() {
   if (courseSetupInitial) return;
   document.body.classList.remove("setup-required");
   document.getElementById("course-setup-modal").classList.add("hidden");
+  syncModalScrollLock();
 }
 
 function editCourseProfile() {
@@ -1349,6 +1351,20 @@ function openPreferredCalendar() {
 }
 
 let modalScrollY = 0;
+const BLOCKING_MODAL_SELECTORS = [
+  "#app-dialog-modal",
+  "#auth-modal",
+  "#dashboard-modal",
+  "#timeline-modal",
+  "#todo-modal",
+  "#calendar-modal",
+  "#deadline-form-modal",
+  "#module-form-modal",
+  "#link-form-modal",
+  "#module-library-modal",
+  "#course-setup-modal",
+  "#onboarding-modal"
+];
 
 function isMobileViewport() {
   return window.matchMedia?.("(max-width: 760px)")?.matches || window.innerWidth <= 760;
@@ -1370,6 +1386,18 @@ function unlockPageScroll() {
   document.body.style.top = "";
   delete document.body.dataset.scrollLockFixed;
   if (shouldRestoreScroll) window.scrollTo(0, modalScrollY);
+}
+
+function isBlockingModalOpen() {
+  return BLOCKING_MODAL_SELECTORS.some((selector) => {
+    const node = document.querySelector(selector);
+    return !!node && !node.classList.contains("hidden");
+  });
+}
+
+function syncModalScrollLock() {
+  if (isBlockingModalOpen()) lockPageScroll();
+  else unlockPageScroll();
 }
 
 function toDateInputValue(date) {
@@ -1412,12 +1440,12 @@ function openCalendarComposer(prefill = null) {
   if (typeof setCalendarComposerPriority === "function") setCalendarComposerPriority(prefill?.priority || "default");
   updateCalendarComposerMode();
   document.getElementById("calendar-modal").classList.remove("hidden");
-  lockPageScroll();
+  syncModalScrollLock();
 }
 
 function closeCalendarComposer() {
   document.getElementById("calendar-modal").classList.add("hidden");
-  unlockPageScroll();
+  syncModalScrollLock();
 }
 
 function updateCalendarComposerMode() {
@@ -1457,7 +1485,7 @@ function submitCalendarComposer() {
 }
 
 function openYouTube() {
-  window.open("https://www.youtube.com/", "_blank", "noopener");
+  openTrustedUrl("https://www.youtube.com/");
 }
 
 function clearLocalTrackerStorage() {
@@ -2658,6 +2686,7 @@ function openLinkForm(context) {
   if (context?.fromLibrary) modal.classList.add("library-v10-link-modal");
   else modal.classList.remove("library-v10-link-modal");
   modal.classList.remove("hidden");
+  syncModalScrollLock();
   setTimeout(() => (nameField.style.display === "none" ? urlInput : nameInput).focus(), 0);
 }
 
@@ -2670,7 +2699,10 @@ function closeLinkForm() {
   if (shouldReturnToLibrary) {
     document.getElementById("module-library-modal")?.classList.remove("hidden");
     renderModuleLibrary();
+    syncModalScrollLock();
+    return;
   }
+  syncModalScrollLock();
 }
 
 function saveLinkForm() {
@@ -2755,7 +2787,7 @@ function saveLinkForm() {
 function openBlackboardLink(mi, event) {
   if (event) event.stopPropagation();
   const url = getBlackboardLink(mi);
-  if (url) window.open(url, "_blank", "noopener");
+  if (url) openTrustedUrl(url);
   else setBlackboardLink(mi);
 }
 
@@ -3914,7 +3946,7 @@ function libraryCleanOpenItemKey(recordKey, event) {
     event.stopPropagation();
   }
   const found = libraryCleanFindItem(recordKey);
-  if (found?.item?.url) window.open(found.item.url, "_blank", "noopener");
+  if (found?.item?.url) openTrustedUrl(found.item.url);
 }
 
 async function libraryCleanRenameFolderKey(folderKey, event) {
@@ -4305,6 +4337,7 @@ function openModuleLibrary(mi = null, focus = "both", event) {
   if (Number.isInteger(mi)) libraryCleanSetSource(`module:${mi}`, { silent: true });
   else libraryCleanSetSource("all", { silent: true });
   document.getElementById("module-library-modal")?.classList.remove("hidden");
+  syncModalScrollLock();
   renderModuleLibrary();
 }
 
@@ -4313,6 +4346,7 @@ function closeModuleLibrary() {
   materialLibraryModuleIndex = null;
   moduleLibraryScopeMi = null;
   moduleLibraryScopeCustomId = null;
+  syncModalScrollLock();
 }
 
 function updateModuleLibrarySearch(value) {
@@ -4744,12 +4778,14 @@ function renderDashboardTermSummary() {
 
 function openDashboard() {
   document.getElementById("dashboard-modal").classList.remove("hidden");
+  syncModalScrollLock();
   updateDashboard();
   renderDashboardChart();
 }
 
 function closeDashboard() {
   document.getElementById("dashboard-modal").classList.add("hidden");
+  syncModalScrollLock();
 }
 
 document.getElementById("dashboard-modal").addEventListener("click", (event) => {
@@ -4953,12 +4989,14 @@ function addModuleToCurrentYear() {
   if (title) title.textContent = "Add Module";
   if (saveBtn) saveBtn.textContent = "Add Module";
   document.getElementById("module-form-modal").classList.remove("hidden");
+  syncModalScrollLock();
   setTimeout(() => code && code.focus(), 0);
 }
 
 function closeModuleForm() {
   document.getElementById("module-form-modal").classList.add("hidden");
   editingModuleIndex = null;
+  syncModalScrollLock();
 }
 
 function formatWeightInputValue(value) {
@@ -5093,6 +5131,7 @@ function editModuleWeights(mi, event) {
   if (title) title.textContent = "Module Options";
   if (saveBtn) saveBtn.textContent = "Save Module";
   document.getElementById("module-form-modal").classList.remove("hidden");
+  syncModalScrollLock();
 }
 
 function saveModuleForm() {
@@ -5677,7 +5716,7 @@ function openDeadlineForm(index = null, type = "date") {
 
   setDeadlineFormType(formType);
   document.getElementById("deadline-form-modal").classList.remove("hidden");
-  lockPageScroll();
+  syncModalScrollLock();
   setTimeout(() => titleInput && titleInput.focus(), 0);
 }
 
@@ -5688,7 +5727,7 @@ function editDeadline(index) {
 function closeDeadlineForm() {
   document.getElementById("deadline-form-modal").classList.add("hidden");
   editingDeadlineIndex = null;
-  unlockPageScroll();
+  syncModalScrollLock();
 }
 
 function buildDeadlineFromForm() {
@@ -5847,7 +5886,7 @@ function downloadCalendarIcs(eventData) {
 }
 
 function navigateCalendarWindow(url) {
-  const opened = window.open(url, "_blank", "noopener");
+  const opened = openTrustedUrl(url);
   if (!opened) window.location.href = url;
 }
 
@@ -6099,6 +6138,7 @@ function toggleDeadlineComplete(index, event) {
 
 function openDeadlineTimeline() {
   document.getElementById("timeline-modal").classList.remove("hidden");
+  syncModalScrollLock();
   activeDeadlineTab = "upcoming";
   document.getElementById("deadline-tab-upcoming")?.classList.add("active");
   document.getElementById("deadline-tab-add")?.classList.remove("active");
@@ -6117,6 +6157,7 @@ function updateDeadlineCountdowns() {
 
 function closeDeadlineTimeline() {
   document.getElementById("timeline-modal").classList.add("hidden");
+  syncModalScrollLock();
   if (deadlineTimelineInterval) {
     clearInterval(deadlineTimelineInterval);
     deadlineTimelineInterval = null;
@@ -6150,6 +6191,16 @@ function applyTodoPanelState(forceCenter = false) {
   const panel = document.querySelector("#todo-modal .todo-content");
   if (!panel) return;
   const panelState = getTodoPanelState();
+  if (isMobileViewport()) {
+    document.getElementById("todo-modal")?.classList.add("todo-mobile");
+    panel.style.top = "";
+    panel.style.left = "";
+    panel.style.right = "";
+    panel.style.width = "";
+    panel.style.height = "";
+    return;
+  }
+  document.getElementById("todo-modal")?.classList.remove("todo-mobile");
   const compact = !!panelState.compact;
   const items = getTodoItems();
   const maxWidth = window.innerWidth - 18;
@@ -6496,6 +6547,7 @@ function openTodoPlanner() {
   if (!modal) return;
   const panelState = getTodoPanelState();
   modal.classList.remove("hidden");
+  syncModalScrollLock();
   renderTodoModuleOptions();
   setupTodoPanelResizePersistence();
   applyTodoPanelState(!panelState.hasOpenedOnce);
@@ -6508,6 +6560,7 @@ function closeTodoPlanner() {
   document.getElementById("todo-modal")?.classList.add("hidden");
   todoPanelDrag = null;
   todoPanelResize = null;
+  syncModalScrollLock();
 }
 
 function toggleTodoPlanner() {
@@ -7233,6 +7286,7 @@ function openOnboardingModal() {
   }
   onboardingStepIndex = 0;
   document.getElementById("onboarding-modal").classList.remove("hidden");
+  syncModalScrollLock();
   renderOnboardingStep();
 }
 
@@ -7241,6 +7295,7 @@ function closeOnboardingModal() {
   pendingOnboarding = false;
   pendingFirstRunSetup = false;
   document.getElementById("onboarding-modal").classList.add("hidden");
+  syncModalScrollLock();
 }
 
 function maybeShowOnboarding() {
@@ -7452,6 +7507,7 @@ function openAuthModal(mode = "login") {
   if (!modal) return;
   if (mode === "recovery") recoveryModeActive = true;
   modal.classList.remove("hidden");
+  syncModalScrollLock();
   renderAuthModal(mode);
   const closeBtn = document.querySelector("#auth-modal .deadline-splash-close");
   if (closeBtn) closeBtn.style.display = (currentUser && !isRecoveryFlow()) ? "block" : "none";
@@ -7462,6 +7518,7 @@ function closeAuthModal(force = false) {
   const modal = document.getElementById("auth-modal");
   if (!modal) return;
   modal.classList.add("hidden");
+  syncModalScrollLock();
 }
 
 function updateAuthButton() {
@@ -8010,6 +8067,8 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
 let appDialogResolver = null;
 let appDialogMode = "confirm";
 let appDialogRequireYes = false;
+let appDialogCheckboxRequired = false;
+let appDialogCheckboxChecked = false;
 
 function closeVisibleEscapeModal() {
   const modalSelectors = [
@@ -8059,6 +8118,8 @@ function openAppDialog(options = {}) {
 
   appDialogMode = options.mode || "confirm";
   appDialogRequireYes = !!options.requireYes;
+  appDialogCheckboxRequired = !!options.checkboxRequired;
+  appDialogCheckboxChecked = !!options.checkboxDefault;
 
   if (label) label.textContent = options.label || (options.danger ? "Delete" : "Confirm");
   if (title) title.textContent = options.title || "Are you sure?";
@@ -8074,15 +8135,29 @@ function openAppDialog(options = {}) {
 
   if (checkWrap) checkWrap.classList.toggle("hidden", !options.checkboxLabel);
   if (checkLabel) checkLabel.textContent = options.checkboxLabel || "";
-  if (check) check.checked = !!options.checkboxDefault;
+  if (check) {
+    check.checked = !!options.checkboxDefault;
+    appDialogCheckboxChecked = !!check.checked;
+  }
 
   if (confirmBtn) {
     confirmBtn.textContent = options.confirmText || (options.danger ? "Delete" : "Continue");
     confirmBtn.classList.toggle("danger-action", !!options.danger);
   }
   if (cancelBtn) cancelBtn.textContent = options.cancelText || "Cancel";
+  if (check && confirmBtn) {
+    const syncConfirmState = () => {
+      appDialogCheckboxChecked = !!check.checked;
+      confirmBtn.disabled = appDialogCheckboxRequired && !appDialogCheckboxChecked;
+    };
+    check.onchange = syncConfirmState;
+    syncConfirmState();
+  } else if (confirmBtn) {
+    confirmBtn.disabled = false;
+  }
 
   modal.classList.remove("hidden");
+  syncModalScrollLock?.();
   setTimeout(() => {
     if (needsInput && input) {
       input.focus();
@@ -8102,6 +8177,7 @@ function resolveAppDialog(confirmed) {
   const input = document.getElementById("app-dialog-input");
   const check = document.getElementById("app-dialog-check");
   if (modal) modal.classList.add("hidden");
+  syncModalScrollLock?.();
 
   if (!appDialogResolver) return;
   const resolver = appDialogResolver;
@@ -8117,7 +8193,7 @@ function resolveAppDialog(confirmed) {
     return;
   }
 
-  resolver(true);
+  resolver({ confirmed: true, checked: !!check?.checked });
 }
 
 document.addEventListener("keydown", (event) => {
@@ -8130,9 +8206,9 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Enter" && !event.shiftKey) resolveAppDialog(true);
 });
 
-async function appConfirm({ title, message, label = "Confirm", confirmText = "Continue", danger = false, requireYes = false } = {}) {
-  const result = await openAppDialog({ mode: "confirm", title, message, label, confirmText, danger, requireYes });
-  return result === true;
+async function appConfirm({ title, message, label = "Confirm", confirmText = "Continue", danger = false, requireYes = false, checkboxLabel = "", checkboxRequired = false } = {}) {
+  const result = await openAppDialog({ mode: "confirm", title, message, label, confirmText, danger, requireYes, checkboxLabel, checkboxRequired });
+  return !!result?.confirmed && (!checkboxRequired || !!result.checked);
 }
 
 async function appPrompt({ title, message, label = "Input", inputLabel = "Value", defaultValue = "", placeholder = "", confirmText = "Save", checkboxLabel = "", checkboxDefault = false } = {}) {
@@ -8144,6 +8220,20 @@ async function appPrompt({ title, message, label = "Input", inputLabel = "Value"
 function showAppNotice(title, message = "") {
   return openAppDialog({ mode: "confirm", label: "Notice", title, message, confirmText: "Okay", cancelText: "Close" });
 }
+
+function openTrustedUrl(url, target = "_blank") {
+  const text = String(url || "").trim();
+  if (!text) return null;
+  try {
+    const parsed = new URL(text, window.location.origin);
+    if (!["https:", "http:", "mailto:"].includes(parsed.protocol)) throw new Error("Unsupported link protocol.");
+    return window.open(parsed.href, target, "noopener,noreferrer");
+  } catch (error) {
+    showAppNotice?.("Could not open link", error?.message || "This link is not safe to open.");
+    return null;
+  }
+}
+window.openTrustedUrl = openTrustedUrl;
 
 async function deleteCustomBackground(key) {
   if (!preferences.customBackgrounds || !preferences.customBackgrounds[key]) return;
@@ -8220,7 +8310,9 @@ async function clearTrackerStorage() {
     title: "Reset everything?",
     message: "This will reset progress, marks, notes, links, and cloud saves for this account.",
     confirmText: "Reset",
-    danger: true
+    danger: true,
+    checkboxLabel: "I understand this clears both local and cloud tracker data.",
+    checkboxRequired: true
   });
   if (!confirmClear) return;
   clearTimeout(cloudSaveTimer);
@@ -8891,7 +8983,7 @@ try {
     }
     const href = selectedMaterial.element.dataset?.url || selectedMaterial.element.getAttribute?.('href');
     if (href) {
-      window.open(href, '_blank', 'noopener,noreferrer');
+      openTrustedUrl(href);
       return true;
     }
     selectedMaterial.element.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
@@ -9310,7 +9402,9 @@ try {
       title: "Clear local device data?",
       message: "This clears UniTrack data saved in this browser only. Your cloud sync data stays in your account.",
       confirmText: "Clear Local Data",
-      danger: true
+      danger: true,
+      checkboxLabel: "I understand this removes data from this browser only.",
+      checkboxRequired: true
     });
     if (!confirmed) return;
 
@@ -9335,7 +9429,9 @@ try {
       title: "Delete cloud sync data?",
       message: "This deletes the saved tracker profile from your cloud account. A recovery backup will be made first.",
       confirmText: "Delete Cloud Sync Data",
-      danger: true
+      danger: true,
+      checkboxLabel: "I understand this permanently deletes synced tracker data from my account.",
+      checkboxRequired: true
     });
     if (!confirmed) return;
 
@@ -9416,7 +9512,7 @@ try {
         </section>
 
         <section class="account-clean-section account-clean-privacy">
-          <button class="account-clean-privacy-link" type="button" onclick="window.open('/privacy.html', '_blank', 'noopener,noreferrer')">
+          <button class="account-clean-privacy-link" type="button" onclick="openTrustedUrl('/privacy.html')">
             <span>
               <span class="account-clean-kicker">Privacy</span>
               <strong>Privacy notice and data use</strong>

@@ -433,6 +433,12 @@ body.theme-dark #todo-modal .todo-toolbar .field label {
   color: rgba(244,239,231,0.68);
 }
 @media (max-width: 760px) {
+  #todo-modal.todo-mobile .todo-resize-handle {
+    display: none;
+  }
+  #todo-modal.todo-mobile #todo-lock-btn {
+    display: none;
+  }
   #todo-modal .todo-content {
     width: calc(100vw - 16px) !important;
     left: 8px !important;

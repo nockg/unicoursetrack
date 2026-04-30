@@ -47,7 +47,7 @@
     }
     const href = selectedMaterial.element.dataset?.url || selectedMaterial.element.getAttribute?.('href');
     if (href) {
-      window.open(href, '_blank', 'noopener,noreferrer');
+      openTrustedUrl(href);
       return true;
     }
     selectedMaterial.element.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));

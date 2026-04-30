@@ -24,6 +24,16 @@ function applyTodoPanelState(forceCenter = false) {
   const panel = document.querySelector("#todo-modal .todo-content");
   if (!panel) return;
   const panelState = getTodoPanelState();
+  if (isMobileViewport()) {
+    document.getElementById("todo-modal")?.classList.add("todo-mobile");
+    panel.style.top = "";
+    panel.style.left = "";
+    panel.style.right = "";
+    panel.style.width = "";
+    panel.style.height = "";
+    return;
+  }
+  document.getElementById("todo-modal")?.classList.remove("todo-mobile");
   const compact = !!panelState.compact;
   const items = getTodoItems();
   const maxWidth = window.innerWidth - 18;
@@ -370,6 +380,7 @@ function openTodoPlanner() {
   if (!modal) return;
   const panelState = getTodoPanelState();
   modal.classList.remove("hidden");
+  syncModalScrollLock();
   renderTodoModuleOptions();
   setupTodoPanelResizePersistence();
   applyTodoPanelState(!panelState.hasOpenedOnce);
@@ -382,6 +393,7 @@ function closeTodoPlanner() {
   document.getElementById("todo-modal")?.classList.add("hidden");
   todoPanelDrag = null;
   todoPanelResize = null;
+  syncModalScrollLock();
 }
 
 function toggleTodoPlanner() {

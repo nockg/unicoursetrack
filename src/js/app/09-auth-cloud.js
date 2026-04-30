@@ -162,6 +162,7 @@ function openOnboardingModal() {
   }
   onboardingStepIndex = 0;
   document.getElementById("onboarding-modal").classList.remove("hidden");
+  syncModalScrollLock();
   renderOnboardingStep();
 }
 
@@ -170,6 +171,7 @@ function closeOnboardingModal() {
   pendingOnboarding = false;
   pendingFirstRunSetup = false;
   document.getElementById("onboarding-modal").classList.add("hidden");
+  syncModalScrollLock();
 }
 
 function maybeShowOnboarding() {
@@ -381,6 +383,7 @@ function openAuthModal(mode = "login") {
   if (!modal) return;
   if (mode === "recovery") recoveryModeActive = true;
   modal.classList.remove("hidden");
+  syncModalScrollLock();
   renderAuthModal(mode);
   const closeBtn = document.querySelector("#auth-modal .deadline-splash-close");
   if (closeBtn) closeBtn.style.display = (currentUser && !isRecoveryFlow()) ? "block" : "none";
@@ -391,6 +394,7 @@ function closeAuthModal(force = false) {
   const modal = document.getElementById("auth-modal");
   if (!modal) return;
   modal.classList.add("hidden");
+  syncModalScrollLock();
 }
 
 function updateAuthButton() {

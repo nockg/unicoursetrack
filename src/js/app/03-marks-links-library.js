@@ -1167,6 +1167,7 @@ function openLinkForm(context) {
   if (context?.fromLibrary) modal.classList.add("library-v10-link-modal");
   else modal.classList.remove("library-v10-link-modal");
   modal.classList.remove("hidden");
+  syncModalScrollLock();
   setTimeout(() => (nameField.style.display === "none" ? urlInput : nameInput).focus(), 0);
 }
 
@@ -1179,7 +1180,10 @@ function closeLinkForm() {
   if (shouldReturnToLibrary) {
     document.getElementById("module-library-modal")?.classList.remove("hidden");
     renderModuleLibrary();
+    syncModalScrollLock();
+    return;
   }
+  syncModalScrollLock();
 }
 
 function saveLinkForm() {
@@ -1264,7 +1268,7 @@ function saveLinkForm() {
 function openBlackboardLink(mi, event) {
   if (event) event.stopPropagation();
   const url = getBlackboardLink(mi);
-  if (url) window.open(url, "_blank", "noopener");
+  if (url) openTrustedUrl(url);
   else setBlackboardLink(mi);
 }
 
@@ -2423,7 +2427,7 @@ function libraryCleanOpenItemKey(recordKey, event) {
     event.stopPropagation();
   }
   const found = libraryCleanFindItem(recordKey);
-  if (found?.item?.url) window.open(found.item.url, "_blank", "noopener");
+  if (found?.item?.url) openTrustedUrl(found.item.url);
 }
 
 async function libraryCleanRenameFolderKey(folderKey, event) {
@@ -2814,6 +2818,7 @@ function openModuleLibrary(mi = null, focus = "both", event) {
   if (Number.isInteger(mi)) libraryCleanSetSource(`module:${mi}`, { silent: true });
   else libraryCleanSetSource("all", { silent: true });
   document.getElementById("module-library-modal")?.classList.remove("hidden");
+  syncModalScrollLock();
   renderModuleLibrary();
 }
 
@@ -2822,6 +2827,7 @@ function closeModuleLibrary() {
   materialLibraryModuleIndex = null;
   moduleLibraryScopeMi = null;
   moduleLibraryScopeCustomId = null;
+  syncModalScrollLock();
 }
 
 function updateModuleLibrarySearch(value) {

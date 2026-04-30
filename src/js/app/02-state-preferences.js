@@ -667,6 +667,7 @@ function openCourseSetupModal(isInitialSetup = false) {
   }
   document.body.classList.toggle("setup-required", isInitialSetup);
   document.getElementById("course-setup-modal").classList.remove("hidden");
+  syncModalScrollLock();
   if (!isEditingExisting && isInitialSetup) {
     document.getElementById("setup-name-input").focus();
   }
@@ -676,6 +677,7 @@ function closeCourseSetupModal() {
   if (courseSetupInitial) return;
   document.body.classList.remove("setup-required");
   document.getElementById("course-setup-modal").classList.add("hidden");
+  syncModalScrollLock();
 }
 
 function editCourseProfile() {
@@ -947,6 +949,20 @@ function openPreferredCalendar() {
 }
 
 let modalScrollY = 0;
+const BLOCKING_MODAL_SELECTORS = [
+  "#app-dialog-modal",
+  "#auth-modal",
+  "#dashboard-modal",
+  "#timeline-modal",
+  "#todo-modal",
+  "#calendar-modal",
+  "#deadline-form-modal",
+  "#module-form-modal",
+  "#link-form-modal",
+  "#module-library-modal",
+  "#course-setup-modal",
+  "#onboarding-modal"
+];
 
 function isMobileViewport() {
   return window.matchMedia?.("(max-width: 760px)")?.matches || window.innerWidth <= 760;
@@ -968,6 +984,18 @@ function unlockPageScroll() {
   document.body.style.top = "";
   delete document.body.dataset.scrollLockFixed;
   if (shouldRestoreScroll) window.scrollTo(0, modalScrollY);
+}
+
+function isBlockingModalOpen() {
+  return BLOCKING_MODAL_SELECTORS.some((selector) => {
+    const node = document.querySelector(selector);
+    return !!node && !node.classList.contains("hidden");
+  });
+}
+
+function syncModalScrollLock() {
+  if (isBlockingModalOpen()) lockPageScroll();
+  else unlockPageScroll();
 }
 
 function toDateInputValue(date) {
@@ -1010,12 +1038,12 @@ function openCalendarComposer(prefill = null) {
   if (typeof setCalendarComposerPriority === "function") setCalendarComposerPriority(prefill?.priority || "default");
   updateCalendarComposerMode();
   document.getElementById("calendar-modal").classList.remove("hidden");
-  lockPageScroll();
+  syncModalScrollLock();
 }
 
 function closeCalendarComposer() {
   document.getElementById("calendar-modal").classList.add("hidden");
-  unlockPageScroll();
+  syncModalScrollLock();
 }
 
 function updateCalendarComposerMode() {
@@ -1055,7 +1083,7 @@ function submitCalendarComposer() {
 }
 
 function openYouTube() {
-  window.open("https://www.youtube.com/", "_blank", "noopener");
+  openTrustedUrl("https://www.youtube.com/");
 }
 
 function clearLocalTrackerStorage() {

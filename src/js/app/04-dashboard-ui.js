@@ -168,12 +168,14 @@ function renderDashboardTermSummary() {
 
 function openDashboard() {
   document.getElementById("dashboard-modal").classList.remove("hidden");
+  syncModalScrollLock();
   updateDashboard();
   renderDashboardChart();
 }
 
 function closeDashboard() {
   document.getElementById("dashboard-modal").classList.add("hidden");
+  syncModalScrollLock();
 }
 
 document.getElementById("dashboard-modal").addEventListener("click", (event) => {

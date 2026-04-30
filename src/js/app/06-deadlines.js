@@ -198,7 +198,7 @@ function openDeadlineForm(index = null, type = "date") {
 
   setDeadlineFormType(formType);
   document.getElementById("deadline-form-modal").classList.remove("hidden");
-  lockPageScroll();
+  syncModalScrollLock();
   setTimeout(() => titleInput && titleInput.focus(), 0);
 }
 
@@ -209,7 +209,7 @@ function editDeadline(index) {
 function closeDeadlineForm() {
   document.getElementById("deadline-form-modal").classList.add("hidden");
   editingDeadlineIndex = null;
-  unlockPageScroll();
+  syncModalScrollLock();
 }
 
 function buildDeadlineFromForm() {
@@ -368,7 +368,7 @@ function downloadCalendarIcs(eventData) {
 }
 
 function navigateCalendarWindow(url) {
-  const opened = window.open(url, "_blank", "noopener");
+  const opened = openTrustedUrl(url);
   if (!opened) window.location.href = url;
 }
 
@@ -620,6 +620,7 @@ function toggleDeadlineComplete(index, event) {
 
 function openDeadlineTimeline() {
   document.getElementById("timeline-modal").classList.remove("hidden");
+  syncModalScrollLock();
   activeDeadlineTab = "upcoming";
   document.getElementById("deadline-tab-upcoming")?.classList.add("active");
   document.getElementById("deadline-tab-add")?.classList.remove("active");
@@ -638,6 +639,7 @@ function updateDeadlineCountdowns() {
 
 function closeDeadlineTimeline() {
   document.getElementById("timeline-modal").classList.add("hidden");
+  syncModalScrollLock();
   if (deadlineTimelineInterval) {
     clearInterval(deadlineTimelineInterval);
     deadlineTimelineInterval = null;

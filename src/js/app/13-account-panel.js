@@ -275,7 +275,9 @@
       title: "Clear local device data?",
       message: "This clears UniTrack data saved in this browser only. Your cloud sync data stays in your account.",
       confirmText: "Clear Local Data",
-      danger: true
+      danger: true,
+      checkboxLabel: "I understand this removes data from this browser only.",
+      checkboxRequired: true
     });
     if (!confirmed) return;
 
@@ -300,7 +302,9 @@
       title: "Delete cloud sync data?",
       message: "This deletes the saved tracker profile from your cloud account. A recovery backup will be made first.",
       confirmText: "Delete Cloud Sync Data",
-      danger: true
+      danger: true,
+      checkboxLabel: "I understand this permanently deletes synced tracker data from my account.",
+      checkboxRequired: true
     });
     if (!confirmed) return;
 
@@ -381,7 +385,7 @@
         </section>
 
         <section class="account-clean-section account-clean-privacy">
-          <button class="account-clean-privacy-link" type="button" onclick="window.open('/privacy.html', '_blank', 'noopener,noreferrer')">
+          <button class="account-clean-privacy-link" type="button" onclick="openTrustedUrl('/privacy.html')">
             <span>
               <span class="account-clean-kicker">Privacy</span>
               <strong>Privacy notice and data use</strong>
