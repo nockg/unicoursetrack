@@ -9439,24 +9439,18 @@ document.addEventListener("keydown", (event) => {
     if (!zone || !btn) return;
     const open = zone.classList.toggle("open");
     btn.setAttribute("aria-expanded", String(open));
-    btn.textContent = open ? "Hide permanent delete" : "Show permanent delete";
-  }
-
-  function togglePrivacyDetails() {
-    const body = document.getElementById("unitrack-privacy-body");
-    const btn = document.getElementById("unitrack-privacy-toggle");
-    if (!body || !btn) return;
-    const open = body.classList.toggle("open");
-    btn.setAttribute("aria-expanded", String(open));
-    const label = btn.querySelector(".account-clean-toggle-label");
-    const chevron = btn.querySelector(".account-clean-chevron");
-    if (label) label.textContent = open ? "Hide details" : "Read details";
-    if (chevron) chevron.classList.toggle("open", open);
+    btn.textContent = open ? "Hide deletion options" : "Show deletion options";
   }
 
   function renderAccountPanel() {
     const body = document.getElementById("auth-modal-body");
     if (!body || !hasCurrentUser()) return;
+    const modalCard = body.closest(".deadline-form-content");
+    const modalLabel = modalCard?.querySelector(".deadline-splash-label");
+    const modalLegalCard = modalCard?.querySelector(".auth-legal-card");
+
+    if (modalLabel) modalLabel.textContent = "Account";
+    if (modalLegalCard) modalLegalCard.style.display = "none";
 
     const email = escapeSafe(getCurrentUserEmail());
     const status = escapeSafe(getCloudStatus());
@@ -9501,19 +9495,14 @@ document.addEventListener("keydown", (event) => {
         </section>
 
         <section class="account-clean-section account-clean-privacy">
-          <button id="unitrack-privacy-toggle" class="account-clean-privacy-toggle" type="button" aria-expanded="false" onclick="unitrackTogglePrivacyDetails()">
+          <button class="account-clean-privacy-link" type="button" onclick="window.open('/privacy.html', '_blank', 'noopener,noreferrer')">
             <span>
-              <span class="account-clean-kicker">Legal & Privacy</span>
+              <span class="account-clean-kicker">Privacy</span>
               <strong>Privacy notice and data use</strong>
+              <small>Open the full privacy notice in a separate tab before making account or deletion changes.</small>
             </span>
-            <span class="account-clean-toggle-label">Read details</span>
-            <span class="account-clean-chevron" aria-hidden="true"></span>
+            <span class="account-clean-toggle-label">Open notice</span>
           </button>
-          <div id="unitrack-privacy-body" class="account-clean-privacy-body">
-            <p>Read how UniTrack handles account access, cloud sync, backups, and deletion before making major account changes.</p>
-            <p>Backups are downloadable files you control. They do not include your password, Supabase service keys, or active login session.</p>
-            <p>If you want to remove synced tracker information completely, use the permanent delete control at the bottom of this page.</p>
-          </div>
         </section>
 
         <section class="account-clean-section">
@@ -9549,7 +9538,7 @@ document.addEventListener("keydown", (event) => {
             </div>
             <button type="button" onclick="unitrackDeleteCloudSyncData()">Delete Cloud Sync Data</button>
           </div>
-          <button id="unitrack-danger-zone-toggle" class="account-clean-danger-toggle" type="button" aria-expanded="false" onclick="unitrackToggleDangerZone()">Show permanent delete</button>
+          <button id="unitrack-danger-zone-toggle" class="account-clean-danger-toggle" type="button" aria-expanded="false" onclick="unitrackToggleDangerZone()">Show deletion options</button>
         </section>
       </div>
     `;
@@ -9584,7 +9573,6 @@ document.addEventListener("keydown", (event) => {
   window.unitrackClearLocalDeviceData = clearLocalDeviceData;
   window.unitrackDeleteCloudSyncData = deleteCloudSyncData;
   window.unitrackToggleDangerZone = toggleDangerZone;
-  window.unitrackTogglePrivacyDetails = togglePrivacyDetails;
   window.unitrackRenderProfessionalAccountPanel = renderAccountPanel;
   window.unitrackIsSafeUserUrl = isSafeUserUrl;
 

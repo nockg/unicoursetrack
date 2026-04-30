@@ -8112,6 +8112,22 @@ body.theme-dark :focus-visible {
   font: inherit;
 }
 
+.account-clean-privacy-link {
+  appearance: none;
+  width: 100%;
+  border: 0;
+  background: rgba(255,255,255,0.18);
+  color: var(--sumi);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+  padding: 15px 16px;
+  cursor: pointer;
+  font: inherit;
+}
+
 .account-clean-privacy-toggle strong {
   display: block;
   font-family: inherit;
@@ -8119,6 +8135,24 @@ body.theme-dark :focus-visible {
   line-height: 1.08;
   font-weight: 600;
   color: var(--sumi);
+}
+
+.account-clean-privacy-link strong {
+  display: block;
+  font-family: inherit;
+  font-size: 24px;
+  line-height: 1.08;
+  font-weight: 600;
+  color: var(--sumi);
+}
+
+.account-clean-privacy-link small {
+  display: block;
+  margin-top: 8px;
+  max-width: 700px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted);
 }
 
 .account-clean-toggle-label {
@@ -8264,8 +8298,10 @@ body.theme-charcoal .account-clean-header {
 
 body.theme-dark .account-clean-section-head,
 body.theme-dark .account-clean-privacy-toggle,
+body.theme-dark .account-clean-privacy-link,
 body.theme-charcoal .account-clean-section-head,
-body.theme-charcoal .account-clean-privacy-toggle {
+body.theme-charcoal .account-clean-privacy-toggle,
+body.theme-charcoal .account-clean-privacy-link {
   background: rgba(255,255,255,0.018);
   border-bottom-color: rgba(255,255,255,0.08);
 }
@@ -8275,11 +8311,13 @@ body.theme-dark .account-clean-section h3,
 body.theme-dark .account-clean-status span,
 body.theme-dark .account-clean-row strong,
 body.theme-dark .account-clean-privacy-toggle strong,
+body.theme-dark .account-clean-privacy-link strong,
 body.theme-charcoal .account-clean-header h2,
 body.theme-charcoal .account-clean-section h3,
 body.theme-charcoal .account-clean-status span,
 body.theme-charcoal .account-clean-row strong,
-body.theme-charcoal .account-clean-privacy-toggle strong {
+body.theme-charcoal .account-clean-privacy-toggle strong,
+body.theme-charcoal .account-clean-privacy-link strong {
   color: #f2ece0;
 }
 
@@ -8287,6 +8325,11 @@ body.theme-dark .account-clean-header p,
 body.theme-dark .account-clean-section p,
 body.theme-charcoal .account-clean-header p,
 body.theme-charcoal .account-clean-section p {
+  color: rgba(242,236,224,0.76);
+}
+
+body.theme-dark .account-clean-privacy-link small,
+body.theme-charcoal .account-clean-privacy-link small {
   color: rgba(242,236,224,0.76);
 }
 
@@ -8304,11 +8347,13 @@ body.theme-dark .account-clean-row,
 body.theme-dark .account-clean-actions button,
 body.theme-dark .account-clean-session button,
 body.theme-dark .account-clean-danger-toggle,
+body.theme-dark .account-clean-privacy-link,
 body.theme-charcoal .account-clean-status,
 body.theme-charcoal .account-clean-row,
 body.theme-charcoal .account-clean-actions button,
 body.theme-charcoal .account-clean-session button,
-body.theme-charcoal .account-clean-danger-toggle {
+body.theme-charcoal .account-clean-danger-toggle,
+body.theme-charcoal .account-clean-privacy-link {
   color: #f2ece0;
   background: rgba(255,255,255,0.05);
   border-color: rgba(255,255,255,0.09);
@@ -8324,10 +8369,12 @@ body.theme-dark .account-clean-row:hover,
 body.theme-dark .account-clean-actions button:hover,
 body.theme-dark .account-clean-session button:hover,
 body.theme-dark .account-clean-danger-toggle:hover,
+body.theme-dark .account-clean-privacy-link:hover,
 body.theme-charcoal .account-clean-row:hover,
 body.theme-charcoal .account-clean-actions button:hover,
 body.theme-charcoal .account-clean-session button:hover,
-body.theme-charcoal .account-clean-danger-toggle:hover {
+body.theme-charcoal .account-clean-danger-toggle:hover,
+body.theme-charcoal .account-clean-privacy-link:hover {
   background: rgba(255,255,255,0.07);
   border-color: rgba(216,200,176,0.44);
   box-shadow: 0 12px 24px rgba(0,0,0,0.18);
@@ -8392,6 +8439,10 @@ body.theme-charcoal .account-clean-danger-toggle {
 
   .account-clean-privacy-toggle {
     grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .account-clean-privacy-link {
+    grid-template-columns: 1fr;
   }
 
   .account-clean-chevron {
