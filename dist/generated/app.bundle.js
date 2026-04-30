@@ -8709,3 +8709,879 @@ document.addEventListener("keydown", (event) => {
 
   setInterval(renderStickyExams, 1000);
 })();
+
+/* 12-library-state.js */
+/* Library state hardening helpers.
+   Loaded after the main app so it can normalise old saved data without replacing core functions. */
+(function unitrackLibraryStateHardening() {
+  function isPlainObject(value) {
+    return !!value && typeof value === 'object' && !Array.isArray(value);
+  }
+
+  function normalisePath(path) {
+    return String(path || '')
+      .replace(/\\+/g, '/')
+      .split('/')
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .join('/');
+  }
+
+  function uniqueSortedPaths(paths) {
+    const out = new Set();
+    (paths || []).forEach((path) => {
+      const clean = normalisePath(path);
+      if (!clean) return;
+      const parts = clean.split('/');
+      parts.forEach((_, index) => out.add(parts.slice(0, index + 1).join('/')));
+    });
+    return Array.from(out).sort((a, b) => a.localeCompare(b));
+  }
+
+  function getSafeStore() {
+    try {
+      if (typeof getStore === 'function') return getStore();
+    } catch (error) {
+      return null;
+    }
+    return null;
+  }
+
+  function getCustomLibraries(store) {
+    if (!store.customLibraries || !isPlainObject(store.customLibraries)) store.customLibraries = {};
+    return store.customLibraries;
+  }
+
+  function collectFoldersFromModuleStore(store, type, mi) {
+    const source = type === 'formula' ? store.formulas?.[mi] : store.relevantLinks?.[mi];
+    return uniqueSortedPaths((Array.isArray(source) ? source : []).map((item) => item?.folder));
+  }
+
+  function collectFoldersFromCustomLibrary(library, type) {
+    const key = type === 'formula' ? 'materials' : 'relevantLinks';
+    return uniqueSortedPaths((Array.isArray(library?.[key]) ? library[key] : []).map((item) => item?.folder));
+  }
+
+  function ensureRegistryArray(container, key) {
+    if (!Array.isArray(container[key])) container[key] = [];
+    container[key] = uniqueSortedPaths(container[key]);
+    return container[key];
+  }
+
+  window.unitrackEnsureLibraryState = function unitrackEnsureLibraryState() {
+    const store = getSafeStore();
+    if (!store) return null;
+
+    if (!store.libraryFolders || !isPlainObject(store.libraryFolders)) {
+      store.libraryFolders = { formula: {}, relevant: {}, custom: {} };
+    }
+    if (!isPlainObject(store.libraryFolders.formula)) store.libraryFolders.formula = {};
+    if (!isPlainObject(store.libraryFolders.relevant)) store.libraryFolders.relevant = {};
+    if (!isPlainObject(store.libraryFolders.custom)) store.libraryFolders.custom = {};
+
+    const moduleCount = Array.isArray(store.modules) ? store.modules.length : (Array.isArray(window.MODULES) ? window.MODULES.length : 0);
+    for (let mi = 0; mi < moduleCount; mi += 1) {
+      const formulaKey = String(mi);
+      const relevantKey = String(mi);
+      const formulaRegistry = ensureRegistryArray(store.libraryFolders.formula, formulaKey);
+      const relevantRegistry = ensureRegistryArray(store.libraryFolders.relevant, relevantKey);
+      collectFoldersFromModuleStore(store, 'formula', mi).forEach((path) => {
+        if (!formulaRegistry.includes(path)) formulaRegistry.push(path);
+      });
+      collectFoldersFromModuleStore(store, 'relevant', mi).forEach((path) => {
+        if (!relevantRegistry.includes(path)) relevantRegistry.push(path);
+      });
+      store.libraryFolders.formula[formulaKey] = uniqueSortedPaths(formulaRegistry);
+      store.libraryFolders.relevant[relevantKey] = uniqueSortedPaths(relevantRegistry);
+    }
+
+    const customLibraries = getCustomLibraries(store);
+    Object.keys(customLibraries).forEach((customId) => {
+      if (!store.libraryFolders.custom[customId] || !isPlainObject(store.libraryFolders.custom[customId])) {
+        store.libraryFolders.custom[customId] = { formula: [], relevant: [] };
+      }
+      const customFolderStore = store.libraryFolders.custom[customId];
+      const formulaRegistry = ensureRegistryArray(customFolderStore, 'formula');
+      const relevantRegistry = ensureRegistryArray(customFolderStore, 'relevant');
+      collectFoldersFromCustomLibrary(customLibraries[customId], 'formula').forEach((path) => {
+        if (!formulaRegistry.includes(path)) formulaRegistry.push(path);
+      });
+      collectFoldersFromCustomLibrary(customLibraries[customId], 'relevant').forEach((path) => {
+        if (!relevantRegistry.includes(path)) relevantRegistry.push(path);
+      });
+      customFolderStore.formula = uniqueSortedPaths(formulaRegistry);
+      customFolderStore.relevant = uniqueSortedPaths(relevantRegistry);
+    });
+
+    return store.libraryFolders;
+  };
+
+  window.unitrackGetActiveLibraryTarget = function unitrackGetActiveLibraryTarget() {
+    if (typeof getLibraryTarget === 'function') {
+      try { return getLibraryTarget(); } catch (error) { /* fall through */ }
+    }
+    return { mi: null, customId: null };
+  };
+
+  window.unitrackSetItemFolder = function unitrackSetItemFolder(type, itemIndex, folderPath) {
+    const clean = normalisePath(folderPath);
+    if (typeof getLibrarySourceArray !== 'function') return false;
+    const items = getLibrarySourceArray(type);
+    if (!Array.isArray(items) || !items[itemIndex]) return false;
+    items[itemIndex].folder = clean;
+    if (typeof addLibraryFolderToRegistry === 'function' && clean) addLibraryFolderToRegistry(type, clean);
+    window.unitrackEnsureLibraryState?.();
+    if (typeof save === 'function') save();
+    if (typeof renderModuleLibrary === 'function') renderModuleLibrary();
+    return true;
+  };
+
+  function patchFunction(name, wrapper) {
+    const original = window[name];
+    if (typeof original !== 'function' || original.__unitrackPatched) return;
+    const patched = wrapper(original);
+    patched.__unitrackPatched = true;
+    window[name] = patched;
+  }
+
+  patchFunction('openModuleLibrary', (original) => function patchedOpenModuleLibrary(...args) {
+    window.unitrackEnsureLibraryState?.();
+    return original.apply(this, args);
+  });
+
+  patchFunction('renderModuleLibrary', (original) => function patchedRenderModuleLibrary(...args) {
+    window.unitrackEnsureLibraryState?.();
+    const result = original.apply(this, args);
+    window.unitrackEnhanceLibraryDom?.();
+    return result;
+  });
+
+  patchFunction('saveLinkForm', (original) => function patchedSaveLinkForm(...args) {
+    const result = original.apply(this, args);
+    window.unitrackEnsureLibraryState?.();
+    return result;
+  });
+
+  patchFunction('save', (original) => function patchedSave(...args) {
+    window.unitrackEnsureLibraryState?.();
+    return original.apply(this, args);
+  });
+
+  document.addEventListener('DOMContentLoaded', () => window.unitrackEnsureLibraryState?.());
+})();
+
+/* 13-library-render.js */
+/* Library DOM enhancement layer.
+   Adds predictable keyboard/select/double-click behaviour without rewriting the original renderer. */
+(function unitrackLibraryRenderHardening() {
+  const SELECTED_CLASS = 'unitrack-library-selected';
+  let selectedMaterial = null;
+
+  function closestLibraryItem(target) {
+    return target?.closest?.('[data-library-item-index], [data-item-index], .library-item, .module-library-item, .material-item, .formula-item, .link-item');
+  }
+
+  function closestFolder(target) {
+    return target?.closest?.('[data-folder-path], [data-folder], .library-folder, .folder-card, .folder-row, .folder-item');
+  }
+
+  function getItemIndex(element) {
+    const raw = element?.dataset?.libraryItemIndex ?? element?.dataset?.itemIndex ?? element?.dataset?.index;
+    const parsed = Number(raw);
+    if (Number.isInteger(parsed)) return parsed;
+    const siblings = Array.from(element?.parentElement?.children || []).filter((node) => closestLibraryItem(node) === node);
+    const index = siblings.indexOf(element);
+    return index >= 0 ? index : null;
+  }
+
+  function getItemType(element) {
+    const raw = element?.dataset?.libraryType || element?.dataset?.type || '';
+    if (raw === 'formula' || raw === 'relevant') return raw;
+    if (element?.closest?.('[data-library-type="formula"], .formula-library, .materials-library')) return 'formula';
+    return 'relevant';
+  }
+
+  function markSelected(element) {
+    document.querySelectorAll(`.${SELECTED_CLASS}`).forEach((node) => node.classList.remove(SELECTED_CLASS));
+    if (!element) {
+      selectedMaterial = null;
+      return;
+    }
+    element.classList.add(SELECTED_CLASS);
+    selectedMaterial = { type: getItemType(element), index: getItemIndex(element), element };
+  }
+
+  function enterSelectedMaterial() {
+    if (!selectedMaterial?.element) return false;
+    const link = selectedMaterial.element.querySelector?.('a[href], button[data-open], .open-link, .library-open-btn');
+    if (link) {
+      link.click();
+      return true;
+    }
+    const href = selectedMaterial.element.dataset?.url || selectedMaterial.element.getAttribute?.('href');
+    if (href) {
+      window.open(href, '_blank', 'noopener,noreferrer');
+      return true;
+    }
+    selectedMaterial.element.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+    return true;
+  }
+
+  function deleteSelectedMaterial() {
+    if (!selectedMaterial || selectedMaterial.index === null) return false;
+    const { type, index } = selectedMaterial;
+    if (typeof getLibrarySourceArray !== 'function') return false;
+    const items = getLibrarySourceArray(type);
+    if (!Array.isArray(items) || !items[index]) return false;
+    const name = items[index].name || items[index].title || items[index].url || 'this material';
+    const ok = window.confirm(`Delete ${name}?`);
+    if (!ok) return true;
+    items.splice(index, 1);
+    selectedMaterial = null;
+    window.unitrackEnsureLibraryState?.();
+    if (typeof save === 'function') save();
+    if (typeof renderModuleLibrary === 'function') renderModuleLibrary();
+    return true;
+  }
+
+  function setFolderPathFromElement(folderElement) {
+    const folder = folderElement?.dataset?.folderPath || folderElement?.dataset?.folder || folderElement?.getAttribute?.('data-path') || '';
+    if (!folder) return false;
+    const type = folderElement.dataset?.libraryType || folderElement.closest?.('[data-library-type]')?.dataset?.libraryType || (window.moduleLibraryActiveFolderType || 'formula');
+    if (typeof setActiveLibraryFolder === 'function') setActiveLibraryFolder(type, folder);
+    if (typeof renderModuleLibrary === 'function') renderModuleLibrary();
+    return true;
+  }
+
+  window.unitrackEnhanceLibraryDom = function unitrackEnhanceLibraryDom() {
+    const libraryRoots = document.querySelectorAll('#module-library-modal, #library-modal, .module-library-modal, .library-modal, .library-panel');
+    libraryRoots.forEach((root) => {
+      root.querySelectorAll('[data-library-item-index], [data-item-index], .library-item, .module-library-item, .material-item, .formula-item, .link-item').forEach((item, index) => {
+        if (item.dataset.unitrackEnhanced === '1') return;
+        item.dataset.unitrackEnhanced = '1';
+        if (!item.dataset.libraryItemIndex && !item.dataset.itemIndex) item.dataset.libraryItemIndex = String(index);
+        item.setAttribute('tabindex', item.getAttribute('tabindex') || '0');
+        item.setAttribute('role', item.getAttribute('role') || 'option');
+        item.setAttribute('aria-selected', item.classList.contains(SELECTED_CLASS) ? 'true' : 'false');
+      });
+      root.querySelectorAll('[data-folder-path], [data-folder], .library-folder, .folder-card, .folder-row, .folder-item').forEach((folder) => {
+        if (folder.dataset.unitrackFolderEnhanced === '1') return;
+        folder.dataset.unitrackFolderEnhanced = '1';
+        folder.setAttribute('tabindex', folder.getAttribute('tabindex') || '0');
+        folder.setAttribute('role', folder.getAttribute('role') || 'button');
+      });
+    });
+  };
+
+  document.addEventListener('click', (event) => {
+    const item = closestLibraryItem(event.target);
+    if (!item) return;
+    if (event.target.closest('button, a, input, textarea, select')) return;
+    markSelected(item);
+  }, true);
+
+  document.addEventListener('dblclick', (event) => {
+    const item = closestLibraryItem(event.target);
+    if (item && !event.target.closest('button, a, input, textarea, select')) {
+      event.preventDefault();
+      event.stopPropagation();
+      markSelected(item);
+      enterSelectedMaterial();
+      return;
+    }
+    const folder = closestFolder(event.target);
+    if (folder && !event.target.closest('button, a, input, textarea, select')) {
+      event.preventDefault();
+      event.stopPropagation();
+      setFolderPathFromElement(folder);
+    }
+  }, true);
+
+  document.addEventListener('keydown', (event) => {
+    const item = closestLibraryItem(event.target);
+    const folder = closestFolder(event.target);
+    if (item && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      markSelected(item);
+      if (event.key === 'Enter') enterSelectedMaterial();
+      return;
+    }
+    if (folder && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      setFolderPathFromElement(folder);
+      return;
+    }
+    if ((event.key === 'Delete' || event.key === 'Backspace') && selectedMaterial && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) {
+      event.preventDefault();
+      deleteSelectedMaterial();
+    }
+  }, true);
+
+  document.addEventListener('dragstart', (event) => {
+    const item = closestLibraryItem(event.target);
+    if (!item) return;
+    markSelected(item);
+    const payload = JSON.stringify({ type: getItemType(item), index: getItemIndex(item) });
+    event.dataTransfer?.setData('application/x-unitrack-library-item', payload);
+    event.dataTransfer?.setData('text/plain', payload);
+  }, true);
+
+  document.addEventListener('dragover', (event) => {
+    const folder = closestFolder(event.target);
+    if (!folder) return;
+    event.preventDefault();
+    folder.classList.add('unitrack-library-drag-over');
+  }, true);
+
+  document.addEventListener('dragleave', (event) => {
+    const folder = closestFolder(event.target);
+    if (folder) folder.classList.remove('unitrack-library-drag-over');
+  }, true);
+
+  document.addEventListener('drop', (event) => {
+    const folder = closestFolder(event.target);
+    if (!folder) return;
+    folder.classList.remove('unitrack-library-drag-over');
+    const raw = event.dataTransfer?.getData('application/x-unitrack-library-item') || event.dataTransfer?.getData('text/plain');
+    if (!raw) return;
+    try {
+      const payload = JSON.parse(raw);
+      const targetFolder = folder.dataset.folderPath || folder.dataset.folder || folder.getAttribute('data-path') || '';
+      if (payload && Number.isInteger(payload.index)) {
+        event.preventDefault();
+        window.unitrackSetItemFolder?.(payload.type || 'relevant', payload.index, targetFolder);
+      }
+    } catch (error) {
+      // Ignore unrelated drops.
+    }
+  }, true);
+
+  const observer = new MutationObserver(() => window.unitrackEnhanceLibraryDom?.());
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+  document.addEventListener('DOMContentLoaded', () => window.unitrackEnhanceLibraryDom?.());
+})();
+
+/* 14-backup-accessibility.js */
+/* UniTrack backup/accessibility compatibility layer
+   Consolidated cleanup version.
+   Backup UI is handled only inside Account by 15-security-guardrails.js.
+   This file intentionally does not inject backup controls into Preferences. */
+
+(function () {
+  "use strict";
+
+  function addEscapeCloseForVisibleModals(event) {
+    if (event.key !== "Escape") return;
+
+    const modalSelectors = [
+      "#prefs-panel",
+      "#dashboard-modal",
+      "#timeline-modal",
+      "#todo-modal",
+      "#calendar-modal",
+      "#deadline-form-modal",
+      "#module-library-modal"
+    ];
+
+    for (const selector of modalSelectors) {
+      const node = document.querySelector(selector);
+      if (!node || node.classList.contains("hidden")) continue;
+
+      if (selector === "#prefs-panel") {
+        node.classList.add("hidden");
+        return;
+      }
+
+      const closeButton = node.querySelector(".deadline-splash-close, [data-close], button[aria-label='Close']");
+      if (closeButton) {
+        closeButton.click();
+        return;
+      }
+    }
+  }
+
+  function applyReducedMotionPreference() {
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    document.documentElement.classList.toggle("reduce-motion", !!reduceMotion);
+  }
+
+  document.addEventListener("keydown", addEscapeCloseForVisibleModals);
+  document.addEventListener("DOMContentLoaded", applyReducedMotionPreference);
+
+  try {
+    window.matchMedia?.("(prefers-reduced-motion: reduce)")?.addEventListener("change", applyReducedMotionPreference);
+  } catch {}
+})();
+
+/* 15-security-guardrails.js */
+/* UniTrack Account Panel - Consolidated Account/Privacy/Backup Controls
+   No Preferences backup injection. No extra patch file. */
+
+(function () {
+  "use strict";
+
+  const BACKUP_VERSION = 2;
+  const MAX_IMPORT_BYTES = 750000;
+  const SNAPSHOT_KEY = "unitrack_recovery_backups_v1";
+
+  function hasCurrentUser() {
+    try { return typeof currentUser !== "undefined" && !!currentUser; } catch { return false; }
+  }
+
+  function getCurrentUserEmail() {
+    try { return currentUser?.email || "Cloud account"; } catch { return "Cloud account"; }
+  }
+
+  function getCloudStatus() {
+    try {
+      if (typeof cloudLoadSucceeded !== "undefined" && cloudLoadSucceeded) return "Synced";
+      if (typeof cloudReady !== "undefined" && cloudReady) return "Sync pending";
+      return "Local";
+    } catch {
+      return "Signed in";
+    }
+  }
+
+  function getStateRef() {
+    try { return typeof state !== "undefined" ? state : {}; } catch { return {}; }
+  }
+
+  function getPrefsRef() {
+    try { return typeof preferences !== "undefined" ? preferences : {}; } catch { return {}; }
+  }
+
+  function setStateRef(nextState) {
+    try { if (typeof state !== "undefined") state = nextState; } catch {}
+  }
+
+  function escapeSafe(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function isObject(value) {
+    return !!value && typeof value === "object" && !Array.isArray(value);
+  }
+
+  function clone(value) {
+    return JSON.parse(JSON.stringify(value ?? null));
+  }
+
+  function getStamp() {
+    return new Date().toISOString().replace(/[:.]/g, "-");
+  }
+
+  function getTrackerLabel() {
+    const profile = getStateRef()?.profile || {};
+    const course = String(profile.course || "UniTrack").trim();
+    const university = String(profile.university || "").trim();
+    return university ? `${course} — ${university}` : course;
+  }
+
+  function getProfileName() {
+    return String(getStateRef()?.profile?.name || "").trim() || "UniTrack user";
+  }
+
+  function filename(prefix) {
+    const safe = getTrackerLabel()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 48) || "unitrack";
+    return `${prefix}-${safe}-${getStamp()}.json`;
+  }
+
+  function backupPayload(kind = "manual-backup") {
+    return {
+      app: "UniTrack",
+      version: BACKUP_VERSION,
+      kind,
+      exportedAt: new Date().toISOString(),
+      profileLabel: getTrackerLabel(),
+      data: clone(getStateRef()),
+      prefs: clone(getPrefsRef())
+    };
+  }
+
+  function downloadJson(payload, name) {
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1200);
+  }
+
+  function getRecoveryBackups() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(SNAPSHOT_KEY) || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveRecoveryBackup(reason = "Recovery backup") {
+    const backups = getRecoveryBackups();
+    backups.unshift({
+      id: `recovery_${Date.now()}`,
+      reason,
+      createdAt: new Date().toISOString(),
+      payload: backupPayload("recovery-backup")
+    });
+    localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(backups.slice(0, 10)));
+  }
+
+  function exportBackup() {
+    downloadJson(backupPayload("manual-backup"), filename("unitrack-backup"));
+  }
+
+  function exportRecoveryBackup() {
+    if (!getRecoveryBackups().length) saveRecoveryBackup("Manual recovery backup export");
+    downloadJson(getRecoveryBackups()[0]?.payload || backupPayload("recovery-backup"), filename("unitrack-recovery-backup"));
+  }
+
+  function isSafeUserUrl(value) {
+    const text = String(value || "").trim();
+    if (!text) return true;
+    try {
+      const url = new URL(text);
+      return ["https:", "http:", "mailto:"].includes(url.protocol);
+    } catch {
+      return false;
+    }
+  }
+
+  function cleanText(value) {
+    return String(value ?? "")
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+      .replace(/\son[a-z]+\s*=\s*["'][^"']*["']/gi, "")
+      .slice(0, 20000);
+  }
+
+  function cleanDeep(value, key = "") {
+    if (Array.isArray(value)) return value.slice(0, 1200).map((item) => cleanDeep(item, key));
+    if (isObject(value)) {
+      const out = {};
+      Object.entries(value).slice(0, 600).forEach(([entryKey, entryValue]) => {
+        out[entryKey] = cleanDeep(entryValue, entryKey);
+      });
+      return out;
+    }
+    if (typeof value === "string") {
+      if (/url|link|href|blackboard/i.test(key)) return isSafeUserUrl(value) ? value.trim() : "";
+      if (/folder/i.test(key)) {
+        return value.replace(/\\+/g, "/").split("/").map((part) => part.trim()).filter(Boolean).join("/").slice(0, 300);
+      }
+      return cleanText(value);
+    }
+    return value;
+  }
+
+  function validateBackup(payload) {
+    if (!isObject(payload)) return "Backup file must contain a JSON object.";
+    if (payload.app !== "UniTrack") return "This does not look like a UniTrack backup.";
+    if (!isObject(payload.data)) return "Backup is missing tracker data.";
+    if (!isObject(payload.prefs)) return "Backup is missing preferences.";
+    if (new Blob([JSON.stringify(payload)]).size > MAX_IMPORT_BYTES) return "Backup file is too large.";
+    return "";
+  }
+
+  async function notify(title, message = "") {
+    if (typeof showAppNotice === "function") return showAppNotice(title, message);
+    alert(message ? `${title}\n\n${message}` : title);
+  }
+
+  async function ask(options = {}) {
+    if (typeof appConfirm === "function") return appConfirm(options);
+    return confirm(`${options.title || "Continue?"}\n\n${options.message || ""}`);
+  }
+
+  async function importBackup() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json,.json";
+    input.style.display = "none";
+    document.body.appendChild(input);
+
+    input.addEventListener("change", async () => {
+      const file = input.files?.[0];
+      input.remove();
+      if (!file) return;
+
+      if (file.size > MAX_IMPORT_BYTES) {
+        await notify("Backup too large", "This backup is larger than UniTrack allows for import.");
+        return;
+      }
+
+      let payload;
+      try { payload = JSON.parse(await file.text()); }
+      catch {
+        await notify("Invalid backup", "The selected file is not valid JSON.");
+        return;
+      }
+
+      const error = validateBackup(payload);
+      if (error) {
+        await notify("Invalid backup", error);
+        return;
+      }
+
+      const modulesCount = Object.values(payload.data?.years || {})
+        .reduce((sum, year) => sum + (year?.store?.modules?.length || 0), 0);
+
+      const confirmed = await ask({
+        label: "Import Backup",
+        title: "Import this UniTrack backup?",
+        message: `This will replace the current tracker with the selected backup. It contains ${modulesCount} module(s). A recovery backup will be made first.`,
+        confirmText: "Import Backup"
+      });
+      if (!confirmed) return;
+
+      saveRecoveryBackup("Before backup import");
+
+      setStateRef(cleanDeep(payload.data));
+      const prefs = getPrefsRef();
+      Object.keys(prefs || {}).forEach((key) => delete prefs[key]);
+      Object.assign(prefs, cleanDeep(payload.prefs));
+
+      try { if (typeof ensureYearsState === "function") ensureYearsState(); } catch {}
+      try { if (typeof refreshActiveYear === "function") refreshActiveYear(); } catch {}
+      try { if (typeof syncUndoBaseline === "function") syncUndoBaseline(); } catch {}
+      try { if (typeof applyPreferences === "function") applyPreferences(); } catch {}
+      try { if (typeof renderYearSelector === "function") renderYearSelector(); } catch {}
+      try { if (typeof buildModules === "function") buildModules(); } catch {}
+      try { if (typeof renderStickyExams === "function") renderStickyExams(); } catch {}
+      try { if (typeof updateGlobal === "function") updateGlobal(); } catch {}
+
+      try {
+        const key = typeof KEY !== "undefined" ? KEY : "course_progress_tracker_v1";
+        const prefsKey = typeof PREFS_KEY !== "undefined" ? PREFS_KEY : "course_progress_prefs_v1";
+        localStorage.setItem(key, JSON.stringify(getStateRef()));
+        localStorage.setItem(prefsKey, JSON.stringify(getPrefsRef()));
+      } catch {}
+
+      try {
+        if (typeof saveCloudNow === "function") saveCloudNow();
+        else if (typeof saveCloudDebounced === "function") saveCloudDebounced();
+      } catch {}
+
+      await notify("Backup imported", "Your backup has been restored successfully.");
+      renderAccountPanel();
+    });
+
+    input.click();
+  }
+
+  async function clearLocalDeviceData() {
+    const confirmed = await ask({
+      label: "Local Device",
+      title: "Clear local device data?",
+      message: "This clears UniTrack data saved in this browser only. Your cloud sync data stays in your account.",
+      confirmText: "Clear Local Data",
+      danger: true
+    });
+    if (!confirmed) return;
+
+    saveRecoveryBackup("Before clearing local device data");
+
+    try {
+      const key = typeof KEY !== "undefined" ? KEY : "course_progress_tracker_v1";
+      const prefsKey = typeof PREFS_KEY !== "undefined" ? PREFS_KEY : "course_progress_prefs_v1";
+      localStorage.removeItem(key);
+      localStorage.removeItem(prefsKey);
+    } catch {}
+
+    try { if (typeof resetLocalAppState === "function") resetLocalAppState(); } catch {}
+
+    await notify("Local data cleared", "This browser's local UniTrack data was cleared. Cloud data was not deleted.");
+    renderAccountPanel();
+  }
+
+  async function deleteCloudSyncData() {
+    const confirmed = await ask({
+      label: "Danger Zone",
+      title: "Delete cloud sync data?",
+      message: "This deletes the saved tracker profile from your cloud account. A recovery backup will be made first.",
+      confirmText: "Delete Cloud Sync Data",
+      danger: true
+    });
+    if (!confirmed) return;
+
+    saveRecoveryBackup("Before deleting cloud sync data");
+
+    try {
+      if (typeof trackerApiRequest !== "function") throw new Error("Cloud API helper is unavailable.");
+      await trackerApiRequest("DELETE");
+      await notify("Cloud sync data deleted", "Your cloud tracker data has been deleted. Local data on this browser was not cleared.");
+    } catch (error) {
+      await notify("Cloud delete failed", error?.message || "Could not delete cloud sync data.");
+    }
+
+    renderAccountPanel();
+  }
+
+  function toggleDangerZone() {
+    const zone = document.getElementById("unitrack-danger-zone-body");
+    const btn = document.getElementById("unitrack-danger-zone-toggle");
+    if (!zone || !btn) return;
+    const open = zone.classList.toggle("open");
+    btn.setAttribute("aria-expanded", String(open));
+    btn.textContent = open ? "Hide danger zone" : "Show danger zone";
+  }
+
+  function togglePrivacyDetails() {
+    const body = document.getElementById("unitrack-privacy-body");
+    const btn = document.getElementById("unitrack-privacy-toggle");
+    if (!body || !btn) return;
+    const open = body.classList.toggle("open");
+    btn.setAttribute("aria-expanded", String(open));
+    const label = btn.querySelector(".account-clean-toggle-label");
+    const chevron = btn.querySelector(".account-clean-chevron");
+    if (label) label.textContent = open ? "Hide details" : "Read details";
+    if (chevron) chevron.classList.toggle("open", open);
+  }
+
+  function renderAccountPanel() {
+    const body = document.getElementById("auth-modal-body");
+    if (!body || !hasCurrentUser()) return;
+
+    const email = escapeSafe(getCurrentUserEmail());
+    const status = escapeSafe(getCloudStatus());
+    const trackerLabel = escapeSafe(getTrackerLabel());
+    const profileName = escapeSafe(getProfileName());
+
+    body.innerHTML = `
+      <div class="account-clean-panel">
+        <header class="account-clean-header">
+          <div>
+            <div class="account-clean-kicker">Account Overview</div>
+            <h2>Account</h2>
+            <p>Signed in as <strong>${profileName}</strong>. Manage sync, backups, privacy, and session controls.</p>
+          </div>
+          <div class="account-clean-status">
+            <span>${status}</span>
+            <small>${email}</small>
+          </div>
+        </header>
+
+        <section class="account-clean-section">
+          <div class="account-clean-section-head">
+            <div>
+              <div class="account-clean-kicker">Sync & Storage</div>
+              <h3>${trackerLabel}</h3>
+            </div>
+          </div>
+          <div class="account-clean-rows">
+            <button class="account-clean-row" type="button" onclick="editCourseProfile()">
+              <span>
+                <strong>Edit Course Setup</strong>
+                <small>Name, course, university, credits, grading system.</small>
+              </span>
+              <em>Edit</em>
+            </button>
+          </div>
+        </section>
+
+        <section class="account-clean-section">
+          <div class="account-clean-section-head">
+            <div>
+              <div class="account-clean-kicker">Backup & Recovery</div>
+              <h3>Keep a recoverable copy</h3>
+            </div>
+          </div>
+          <div class="account-clean-actions">
+            <button type="button" onclick="unitrackExportBackup()">Export Backup</button>
+            <button type="button" onclick="unitrackImportBackup()">Import Backup</button>
+            <button type="button" onclick="unitrackExportRecoveryBackup()">Download Last Recovery Backup</button>
+          </div>
+        </section>
+
+        <section class="account-clean-section account-clean-privacy">
+          <button id="unitrack-privacy-toggle" class="account-clean-privacy-toggle" type="button" aria-expanded="false" onclick="unitrackTogglePrivacyDetails()">
+            <span>
+              <span class="account-clean-kicker">Privacy</span>
+              <strong>Your tracker data</strong>
+            </span>
+            <span class="account-clean-toggle-label">Read details</span>
+            <span class="account-clean-chevron" aria-hidden="true"></span>
+          </button>
+          <div id="unitrack-privacy-body" class="account-clean-privacy-body">
+            <p>UniTrack saves the academic data you add to your tracker so your account can sync across devices. This can include your modules, marks, coursework information, notes, deadlines, todos, saved links, library items, and display preferences.</p>
+            <p>Backups are created as downloadable files controlled by you. They are meant to help you recover your tracker if something goes wrong or if you move devices.</p>
+            <p>Backups and recovery backups do not include your password, Supabase service keys, or active login session. Local device data and cloud sync data are separate: deleting one does not automatically delete the other.</p>
+          </div>
+        </section>
+
+        <section class="account-clean-section account-clean-session">
+          <div>
+            <div class="account-clean-kicker">Session</div>
+            <h3>Sign out of this browser</h3>
+          </div>
+          <button type="button" onclick="logoutCloud()">Logout</button>
+        </section>
+
+        <section class="account-clean-section account-clean-danger">
+          <button id="unitrack-danger-zone-toggle" class="account-clean-danger-toggle" type="button" aria-expanded="false" onclick="unitrackToggleDangerZone()">Show danger zone</button>
+          <div id="unitrack-danger-zone-body" class="account-clean-danger-body">
+            <div>
+              <div class="account-clean-kicker">Danger Zone</div>
+              <h3>Delete cloud sync data</h3>
+              <p>This deletes the saved tracker profile from your cloud account. It is different from clearing only this browser.</p>
+            </div>
+            <button type="button" onclick="unitrackDeleteCloudSyncData()">Delete Cloud Sync Data</button>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function patchAccountFunctions() {
+    if (window.__unitrackAccountConsolidatedPatched) return;
+    window.__unitrackAccountConsolidatedPatched = true;
+
+    const originalOpen = window.openAuthModal;
+    if (typeof originalOpen === "function") {
+      window.openAuthModal = function patchedOpenAuthModal(...args) {
+        const result = originalOpen.apply(this, args);
+        setTimeout(renderAccountPanel, 0);
+        return result;
+      };
+    }
+
+    const originalRender = window.renderAuthModal;
+    if (typeof originalRender === "function") {
+      window.renderAuthModal = function patchedRenderAuthModal(...args) {
+        const result = originalRender.apply(this, args);
+        setTimeout(renderAccountPanel, 0);
+        return result;
+      };
+    }
+  }
+
+  window.unitrackExportBackup = exportBackup;
+  window.unitrackImportBackup = importBackup;
+  window.unitrackExportRecoveryBackup = exportRecoveryBackup;
+  window.unitrackClearLocalDeviceData = clearLocalDeviceData;
+  window.unitrackDeleteCloudSyncData = deleteCloudSyncData;
+  window.unitrackToggleDangerZone = toggleDangerZone;
+  window.unitrackTogglePrivacyDetails = togglePrivacyDetails;
+  window.unitrackRenderProfessionalAccountPanel = renderAccountPanel;
+  window.unitrackIsSafeUserUrl = isSafeUserUrl;
+
+  window.exportUniTrackBackup = exportBackup;
+  window.importUniTrackBackup = importBackup;
+  window.exportSafetySnapshot = exportRecoveryBackup;
+  window.deleteCloudTrackerData = deleteCloudSyncData;
+
+  patchAccountFunctions();
+  document.addEventListener("DOMContentLoaded", patchAccountFunctions);
+})();

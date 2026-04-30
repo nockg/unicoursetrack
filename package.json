@@ -6,7 +6,8 @@
   "scripts": {
     "sync": "node scripts/build-assets.mjs",
     "dev": "npm run sync && node scripts/dev-server.mjs",
-    "build": "npm run sync && node scripts/build-dist.mjs",
-    "preview": "node scripts/dev-server.mjs"
+    "build": "npm run check && npm run sync && node scripts/build-dist.mjs",
+    "preview": "node scripts/dev-server.mjs",
+    "check": "node scripts/security-check.mjs"
   }
 }

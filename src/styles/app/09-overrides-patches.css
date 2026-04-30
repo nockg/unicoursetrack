@@ -2406,3 +2406,16 @@ body.theme-dark #calendar-modal .deadline-form-actions .calendar-btn {
     padding-bottom: 5px !important;
   }
 }
+/* Only show focus styling for keyboard navigation, not mouse clicks */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(26, 44, 74, 0.22);
+}
+
+body.theme-dark :focus-visible {
+  box-shadow: 0 0 0 2px rgba(241, 237, 228, 0.28);
+}

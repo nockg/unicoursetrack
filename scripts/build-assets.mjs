@@ -14,8 +14,9 @@ const cssFiles = [
   '06-dashboard-timeline.css',
   '07-todo.css',
   '08-setup-deadlines.css',
-  '09-overrides-patches.css'
-];
+  '09-overrides-patches.css',
+  '10-accessibility-backup.css'
+].filter((file) => existsSync(join(root, 'src/styles/app', file)));
 
 const jsFiles = [
   '00-config-auth-state.js',
@@ -29,8 +30,12 @@ const jsFiles = [
   '08-module-rendering.js',
   '09-auth-cloud.js',
   '10-dialog-actions.js',
-  '11-boot.js'
-];
+  '11-boot.js',
+  '12-library-state.js',
+  '13-library-render.js',
+  '14-backup-accessibility.js',
+  '15-security-guardrails.js'
+].filter((file) => existsSync(join(root, 'src/js/app', file)));
 
 function parseEnvFile(file) {
   if (!existsSync(file)) return {};
@@ -87,9 +92,9 @@ const js = jsFiles
   .join('\n\n');
 
 const forbiddenSecretPatterns = [
-  /https:\/\/[a-z0-9]{20}\.supabase\.co/i,
-  /sb_(?:publishable|secret)_[A-Za-z0-9_-]{16,}/,
-  /service_role/i
+  /sb_secret_[A-Za-z0-9_-]{16,}/,
+  /SUPABASE_SERVICE_ROLE_KEY\s*=\s*["'][^"']+["']/i,
+  /service_role\s*[:=]\s*["'][^"']+["']/i
 ];
 
 for (const pattern of forbiddenSecretPatterns) {
@@ -106,4 +111,4 @@ writeFileSync(
 writeFileSync(join(root, 'public/generated/styles.bundle.css'), css);
 writeFileSync(join(root, 'public/generated/app.bundle.js'), js);
 
-console.log('Synced runtime config, split CSS, and split JS into public/generated.');
+console.log(`Synced runtime config, ${cssFiles.length} CSS files, and ${jsFiles.length} JS files into public/generated.`);
