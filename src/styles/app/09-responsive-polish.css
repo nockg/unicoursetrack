@@ -180,10 +180,8 @@ body.setup-required .dashboard-close {
   overflow: hidden;
   border-radius: 18px;
   border: 1px solid color-mix(in srgb, var(--border2) 70%, transparent 30%);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.54), rgba(255,255,255,0.16)),
-    var(--paper3);
-  box-shadow: 0 26px 80px rgba(14,12,10,0.24), 0 1px 0 rgba(255,255,255,0.5) inset;
+  background: var(--paper3);
+  box-shadow: 0 18px 42px rgba(14,12,10,0.16);
 }
 
 #deadline-form-modal .deadline-form-content > .timeline-subtitle,
@@ -272,9 +270,7 @@ body.setup-required .dashboard-close {
   padding: 42px 16px 16px;
   border: 1px solid color-mix(in srgb, var(--border2) 68%, transparent 32%);
   border-radius: 16px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0.18)),
-    rgba(26,22,18,0.022);
+  background: rgba(26,22,18,0.022);
 }
 
 #deadline-calendar-fields::before {
@@ -409,11 +405,9 @@ body.setup-required .dashboard-close {
 
 body.theme-dark #deadline-form-modal .dashboard-content.deadline-form-content,
 body.theme-dark #calendar-modal .dashboard-content.calendar-form-content {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025)),
-    #18181b;
+  background: #1b1b1e;
   border-color: rgba(255,255,255,0.1);
-  box-shadow: 0 30px 90px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: 0 18px 42px rgba(0,0,0,0.34);
 }
 
 body.theme-dark #deadline-form-modal .deadline-form-content > .dashboard-title,

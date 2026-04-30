@@ -46,27 +46,15 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 28px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.58), rgba(255,255,255,0.14)),
-    var(--paper3);
-  border: 1px solid color-mix(in srgb, var(--border) 78%, var(--gold2) 22%);
+  background: var(--paper3);
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent 16%);
   border-radius: 12px;
   padding: 28px;
-  box-shadow: 0 24px 72px rgba(14,12,10,0.22), 0 1px 0 rgba(255,255,255,0.46) inset;
+  box-shadow: 0 18px 42px rgba(14,12,10,0.16);
   position: relative;
 
   animation: dashboardCardIn 0.32s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: center center;
-}
-.dashboard-content::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--gold2) 78%, white 22%), transparent 78%);
-  pointer-events: none;
 }
 .dashboard-close {
   position: absolute;
@@ -74,9 +62,9 @@
   right: 18px;
   width: 36px;
   height: 36px;
-  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent 22%);
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%);
   border-radius: 999px;
-  background: rgba(255,255,255,0.42);
+  background: transparent;
   font-size: 21px;
   line-height: 1;
   color: var(--muted);
@@ -88,8 +76,8 @@
 }
 .dashboard-close:hover {
   color: var(--sumi);
-  border-color: color-mix(in srgb, var(--gold2) 52%, var(--border) 48%);
-  background: rgba(255,255,255,0.66);
+  border-color: color-mix(in srgb, var(--border2) 70%, var(--ink) 30%);
+  background: rgba(26,22,18,0.04);
   transform: translateY(-1px);
 }
 
@@ -107,8 +95,8 @@
   gap: 14px;
 }
 .dashboard-card {
-  background: color-mix(in srgb, var(--paper2) 84%, white 16%);
-  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%);
+  background: var(--paper2);
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent 16%);
   border-radius: 8px;
   padding: 18px;
 }
@@ -188,8 +176,8 @@
 }
 .dashboard-wide { grid-column: 1 / -1; }
 .dashboard-chart-wrap {
-  background: rgba(255,255,255,0.72);
-  border: 1px solid rgba(26,22,18,0.08);
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(26,22,18,0.1);
   border-radius: 8px;
   padding: 14px;
 }
@@ -217,6 +205,66 @@
 
 .timeline-content {
   width: min(860px, calc(100vw - 32px));
+}
+
+body.theme-dark .dashboard-content,
+body.theme-charcoal .dashboard-content {
+  background: #1b1c1f;
+  border-color: rgba(255,255,255,0.1);
+  box-shadow: 0 18px 44px rgba(0,0,0,0.36);
+}
+
+body.theme-dark .dashboard-title,
+body.theme-dark .dashboard-score,
+body.theme-dark .term-summary-value,
+body.theme-dark .timeline-page-title,
+body.theme-charcoal .dashboard-title,
+body.theme-charcoal .dashboard-score,
+body.theme-charcoal .term-summary-value,
+body.theme-charcoal .timeline-page-title {
+  color: #f4efe7;
+}
+
+body.theme-dark .dashboard-subtitle,
+body.theme-dark .term-summary-empty,
+body.theme-dark .timeline-subtitle,
+body.theme-dark .dashboard-card-title,
+body.theme-dark .term-summary-label,
+body.theme-dark .term-summary-meta,
+body.theme-charcoal .dashboard-subtitle,
+body.theme-charcoal .term-summary-empty,
+body.theme-charcoal .timeline-subtitle,
+body.theme-charcoal .dashboard-card-title,
+body.theme-charcoal .term-summary-label,
+body.theme-charcoal .term-summary-meta {
+  color: rgba(241,237,228,0.72);
+}
+
+body.theme-dark .dashboard-card,
+body.theme-dark .term-summary-card,
+body.theme-charcoal .dashboard-card,
+body.theme-charcoal .term-summary-card {
+  background: #232428;
+  border-color: rgba(255,255,255,0.1);
+}
+
+body.theme-dark .dashboard-chart-wrap,
+body.theme-charcoal .dashboard-chart-wrap {
+  background: #202126;
+  border-color: rgba(255,255,255,0.1);
+}
+
+body.theme-dark .dashboard-close,
+body.theme-charcoal .dashboard-close {
+  color: rgba(241,237,228,0.78);
+  border-color: rgba(255,255,255,0.1);
+}
+
+body.theme-dark .dashboard-close:hover,
+body.theme-charcoal .dashboard-close:hover {
+  color: #ffffff;
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.18);
 }
 
 .timeline-head {

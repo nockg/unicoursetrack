@@ -65,13 +65,11 @@
   width: min(420px, calc(100vw - 32px));
   padding: 26px 28px;
   border-radius: 12px;
-
-  background: rgba(18, 22, 30, 0.58);
-  backdrop-filter: blur(14px) saturate(0.98);
-  -webkit-backdrop-filter: blur(14px) saturate(0.98);
-
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 22px 60px rgba(0,0,0,0.42), 0 1px 0 rgba(255,255,255,0.06) inset;
+  background: rgba(22, 24, 29, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.34);
 
   position: relative;
   overflow: hidden;
@@ -81,17 +79,6 @@
   width: min(640px, calc(100vw - 32px));
 }
 
-/* subtle accent line */
-.deadline-splash-card::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #d8c8b0, transparent);
-}
-
 /* close button */
 .deadline-splash-close {
   position: absolute;
@@ -99,10 +86,10 @@
   right: 16px;
   width: 34px;
   height: 34px;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 999px;
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.56);
+  background: transparent;
+  color: rgba(255,255,255,0.72);
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
@@ -114,8 +101,8 @@
 
 .deadline-splash-close:hover {
   color: white;
-  border-color: rgba(216,200,176,0.36);
-  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.05);
   transform: translateY(-1px);
 }
 
@@ -189,11 +176,9 @@
   flex-wrap: wrap;
 }
 body:not(.theme-dark) .app-dialog-card {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.58), rgba(255,255,255,0.12)),
-    rgba(250,247,242,0.98);
+  background: rgba(250,247,242,0.98);
   border-color: rgba(26,22,18,0.16);
-  box-shadow: 0 22px 64px rgba(14,12,10,0.18), 0 1px 0 rgba(255,255,255,0.54) inset;
+  box-shadow: 0 18px 40px rgba(14,12,10,0.14);
 }
 body:not(.theme-dark) .app-dialog-card .deadline-splash-title { color: var(--ink); }
 body:not(.theme-dark) .app-dialog-card .deadline-splash-label,
@@ -204,6 +189,44 @@ body:not(.theme-dark) .app-dialog-input {
   background: var(--paper2);
   color: var(--ink);
   border-color: var(--border2);
+}
+
+body.theme-dark .deadline-splash-card,
+body.theme-charcoal .deadline-splash-card {
+  background: #1b1c20;
+  border-color: rgba(255,255,255,0.09);
+  box-shadow: 0 18px 42px rgba(0,0,0,0.42);
+}
+
+body.theme-dark .deadline-splash-label,
+body.theme-charcoal .deadline-splash-label {
+  color: rgba(241,237,228,0.52);
+}
+
+body.theme-dark .deadline-splash-title,
+body.theme-charcoal .deadline-splash-title,
+body.theme-dark .template-choice-title,
+body.theme-charcoal .template-choice-title {
+  color: #f4efe7;
+}
+
+body.theme-dark .template-splash-copy,
+body.theme-dark .template-choice-detail,
+body.theme-charcoal .template-splash-copy,
+body.theme-charcoal .template-choice-detail {
+  color: rgba(241,237,228,0.78);
+}
+
+body.theme-dark .template-choice,
+body.theme-charcoal .template-choice {
+  background: #23242a;
+  border-color: rgba(255,255,255,0.1);
+}
+
+body.theme-dark .template-choice.primary,
+body.theme-charcoal .template-choice.primary {
+  background: #2a2723;
+  border-color: rgba(216,200,176,0.3);
 }
 
 /* animation */
