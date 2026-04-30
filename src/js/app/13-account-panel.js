@@ -414,7 +414,7 @@
           <div class="account-clean-session-copy">
             <div class="account-clean-kicker">Session</div>
             <h3>Sign out of this browser</h3>
-            <p>Use this when you are done on a shared or temporary device.</p>
+            <p>Logout from your UniTrack account.</p>
           </div>
           <button type="button" onclick="logoutCloud()">Logout</button>
         </section>
