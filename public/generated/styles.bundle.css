@@ -7885,7 +7885,6 @@ body.theme-dark :focus-visible {
   box-sizing: border-box;
 }
 
-.account-clean-header,
 .account-clean-section {
   border: 1px solid color-mix(in srgb, var(--border) 78%, var(--gold2) 22%);
   background: color-mix(in srgb, var(--paper2) 82%, white 18%);
@@ -7896,13 +7895,15 @@ body.theme-dark :focus-visible {
   grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.5fr);
   gap: 20px;
   align-items: stretch;
-  padding: 20px;
+  padding: 4px 0 10px;
+  border: 0;
+  background: transparent;
 }
 
 .account-clean-kicker {
   display: block;
   font-family: "DM Mono", Consolas, monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
@@ -7917,8 +7918,8 @@ body.theme-dark :focus-visible {
 }
 
 .account-clean-header h2 {
-  font-size: clamp(34px, 4.5vw, 52px);
-  line-height: 0.98;
+  font-size: clamp(38px, 5vw, 56px);
+  line-height: 1;
   letter-spacing: -0.02em;
   font-weight: 600;
 }
@@ -7938,23 +7939,28 @@ body.theme-dark :focus-visible {
   line-height: 1.45;
 }
 
+.account-clean-header p {
+  font-size: 17px;
+  line-height: 1.55;
+}
+
 .account-clean-header-copy {
-  max-width: 560px;
+  max-width: 640px;
 }
 
 .account-clean-status {
   display: grid;
   align-content: start;
   gap: 8px;
-  padding: 14px;
-  border: 1px solid color-mix(in srgb, var(--border2) 72%, var(--gold2) 28%);
-  background: color-mix(in srgb, var(--paper) 88%, white 12%);
-  border-radius: 6px;
+  padding: 8px 0 0;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
 }
 
 .account-clean-status-label {
   font-family: "DM Mono", Consolas, monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
@@ -7962,7 +7968,7 @@ body.theme-dark :focus-visible {
 
 .account-clean-status span {
   font-family: inherit;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 600;
   color: var(--sumi);
   line-height: 1.1;
@@ -7970,7 +7976,7 @@ body.theme-dark :focus-visible {
 
 .account-clean-status small {
   font-family: "DM Mono", Consolas, monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.03em;
   color: var(--muted);
   word-break: break-word;
@@ -8244,6 +8250,12 @@ body.theme-charcoal .account-clean-section {
   border-color: rgba(255,255,255,0.08);
 }
 
+body.theme-dark .account-clean-header,
+body.theme-charcoal .account-clean-header {
+  background: transparent;
+  border-color: transparent;
+}
+
 body.theme-dark .account-clean-section-head,
 body.theme-dark .account-clean-privacy-toggle,
 body.theme-charcoal .account-clean-section-head,
@@ -8294,6 +8306,12 @@ body.theme-charcoal .account-clean-danger-toggle {
   color: #f2ece0;
   background: rgba(255,255,255,0.05);
   border-color: rgba(255,255,255,0.09);
+}
+
+body.theme-dark .account-clean-status,
+body.theme-charcoal .account-clean-status {
+  background: transparent;
+  border-color: transparent;
 }
 
 body.theme-dark .account-clean-row:hover,

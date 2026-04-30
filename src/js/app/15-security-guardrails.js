@@ -13,7 +13,11 @@
   }
 
   function getCurrentUserEmail() {
-    try { return currentUser?.email || "Cloud account"; } catch { return "Cloud account"; }
+    try {
+      return String(currentUser?.email || currentUser?.user_metadata?.email || "").trim();
+    } catch {
+      return "";
+    }
   }
 
   function getCloudStatus() {
@@ -342,6 +346,9 @@
     const status = escapeSafe(getCloudStatus());
     const trackerLabel = escapeSafe(getTrackerLabel());
     const profileName = escapeSafe(getProfileName());
+    const statusMeta = email
+      ? `<small>${email}</small>`
+      : `<small>Signed in to your UniTrack account</small>`;
 
     body.innerHTML = `
       <div class="account-clean-panel">
@@ -349,12 +356,12 @@
           <div class="account-clean-header-copy">
             <div class="account-clean-kicker">Account Overview</div>
             <h2>Account</h2>
-            <p>Signed in as <strong>${profileName}</strong>. Your everyday settings are grouped below so the important actions are easy to find first.</p>
+            <p>Signed in as <strong>${profileName}</strong>. Your everyday settings are grouped below so the important actions are easier to read, manage, and revisit.</p>
           </div>
           <div class="account-clean-status" aria-label="Account status">
             <div class="account-clean-status-label">Sync Status</div>
             <span>${status}</span>
-            <small>${email}</small>
+            ${statusMeta}
           </div>
         </header>
 
@@ -377,6 +384,22 @@
           </div>
         </section>
 
+        <section class="account-clean-section account-clean-privacy">
+          <button id="unitrack-privacy-toggle" class="account-clean-privacy-toggle" type="button" aria-expanded="false" onclick="unitrackTogglePrivacyDetails()">
+            <span>
+              <span class="account-clean-kicker">Legal & Privacy</span>
+              <strong>Your tracker data</strong>
+            </span>
+            <span class="account-clean-toggle-label">Read details</span>
+            <span class="account-clean-chevron" aria-hidden="true"></span>
+          </button>
+          <div id="unitrack-privacy-body" class="account-clean-privacy-body">
+            <p>UniTrack saves the academic data you add to your tracker so your account can sync across devices. This can include your modules, marks, coursework information, notes, deadlines, todos, saved links, library items, and display preferences.</p>
+            <p>Backups are created as downloadable files controlled by you. They are meant to help you recover your tracker if something goes wrong or if you move devices.</p>
+            <p>Backups and recovery backups do not include your password, Supabase service keys, or active login session. If you want to remove your tracker data completely from cloud sync, you can do that in the danger zone below.</p>
+          </div>
+        </section>
+
         <section class="account-clean-section">
           <div class="account-clean-section-head">
             <div>
@@ -389,22 +412,6 @@
             <button type="button" onclick="unitrackExportBackup()">Export Backup</button>
             <button type="button" onclick="unitrackImportBackup()">Import Backup</button>
             <button type="button" onclick="unitrackExportRecoveryBackup()">Last Recovery Backup</button>
-          </div>
-        </section>
-
-        <section class="account-clean-section account-clean-privacy">
-          <button id="unitrack-privacy-toggle" class="account-clean-privacy-toggle" type="button" aria-expanded="false" onclick="unitrackTogglePrivacyDetails()">
-            <span>
-              <span class="account-clean-kicker">Privacy</span>
-              <strong>Your tracker data</strong>
-            </span>
-            <span class="account-clean-toggle-label">Read details</span>
-            <span class="account-clean-chevron" aria-hidden="true"></span>
-          </button>
-          <div id="unitrack-privacy-body" class="account-clean-privacy-body">
-            <p>UniTrack saves the academic data you add to your tracker so your account can sync across devices. This can include your modules, marks, coursework information, notes, deadlines, todos, saved links, library items, and display preferences.</p>
-            <p>Backups are created as downloadable files controlled by you. They are meant to help you recover your tracker if something goes wrong or if you move devices.</p>
-            <p>Backups and recovery backups do not include your password, Supabase service keys, or active login session. Local device data and cloud sync data are separate: deleting one does not automatically delete the other.</p>
           </div>
         </section>
 
@@ -422,8 +429,8 @@
           <div id="unitrack-danger-zone-body" class="account-clean-danger-body">
             <div>
               <div class="account-clean-kicker">Danger Zone</div>
-              <h3>Delete cloud sync data</h3>
-              <p>This deletes the saved tracker profile from your cloud account. It is different from clearing only this browser.</p>
+              <h3>Remove tracker data completely</h3>
+              <p>This permanently deletes the saved tracker profile from your cloud account. It removes your synced tracker data completely, not just data stored in this browser.</p>
             </div>
             <button type="button" onclick="unitrackDeleteCloudSyncData()">Delete Cloud Sync Data</button>
           </div>
