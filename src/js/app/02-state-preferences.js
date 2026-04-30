@@ -34,10 +34,10 @@ const preferences = Object.assign(
 );
 
 function updateAuthLock() {
-  const requiresAuth = authScreenLoading || !currentUser || isRecoveryFlow();
-  document.body.classList.toggle("auth-required", requiresAuth);
+  const requiresBlockingGate = authScreenLoading || authGateVisible || isRecoveryFlow();
+  document.body.classList.toggle("auth-required", requiresBlockingGate);
   document.body.classList.toggle("auth-loading", authScreenLoading);
-  if (requiresAuth) renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
+  if (requiresBlockingGate) renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
 }
 
 function setAuthLoading(loading, title = "Restoring your session...", message = "Checking whether you are already signed in before showing anything.") {
