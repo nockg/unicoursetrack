@@ -5202,6 +5202,19 @@ body.suppress-topic-refresh #modules {
 }
 @media(max-width:700px){ .deadline-title-module-row, .deadline-card-lower, .deadline-choice-grid { grid-template-columns:1fr; } .deadline-priority-row { grid-template-columns: repeat(2,minmax(0,1fr)); } .countdown-header-pref { grid-template-columns: 1fr; } }
 
+
+body.theme-dark #todo-modal .todo-add-btn {
+  background: rgba(216, 200, 176, 0.16);
+  border-color: rgba(216, 200, 176, 0.42);
+  color: #f2ece0;
+}
+
+body.theme-dark #todo-modal .todo-add-btn:hover {
+  background: rgba(216, 200, 176, 0.24);
+  border-color: rgba(216, 200, 176, 0.58);
+  color: #ffffff;
+}
+
 /* 08-setup-deadlines.css */
 .deadline-form-content {
   width: min(560px, calc(100vw - 32px));
