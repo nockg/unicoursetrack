@@ -346,12 +346,13 @@
     body.innerHTML = `
       <div class="account-clean-panel">
         <header class="account-clean-header">
-          <div>
+          <div class="account-clean-header-copy">
             <div class="account-clean-kicker">Account Overview</div>
             <h2>Account</h2>
-            <p>Signed in as <strong>${profileName}</strong>. Manage sync, backups, privacy, and session controls.</p>
+            <p>Signed in as <strong>${profileName}</strong>. Your everyday settings are grouped below so the important actions are easy to find first.</p>
           </div>
-          <div class="account-clean-status">
+          <div class="account-clean-status" aria-label="Account status">
+            <div class="account-clean-status-label">Sync Status</div>
             <span>${status}</span>
             <small>${email}</small>
           </div>
@@ -360,8 +361,9 @@
         <section class="account-clean-section">
           <div class="account-clean-section-head">
             <div>
-              <div class="account-clean-kicker">Sync & Storage</div>
+              <div class="account-clean-kicker">Main Settings</div>
               <h3>${trackerLabel}</h3>
+              <p>Update the core details tied to this tracker before changing anything more advanced.</p>
             </div>
           </div>
           <div class="account-clean-rows">
@@ -370,7 +372,7 @@
                 <strong>Edit Course Setup</strong>
                 <small>Name, course, university, credits, grading system.</small>
               </span>
-              <em>Edit</em>
+              <em>Primary</em>
             </button>
           </div>
         </section>
@@ -378,14 +380,15 @@
         <section class="account-clean-section">
           <div class="account-clean-section-head">
             <div>
-              <div class="account-clean-kicker">Backup & Recovery</div>
-              <h3>Keep a recoverable copy</h3>
+              <div class="account-clean-kicker">Backup Tools</div>
+              <h3>Protect or move your data</h3>
+              <p>Use backups when you want a safety copy, need to restore progress, or move to another device.</p>
             </div>
           </div>
           <div class="account-clean-actions">
             <button type="button" onclick="unitrackExportBackup()">Export Backup</button>
             <button type="button" onclick="unitrackImportBackup()">Import Backup</button>
-            <button type="button" onclick="unitrackExportRecoveryBackup()">Download Last Recovery Backup</button>
+            <button type="button" onclick="unitrackExportRecoveryBackup()">Last Recovery Backup</button>
           </div>
         </section>
 
@@ -406,9 +409,10 @@
         </section>
 
         <section class="account-clean-section account-clean-session">
-          <div>
+          <div class="account-clean-session-copy">
             <div class="account-clean-kicker">Session</div>
             <h3>Sign out of this browser</h3>
+            <p>Use this when you are done on a shared or temporary device.</p>
           </div>
           <button type="button" onclick="logoutCloud()">Logout</button>
         </section>

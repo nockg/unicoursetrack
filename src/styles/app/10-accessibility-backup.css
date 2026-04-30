@@ -47,10 +47,10 @@
 
 .account-clean-header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(210px, 0.34fr);
-  gap: 18px;
-  align-items: center;
-  padding: 18px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.5fr);
+  gap: 20px;
+  align-items: stretch;
+  padding: 20px;
 }
 
 .account-clean-kicker {
@@ -71,8 +71,8 @@
 }
 
 .account-clean-header h2 {
-  font-size: clamp(42px, 5vw, 64px);
-  line-height: 0.95;
+  font-size: clamp(34px, 4.5vw, 52px);
+  line-height: 0.98;
   letter-spacing: -0.02em;
   font-weight: 600;
 }
@@ -88,21 +88,35 @@
   margin: 9px 0 0;
   color: color-mix(in srgb, var(--sumi) 78%, var(--muted) 22%);
   font-family: inherit;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.45;
+}
+
+.account-clean-header-copy {
+  max-width: 560px;
 }
 
 .account-clean-status {
   display: grid;
-  gap: 6px;
-  padding: 12px;
+  align-content: start;
+  gap: 8px;
+  padding: 14px;
   border: 1px solid color-mix(in srgb, var(--border2) 72%, var(--gold2) 28%);
   background: color-mix(in srgb, var(--paper) 88%, white 12%);
+  border-radius: 6px;
+}
+
+.account-clean-status-label {
+  font-family: "DM Mono", Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .account-clean-status span {
   font-family: inherit;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
   color: var(--sumi);
   line-height: 1.1;
@@ -122,14 +136,14 @@
 }
 
 .account-clean-section-head {
-  padding: 14px 16px 13px;
+  padding: 15px 16px 14px;
   border-bottom: 1px solid color-mix(in srgb, var(--border) 82%, var(--gold2) 18%);
   background: rgba(255,255,255,0.18);
 }
 
 .account-clean-rows {
   display: grid;
-  padding: 10px 16px 14px;
+  padding: 12px 16px 16px;
   gap: 8px;
 }
 
@@ -140,14 +154,14 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
   align-items: center;
-  padding: 11px 12px;
+  padding: 14px 14px;
   border: 1px solid color-mix(in srgb, var(--border2) 75%, var(--gold2) 25%);
   background: color-mix(in srgb, var(--paper) 92%, white 8%);
   color: var(--sumi);
   text-align: left;
   cursor: pointer;
   font: inherit;
-  border-radius: 2px;
+  border-radius: 6px;
 }
 
 .account-clean-row:hover {
@@ -159,7 +173,7 @@
 .account-clean-row strong {
   display: block;
   font-family: inherit;
-  font-size: 18px;
+  font-size: 19px;
   line-height: 1.1;
   color: var(--sumi);
 }
@@ -185,11 +199,12 @@
   border: 1px solid color-mix(in srgb, var(--border2) 72%, var(--gold2) 28%);
   padding: 6px 9px;
   background: rgba(255,255,255,0.28);
+  border-radius: 999px;
 }
 
 .account-clean-actions {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   padding: 12px 16px 16px;
 }
@@ -199,7 +214,7 @@
 .account-clean-danger-toggle,
 .account-clean-danger-body button {
   appearance: none;
-  min-height: 40px;
+  min-height: 44px;
   border: 1px solid color-mix(in srgb, var(--border2) 75%, var(--gold2) 25%);
   background: color-mix(in srgb, var(--paper) 92%, white 8%);
   color: var(--sumi);
@@ -208,8 +223,12 @@
   font-weight: 700;
   letter-spacing: 0.03em;
   cursor: pointer;
-  border-radius: 2px;
-  padding: 0 12px;
+  border-radius: 6px;
+  padding: 0 14px;
+}
+
+.account-clean-actions button:last-child {
+  grid-column: 1 / -1;
 }
 
 .account-clean-actions button:hover,
@@ -258,6 +277,7 @@
   border: 1px solid color-mix(in srgb, var(--border2) 72%, var(--gold2) 28%);
   padding: 6px 9px;
   background: rgba(255,255,255,0.22);
+  border-radius: 999px;
 }
 
 .account-clean-chevron {
@@ -295,8 +315,12 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
   align-items: center;
-  padding: 14px 16px;
+  padding: 16px;
   background-image: none !important;
+}
+
+.account-clean-session-copy {
+  max-width: 520px;
 }
 
 .account-clean-session button {
@@ -477,6 +501,10 @@ body.theme-charcoal .account-clean-danger-toggle {
 
   .account-clean-actions {
     grid-template-columns: 1fr;
+  }
+
+  .account-clean-actions button:last-child {
+    grid-column: auto;
   }
 
   .account-clean-session button,
