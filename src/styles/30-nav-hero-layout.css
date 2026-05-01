@@ -1,5 +1,5 @@
 /* Sticky deadline bar, nav, hero, global layout and predictor cards */
-
+.sticky-exams {
   position: fixed;
   top: 0;
   left: 0;
@@ -428,4 +428,111 @@ h1 {
   margin: 0 auto;
   padding: 32px 20px 80px;
 }
-.module {
+
+@media (max-width: 700px) {
+    .hero {
+      padding: 28px 14px 24px;
+      padding-top: 34px;
+      margin-top: -6px;
+    }
+
+    .hero-inner {
+      max-width: 100%;
+    }
+
+    .eyebrow {
+      font-size: 9px;
+      line-height: 1.45;
+      letter-spacing: 0.14em;
+      margin-bottom: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #hero-title {
+      font-size: clamp(32px, 9vw, 42px);
+      line-height: 1.02;
+      margin-bottom: 14px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas:
+        "prediction prediction"
+        "actions actions"
+        "progress progress";
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .hero-grid>.washi-card:first-child {
+      grid-area: progress;
+    }
+
+    .hero-grid>.dash-actions-card {
+      grid-area: actions;
+    }
+
+    .hero-grid>.washi-card:last-child {
+      grid-area: prediction;
+    }
+
+    .dash-actions-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: none;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .dash-hero-btn {
+      min-height: 74px;
+      height: auto;
+      padding: 14px 10px;
+    }
+
+    .dash-launch::after {
+      display: none;
+    }
+
+    .dash-launch-icon {
+      max-width: none;
+      font-size: 18px;
+      line-height: 1.15;
+    }
+
+    .washi-card {
+      padding: 16px 14px;
+    }
+
+    .predictor-hero-number {
+      font-size: clamp(58px, 17vw, 82px);
+      margin-bottom: 8px;
+    }
+
+    .predictor-hero-sub {
+      font-size: 9px;
+      margin-bottom: 8px;
+    }
+
+    .hero-summary {
+      font-size: 16px;
+    }
+
+    .global-big {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .global-big span {
+      font-size: 12px;
+    }
+
+    .meta-row {
+      display: grid;
+      gap: 4px;
+      justify-content: start;
+    }
+  }

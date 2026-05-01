@@ -571,10 +571,11 @@ function getModuleSectionStateKey(mi, section) {
 
 function isModuleSectionOpen(mi, section) {
   const key = getModuleSectionStateKey(mi, section);
+
   if (openModuleSections[key] === undefined) {
-    if (window.innerWidth <= 760) return section === "coursework";
     return false;
   }
+
   return !!openModuleSections[key];
 }
 

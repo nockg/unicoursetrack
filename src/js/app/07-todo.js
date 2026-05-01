@@ -380,7 +380,6 @@ function openTodoPlanner() {
   if (!modal) return;
   const panelState = getTodoPanelState();
   modal.classList.remove("hidden");
-  syncModalScrollLock();
   renderTodoModuleOptions();
   setupTodoPanelResizePersistence();
   applyTodoPanelState(!panelState.hasOpenedOnce);
@@ -393,7 +392,6 @@ function closeTodoPlanner() {
   document.getElementById("todo-modal")?.classList.add("hidden");
   todoPanelDrag = null;
   todoPanelResize = null;
-  syncModalScrollLock();
 }
 
 function toggleTodoPlanner() {

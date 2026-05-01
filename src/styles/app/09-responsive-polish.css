@@ -2416,12 +2416,12 @@ body.theme-dark :focus-visible {
 
 @media (max-width: 700px) {
   .module-header {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr;
     grid-template-areas:
-      "summary delete"
-      "final final"
-      "progress progress"
-      "chevron chevron";
+      "summary"
+      "final"
+      "progress"
+      "chevron";
     gap: 12px;
     align-items: start;
     padding: 18px 12px 14px;
@@ -2434,7 +2434,7 @@ body.theme-dark :focus-visible {
   .module-header .module-summary {
     grid-area: summary;
     min-width: 0;
-    padding-right: 8px;
+    padding-right: 34px;
   }
 
   .module-header .module-summary .mod-name {
