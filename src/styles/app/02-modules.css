@@ -115,13 +115,27 @@
   transition: 0.2s;
 }
 .bb-link {
-  background: #111;
-  border-color: #111;
-  color: #fff;
+  background: var(--sumi);
+  border-color: var(--sumi);
+  color: var(--paper3);
 }
 .bb-link:hover {
-  background: #1d1d1d;
+  background: var(--muted);
   border-color: var(--vermillion);
+  color: var(--sumi);
+}
+
+body.theme-dark .bb-link,
+body.theme-charcoal .bb-link {
+  background: #000;
+  border-color: #000;
+  color: #fff;
+}
+
+body.theme-dark .bb-link:hover,
+body.theme-charcoal .bb-link:hover {
+  background: #1d1d1d;
+  border-color: var(--vermillion2);
   color: #fff;
 }
 .bb-edit-btn:hover, .formula-btn:hover, .formula-edit-btn:hover, .mini-btn:hover {

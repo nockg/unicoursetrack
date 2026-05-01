@@ -70,16 +70,22 @@ async function waitForInitialAuth() {
   };
 
   try {
+    // Check if user is returning from an auth callback (has auth params in URL)
+    const hasAuthParams = window.location.hash.includes("access_token=") || 
+                          window.location.search.includes("access_token=") ||
+                          window.location.hash.includes("code=") ||
+                          window.location.search.includes("code=");
+    
     let session = await readSession();
 
-    // Supabase can occasionally return no session for the first instant of boot.
-    // Keep the restoring gate up and retry before deciding to show login.
-    if (!session) {
+    // Only retry if we're handling an auth callback or if session might be loading
+    // For direct visits with no auth params, skip the retries
+    if (!session && hasAuthParams) {
       await new Promise((resolve) => setTimeout(resolve, 350));
       session = await readSession();
     }
 
-    if (!session) {
+    if (!session && hasAuthParams) {
       await new Promise((resolve) => setTimeout(resolve, 650));
       await readSession();
     }

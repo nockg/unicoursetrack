@@ -3169,9 +3169,21 @@ body.theme-dark :focus-visible {
   }
 
   .module-header .module-links .formula-btn {
-    background: rgba(255,255,255,0.03) !important;
-    color: rgba(245,240,232,0.62) !important;
-    border-color: rgba(245,240,232,0.18) !important;
+    background: var(--paper2, rgba(255,255,255,0.12)) !important;
+    color: var(--sumi, #1a1612) !important;
+    border-color: var(--border, rgba(26,22,18,0.16)) !important;
+  }
+
+  body.theme-dark .module-header .module-links .formula-btn {
+    background: rgba(255,255,255,0.08) !important;
+    color: rgba(245,240,232,0.88) !important;
+    border-color: rgba(245,240,232,0.22) !important;
+  }
+
+  body.theme-charcoal .module-header .module-links .formula-btn {
+    background: rgba(255,255,255,0.08) !important;
+    color: rgba(236,231,221,0.88) !important;
+    border-color: rgba(236,231,221,0.22) !important;
   }
 
   /* Compact app-style footer */

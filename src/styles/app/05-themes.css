@@ -262,10 +262,6 @@ body.theme-dark .ticker-time {
 body.theme-dark .ticker-time.urgent {
   color: var(--vermillion2);
 }
-body.theme-dark .bb-link {
-  background: #000;
-  border-color: #000;
-}
 body.theme-dark .bb-edit-btn:hover,
 body.theme-dark .formula-btn:hover,
 body.theme-dark .formula-edit-btn:hover,
