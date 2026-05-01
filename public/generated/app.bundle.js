@@ -436,10 +436,15 @@ const preferences = Object.assign(
 );
 
 function updateAuthLock() {
-  const requiresAuth = authScreenLoading || !currentUser || isRecoveryFlow();
+  const bootLocked = !window.unitrackBootComplete;
+  const requiresAuth = bootLocked || authScreenLoading || !currentUser || isRecoveryFlow();
+
   document.body.classList.toggle("auth-required", requiresAuth);
-  document.body.classList.toggle("auth-loading", authScreenLoading);
-  if (requiresAuth) renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
+  document.body.classList.toggle("auth-loading", bootLocked || authScreenLoading);
+
+  if (requiresAuth) {
+    renderAuthGate(isRecoveryFlow() ? "recovery" : authViewMode);
+  }
 }
 
 function setAuthLoading(loading, title = "Restoring your session...", message = "Checking whether you are already signed in before showing anything.") {
@@ -7264,10 +7269,27 @@ async function waitForInitialAuth() {
     return;
   }
 
-  try {
+  const readSession = async () => {
     const { data } = await supabaseClient.auth.getSession();
     currentSession = data?.session || null;
     currentUser = data?.session?.user || null;
+    return currentSession;
+  };
+
+  try {
+    let session = await readSession();
+
+    // Supabase can occasionally return no session for the first instant of boot.
+    // Keep the restoring gate up and retry before deciding to show login.
+    if (!session) {
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      session = await readSession();
+    }
+
+    if (!session) {
+      await new Promise((resolve) => setTimeout(resolve, 650));
+      await readSession();
+    }
   } catch (error) {
     currentSession = null;
     currentUser = null;
@@ -7433,7 +7455,12 @@ function renderAuthGate(mode = authViewMode) {
   const feedbackClass = authStatusTone === "success" ? "auth-success" : "auth-error";
   const profileName = escapeHtml((state.profile?.name || "").trim());
   const loginTitle = profileName ? `Welcome back, ${profileName}` : "Welcome back!";
-  if (asideCopy) asideCopy.textContent = authScreenLoading ? "Opening your saved tracker." : "Sign in to UniTrack.";
+  if (asideCopy) {
+    const bootLocked = !window.unitrackBootComplete;
+    asideCopy.textContent = bootLocked || authScreenLoading
+      ? "Opening your tracker."
+      : "Sign in to UniTrack.";
+  }
 
   if (authScreenLoading && !isRecovery) {
     host.innerHTML = `
@@ -8957,6 +8984,8 @@ document.addEventListener("keydown", (event) => {
 });
 
 /* 11-boot.js */
+window.unitrackBootComplete = false;
+
 function applyReducedMotionPreference() {
   const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   document.documentElement.classList.toggle("reduce-motion", !!reduceMotion);
@@ -8965,11 +8994,13 @@ function applyReducedMotionPreference() {
 // Wait for Supabase to check/restore the session before showing login or the dashboard.
 (async function bootApp() {
   applyReducedMotionPreference();
+
   setAuthLoading(true, "Restoring your session...", "Checking whether you are already signed in before showing anything.");
   await waitForInitialAuth();
 
   if (!supabaseClient) {
-    setAuthLoading(false);
+    window.unitrackBootComplete = true;
+    authScreenLoading = false;
     updateAuthLock();
     renderCloudUnavailableGate();
     setInterval(renderStickyExams, 1000);
@@ -8977,7 +9008,9 @@ function applyReducedMotionPreference() {
   }
 
   if (!currentUser) {
-    setAuthLoading(false);
+    window.unitrackBootComplete = true;
+    authScreenLoading = false;
+    authViewMode = "login";
     updateAuthLock();
     renderAuthGate("login");
     setInterval(renderStickyExams, 1000);
@@ -8986,21 +9019,30 @@ function applyReducedMotionPreference() {
 
   clearLogoutFlagForSignedInUser();
 
-  setAuthLoading(true, "Loading your tracker...", isPendingNewAccount(currentUser?.email)
+  authLoadingMessage = isPendingNewAccount(currentUser?.email)
     ? "Preparing your setup so the first screen feels like yours."
-    : "Pulling your saved modules, marks, deadlines, and preferences.");
+    : "Pulling your saved modules, marks, deadlines, and preferences.";
+
+  renderAuthGate();
+
   cloudReady = false;
   pendingFirstRunSetup = false;
+
   await loadCloudSave();
+
   pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
+
   if (pendingFirstRunSetup) {
     resetLocalAppState();
     cloudReady = true;
   }
 
+  // Prepare/render the app first while the loading gate is still covering it.
+  refreshAppAfterAuth();
+
+  window.unitrackBootComplete = true;
   setAuthLoading(false);
   updateAuthLock();
-  refreshAppAfterAuth();
 
   setTimeout(() => {
     if (currentUser && document.getElementById("template-splash")?.classList.contains("hidden")) {
@@ -9013,7 +9055,7 @@ function applyReducedMotionPreference() {
 
 try {
   window.matchMedia?.("(prefers-reduced-motion: reduce)")?.addEventListener("change", applyReducedMotionPreference);
-} catch {}
+} catch { }
 
 /* 12-library-render.js */
 /* Library DOM enhancement layer.

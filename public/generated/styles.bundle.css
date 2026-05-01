@@ -60,6 +60,7 @@ body {
   background:
     radial-gradient(circle at top left, rgba(255,255,255,0.44), transparent 30%),
     linear-gradient(135deg, rgba(245,240,232,0.96), rgba(232,224,208,0.94));
+  font-family: inherit;
 }
 .auth-gate-shell {
   width: min(920px, calc(100vw - 32px));
@@ -170,7 +171,6 @@ body.theme-charcoal .auth-unitrack-logo-white {
 
 .auth-gate-copy,
 .auth-gate-message {
-  font-family: "Cormorant Garamond", serif;
   font-size: 20px;
   line-height: 1.4;
   color: #5a4d40;
@@ -217,12 +217,10 @@ body.theme-charcoal .auth-unitrack-logo-white {
 .auth-switch-copy,
 .auth-email {
   color: #5a4d40;
-  font-family: "Cormorant Garamond", serif;
   font-size: 15px;
   line-height: 1.45;
 }
 .auth-email {
-  font-family: "DM Mono", monospace;
   font-size: 12px;
   word-break: break-word;
 }
