@@ -3,7 +3,7 @@
   top: 128px;
   right: 28px;
   width: min(720px, calc(100vw - 32px));
-  min-width: 360px;
+  min-width: min(360px, calc(100vw - 16px));
   min-height: 320px;
   max-width: calc(100vw - 18px);
   max-height: calc(100vh - 18px);
@@ -522,4 +522,22 @@ body.theme-dark #todo-modal .todo-add-btn:hover {
   background: rgba(216, 200, 176, 0.24);
   border-color: rgba(216, 200, 176, 0.58);
   color: #ffffff;
+}
+
+body.theme-charcoal #todo-modal .todo-content {
+  background: #1f2329;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 54px rgba(0,0,0,0.36);
+}
+
+body.theme-charcoal .todo-expanded-card,
+body.theme-charcoal .todo-task-row,
+body.theme-charcoal .todo-note-details {
+  background: rgba(255,255,255,0.045);
+  border-color: rgba(255,255,255,0.12);
+}
+
+body.theme-charcoal .todo-expanded-title,
+body.theme-charcoal .todo-row-title {
+  color: #f3eee5;
 }

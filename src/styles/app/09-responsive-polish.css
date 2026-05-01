@@ -3181,3 +3181,277 @@ body.theme-dark :focus-visible {
     color: rgba(245, 240, 232, 0.6) !important;
   }
 }
+
+/* =========================================================
+   Second polish pass: spacing rhythm, hierarchy, theme parity
+   ========================================================= */
+
+:root {
+  --ui-gap-1: 6px;
+  --ui-gap-2: 10px;
+  --ui-gap-3: 14px;
+  --ui-gap-4: 18px;
+  --ui-gap-5: 24px;
+}
+
+.module,
+.dashboard-content,
+.todo-content,
+.timeline-card,
+.dashboard-card,
+.term-summary-card,
+.module-library-card {
+  border-radius: var(--ui-radius-md);
+}
+
+.module {
+  box-shadow: var(--ui-elev-1);
+}
+
+.module:hover {
+  box-shadow: var(--ui-elev-2);
+}
+
+.module-header {
+  gap: var(--ui-gap-4);
+}
+
+.module-edit-tools,
+.notes-area-wrap,
+.formula-links-wrap,
+.relevant-links-wrap,
+.module-section-head,
+.module-section-body {
+  padding-top: var(--ui-gap-3);
+  padding-bottom: var(--ui-gap-3);
+}
+
+.module-section-head {
+  min-height: 52px;
+}
+
+.topic-row,
+.subtopic-row {
+  border-radius: var(--ui-radius-sm);
+}
+
+.topic-row:hover {
+  background: color-mix(in srgb, var(--paper2) 74%, var(--paper3) 26%);
+}
+
+.dashboard-content {
+  border-radius: var(--ui-radius-lg);
+  box-shadow: var(--ui-elev-2);
+}
+
+.dashboard-title {
+  margin-bottom: var(--ui-gap-4);
+}
+
+.dashboard-grid {
+  gap: var(--ui-gap-3);
+}
+
+.dashboard-card {
+  border-radius: var(--ui-radius-md);
+}
+
+.term-summary-grid {
+  gap: var(--ui-gap-2);
+}
+
+.term-summary-card {
+  border-radius: var(--ui-radius-md);
+  min-height: 114px;
+}
+
+.timeline-head {
+  margin-bottom: var(--ui-gap-5);
+}
+
+.timeline-list {
+  gap: var(--ui-gap-3);
+}
+
+.timeline-card {
+  border-radius: var(--ui-radius-md);
+}
+
+#todo-modal .todo-content {
+  border-radius: var(--ui-radius-lg);
+  box-shadow: var(--ui-elev-2);
+}
+
+#todo-modal .timeline-head {
+  padding: 18px 20px 14px;
+}
+
+#todo-modal .todo-list {
+  gap: var(--ui-gap-2);
+  padding: 14px 20px 20px;
+}
+
+.todo-expanded-card,
+.todo-task-row {
+  border-radius: var(--ui-radius-md);
+}
+
+.todo-inline-note {
+  border-radius: var(--ui-radius-md);
+}
+
+.todo-summary,
+.todo-badge {
+  border-radius: 999px;
+}
+
+body.theme-dark .module,
+body.theme-charcoal .module {
+  background: color-mix(in srgb, var(--paper3) 92%, transparent 8%);
+  border-color: color-mix(in srgb, var(--border) 88%, transparent 12%);
+}
+
+body.theme-dark .module-edit-tools,
+body.theme-dark .notes-area-wrap,
+body.theme-dark .formula-links-wrap,
+body.theme-dark .relevant-links-wrap,
+body.theme-dark .module-section-head,
+body.theme-dark .module-section-body,
+body.theme-charcoal .module-edit-tools,
+body.theme-charcoal .notes-area-wrap,
+body.theme-charcoal .formula-links-wrap,
+body.theme-charcoal .relevant-links-wrap,
+body.theme-charcoal .module-section-head,
+body.theme-charcoal .module-section-body {
+  background: color-mix(in srgb, var(--paper2) 88%, transparent 12%);
+  border-color: color-mix(in srgb, var(--border) 86%, transparent 14%);
+}
+
+body.theme-charcoal .dashboard-content,
+body.theme-charcoal #todo-modal .todo-content,
+body.theme-charcoal .timeline-card,
+body.theme-charcoal .dashboard-card,
+body.theme-charcoal .term-summary-card,
+body.theme-charcoal .todo-expanded-card,
+body.theme-charcoal .todo-task-row,
+body.theme-charcoal .todo-note-details {
+  background: #1f2329;
+  border-color: rgba(255, 255, 255, 0.11);
+  color: #ece7dd;
+}
+
+body.theme-charcoal .dashboard-chart-wrap,
+body.theme-charcoal #todo-modal .timeline-head,
+body.theme-charcoal .todo-view-row,
+body.theme-charcoal .todo-summary,
+body.theme-charcoal .todo-badge {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.11);
+}
+
+body.theme-charcoal .dashboard-title,
+body.theme-charcoal .dashboard-score,
+body.theme-charcoal .term-summary-value,
+body.theme-charcoal .timeline-page-title,
+body.theme-charcoal .todo-expanded-title,
+body.theme-charcoal .todo-row-title {
+  color: #f3eee5;
+}
+
+body.theme-charcoal .dashboard-subtitle,
+body.theme-charcoal .term-summary-empty,
+body.theme-charcoal .timeline-subtitle,
+body.theme-charcoal .dashboard-card-title,
+body.theme-charcoal .term-summary-label,
+body.theme-charcoal .term-summary-meta,
+body.theme-charcoal .todo-row-meta,
+body.theme-charcoal .todo-note-details summary {
+  color: rgba(236, 231, 221, 0.72);
+}
+
+body.theme-charcoal #todo-modal .todo-toolbar .input,
+body.theme-charcoal #todo-modal .todo-toolbar .nav-select,
+body.theme-charcoal .todo-inline-note {
+  background: #171a1f;
+  color: #f3eee5;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+body.theme-charcoal #todo-modal .todo-add-btn {
+  background: var(--ui-primary-bg);
+  border-color: var(--ui-primary-bg);
+  color: var(--ui-primary-fg);
+}
+
+body.theme-charcoal #todo-modal .todo-add-btn:hover {
+  background: var(--ui-primary-bg-hover);
+  border-color: var(--ui-primary-bg-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mobile parity pass: keep tiny screens as usable as desktop */
+@media (max-width: 760px) {
+  .nav-bar {
+    padding-left: max(10px, env(safe-area-inset-left)) !important;
+    padding-right: max(10px, env(safe-area-inset-right)) !important;
+  }
+
+  .year-controls {
+    min-width: 116px !important;
+    flex-basis: 116px !important;
+  }
+
+  .exam-ticker {
+    min-width: 190px !important;
+  }
+
+  #todo-modal .todo-content {
+    left: max(8px, env(safe-area-inset-left)) !important;
+    width: calc(100vw - max(16px, env(safe-area-inset-left) + env(safe-area-inset-right))) !important;
+    max-height: calc(100dvh - 92px) !important;
+  }
+
+  #todo-modal .timeline-head,
+  #todo-modal .todo-view-row,
+  #todo-modal .todo-list {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  #modules {
+    grid-auto-columns: 88vw !important;
+    scroll-padding-inline: 6vw !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .year-controls {
+    min-width: 104px !important;
+    flex-basis: 104px !important;
+  }
+
+  .nav-brand {
+    width: 30px !important;
+    height: 30px !important;
+    flex-basis: 30px !important;
+  }
+
+  #todo-modal .todo-content {
+    top: 70px !important;
+    max-height: calc(100dvh - 78px) !important;
+  }
+
+  #modules {
+    grid-auto-columns: 90vw !important;
+  }
+}

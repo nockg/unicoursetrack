@@ -3729,7 +3729,7 @@ body.theme-dark .library-v10-details-header {
   }
   .library-v10-details-header,
   .library-v10-row {
-    min-width: 980px;
+    min-width: 720px;
   }
   .library-v10-list {
     max-height: 58vh;
@@ -4206,6 +4206,25 @@ body.compact-ui .prog-pct {
 }
 
 /* 05-themes.css */
+/* Semantic UI tokens shared across themes */
+:root {
+  --ui-radius-sm: 6px;
+  --ui-radius-md: 10px;
+  --ui-radius-lg: 14px;
+  --ui-control-height: 40px;
+  --ui-control-bg: rgba(255, 255, 255, 0.72);
+  --ui-control-bg-hover: rgba(255, 255, 255, 0.9);
+  --ui-control-border: color-mix(in srgb, var(--border2) 74%, transparent 26%);
+  --ui-control-border-strong: color-mix(in srgb, var(--border2) 88%, transparent 12%);
+  --ui-elev-1: 0 6px 18px rgba(14, 12, 10, 0.08);
+  --ui-elev-2: 0 14px 32px rgba(14, 12, 10, 0.12);
+  --ui-focus-ring: 0 0 0 3px rgba(26, 44, 74, 0.2);
+  --ui-focus-border: color-mix(in srgb, var(--gold2) 58%, var(--border2) 42%);
+  --ui-primary-bg: var(--sumi);
+  --ui-primary-bg-hover: color-mix(in srgb, var(--sumi) 88%, var(--gold2) 12%);
+  --ui-primary-fg: var(--paper3);
+}
+
 body.theme-quiet {
   --vermillion: #8b7b68;
   --vermillion2: #9b8c78;
@@ -4295,6 +4314,44 @@ body.theme-dark {
   --border2: rgba(255,255,255,0.18);
   --shadow: 0 8px 28px rgba(0,0,0,0.34);
   --shadow2: 0 4px 10px rgba(0,0,0,0.24);
+  --ui-control-bg: rgba(255, 255, 255, 0.045);
+  --ui-control-bg-hover: rgba(255, 255, 255, 0.08);
+  --ui-control-border: rgba(255, 255, 255, 0.14);
+  --ui-control-border-strong: rgba(255, 255, 255, 0.24);
+  --ui-elev-1: 0 8px 24px rgba(0, 0, 0, 0.24);
+  --ui-elev-2: 0 16px 36px rgba(0, 0, 0, 0.34);
+  --ui-focus-ring: 0 0 0 3px rgba(241, 237, 228, 0.22);
+  --ui-focus-border: rgba(241, 237, 228, 0.36);
+  --ui-primary-bg: #f1ede4;
+  --ui-primary-bg-hover: #f5f1e9;
+  --ui-primary-fg: #171719;
+}
+
+body.theme-charcoal {
+  --ink: #ece7dd;
+  --paper: #14161a;
+  --paper2: #1b1e23;
+  --paper3: #21252a;
+  --washi: #2a2f36;
+  --sumi: #0f1114;
+  --slate: #d8d3ca;
+  --muted: #a6a198;
+  --faint: #75716a;
+  --border: rgba(255, 255, 255, 0.1);
+  --border2: rgba(255, 255, 255, 0.18);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.34);
+  --shadow2: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --ui-control-bg: rgba(255, 255, 255, 0.055);
+  --ui-control-bg-hover: rgba(255, 255, 255, 0.095);
+  --ui-control-border: rgba(255, 255, 255, 0.15);
+  --ui-control-border-strong: rgba(255, 255, 255, 0.26);
+  --ui-elev-1: 0 8px 24px rgba(0, 0, 0, 0.28);
+  --ui-elev-2: 0 18px 40px rgba(0, 0, 0, 0.38);
+  --ui-focus-ring: 0 0 0 3px rgba(236, 231, 221, 0.22);
+  --ui-focus-border: rgba(236, 231, 221, 0.38);
+  --ui-primary-bg: #ece7dd;
+  --ui-primary-bg-hover: #f3eee5;
+  --ui-primary-fg: #111318;
 }
 body.theme-dark .nav-btn,
 body.theme-dark .nav-select,
@@ -4739,7 +4796,7 @@ body.theme-charcoal .dashboard-close:hover {
   top: 128px;
   right: 28px;
   width: min(720px, calc(100vw - 32px));
-  min-width: 360px;
+  min-width: min(360px, calc(100vw - 16px));
   min-height: 320px;
   max-width: calc(100vw - 18px);
   max-height: calc(100vh - 18px);
@@ -5260,6 +5317,24 @@ body.theme-dark #todo-modal .todo-add-btn:hover {
   color: #ffffff;
 }
 
+body.theme-charcoal #todo-modal .todo-content {
+  background: #1f2329;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 54px rgba(0,0,0,0.36);
+}
+
+body.theme-charcoal .todo-expanded-card,
+body.theme-charcoal .todo-task-row,
+body.theme-charcoal .todo-note-details {
+  background: rgba(255,255,255,0.045);
+  border-color: rgba(255,255,255,0.12);
+}
+
+body.theme-charcoal .todo-expanded-title,
+body.theme-charcoal .todo-row-title {
+  color: #f3eee5;
+}
+
 /* 08-setup-deadlines.css */
 .deadline-form-content {
   width: min(560px, calc(100vw - 32px));
@@ -5778,6 +5853,120 @@ body.theme-quiet .sticky-exams{ border-bottom-color: rgba(245,240,232,0.16) !imp
 
 /* 09-responsive-polish.css */
 /* Global UI readability, responsive shell behaviour, and interaction polish */
+.nav-btn,
+.nav-select,
+.input,
+textarea,
+.bb-link,
+.bb-edit-btn,
+.formula-btn,
+.formula-edit-btn,
+.mini-btn,
+.topic-edit-btn,
+.topic-options-summary,
+.topic-options-action,
+.deadline-tab-btn,
+.priority-choice,
+.pref-toggle-pill,
+.auth-gate-tab {
+  border-radius: var(--ui-radius-sm);
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 160ms ease,
+    transform 140ms ease;
+}
+
+.nav-btn,
+.bb-link,
+.bb-edit-btn,
+.formula-btn,
+.formula-edit-btn,
+.mini-btn,
+.topic-edit-btn,
+.topic-options-summary,
+.topic-options-action,
+.deadline-tab-btn,
+.priority-choice,
+.pref-toggle-pill,
+.auth-gate-tab {
+  min-height: var(--ui-control-height);
+  border: 1px solid var(--ui-control-border);
+  background: var(--ui-control-bg);
+  box-shadow: none;
+}
+
+.nav-btn:hover,
+.bb-link:hover,
+.bb-edit-btn:hover,
+.formula-btn:hover,
+.formula-edit-btn:hover,
+.mini-btn:hover,
+.topic-edit-btn:hover,
+.topic-options-summary:hover,
+.topic-options-action:hover,
+.deadline-tab-btn:hover,
+.priority-choice:hover,
+.pref-toggle-pill:hover,
+.auth-gate-tab:hover {
+  background: var(--ui-control-bg-hover);
+  border-color: var(--ui-control-border-strong);
+}
+
+.nav-select,
+.input,
+textarea {
+  min-height: var(--ui-control-height);
+  border-radius: var(--ui-radius-sm);
+  border-color: var(--ui-control-border);
+  background: var(--ui-control-bg);
+}
+
+body.theme-dark .input::placeholder,
+body.theme-dark textarea::placeholder,
+body.theme-charcoal .input::placeholder,
+body.theme-charcoal textarea::placeholder {
+  color: rgba(241, 237, 228, 0.46);
+}
+
+.nav-btn:focus-visible,
+.nav-select:focus-visible,
+.input:focus-visible,
+textarea:focus-visible,
+.bb-link:focus-visible,
+.bb-edit-btn:focus-visible,
+.formula-btn:focus-visible,
+.formula-edit-btn:focus-visible,
+.mini-btn:focus-visible,
+.topic-edit-btn:focus-visible,
+.topic-options-summary:focus-visible,
+.topic-options-action:focus-visible,
+.deadline-tab-btn:focus-visible,
+.priority-choice:focus-visible,
+.pref-toggle-pill:focus-visible,
+.auth-gate-tab:focus-visible {
+  border-color: var(--ui-focus-border);
+  box-shadow: var(--ui-focus-ring);
+}
+
+.calendar-btn,
+.danger-btn,
+#deadline-calendar-btn,
+#deadline-save-btn {
+  background: var(--ui-primary-bg);
+  border-color: var(--ui-primary-bg);
+  color: var(--ui-primary-fg);
+}
+
+.calendar-btn:hover,
+.danger-btn:hover,
+#deadline-calendar-btn:hover,
+#deadline-save-btn:hover {
+  background: var(--ui-primary-bg-hover);
+  border-color: var(--ui-primary-bg-hover);
+}
+
 .context-menu {
   position: fixed;
   background: var(--paper, #faf8f3);
@@ -8323,20 +8512,55 @@ body.theme-dark :focus-visible {
   }
 }
 
+@media (max-width: 700px) {
+  .content {
+    padding: 18px 0 80px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  #modules {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(86vw, 86vw);
+    gap: 14px;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 0 14px 18px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 14px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  #modules::-webkit-scrollbar {
+    display: none;
+  }
+
+  #modules .module {
+    scroll-snap-align: center;
+    margin-bottom: 0;
+    align-self: start;
+  }
+
+  #modules .module-empty-state {
+    width: calc(100vw - 28px);
+  }
+}
+
 /* =========================================================
    Mobile dashboard + swipeable modules
    ========================================================= */
 
 @media (max-width: 700px) {
-  :root {
-    --mobile-module-width: 86vw;
-    --mobile-module-peek: 14vw;
-  }
 
-  /* Hero */
+  /* Mobile hero order:
+     1. Year Prediction
+     2. Dashboard + Library buttons
+     3. Overall Progress */
   .hero {
-    padding: 22px 14px 22px;
-    padding-top: 28px;
+    padding: 28px 14px 24px;
+    padding-top: 34px;
     margin-top: -6px;
   }
 
@@ -8347,20 +8571,15 @@ body.theme-dark :focus-visible {
   .eyebrow {
     font-size: 9px;
     line-height: 1.45;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
     margin-bottom: 10px;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-    flex-wrap: wrap;
-    row-gap: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   #hero-title {
-    display: block;
-    font-size: clamp(28px, 7vw, 34px);
-    line-height: 1.06;
-    margin-bottom: 12px;
+    display: none;
   }
 
   .hero-grid {
@@ -8371,7 +8590,7 @@ body.theme-dark :focus-visible {
       "actions actions"
       "progress progress";
     gap: 10px;
-    margin-top: 0;
+    margin-top: 8px;
   }
 
   .hero-grid>.washi-card:first-child {
@@ -8380,29 +8599,24 @@ body.theme-dark :focus-visible {
 
   .hero-grid>.dash-actions-card {
     grid-area: actions;
-    width: 100%;
   }
 
   .hero-grid>.washi-card:last-child {
     grid-area: prediction;
   }
 
-  .hero-grid .dash-actions-card {
-    display: flex;
+  .dash-actions-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: none;
     gap: 10px;
     min-height: 0;
   }
 
-  .hero-grid .dash-actions-card>* {
-    flex: 1 1 0;
-    min-width: 0;
-  }
-
-  .hero-grid .dash-hero-btn {
-    width: 100%;
+  .dash-hero-btn {
     min-height: 72px;
     height: auto;
-    padding: 14px 12px;
+    padding: 14px 10px;
   }
 
   .dash-launch::after {
@@ -8411,15 +8625,8 @@ body.theme-dark :focus-visible {
 
   .dash-launch-icon {
     max-width: none;
-    width: 100%;
     font-size: 18px;
-    line-height: 1.12;
-    text-align: center;
-  }
-
-  .dash-launch-copy {
-    font-size: 13px;
-    margin-top: 4px;
+    line-height: 1.15;
   }
 
   .washi-card {
@@ -8427,7 +8634,7 @@ body.theme-dark :focus-visible {
   }
 
   .predictor-hero-number {
-    font-size: clamp(54px, 16vw, 78px);
+    font-size: clamp(58px, 17vw, 82px);
     margin-bottom: 8px;
   }
 
@@ -8455,28 +8662,24 @@ body.theme-dark :focus-visible {
     justify-content: start;
   }
 
-  /* Main content spacing */
+  /* Mobile module carousel */
   .content {
-    padding: 18px 0 112px;
+    padding: 18px 0 80px;
     max-width: 100%;
     overflow: hidden;
   }
 
-  /* Mobile module carousel */
   #modules {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: var(--mobile-module-width);
+    grid-auto-columns: 82vw;
     gap: 14px;
     overflow-x: auto;
     overflow-y: visible;
-    padding:
-      0 max(14px, calc((100vw - var(--mobile-module-width)) / 2)) 26px max(14px, calc((100vw - var(--mobile-module-width)) / 2));
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: max(14px, calc((100vw - var(--mobile-module-width)) / 2));
+    padding: 0 58px 18px 18px;
+    scroll-snap-type: none;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    overscroll-behavior-x: contain;
   }
 
   #modules::-webkit-scrollbar {
@@ -8484,34 +8687,23 @@ body.theme-dark :focus-visible {
   }
 
   #modules .module {
-    position: relative;
-    scroll-snap-align: center;
     margin-bottom: 0;
     align-self: start;
     min-width: 0;
     border-radius: 10px;
-    background: var(--paper2);
-    border: 1px solid var(--border);
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.14);
-    overflow: hidden;
+    background: var(--paper3);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.16);
   }
 
-  /* Restore module accent colour */
   #modules .module::before {
-    display: block;
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 4px;
-    background: var(--module-accent, var(--vermillion));
-    z-index: 2;
+    display: none;
   }
 
   #modules .module-empty-state {
-    width: calc(100vw - 28px);
+    width: calc(100vw - 36px);
   }
 
-  /* Module card content */
+  /* Mobile module card content */
   .module-header {
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -8521,7 +8713,7 @@ body.theme-dark :focus-visible {
       "chevron";
     gap: 12px;
     align-items: start;
-    padding: 18px 14px 14px;
+    padding: 18px 12px 14px;
   }
 
   .module-header .mod-stripe {
@@ -8532,35 +8724,6 @@ body.theme-dark :focus-visible {
     grid-area: summary;
     min-width: 0;
     padding-right: 34px;
-  }
-
-  .module-header .module-summary .mod-name {
-    font-size: 18px;
-    line-height: 1.14;
-    margin-bottom: 4px;
-  }
-
-  .module-header .module-summary .mod-kanji {
-    font-size: 10px;
-    line-height: 1.45;
-    letter-spacing: 0.1em;
-    margin-bottom: 10px;
-    white-space: normal;
-    word-break: break-word;
-  }
-
-  .module-header .module-links {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .module-header .module-links .bb-link,
-  .module-header .module-links .formula-btn {
-    width: 100%;
-    justify-content: center;
-    text-align: center;
-    min-height: 36px;
   }
 
   .module-header>.inputs-grid {
@@ -8585,10 +8748,6 @@ body.theme-dark :focus-visible {
     margin: 0;
   }
 
-  .module-header .final-cls {
-    margin-top: 0;
-  }
-
   .module-header .progress-section {
     grid-area: progress;
     padding: 12px;
@@ -8597,27 +8756,13 @@ body.theme-dark :focus-visible {
     background: rgba(26, 22, 18, 0.022);
   }
 
-  .module-header .prog-header {
-    align-items: baseline;
-    margin-bottom: 8px;
-  }
-
   .module-header .prog-done {
     font-size: 28px;
     line-height: 1;
   }
 
-  .module-header .prog-pct {
-    font-size: 10px;
-  }
-
   .module-header .prog-track {
     height: 7px;
-    margin-bottom: 8px;
-  }
-
-  .module-header .prog-of {
-    font-size: 11px;
   }
 
   .module-header .module-actions {
@@ -8642,41 +8787,526 @@ body.theme-dark :focus-visible {
   .topic-list .compact-marks-wrap .inputs-grid {
     grid-template-columns: 1fr;
   }
-
-  /* Better ending / breathing room */
-  .content::after {
-    content: "";
-    display: block;
-    height: 12px;
-  }
 }
+
+/* =========================================================
+   Final mobile UX pass: nav cleanup, carousel spacing,
+   module action buttons, scrollbar hiding, and app footer
+   ========================================================= */
 
 .footer.mobile-app-footnote {
   display: none;
 }
 
+.mobile-app-footnote-logo-white {
+  display: none;
+}
+
 @media (max-width: 700px) {
+  /* Keep the mobile app focused: hide secondary nav shortcuts */
+  .nav-bar .calendar-btn,
+  .nav-bar .youtube-btn {
+    display: none !important;
+  }
+
+  /* Hide visual scrollbars while preserving scrolling/swiping */
+  html,
+  body,
+  .nav-bar,
+  .sticky-exams,
+  #modules {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  .nav-bar::-webkit-scrollbar,
+  .sticky-exams::-webkit-scrollbar,
+  #modules::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
+
+  /* Restore the mobile heading and stop the eyebrow from being cut off */
+  .hero {
+    padding: 20px 14px 16px !important;
+  }
+
+  .eyebrow {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.35 !important;
+    max-width: 100% !important;
+  }
+
+  #hero-title {
+    display: block !important;
+    font-size: clamp(28px, 8vw, 36px) !important;
+    line-height: 1.04 !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* Keep Dashboard and Library as a proper two-button row */
+  .hero-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    grid-template-areas:
+      "prediction prediction"
+      "actions actions"
+      "progress progress" !important;
+    gap: 10px !important;
+  }
+
+  .hero-grid > .washi-card:first-child {
+    grid-area: progress !important;
+  }
+
+  .hero-grid > .dash-actions-card {
+    grid-area: actions !important;
+  }
+
+  .hero-grid > .washi-card:last-child {
+    grid-area: prediction !important;
+  }
+
+  .hero-grid > .dash-actions-card,
+  .hero-grid .dash-actions-card,
+  .dash-actions-card {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    grid-template-rows: none !important;
+    gap: 10px !important;
+    min-height: 0 !important;
+  }
+
+  .hero-grid > .dash-actions-card > .dash-hero-btn,
+  .dash-actions-card > .dash-hero-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 70px !important;
+    height: auto !important;
+    padding: 13px 10px !important;
+  }
+
+  .hero-grid .dash-launch-icon,
+  .dash-hero-btn .dash-launch-icon {
+    width: 100% !important;
+    max-width: none !important;
+    text-align: center !important;
+    font-size: clamp(15px, 4.8vw, 18px) !important;
+    line-height: 1.1 !important;
+  }
+
+  /* Tighten the ending so the footer sits closer to the carousel */
+  .content {
+    padding-top: 14px !important;
+    padding-bottom: 10px !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .content::after {
+    display: none !important;
+    content: none !important;
+    height: 0 !important;
+  }
+
+  #modules {
+    grid-auto-columns: 86vw !important;
+    gap: 12px !important;
+    padding:
+      0
+      max(12px, calc((100vw - 86vw) / 2))
+      4px
+      max(12px, calc((100vw - 86vw) / 2)) !important;
+    margin-bottom: 0 !important;
+    scroll-snap-type: x mandatory !important;
+    scroll-padding-inline: max(12px, calc((100vw - 86vw) / 2)) !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+  }
+
+  #modules .module {
+    scroll-snap-align: center !important;
+    margin-bottom: 0 !important;
+    background: var(--paper2) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+  }
+
+  /* Restore module accent colours on mobile */
+  #modules .module::before {
+    display: block !important;
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 auto 0 0 !important;
+    width: 4px !important;
+    background: var(--module-accent, var(--vermillion)) !important;
+    z-index: 2 !important;
+  }
+
+  /* Make Set Blackboard / Library fill the card and read cleanly */
+  .module-header .module-links {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    align-items: stretch !important;
+  }
+
+  .module-header .module-links .bb-link,
+  .module-header .module-links .formula-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    box-sizing: border-box !important;
+    padding: 10px 14px !important;
+    border-radius: 6px !important;
+    text-align: center !important;
+    font-size: 12px !important;
+    line-height: 1.15 !important;
+    letter-spacing: 0.035em !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .module-header .module-links .bb-link {
+    background: #050505 !important;
+    color: #f5f0e8 !important;
+    border-color: #050505 !important;
+  }
+
+  .module-header .module-links .formula-btn {
+    background: rgba(255,255,255,0.03) !important;
+    color: rgba(245,240,232,0.62) !important;
+    border-color: rgba(245,240,232,0.18) !important;
+  }
+
+  /* Compact app-style footer */
   .footer.mobile-app-footnote {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin: 20px auto 12px;
-    padding: 0 16px 20px;
-    font-family: "DM Mono", monospace;
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    color: rgba(245, 240, 232, 0.58);
-    text-transform: uppercase;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    margin: 6px auto 0 !important;
+    padding: 0 16px 10px !important;
+    font-family: "DM Mono", monospace !important;
+    text-transform: uppercase !important;
   }
 
   .mobile-app-footnote-logo {
-    font-weight: 700;
-    letter-spacing: 0.1em;
+    width: 88px !important;
+    height: auto !important;
+    display: block !important;
   }
 
-  .mobile-app-footnote-divider {
-    opacity: 0.45;
+  .mobile-app-footnote-logo-white {
+    display: none !important;
+  }
+
+  .mobile-app-footnote-version {
+    display: block !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+    letter-spacing: 0.14em !important;
+    opacity: 0.62 !important;
+    color: rgba(26, 22, 18, 0.56) !important;
+  }
+
+  body.theme-dark .mobile-app-footnote-logo-black {
+    display: none !important;
+  }
+
+  body.theme-dark .mobile-app-footnote-logo-white {
+    display: block !important;
+  }
+
+  body.theme-dark .mobile-app-footnote-version {
+    color: rgba(245, 240, 232, 0.6) !important;
+  }
+}
+
+/* =========================================================
+   Second polish pass: spacing rhythm, hierarchy, theme parity
+   ========================================================= */
+
+:root {
+  --ui-gap-1: 6px;
+  --ui-gap-2: 10px;
+  --ui-gap-3: 14px;
+  --ui-gap-4: 18px;
+  --ui-gap-5: 24px;
+}
+
+.module,
+.dashboard-content,
+.todo-content,
+.timeline-card,
+.dashboard-card,
+.term-summary-card,
+.module-library-card {
+  border-radius: var(--ui-radius-md);
+}
+
+.module {
+  box-shadow: var(--ui-elev-1);
+}
+
+.module:hover {
+  box-shadow: var(--ui-elev-2);
+}
+
+.module-header {
+  gap: var(--ui-gap-4);
+}
+
+.module-edit-tools,
+.notes-area-wrap,
+.formula-links-wrap,
+.relevant-links-wrap,
+.module-section-head,
+.module-section-body {
+  padding-top: var(--ui-gap-3);
+  padding-bottom: var(--ui-gap-3);
+}
+
+.module-section-head {
+  min-height: 52px;
+}
+
+.topic-row,
+.subtopic-row {
+  border-radius: var(--ui-radius-sm);
+}
+
+.topic-row:hover {
+  background: color-mix(in srgb, var(--paper2) 74%, var(--paper3) 26%);
+}
+
+.dashboard-content {
+  border-radius: var(--ui-radius-lg);
+  box-shadow: var(--ui-elev-2);
+}
+
+.dashboard-title {
+  margin-bottom: var(--ui-gap-4);
+}
+
+.dashboard-grid {
+  gap: var(--ui-gap-3);
+}
+
+.dashboard-card {
+  border-radius: var(--ui-radius-md);
+}
+
+.term-summary-grid {
+  gap: var(--ui-gap-2);
+}
+
+.term-summary-card {
+  border-radius: var(--ui-radius-md);
+  min-height: 114px;
+}
+
+.timeline-head {
+  margin-bottom: var(--ui-gap-5);
+}
+
+.timeline-list {
+  gap: var(--ui-gap-3);
+}
+
+.timeline-card {
+  border-radius: var(--ui-radius-md);
+}
+
+#todo-modal .todo-content {
+  border-radius: var(--ui-radius-lg);
+  box-shadow: var(--ui-elev-2);
+}
+
+#todo-modal .timeline-head {
+  padding: 18px 20px 14px;
+}
+
+#todo-modal .todo-list {
+  gap: var(--ui-gap-2);
+  padding: 14px 20px 20px;
+}
+
+.todo-expanded-card,
+.todo-task-row {
+  border-radius: var(--ui-radius-md);
+}
+
+.todo-inline-note {
+  border-radius: var(--ui-radius-md);
+}
+
+.todo-summary,
+.todo-badge {
+  border-radius: 999px;
+}
+
+body.theme-dark .module,
+body.theme-charcoal .module {
+  background: color-mix(in srgb, var(--paper3) 92%, transparent 8%);
+  border-color: color-mix(in srgb, var(--border) 88%, transparent 12%);
+}
+
+body.theme-dark .module-edit-tools,
+body.theme-dark .notes-area-wrap,
+body.theme-dark .formula-links-wrap,
+body.theme-dark .relevant-links-wrap,
+body.theme-dark .module-section-head,
+body.theme-dark .module-section-body,
+body.theme-charcoal .module-edit-tools,
+body.theme-charcoal .notes-area-wrap,
+body.theme-charcoal .formula-links-wrap,
+body.theme-charcoal .relevant-links-wrap,
+body.theme-charcoal .module-section-head,
+body.theme-charcoal .module-section-body {
+  background: color-mix(in srgb, var(--paper2) 88%, transparent 12%);
+  border-color: color-mix(in srgb, var(--border) 86%, transparent 14%);
+}
+
+body.theme-charcoal .dashboard-content,
+body.theme-charcoal #todo-modal .todo-content,
+body.theme-charcoal .timeline-card,
+body.theme-charcoal .dashboard-card,
+body.theme-charcoal .term-summary-card,
+body.theme-charcoal .todo-expanded-card,
+body.theme-charcoal .todo-task-row,
+body.theme-charcoal .todo-note-details {
+  background: #1f2329;
+  border-color: rgba(255, 255, 255, 0.11);
+  color: #ece7dd;
+}
+
+body.theme-charcoal .dashboard-chart-wrap,
+body.theme-charcoal #todo-modal .timeline-head,
+body.theme-charcoal .todo-view-row,
+body.theme-charcoal .todo-summary,
+body.theme-charcoal .todo-badge {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.11);
+}
+
+body.theme-charcoal .dashboard-title,
+body.theme-charcoal .dashboard-score,
+body.theme-charcoal .term-summary-value,
+body.theme-charcoal .timeline-page-title,
+body.theme-charcoal .todo-expanded-title,
+body.theme-charcoal .todo-row-title {
+  color: #f3eee5;
+}
+
+body.theme-charcoal .dashboard-subtitle,
+body.theme-charcoal .term-summary-empty,
+body.theme-charcoal .timeline-subtitle,
+body.theme-charcoal .dashboard-card-title,
+body.theme-charcoal .term-summary-label,
+body.theme-charcoal .term-summary-meta,
+body.theme-charcoal .todo-row-meta,
+body.theme-charcoal .todo-note-details summary {
+  color: rgba(236, 231, 221, 0.72);
+}
+
+body.theme-charcoal #todo-modal .todo-toolbar .input,
+body.theme-charcoal #todo-modal .todo-toolbar .nav-select,
+body.theme-charcoal .todo-inline-note {
+  background: #171a1f;
+  color: #f3eee5;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+body.theme-charcoal #todo-modal .todo-add-btn {
+  background: var(--ui-primary-bg);
+  border-color: var(--ui-primary-bg);
+  color: var(--ui-primary-fg);
+}
+
+body.theme-charcoal #todo-modal .todo-add-btn:hover {
+  background: var(--ui-primary-bg-hover);
+  border-color: var(--ui-primary-bg-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mobile parity pass: keep tiny screens as usable as desktop */
+@media (max-width: 760px) {
+  .nav-bar {
+    padding-left: max(10px, env(safe-area-inset-left)) !important;
+    padding-right: max(10px, env(safe-area-inset-right)) !important;
+  }
+
+  .year-controls {
+    min-width: 116px !important;
+    flex-basis: 116px !important;
+  }
+
+  .exam-ticker {
+    min-width: 190px !important;
+  }
+
+  #todo-modal .todo-content {
+    left: max(8px, env(safe-area-inset-left)) !important;
+    width: calc(100vw - max(16px, env(safe-area-inset-left) + env(safe-area-inset-right))) !important;
+    max-height: calc(100dvh - 92px) !important;
+  }
+
+  #todo-modal .timeline-head,
+  #todo-modal .todo-view-row,
+  #todo-modal .todo-list {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  #modules {
+    grid-auto-columns: 88vw !important;
+    scroll-padding-inline: 6vw !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .year-controls {
+    min-width: 104px !important;
+    flex-basis: 104px !important;
+  }
+
+  .nav-brand {
+    width: 30px !important;
+    height: 30px !important;
+    flex-basis: 30px !important;
+  }
+
+  #todo-modal .todo-content {
+    top: 70px !important;
+    max-height: calc(100dvh - 78px) !important;
+  }
+
+  #modules {
+    grid-auto-columns: 90vw !important;
   }
 }
 

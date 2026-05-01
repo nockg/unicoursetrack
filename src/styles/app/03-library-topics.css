@@ -2067,7 +2067,7 @@ body.theme-dark .library-v10-details-header {
   }
   .library-v10-details-header,
   .library-v10-row {
-    min-width: 980px;
+    min-width: 720px;
   }
   .library-v10-list {
     max-height: 58vh;
