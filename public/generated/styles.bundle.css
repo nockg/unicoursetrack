@@ -9485,51 +9485,69 @@ body.theme-charcoal #deadline-form-modal .deadline-form-actions {
 }
 
 /* Mobile landscape guard */
+/* Mobile landscape guard */
 @media screen and (orientation: landscape) and (max-height: 560px) and (max-width: 950px) {
 
   html,
   body {
-    width: 100%;
-    height: 100%;
+    width: 100dvw !important;
+    height: 100dvh !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
     overflow: hidden !important;
-    background: var(--paper) !important;
+    background: #f5f0e8 !important;
   }
 
   body {
+    position: fixed !important;
+    inset: 0 !important;
     padding-top: 0 !important;
+    overscroll-behavior: none !important;
   }
 
   body::before {
     content: "";
     position: fixed;
-    inset: 0;
+    inset: -2px;
     z-index: 999998;
+    width: calc(100dvw + 4px);
+    height: calc(100dvh + 4px);
     background:
-      radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.42), transparent 30%),
-      linear-gradient(135deg, rgba(245, 240, 232, 0.98), rgba(232, 224, 208, 0.96));
+      radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.46), transparent 34%),
+      radial-gradient(circle at 82% 80%, rgba(212, 160, 23, 0.08), transparent 36%),
+      linear-gradient(135deg, #f7f2ea 0%, #ebe4d6 100%);
   }
 
   body::after {
-    content: "Rotate back to portrait to use UniTrack.";
+    content: "UniTrack | V1.0.0\A Rotate back to portrait to use UniTrack.";
+    white-space: pre;
     position: fixed;
     inset: 0;
     z-index: 999999;
     display: grid;
     place-items: center;
-    padding: max(24px, env(safe-area-inset-top)) max(28px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(28px, env(safe-area-inset-left));
+    padding:
+      max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
     color: var(--ink);
     font-family: inherit;
-    font-size: clamp(18px, 3.8vw, 28px);
-    line-height: 1.25;
-    letter-spacing: 0.02em;
+    font-size: clamp(11px, 2.15vw, 15px);
+    line-height: 2.1;
+    letter-spacing: 0.08em;
     text-align: center;
+  }
+
+  body.theme-dark,
+  body.theme-charcoal {
+    background: #101113 !important;
   }
 
   body.theme-dark::before,
   body.theme-charcoal::before {
     background:
-      radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.08), transparent 32%),
-      linear-gradient(135deg, #101113, #181515);
+      radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.08), transparent 34%),
+      radial-gradient(circle at 82% 80%, rgba(255, 255, 255, 0.035), transparent 38%),
+      linear-gradient(135deg, #101113 0%, #181515 100%);
   }
 
   body.theme-dark::after,
