@@ -325,11 +325,12 @@ function renderYearSelector() {
     : `${university} - ${currentYear.label}${termSuffix} - ${startYear}-${String(endYear).slice(2)}`;
   const title = document.getElementById("hero-title");
   if (title) title.textContent = activeTerm === "all" ? `Year ${yearNumber} ${course}` : `${getTermLabel(activeTerm)} ${course}`;
+
   const footer = document.getElementById("footer-label");
   if (footer && !footer.classList.contains("mobile-app-footnote")) {
     footer.textContent = `${university} ${currentYear.label}${termSuffix} - Progress Tracker`;
   }
-  if (footer) footer.textContent = `${university} ${currentYear.label}${termSuffix} - Progress Tracker`;
+
   document.title = `${course} ${currentYear.label}${termSuffix} Tracker`;
 }
 

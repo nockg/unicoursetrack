@@ -2891,12 +2891,9 @@ body.theme-dark :focus-visible {
     align-items: center;
     justify-content: center;
     gap: 7px;
-    margin: 22px auto 12px;
-    padding: 0 16px 22px;
+    margin: 24px auto 12px;
+    padding: 0 16px 24px;
     font-family: "DM Mono", monospace;
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    color: rgba(26, 22, 18, 0.52);
     text-transform: uppercase;
   }
 
@@ -2912,6 +2909,7 @@ body.theme-dark :focus-visible {
     line-height: 1;
     letter-spacing: 0.14em;
     opacity: 0.62;
+    color: rgba(26, 22, 18, 0.56);
   }
 
   body.theme-dark .mobile-app-footnote-logo-black {
@@ -2922,8 +2920,8 @@ body.theme-dark :focus-visible {
     display: block;
   }
 
-  body.theme-dark .footer.mobile-app-footnote {
-    color: rgba(245, 240, 232, 0.58);
+  body.theme-dark .mobile-app-footnote-version {
+    color: rgba(245, 240, 232, 0.6);
   }
 
   .hero-grid>.dash-actions-card,
@@ -2970,21 +2968,5 @@ body.theme-dark :focus-visible {
     width: 0 !important;
     height: 0 !important;
     display: none !important;
-  }
-}
-
-@media (max-width: 700px) {
-  .hero-grid>.dash-actions-card {
-    grid-area: actions !important;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-    grid-template-rows: none !important;
-    width: 100% !important;
-    gap: 10px !important;
-  }
-
-  .hero-grid>.dash-actions-card>.dash-hero-btn {
-    width: 100% !important;
-    min-width: 0 !important;
   }
 }
