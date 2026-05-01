@@ -231,7 +231,12 @@ function renderAuthGate(mode = authViewMode) {
   const feedbackClass = authStatusTone === "success" ? "auth-success" : "auth-error";
   const profileName = escapeHtml((state.profile?.name || "").trim());
   const loginTitle = profileName ? `Welcome back, ${profileName}` : "Welcome back!";
-  if (asideCopy) asideCopy.textContent = authScreenLoading ? "Opening your saved tracker." : "Sign in to UniTrack.";
+  if (asideCopy) {
+    const bootLocked = !window.unitrackBootComplete;
+    asideCopy.textContent = bootLocked || authScreenLoading
+      ? "Opening your tracker."
+      : "Sign in to UniTrack.";
+  }
 
   if (authScreenLoading && !isRecovery) {
     host.innerHTML = `
