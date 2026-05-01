@@ -8195,12 +8195,12 @@ body.theme-dark :focus-visible {
 
 @media (max-width: 700px) {
   .module-header {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr;
     grid-template-areas:
-      "summary delete"
-      "final final"
-      "progress progress"
-      "chevron chevron";
+      "summary"
+      "final"
+      "progress"
+      "chevron";
     gap: 12px;
     align-items: start;
     padding: 18px 12px 14px;
@@ -8213,7 +8213,7 @@ body.theme-dark :focus-visible {
   .module-header .module-summary {
     grid-area: summary;
     min-width: 0;
-    padding-right: 8px;
+    padding-right: 34px;
   }
 
   .module-header .module-summary .mod-name {
@@ -8320,6 +8320,42 @@ body.theme-dark :focus-visible {
 
   .topic-list .compact-marks-wrap .inputs-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .content {
+    padding: 18px 0 80px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  #modules {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(86vw, 86vw);
+    gap: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 14px 18px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 14px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  #modules::-webkit-scrollbar {
+    display: none;
+  }
+
+  #modules .module {
+    scroll-snap-align: center;
+    margin-bottom: 0;
+    align-self: start;
+  }
+
+  #modules .module-empty-state {
+    width: calc(100vw - 28px);
   }
 }
 

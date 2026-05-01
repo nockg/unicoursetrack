@@ -2543,3 +2543,39 @@ body.theme-dark :focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 700px) {
+  .content {
+    padding: 18px 0 80px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  #modules {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(86vw, 86vw);
+    gap: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 14px 18px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 14px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  #modules::-webkit-scrollbar {
+    display: none;
+  }
+
+  #modules .module {
+    scroll-snap-align: center;
+    margin-bottom: 0;
+    align-self: start;
+  }
+
+  #modules .module-empty-state {
+    width: calc(100vw - 28px);
+  }
+}
