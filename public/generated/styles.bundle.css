@@ -8193,6 +8193,136 @@ body.theme-dark :focus-visible {
   box-shadow: 0 0 0 2px rgba(241, 237, 228, 0.28);
 }
 
+@media (max-width: 700px) {
+  .module-header {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "summary delete"
+      "final final"
+      "progress progress"
+      "chevron chevron";
+    gap: 12px;
+    align-items: start;
+    padding: 18px 12px 14px;
+  }
+
+  .module-header .mod-stripe {
+    display: none;
+  }
+
+  .module-header .module-summary {
+    grid-area: summary;
+    min-width: 0;
+    padding-right: 8px;
+  }
+
+  .module-header .module-summary .mod-name {
+    font-size: 18px;
+    line-height: 1.12;
+    margin-bottom: 4px;
+  }
+
+  .module-header .module-summary .mod-kanji {
+    font-size: 10px;
+    line-height: 1.45;
+    letter-spacing: 0.12em;
+    margin-bottom: 10px;
+  }
+
+  .module-header .module-links {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .module-header .module-links .bb-link,
+  .module-header .module-links .formula-btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .module-header>.inputs-grid {
+    display: none;
+  }
+
+  .module-header .final-col {
+    grid-area: final;
+    text-align: left;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(26, 22, 18, 0.025);
+  }
+
+  .module-header .final-mark {
+    font-size: 34px;
+    line-height: 1;
+    margin: 0;
+  }
+
+  .module-header .final-cls {
+    margin-top: 0;
+  }
+
+  .module-header .progress-section {
+    grid-area: progress;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(26, 22, 18, 0.022);
+  }
+
+  .module-header .prog-header {
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+
+  .module-header .prog-done {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .module-header .prog-pct {
+    font-size: 10px;
+  }
+
+  .module-header .prog-track {
+    height: 7px;
+    margin-bottom: 8px;
+  }
+
+  .module-header .prog-of {
+    font-size: 11px;
+  }
+
+  .module-header .module-actions {
+    display: none;
+  }
+
+  .module-header .chevron {
+    grid-area: chevron;
+    justify-self: center;
+    opacity: 0.75;
+  }
+
+  .module-delete-corner {
+    top: 14px;
+    right: 14px;
+  }
+
+  .topic-list .compact-marks-wrap {
+    display: block;
+  }
+
+  .topic-list .compact-marks-wrap .inputs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* 10-account-panel.css */
 /* UniTrack account panel UI
    Theme-aware account layout, privacy controls, and backup actions. */
