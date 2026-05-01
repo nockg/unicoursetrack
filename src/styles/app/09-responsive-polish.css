@@ -2544,20 +2544,55 @@ body.theme-dark :focus-visible {
   }
 }
 
+@media (max-width: 700px) {
+  .content {
+    padding: 18px 0 80px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  #modules {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(86vw, 86vw);
+    gap: 14px;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 0 14px 18px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 14px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  #modules::-webkit-scrollbar {
+    display: none;
+  }
+
+  #modules .module {
+    scroll-snap-align: center;
+    margin-bottom: 0;
+    align-self: start;
+  }
+
+  #modules .module-empty-state {
+    width: calc(100vw - 28px);
+  }
+}
+
 /* =========================================================
    Mobile dashboard + swipeable modules
    ========================================================= */
 
 @media (max-width: 700px) {
-  :root {
-    --mobile-module-width: 86vw;
-    --mobile-module-peek: 14vw;
-  }
 
-  /* Hero */
+  /* Mobile hero order:
+     1. Year Prediction
+     2. Dashboard + Library buttons
+     3. Overall Progress */
   .hero {
-    padding: 22px 14px 22px;
-    padding-top: 28px;
+    padding: 28px 14px 24px;
+    padding-top: 34px;
     margin-top: -6px;
   }
 
@@ -2568,20 +2603,15 @@ body.theme-dark :focus-visible {
   .eyebrow {
     font-size: 9px;
     line-height: 1.45;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
     margin-bottom: 10px;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-    flex-wrap: wrap;
-    row-gap: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   #hero-title {
-    display: block;
-    font-size: clamp(28px, 7vw, 34px);
-    line-height: 1.06;
-    margin-bottom: 12px;
+    display: none;
   }
 
   .hero-grid {
@@ -2592,7 +2622,7 @@ body.theme-dark :focus-visible {
       "actions actions"
       "progress progress";
     gap: 10px;
-    margin-top: 0;
+    margin-top: 8px;
   }
 
   .hero-grid>.washi-card:first-child {
@@ -2601,29 +2631,24 @@ body.theme-dark :focus-visible {
 
   .hero-grid>.dash-actions-card {
     grid-area: actions;
-    width: 100%;
   }
 
   .hero-grid>.washi-card:last-child {
     grid-area: prediction;
   }
 
-  .hero-grid .dash-actions-card {
-    display: flex;
+  .dash-actions-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: none;
     gap: 10px;
     min-height: 0;
   }
 
-  .hero-grid .dash-actions-card>* {
-    flex: 1 1 0;
-    min-width: 0;
-  }
-
-  .hero-grid .dash-hero-btn {
-    width: 100%;
+  .dash-hero-btn {
     min-height: 72px;
     height: auto;
-    padding: 14px 12px;
+    padding: 14px 10px;
   }
 
   .dash-launch::after {
@@ -2632,15 +2657,8 @@ body.theme-dark :focus-visible {
 
   .dash-launch-icon {
     max-width: none;
-    width: 100%;
     font-size: 18px;
-    line-height: 1.12;
-    text-align: center;
-  }
-
-  .dash-launch-copy {
-    font-size: 13px;
-    margin-top: 4px;
+    line-height: 1.15;
   }
 
   .washi-card {
@@ -2648,7 +2666,7 @@ body.theme-dark :focus-visible {
   }
 
   .predictor-hero-number {
-    font-size: clamp(54px, 16vw, 78px);
+    font-size: clamp(58px, 17vw, 82px);
     margin-bottom: 8px;
   }
 
@@ -2676,28 +2694,24 @@ body.theme-dark :focus-visible {
     justify-content: start;
   }
 
-  /* Main content spacing */
+  /* Mobile module carousel */
   .content {
-    padding: 18px 0 112px;
+    padding: 18px 0 80px;
     max-width: 100%;
     overflow: hidden;
   }
 
-  /* Mobile module carousel */
   #modules {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: var(--mobile-module-width);
+    grid-auto-columns: 82vw;
     gap: 14px;
     overflow-x: auto;
     overflow-y: visible;
-    padding:
-      0 max(14px, calc((100vw - var(--mobile-module-width)) / 2)) 26px max(14px, calc((100vw - var(--mobile-module-width)) / 2));
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: max(14px, calc((100vw - var(--mobile-module-width)) / 2));
+    padding: 0 58px 18px 18px;
+    scroll-snap-type: none;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    overscroll-behavior-x: contain;
   }
 
   #modules::-webkit-scrollbar {
@@ -2705,34 +2719,23 @@ body.theme-dark :focus-visible {
   }
 
   #modules .module {
-    position: relative;
-    scroll-snap-align: center;
     margin-bottom: 0;
     align-self: start;
     min-width: 0;
     border-radius: 10px;
-    background: var(--paper2);
-    border: 1px solid var(--border);
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.14);
-    overflow: hidden;
+    background: var(--paper3);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.16);
   }
 
-  /* Restore module accent colour */
   #modules .module::before {
-    display: block;
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 4px;
-    background: var(--module-accent, var(--vermillion));
-    z-index: 2;
+    display: none;
   }
 
   #modules .module-empty-state {
-    width: calc(100vw - 28px);
+    width: calc(100vw - 36px);
   }
 
-  /* Module card content */
+  /* Mobile module card content */
   .module-header {
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -2742,7 +2745,7 @@ body.theme-dark :focus-visible {
       "chevron";
     gap: 12px;
     align-items: start;
-    padding: 18px 14px 14px;
+    padding: 18px 12px 14px;
   }
 
   .module-header .mod-stripe {
@@ -2753,35 +2756,6 @@ body.theme-dark :focus-visible {
     grid-area: summary;
     min-width: 0;
     padding-right: 34px;
-  }
-
-  .module-header .module-summary .mod-name {
-    font-size: 18px;
-    line-height: 1.14;
-    margin-bottom: 4px;
-  }
-
-  .module-header .module-summary .mod-kanji {
-    font-size: 10px;
-    line-height: 1.45;
-    letter-spacing: 0.1em;
-    margin-bottom: 10px;
-    white-space: normal;
-    word-break: break-word;
-  }
-
-  .module-header .module-links {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .module-header .module-links .bb-link,
-  .module-header .module-links .formula-btn {
-    width: 100%;
-    justify-content: center;
-    text-align: center;
-    min-height: 36px;
   }
 
   .module-header>.inputs-grid {
@@ -2806,10 +2780,6 @@ body.theme-dark :focus-visible {
     margin: 0;
   }
 
-  .module-header .final-cls {
-    margin-top: 0;
-  }
-
   .module-header .progress-section {
     grid-area: progress;
     padding: 12px;
@@ -2818,27 +2788,13 @@ body.theme-dark :focus-visible {
     background: rgba(26, 22, 18, 0.022);
   }
 
-  .module-header .prog-header {
-    align-items: baseline;
-    margin-bottom: 8px;
-  }
-
   .module-header .prog-done {
     font-size: 28px;
     line-height: 1;
   }
 
-  .module-header .prog-pct {
-    font-size: 10px;
-  }
-
   .module-header .prog-track {
     height: 7px;
-    margin-bottom: 8px;
-  }
-
-  .module-header .prog-of {
-    font-size: 11px;
   }
 
   .module-header .module-actions {
@@ -2863,17 +2819,11 @@ body.theme-dark :focus-visible {
   .topic-list .compact-marks-wrap .inputs-grid {
     grid-template-columns: 1fr;
   }
-
-  /* Better ending / breathing room */
-  .content::after {
-    content: "";
-    display: block;
-    height: 12px;
-  }
 }
 
 /* =========================================================
-   Final mobile footer + dashboard action row + carousel polish
+   Final mobile UX pass: nav cleanup, carousel spacing,
+   module action buttons, scrollbar hiding, and app footer
    ========================================================= */
 
 .footer.mobile-app-footnote {
@@ -2885,49 +2835,78 @@ body.theme-dark :focus-visible {
 }
 
 @media (max-width: 700px) {
-  .footer.mobile-app-footnote {
-    display: flex !important;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    margin: 6px auto 8px !important;
-    padding: 0 16px 12px !important;
-    font-family: "DM Mono", monospace;
-    text-transform: uppercase;
+  /* Keep the mobile app focused: hide secondary nav shortcuts */
+  .nav-bar .calendar-btn,
+  .nav-bar .youtube-btn {
+    display: none !important;
   }
 
-  .mobile-app-footnote-logo {
-    width: 92px;
-    height: auto;
-    display: block;
+  /* Hide visual scrollbars while preserving scrolling/swiping */
+  html,
+  body,
+  .nav-bar,
+  .sticky-exams,
+  #modules {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
   }
 
-  .mobile-app-footnote-version {
-    display: block;
-    font-size: 9px;
-    line-height: 1;
-    letter-spacing: 0.14em;
-    opacity: 0.62;
-    color: rgba(26, 22, 18, 0.56);
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  .nav-bar::-webkit-scrollbar,
+  .sticky-exams::-webkit-scrollbar,
+  #modules::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
   }
 
-  body.theme-dark .mobile-app-footnote-logo-black {
-    display: none;
+  /* Restore the mobile heading and stop the eyebrow from being cut off */
+  .hero {
+    padding: 20px 14px 16px !important;
   }
 
-  body.theme-dark .mobile-app-footnote-logo-white {
-    display: block;
+  .eyebrow {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.35 !important;
+    max-width: 100% !important;
   }
 
-  body.theme-dark .mobile-app-footnote-version {
-    color: rgba(245, 240, 232, 0.6);
+  #hero-title {
+    display: block !important;
+    font-size: clamp(28px, 8vw, 36px) !important;
+    line-height: 1.04 !important;
+    margin-bottom: 12px !important;
   }
 
-  .hero-grid>.dash-actions-card,
+  /* Keep Dashboard and Library as a proper two-button row */
+  .hero-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    grid-template-areas:
+      "prediction prediction"
+      "actions actions"
+      "progress progress" !important;
+    gap: 10px !important;
+  }
+
+  .hero-grid > .washi-card:first-child {
+    grid-area: progress !important;
+  }
+
+  .hero-grid > .dash-actions-card {
+    grid-area: actions !important;
+  }
+
+  .hero-grid > .washi-card:last-child {
+    grid-area: prediction !important;
+  }
+
+  .hero-grid > .dash-actions-card,
   .hero-grid .dash-actions-card,
   .dash-actions-card {
-    grid-area: actions;
     width: 100% !important;
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
@@ -2936,18 +2915,13 @@ body.theme-dark :focus-visible {
     min-height: 0 !important;
   }
 
-  .hero-grid>.dash-actions-card>button,
-  .hero-grid .dash-actions-card>button,
-  .dash-actions-card>button {
+  .hero-grid > .dash-actions-card > .dash-hero-btn,
+  .dash-actions-card > .dash-hero-btn {
     width: 100% !important;
     min-width: 0 !important;
-  }
-
-  .hero-grid .dash-hero-btn,
-  .dash-hero-btn {
-    min-height: 72px !important;
+    min-height: 70px !important;
     height: auto !important;
-    padding: 14px 10px !important;
+    padding: 13px 10px !important;
   }
 
   .hero-grid .dash-launch-icon,
@@ -2955,43 +2929,84 @@ body.theme-dark :focus-visible {
     width: 100% !important;
     max-width: none !important;
     text-align: center !important;
-    font-size: clamp(15px, 4.6vw, 18px) !important;
-    line-height: 1.12 !important;
+    font-size: clamp(15px, 4.8vw, 18px) !important;
+    line-height: 1.1 !important;
   }
 
+  /* Tighten the ending so the footer sits closer to the carousel */
   .content {
-    padding-bottom: 56px !important;
+    padding-top: 14px !important;
+    padding-bottom: 10px !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .content::after {
+    display: none !important;
+    content: none !important;
+    height: 0 !important;
   }
 
   #modules {
-    padding-bottom: 10px !important;
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
+    grid-auto-columns: 86vw !important;
+    gap: 12px !important;
+    padding:
+      0
+      max(12px, calc((100vw - 86vw) / 2))
+      4px
+      max(12px, calc((100vw - 86vw) / 2)) !important;
+    margin-bottom: 0 !important;
+    scroll-snap-type: x mandatory !important;
+    scroll-padding-inline: max(12px, calc((100vw - 86vw) / 2)) !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
   }
 
-  #modules::-webkit-scrollbar {
-    width: 0 !important;
-    height: 0 !important;
-    display: none !important;
+  #modules .module {
+    scroll-snap-align: center !important;
+    margin-bottom: 0 !important;
+    background: var(--paper2) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
   }
 
+  /* Restore module accent colours on mobile */
+  #modules .module::before {
+    display: block !important;
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 auto 0 0 !important;
+    width: 4px !important;
+    background: var(--module-accent, var(--vermillion)) !important;
+    z-index: 2 !important;
+  }
+
+  /* Make Set Blackboard / Library fill the card and read cleanly */
   .module-header .module-links {
+    width: 100% !important;
     display: grid !important;
     grid-template-columns: 1fr !important;
     gap: 8px !important;
+    align-items: stretch !important;
   }
 
   .module-header .module-links .bb-link,
   .module-header .module-links .formula-btn {
-    min-height: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     width: 100% !important;
-    padding: 10px 12px !important;
-    border-radius: 5px !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    box-sizing: border-box !important;
+    padding: 10px 14px !important;
+    border-radius: 6px !important;
+    text-align: center !important;
     font-size: 12px !important;
     line-height: 1.15 !important;
-    letter-spacing: 0.04em !important;
-    text-align: center !important;
-    justify-content: center !important;
+    letter-spacing: 0.035em !important;
     white-space: normal !important;
     overflow-wrap: anywhere !important;
   }
@@ -3003,6 +3018,52 @@ body.theme-dark :focus-visible {
   }
 
   .module-header .module-links .formula-btn {
-    color: var(--muted) !important;
+    background: rgba(255,255,255,0.03) !important;
+    color: rgba(245,240,232,0.62) !important;
+    border-color: rgba(245,240,232,0.18) !important;
+  }
+
+  /* Compact app-style footer */
+  .footer.mobile-app-footnote {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    margin: 6px auto 0 !important;
+    padding: 0 16px 10px !important;
+    font-family: "DM Mono", monospace !important;
+    text-transform: uppercase !important;
+  }
+
+  .mobile-app-footnote-logo {
+    width: 88px !important;
+    height: auto !important;
+    display: block !important;
+  }
+
+  .mobile-app-footnote-logo-white {
+    display: none !important;
+  }
+
+  .mobile-app-footnote-version {
+    display: block !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+    letter-spacing: 0.14em !important;
+    opacity: 0.62 !important;
+    color: rgba(26, 22, 18, 0.56) !important;
+  }
+
+  body.theme-dark .mobile-app-footnote-logo-black {
+    display: none !important;
+  }
+
+  body.theme-dark .mobile-app-footnote-logo-white {
+    display: block !important;
+  }
+
+  body.theme-dark .mobile-app-footnote-version {
+    color: rgba(245, 240, 232, 0.6) !important;
   }
 }
