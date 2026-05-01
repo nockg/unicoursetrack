@@ -26,9 +26,7 @@ textarea,
 
 .nav-btn,
 .bb-link,
-.bb-edit-btn,
 .formula-btn,
-.formula-edit-btn,
 .mini-btn,
 .topic-edit-btn,
 .topic-options-summary,
@@ -43,11 +41,18 @@ textarea,
   box-shadow: none;
 }
 
+.bb-edit-btn,
+.formula-edit-btn {
+  min-height: var(--ui-control-height);
+  border: 1px solid var(--sumi);
+  background: var(--sumi);
+  color: var(--paper3);
+  box-shadow: none;
+}
+
 .nav-btn:hover,
 .bb-link:hover,
-.bb-edit-btn:hover,
 .formula-btn:hover,
-.formula-edit-btn:hover,
 .mini-btn:hover,
 .topic-edit-btn:hover,
 .topic-options-summary:hover,
@@ -58,6 +63,13 @@ textarea,
 .auth-gate-tab:hover {
   background: var(--ui-control-bg-hover);
   border-color: var(--ui-control-border-strong);
+}
+
+.bb-edit-btn:hover,
+.formula-edit-btn:hover {
+  background: color-mix(in srgb, var(--sumi) 88%, var(--gold2) 12%);
+  border-color: color-mix(in srgb, var(--sumi) 88%, var(--gold2) 12%);
+  color: var(--paper3);
 }
 
 .nav-select,
