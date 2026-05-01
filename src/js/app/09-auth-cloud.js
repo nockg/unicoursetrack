@@ -62,10 +62,27 @@ async function waitForInitialAuth() {
     return;
   }
 
-  try {
+  const readSession = async () => {
     const { data } = await supabaseClient.auth.getSession();
     currentSession = data?.session || null;
     currentUser = data?.session?.user || null;
+    return currentSession;
+  };
+
+  try {
+    let session = await readSession();
+
+    // Supabase can occasionally return no session for the first instant of boot.
+    // Keep the restoring gate up and retry before deciding to show login.
+    if (!session) {
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      session = await readSession();
+    }
+
+    if (!session) {
+      await new Promise((resolve) => setTimeout(resolve, 650));
+      await readSession();
+    }
   } catch (error) {
     currentSession = null;
     currentUser = null;
