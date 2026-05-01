@@ -14,7 +14,7 @@ function applyReducedMotionPreference() {
 
   if (!supabaseClient) {
     window.unitrackBootComplete = true;
-    setAuthLoading(false);
+    authScreenLoading = false;
     updateAuthLock();
     renderCloudUnavailableGate();
     setInterval(renderStickyExams, 1000);
@@ -23,7 +23,8 @@ function applyReducedMotionPreference() {
 
   if (!currentUser) {
     window.unitrackBootComplete = true;
-    setAuthLoading(false);
+    authScreenLoading = false;
+    authViewMode = "login";
     updateAuthLock();
     renderAuthGate("login");
     setInterval(renderStickyExams, 1000);
