@@ -533,6 +533,8 @@ function buildModules() {
     const term = getActiveTermFilter();
     container.innerHTML = `<div class="module-empty-state">${term === "all" ? "No modules yet." : `No modules in ${escapeHtml(getTermLabel(term))} yet.`}</div>`;
   }
+
+  setupMobileModuleCarousel();
 }
 
 window.addEventListener("resize", () => {
@@ -547,3 +549,81 @@ document.addEventListener("click", (event) => {
 });
 
 document.addEventListener("mouseup", stopTopicDrag);
+
+function setupMobileModuleCarousel() {
+  const carousel = document.getElementById("modules");
+  if (!carousel || carousel.dataset.mobileCarouselReady === "true") return;
+
+  carousel.dataset.mobileCarouselReady = "true";
+
+  let wrapLock = false;
+  let holdTimer = null;
+  let autoScrollTimer = null;
+
+  const isMobileCarousel = () => window.innerWidth <= 700 && carousel.scrollWidth > carousel.clientWidth + 20;
+
+  const stopAutoScroll = () => {
+    clearTimeout(holdTimer);
+    clearInterval(autoScrollTimer);
+    holdTimer = null;
+    autoScrollTimer = null;
+  };
+
+  const wrapIfNeeded = () => {
+    if (!isMobileCarousel() || wrapLock) return;
+
+    const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+    if (maxScroll <= 0) return;
+
+    if (carousel.scrollLeft >= maxScroll - 6) {
+      wrapLock = true;
+      carousel.scrollTo({ left: 0, behavior: "smooth" });
+      window.setTimeout(() => { wrapLock = false; }, 450);
+    }
+
+    if (carousel.scrollLeft <= 0) {
+      return;
+    }
+  };
+
+  carousel.addEventListener("scroll", () => {
+    window.clearTimeout(carousel._wrapTimer);
+    carousel._wrapTimer = window.setTimeout(wrapIfNeeded, 160);
+  }, { passive: true });
+
+  carousel.addEventListener("pointerdown", (event) => {
+    if (!isMobileCarousel()) return;
+
+    const rect = carousel.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const rightZone = rect.width * 0.78;
+    const leftZone = rect.width * 0.22;
+
+    let direction = 0;
+    if (x >= rightZone) direction = 1;
+    if (x <= leftZone) direction = -1;
+    if (!direction) return;
+
+    holdTimer = window.setTimeout(() => {
+      autoScrollTimer = window.setInterval(() => {
+        const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+
+        if (direction > 0 && carousel.scrollLeft >= maxScroll - 10) {
+          carousel.scrollTo({ left: 0, behavior: "smooth" });
+          return;
+        }
+
+        if (direction < 0 && carousel.scrollLeft <= 10) {
+          carousel.scrollTo({ left: maxScroll, behavior: "smooth" });
+          return;
+        }
+
+        carousel.scrollBy({ left: direction * 52, behavior: "smooth" });
+      }, 130);
+    }, 420);
+  }, { passive: true });
+
+  carousel.addEventListener("pointerup", stopAutoScroll, { passive: true });
+  carousel.addEventListener("pointercancel", stopAutoScroll, { passive: true });
+  carousel.addEventListener("pointerleave", stopAutoScroll, { passive: true });
+}
