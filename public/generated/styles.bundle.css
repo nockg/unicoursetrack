@@ -8359,6 +8359,248 @@ body.theme-dark :focus-visible {
   }
 }
 
+/* =========================================================
+   Mobile dashboard + swipeable modules
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  /* Mobile hero order:
+     1. Year Prediction
+     2. Dashboard + Library buttons
+     3. Overall Progress */
+  .hero {
+    padding: 28px 14px 24px;
+    padding-top: 34px;
+    margin-top: -6px;
+  }
+
+  .hero-inner {
+    max-width: 100%;
+  }
+
+  .eyebrow {
+    font-size: 9px;
+    line-height: 1.45;
+    letter-spacing: 0.14em;
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #hero-title {
+    font-size: clamp(32px, 9vw, 42px);
+    line-height: 1.02;
+    margin-bottom: 14px;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "prediction prediction"
+      "actions actions"
+      "progress progress";
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .hero-grid>.washi-card:first-child {
+    grid-area: progress;
+  }
+
+  .hero-grid>.dash-actions-card {
+    grid-area: actions;
+  }
+
+  .hero-grid>.washi-card:last-child {
+    grid-area: prediction;
+  }
+
+  .dash-actions-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: none;
+    gap: 10px;
+    min-height: 0;
+  }
+
+  .dash-hero-btn {
+    min-height: 72px;
+    height: auto;
+    padding: 14px 10px;
+  }
+
+  .dash-launch::after {
+    display: none;
+  }
+
+  .dash-launch-icon {
+    max-width: none;
+    font-size: 18px;
+    line-height: 1.15;
+  }
+
+  .washi-card {
+    padding: 16px 14px;
+  }
+
+  .predictor-hero-number {
+    font-size: clamp(58px, 17vw, 82px);
+    margin-bottom: 8px;
+  }
+
+  .predictor-hero-sub {
+    font-size: 9px;
+    margin-bottom: 8px;
+  }
+
+  .hero-summary {
+    font-size: 16px;
+  }
+
+  .global-big {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+
+  .global-big span {
+    font-size: 12px;
+  }
+
+  .meta-row {
+    display: grid;
+    gap: 4px;
+    justify-content: start;
+  }
+
+  /* Mobile module carousel */
+  .content {
+    padding: 18px 0 80px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  #modules {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 88vw;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 0 28px 18px 14px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 14px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  #modules::-webkit-scrollbar {
+    display: none;
+  }
+
+  #modules .module {
+    scroll-snap-align: start;
+    margin-bottom: 0;
+    align-self: start;
+    min-width: 0;
+  }
+
+  #modules .module::before {
+    display: none;
+  }
+
+  #modules .module-empty-state {
+    width: calc(100vw - 28px);
+  }
+
+  /* Mobile module card content */
+  .module-header {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "summary"
+      "final"
+      "progress"
+      "chevron";
+    gap: 12px;
+    align-items: start;
+    padding: 18px 12px 14px;
+  }
+
+  .module-header .mod-stripe {
+    display: none;
+  }
+
+  .module-header .module-summary {
+    grid-area: summary;
+    min-width: 0;
+    padding-right: 34px;
+  }
+
+  .module-header>.inputs-grid {
+    display: none;
+  }
+
+  .module-header .final-col {
+    grid-area: final;
+    text-align: left;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(26, 22, 18, 0.025);
+  }
+
+  .module-header .final-mark {
+    font-size: 34px;
+    line-height: 1;
+    margin: 0;
+  }
+
+  .module-header .progress-section {
+    grid-area: progress;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(26, 22, 18, 0.022);
+  }
+
+  .module-header .prog-done {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .module-header .prog-track {
+    height: 7px;
+  }
+
+  .module-header .module-actions {
+    display: none;
+  }
+
+  .module-header .chevron {
+    grid-area: chevron;
+    justify-self: center;
+    opacity: 0.75;
+  }
+
+  .module-delete-corner {
+    top: 14px;
+    right: 14px;
+  }
+
+  .topic-list .compact-marks-wrap {
+    display: block;
+  }
+
+  .topic-list .compact-marks-wrap .inputs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* 10-account-panel.css */
 /* UniTrack account panel UI
    Theme-aware account layout, privacy controls, and backup actions. */
