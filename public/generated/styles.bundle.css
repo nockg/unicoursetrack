@@ -9503,43 +9503,27 @@ body.theme-charcoal #deadline-form-modal .deadline-form-actions {
     position: fixed !important;
     inset: 0 !important;
     padding-top: 0 !important;
-    overscroll-behavior: none !important;
-  }
-
-  html::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 2147483644;
-    width: 100vw;
-    height: 100vh;
-    background: #f5f0e8;
-    background-image: none;
   }
 
   body::before {
-    content: "";
-    position: fixed;
-    left: 50%;
-    top: calc(50% - 22px);
-    transform: translate(-50%, -50%);
-    z-index: 2147483645;
-    width: min(240px, 42vw);
-    height: 46px;
-    background-image: url("/unitrack-logo-black.svg");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-  }
-
-  body::after {
     content: "V1.0.0  |  Rotate back to portrait to use UniTrack.";
     position: fixed;
-    left: 50%;
-    top: calc(50% + 30px);
-    transform: translateX(-50%);
-    z-index: 2147483646;
-    width: calc(100vw - 48px);
+    inset: 0;
+    z-index: 2147483647;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding-top: 76px;
+    box-sizing: border-box;
+
+    background-color: #f5f0e8;
+    background-image: url("/unitrack-logo-black.svg");
+    background-repeat: no-repeat;
+    background-position: center calc(50% - 26px);
+    background-size: min(240px, 42vw) auto;
+
     color: #0e0c0a;
     font-family: "DM Mono", Consolas, monospace;
     font-size: clamp(9px, 1.55vw, 12px);
@@ -9550,26 +9534,16 @@ body.theme-charcoal #deadline-form-modal .deadline-form-actions {
   }
 
   body.theme-dark,
-  body.theme-charcoal,
-  body.theme-dark html,
-  body.theme-charcoal html {
+  body.theme-charcoal {
     background: #101113 !important;
     background-image: none !important;
   }
 
   body.theme-dark::before,
   body.theme-charcoal::before {
+    background-color: #101113;
     background-image: url("/unitrack-logo-white.svg");
-  }
-
-  body.theme-dark::after,
-  body.theme-charcoal::after {
     color: #f1ede4;
-  }
-
-  body.theme-dark~*,
-  body.theme-charcoal~* {
-    background: #101113 !important;
   }
 
   body>* {
