@@ -38,7 +38,7 @@
   }
 </style>
 </head>
-<body class="auth-required auth-loading">
+<body class="auth-required">
 <script>
   (function applyInitialThemeClass() {
     try {
@@ -65,14 +65,41 @@
   <img src="/unitrack-logo-black.svg" alt="UniTrack" class="auth-unitrack-logo auth-unitrack-logo-black">
   <img src="/unitrack-logo-white.svg" alt="UniTrack" class="auth-unitrack-logo auth-unitrack-logo-white">
 </div>
-      <div class="auth-gate-copy">Restoring UniTrack.</div>
+      <div class="auth-gate-copy">Sign in to UniTrack.</div>
     </div>
     <div class="auth-gate-panel">
       <div id="auth-gate-body">
         <div class="auth-gate-card">
-          <div class="deadline-splash-title" style="color: var(--ink);">Restoring your session...</div>
-          <div class="auth-gate-message">Checking whether you are already signed in before showing anything.</div>
-          <div id="auth-gate-feedback" class="auth-success"></div>
+          <div class="auth-gate-tabs">
+            <button class="auth-gate-tab active" type="button" onclick="setAuthScreen('login')">Sign In</button>
+            <button class="auth-gate-tab" type="button" onclick="setAuthScreen('signup')">Create Account</button>
+          </div>
+        
+          <div class="deadline-splash-title" style="color: var(--ink);">Welcome back!</div>
+          <div class="auth-gate-message">Sign in with your existing account to view your tracker.</div>
+        
+          <div class="deadline-form-grid">
+            <div class="field">
+              <label for="auth-gate-email">Email</label>
+              <input class="input" id="auth-gate-email" type="email" autocomplete="email" placeholder="you@example.com"
+                onkeydown="handleAuthKeydown(event, 'login')">
+            </div>
+        
+            <div class="field">
+              <label for="auth-gate-password">Password</label>
+              <input class="input" id="auth-gate-password" type="password" autocomplete="current-password"
+                placeholder="Minimum 6 characters" onkeydown="handleAuthKeydown(event, 'login')">
+            </div>
+        
+            <div id="auth-gate-feedback" class="auth-error"></div>
+        
+            <div class="deadline-form-actions">
+              <button class="nav-btn" type="button" onclick="setAuthScreen('reset')">Forgot Password</button>
+              <button class="nav-btn" type="button" data-password-toggle
+                onclick="togglePasswordVisibility('auth-gate-password')">Show Password</button>
+              <button class="nav-btn calendar-btn" type="button" onclick="loginFromModal()">Sign In</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

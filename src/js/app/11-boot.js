@@ -9,7 +9,10 @@ function applyReducedMotionPreference() {
 (async function bootApp() {
   applyReducedMotionPreference();
 
-  setAuthLoading(true, "Restoring your session...", "Checking whether you are already signed in before showing anything.");
+  authScreenLoading = false;
+  authViewMode = "login";
+  updateAuthLock();
+
   await waitForInitialAuth();
 
   if (!supabaseClient) {

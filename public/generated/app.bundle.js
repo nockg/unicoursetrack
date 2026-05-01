@@ -7462,14 +7462,16 @@ function renderAuthGate(mode = authViewMode) {
       : "Sign in to UniTrack.";
   }
 
-  if (authScreenLoading && !isRecovery) {
+  const bootLocked = !window.unitrackBootComplete;
+
+  if ((bootLocked || authScreenLoading) && !isRecovery) {
     host.innerHTML = `
-      <div class="auth-gate-card">
-        <div class="deadline-splash-title" style="color: var(--ink);">${escapeHtml(authLoadingTitle)}</div>
-        <div class="auth-gate-message">${escapeHtml(authLoadingMessage)}</div>
-        <div id="auth-gate-feedback" class="auth-success"></div>
-      </div>
-    `;
+    <div class="auth-gate-card">
+      <div class="deadline-splash-title" style="color: var(--ink);">${escapeHtml(authLoadingTitle || "Restoring your session...")}</div>
+      <div class="auth-gate-message">${escapeHtml(authLoadingMessage || "Checking whether you are already signed in before showing anything.")}</div>
+      <div id="auth-gate-feedback" class="auth-success"></div>
+    </div>
+  `;
     return;
   }
 
