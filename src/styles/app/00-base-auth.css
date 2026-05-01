@@ -242,14 +242,19 @@ body.theme-charcoal .auth-gate-aside {
 }
 body.theme-dark .auth-gate-panel,
 body.theme-charcoal .auth-gate-panel {
-  background: rgba(18,18,20,0.98);
-}
-body.theme-dark .auth-gate-label,
-body.theme-dark .auth-gate-title,
-body.theme-charcoal .auth-gate-label,
-body.theme-charcoal .auth-gate-title {
+  background: rgba(18, 18, 20, 0.98);
   color: #f1ede4;
 }
+
+body.theme-dark .auth-gate-label,
+body.theme-dark .auth-gate-title,
+body.theme-dark #auth-gate .deadline-splash-title,
+body.theme-charcoal .auth-gate-label,
+body.theme-charcoal .auth-gate-title,
+body.theme-charcoal #auth-gate .deadline-splash-title {
+  color: #f1ede4 !important;
+}
+
 body.theme-dark .auth-gate-copy,
 body.theme-dark .auth-gate-message,
 body.theme-dark .auth-switch-copy,

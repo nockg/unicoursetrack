@@ -44,9 +44,9 @@ textarea,
 .bb-edit-btn,
 .formula-edit-btn {
   min-height: var(--ui-control-height);
-  border: 1px solid var(--sumi);
-  background: var(--sumi);
-  color: var(--paper3);
+  border: 1px solid var(--ui-control-border);
+  background: var(--ui-control-bg);
+  color: var(--ink);
   box-shadow: none;
 }
 
@@ -67,9 +67,9 @@ textarea,
 
 .bb-edit-btn:hover,
 .formula-edit-btn:hover {
-  background: color-mix(in srgb, var(--sumi) 88%, var(--gold2) 12%);
-  border-color: color-mix(in srgb, var(--sumi) 88%, var(--gold2) 12%);
-  color: var(--paper3);
+  background: var(--ui-control-bg-hover);
+  border-color: var(--ui-control-border-strong);
+  color: var(--ink);
 }
 
 .nav-select,
@@ -1491,8 +1491,33 @@ body.theme-dark .topic-list {
 body.theme-dark .module-section-title,
 body.theme-dark .topic-tools-title,
 body.theme-dark .formula-links-title,
-body.theme-dark .relevant-links-title {
-  color: rgba(241,237,228,0.7) !important;
+body.theme-dark .relevant-links-title,
+body.theme-dark .bb-edit-btn,
+body.theme-dark .formula-edit-btn,
+body.theme-charcoal .module-section-title,
+body.theme-charcoal .topic-tools-title,
+body.theme-charcoal .formula-links-title,
+body.theme-charcoal .relevant-links-title,
+body.theme-charcoal .bb-edit-btn,
+body.theme-charcoal .formula-edit-btn {
+  color: rgba(241, 237, 228, 0.82) !important;
+}
+
+body.theme-dark .bb-edit-btn,
+body.theme-dark .formula-edit-btn,
+body.theme-charcoal .bb-edit-btn,
+body.theme-charcoal .formula-edit-btn {
+  background: rgba(255, 255, 255, 0.055) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+body.theme-dark .bb-edit-btn:hover,
+body.theme-dark .formula-edit-btn:hover,
+body.theme-charcoal .bb-edit-btn:hover,
+body.theme-charcoal .formula-edit-btn:hover {
+  background: rgba(255, 255, 255, 0.09) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  color: #f1ede4 !important;
 }
 
 @media (min-width: 761px) {
