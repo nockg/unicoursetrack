@@ -586,7 +586,7 @@ async function resetPasswordFromModal() {
   let error;
   try {
     ({ error } = await withCloudTimeout(supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + window.location.pathname
+      redirectTo: "https://unitrack.uk"
     }), "Password reset"));
   } catch (cloudError) {
     setAuthError(cloudError?.message || "Password reset failed. Please try again.");
@@ -666,7 +666,7 @@ async function signUpFromModal() {
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin + window.location.pathname
+        emailRedirectTo: "https://unitrack.uk"
       }
     }), "Account creation"));
   } catch (cloudError) {
