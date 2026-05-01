@@ -114,15 +114,10 @@
   text-decoration: none;
   transition: 0.2s;
 }
-.bb-link {
-  background: var(--sumi);
-  border-color: var(--sumi);
-  color: var(--paper3);
-}
 .bb-link:hover {
-  background: var(--muted);
+  background: #1d1d1d;
   border-color: var(--vermillion);
-  color: var(--sumi);
+  color: #fff;
 }
 
 body.theme-dark .bb-link,

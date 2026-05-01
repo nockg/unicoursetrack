@@ -1213,14 +1213,23 @@ h1 {
   text-decoration: none;
   transition: 0.2s;
 }
-.bb-link {
-  background: #111;
-  border-color: #111;
-  color: #fff;
-}
 .bb-link:hover {
   background: #1d1d1d;
   border-color: var(--vermillion);
+  color: #fff;
+}
+
+body.theme-dark .bb-link,
+body.theme-charcoal .bb-link {
+  background: #000;
+  border-color: #000;
+  color: #fff;
+}
+
+body.theme-dark .bb-link:hover,
+body.theme-charcoal .bb-link:hover {
+  background: #1d1d1d;
+  border-color: var(--vermillion2);
   color: #fff;
 }
 .bb-edit-btn:hover, .formula-btn:hover, .formula-edit-btn:hover, .mini-btn:hover {
@@ -4473,10 +4482,6 @@ body.theme-dark .ticker-time {
 body.theme-dark .ticker-time.urgent {
   color: var(--vermillion2);
 }
-body.theme-dark .bb-link {
-  background: #000;
-  border-color: #000;
-}
 body.theme-dark .bb-edit-btn:hover,
 body.theme-dark .formula-btn:hover,
 body.theme-dark .formula-edit-btn:hover,
@@ -5920,6 +5925,18 @@ textarea,
 .auth-gate-tab:hover {
   background: var(--ui-control-bg-hover);
   border-color: var(--ui-control-border-strong);
+}
+
+.bb-link {
+  background: #000;
+  border-color: #000;
+  color: #fff;
+}
+
+.bb-link:hover {
+  background: #1d1d1d;
+  border-color: var(--vermillion);
+  color: #fff;
 }
 
 .bb-edit-btn:hover,
@@ -7641,8 +7658,9 @@ body.theme-charcoal .formula-edit-btn:hover {
   display: flex !important;
   flex-direction: column !important;
   gap: 8px !important;
-  overflow: visible !important;
-  padding: 10px 28px 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 10px 28px 92px 28px !important;
 }
 
 #deadline-form-modal.is-event-mode .deadline-form-section {
@@ -7685,10 +7703,14 @@ body.theme-charcoal .formula-edit-btn:hover {
 }
 
 #deadline-form-modal.is-event-mode .deadline-form-actions {
-  position: static !important;
-  margin: auto -28px 0 !important;
+  position: sticky !important;
+  bottom: 0 !important;
+  margin: 0 -28px -92px -28px !important;
   padding: 11px 28px 13px !important;
+  background: var(--paper3) !important;
+  border-top: 1px solid var(--border) !important;
   flex-shrink: 0 !important;
+  z-index: 5 !important;
 }
 
 #deadline-form-modal.is-event-mode .deadline-form-actions .nav-btn {
@@ -9026,9 +9048,21 @@ body.theme-dark :focus-visible {
   }
 
   .module-header .module-links .formula-btn {
-    background: rgba(255,255,255,0.03) !important;
-    color: rgba(245,240,232,0.62) !important;
-    border-color: rgba(245,240,232,0.18) !important;
+    background: var(--paper2, rgba(255,255,255,0.12)) !important;
+    color: var(--sumi, #1a1612) !important;
+    border-color: var(--border, rgba(26,22,18,0.16)) !important;
+  }
+
+  body.theme-dark .module-header .module-links .formula-btn {
+    background: rgba(255,255,255,0.08) !important;
+    color: rgba(245,240,232,0.88) !important;
+    border-color: rgba(245,240,232,0.22) !important;
+  }
+
+  body.theme-charcoal .module-header .module-links .formula-btn {
+    background: rgba(255,255,255,0.08) !important;
+    color: rgba(236,231,221,0.88) !important;
+    border-color: rgba(236,231,221,0.22) !important;
   }
 
   /* Compact app-style footer */
