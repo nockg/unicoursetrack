@@ -8323,281 +8323,273 @@ body.theme-dark :focus-visible {
   }
 }
 
-@media (max-width: 700px) {
-  .content {
-    padding: 18px 0 80px;
-    max-width: 100%;
-    overflow: hidden;
-  }
-
-  #modules {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(86vw, 86vw);
-    gap: 14px;
-    overflow-x: auto;
-    overflow-y: visible;
-    padding: 0 14px 18px;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: 14px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  #modules::-webkit-scrollbar {
-    display: none;
-  }
-
-  #modules .module {
-    scroll-snap-align: center;
-    margin-bottom: 0;
-    align-self: start;
-  }
-
-  #modules .module-empty-state {
-    width: calc(100vw - 28px);
-  }
-}
-
 /* =========================================================
    Mobile dashboard + swipeable modules
    ========================================================= */
 
 @media (max-width: 700px) {
 
-  /* Mobile hero order:
-     1. Year Prediction
-     2. Dashboard + Library buttons
-     3. Overall Progress */
+  /* Mobile hero: prediction first, actions second, progress third */
   .hero {
-    padding: 28px 14px 24px;
-    padding-top: 34px;
-    margin-top: -6px;
+    padding: 22px 14px 20px !important;
+    padding-top: 26px !important;
+    margin-top: -6px !important;
+    overflow-x: hidden !important;
   }
 
   .hero-inner {
-    max-width: 100%;
+    max-width: 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
   }
 
   .eyebrow {
-    font-size: 9px;
-    line-height: 1.45;
-    letter-spacing: 0.14em;
-    margin-bottom: 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 9px !important;
+    line-height: 1.45 !important;
+    letter-spacing: 0.14em !important;
+    margin-bottom: 10px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 
   #hero-title {
-    font-size: clamp(32px, 9vw, 42px);
-    line-height: 1.02;
-    margin-bottom: 14px;
+    display: none !important;
   }
 
   .hero-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
     grid-template-areas:
       "prediction prediction"
       "actions actions"
-      "progress progress";
-    gap: 10px;
-    margin-top: 8px;
+      "progress progress" !important;
+    gap: 10px !important;
+    margin-top: 0 !important;
   }
 
-  .hero-grid>.washi-card:first-child {
-    grid-area: progress;
+  .hero-grid > .washi-card:first-child {
+    grid-area: progress !important;
   }
 
-  .hero-grid>.dash-actions-card {
-    grid-area: actions;
+  .hero-grid > .dash-actions-card {
+    grid-area: actions !important;
   }
 
-  .hero-grid>.washi-card:last-child {
-    grid-area: prediction;
+  .hero-grid > .washi-card:last-child {
+    grid-area: prediction !important;
   }
 
-  .dash-actions-card {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: none;
-    gap: 10px;
-    min-height: 0;
+  .hero-grid .dash-actions-card {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    grid-template-rows: none !important;
+    gap: 10px !important;
+    min-height: 0 !important;
   }
 
-  .dash-hero-btn {
-    min-height: 72px;
-    height: auto;
-    padding: 14px 10px;
+  .hero-grid .dash-hero-btn {
+    min-height: 68px !important;
+    height: auto !important;
+    padding: 13px 10px !important;
   }
 
-  .dash-launch::after {
-    display: none;
+  .hero-grid .dash-launch::after {
+    display: none !important;
+    content: none !important;
   }
 
-  .dash-launch-icon {
-    max-width: none;
-    font-size: 18px;
-    line-height: 1.15;
+  .hero-grid .dash-launch-icon {
+    max-width: none !important;
+    width: 100% !important;
+    font-size: 17px !important;
+    line-height: 1.12 !important;
+    text-align: center !important;
+    overflow-wrap: anywhere !important;
   }
 
-  .washi-card {
-    padding: 16px 14px;
+  .hero-grid .washi-card {
+    padding: 16px 14px !important;
   }
 
   .predictor-hero-number {
-    font-size: clamp(58px, 17vw, 82px);
-    margin-bottom: 8px;
+    font-size: clamp(58px, 17vw, 82px) !important;
+    margin-bottom: 8px !important;
   }
 
   .predictor-hero-sub {
-    font-size: 9px;
-    margin-bottom: 8px;
+    font-size: 9px !important;
+    margin-bottom: 8px !important;
   }
 
   .hero-summary {
-    font-size: 16px;
+    font-size: 16px !important;
   }
 
   .global-big {
-    font-size: 28px;
-    margin-bottom: 10px;
+    font-size: 28px !important;
+    margin-bottom: 10px !important;
   }
 
   .global-big span {
-    font-size: 12px;
+    font-size: 12px !important;
   }
 
   .meta-row {
-    display: grid;
-    gap: 4px;
-    justify-content: start;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 4px !important;
+    justify-content: start !important;
   }
 
   /* Mobile module carousel */
   .content {
-    padding: 18px 0 80px;
-    max-width: 100%;
-    overflow: hidden;
+    padding: 18px 0 110px !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    position: relative !important;
   }
 
   #modules {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: 88vw;
-    gap: 12px;
-    overflow-x: auto;
-    overflow-y: visible;
-    padding: 0 28px 18px 14px;
-    scroll-snap-type: x mandatory;
-    scroll-padding-left: 14px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-auto-columns: 78vw !important;
+    gap: 14px !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    padding: 0 18vw 26px 22px !important;
+    scroll-snap-type: x mandatory !important;
+    scroll-padding-left: 22px !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    overscroll-behavior-x: contain !important;
   }
 
   #modules::-webkit-scrollbar {
-    display: none;
+    display: none !important;
   }
 
   #modules .module {
-    scroll-snap-align: start;
-    margin-bottom: 0;
-    align-self: start;
-    min-width: 0;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: always !important;
+    margin-bottom: 0 !important;
+    align-self: start !important;
+    min-width: 0 !important;
+    border-radius: 10px !important;
+    background: color-mix(in srgb, var(--paper3) 88%, transparent 12%) !important;
+    border: 1px solid color-mix(in srgb, var(--border2) 78%, transparent 22%) !important;
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.18) !important;
+    overflow: hidden !important;
+  }
+
+  body.theme-dark #modules .module {
+    background: rgba(32, 32, 34, 0.94) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28) !important;
   }
 
   #modules .module::before {
-    display: none;
+    display: none !important;
+    content: none !important;
   }
 
   #modules .module-empty-state {
-    width: calc(100vw - 28px);
+    width: calc(100vw - 44px) !important;
+  }
+
+  .content::after {
+    content: "" !important;
+    display: block !important;
+    height: 26px !important;
+    width: 100% !important;
+    pointer-events: none !important;
+    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.08)) !important;
   }
 
   /* Mobile module card content */
   .module-header {
-    grid-template-columns: 1fr;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
     grid-template-areas:
       "summary"
       "final"
       "progress"
-      "chevron";
-    gap: 12px;
-    align-items: start;
-    padding: 18px 12px 14px;
+      "chevron" !important;
+    gap: 12px !important;
+    align-items: start !important;
+    padding: 18px 12px 14px !important;
   }
 
   .module-header .mod-stripe {
-    display: none;
+    display: none !important;
   }
 
   .module-header .module-summary {
-    grid-area: summary;
-    min-width: 0;
-    padding-right: 34px;
+    grid-area: summary !important;
+    min-width: 0 !important;
+    padding-right: 34px !important;
   }
 
-  .module-header>.inputs-grid {
-    display: none;
+  .module-header > .inputs-grid {
+    display: none !important;
   }
 
   .module-header .final-col {
-    grid-area: final;
-    text-align: left;
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: rgba(26, 22, 18, 0.025);
+    grid-area: final !important;
+    text-align: left !important;
+    display: flex !important;
+    align-items: baseline !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    background: rgba(26, 22, 18, 0.025) !important;
   }
 
   .module-header .final-mark {
-    font-size: 34px;
-    line-height: 1;
-    margin: 0;
+    font-size: 34px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
   }
 
   .module-header .progress-section {
-    grid-area: progress;
-    padding: 12px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: rgba(26, 22, 18, 0.022);
+    grid-area: progress !important;
+    padding: 12px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    background: rgba(26, 22, 18, 0.022) !important;
   }
 
   .module-header .prog-done {
-    font-size: 28px;
-    line-height: 1;
+    font-size: 28px !important;
+    line-height: 1 !important;
   }
 
   .module-header .prog-track {
-    height: 7px;
+    height: 7px !important;
   }
 
   .module-header .module-actions {
-    display: none;
+    display: none !important;
   }
 
   .module-header .chevron {
-    grid-area: chevron;
-    justify-self: center;
-    opacity: 0.75;
+    grid-area: chevron !important;
+    justify-self: center !important;
+    opacity: 0.75 !important;
   }
 
   .module-delete-corner {
-    top: 14px;
-    right: 14px;
+    top: 14px !important;
+    right: 14px !important;
   }
 
   .topic-list .compact-marks-wrap {
-    display: block;
+    display: block !important;
   }
 
   .topic-list .compact-marks-wrap .inputs-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
   }
 }
 
