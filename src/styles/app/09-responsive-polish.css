@@ -3494,164 +3494,54 @@ body.theme-charcoal #deadline-form-modal .deadline-form-actions {
   }
 }
 
-@media screen and (orientation: landscape) and (max-height: 520px) {
+/* Mobile landscape guard */
+@media screen and (orientation: landscape) and (max-height: 560px) and (max-width: 950px) {
+  html,
   body {
-    padding-top: 82px;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
   }
 
-  .sticky-exams {
-    min-height: 34px;
-    padding: 6px 10px;
-    font-size: 11px;
+  body {
+    padding-top: 0 !important;
+    background: var(--paper) !important;
   }
 
-  .nav-bar {
-    min-height: 48px;
-    padding: 6px 10px;
-    gap: 6px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    flex-wrap: nowrap;
-    -webkit-overflow-scrolling: touch;
+  body::after {
+    content: "Rotate back to portrait to use UniTrack comfortably.";
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    display: grid;
+    place-items: center;
+    padding: 28px;
+    background:
+      radial-gradient(circle at top left, rgba(255,255,255,0.42), transparent 32%),
+      var(--paper);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 20px;
+    line-height: 1.35;
+    text-align: center;
   }
 
-  .nav-brand {
-    width: 32px;
-    height: 32px;
-    flex: 0 0 32px;
+  body.theme-dark::after,
+  body.theme-charcoal::after {
+    background:
+      radial-gradient(circle at top left, rgba(255,255,255,0.08), transparent 34%),
+      #111214;
+    color: #f1ede4;
   }
 
-  .nav-btn,
-  .nav-select {
-    min-height: 34px;
-    padding: 7px 10px;
-    font-size: 12px;
-    white-space: nowrap;
+  body > * {
+    visibility: hidden !important;
+    pointer-events: none !important;
   }
 
-  .hero {
-    min-height: auto;
-    padding: 22px 14px 14px;
-  }
-
-  .hero-inner {
-    gap: 12px;
-  }
-
-  .hero h1,
-  #hero-title {
-    font-size: clamp(28px, 5vw, 42px);
-    line-height: 0.95;
-  }
-
-  .hero-grid {
-    grid-template-columns: repeat(3, minmax(180px, 1fr));
-    gap: 10px;
-  }
-
-  .washi-card,
-  .dash-actions-card {
-    min-height: auto;
-    padding: 12px;
-  }
-
-  .content {
-    padding: 12px;
-  }
-
-  .modules-grid {
-    grid-template-columns: repeat(2, minmax(260px, 1fr));
-    gap: 12px;
-  }
-
-  .mod-card {
-    padding: 12px;
-  }
-
-  .mod-header {
-    gap: 8px;
-  }
-
-  .mod-name {
-    font-size: 18px;
-    line-height: 1.05;
-  }
-
-  .dashboard-modal,
-  .deadline-splash {
-    align-items: flex-start;
-    padding: 10px;
-    overflow-y: auto;
-  }
-
-  .dashboard-content,
-  .deadline-splash-card,
-  .deadline-form-content,
-  .timeline-content,
-  .todo-content {
-    max-height: calc(100vh - 20px);
-    overflow-y: auto;
-    padding: 16px;
-  }
-
-  .dashboard-grid,
-  .deadline-form-grid {
-    grid-template-columns: repeat(2, minmax(220px, 1fr));
-    gap: 12px;
-  }
-
-  .timeline-list,
-  .todo-list {
-    max-height: calc(100vh - 170px);
-    overflow-y: auto;
-  }
-
-  #auth-gate {
-    align-items: flex-start;
-    padding: 10px;
-    overflow-y: auto;
-  }
-
-  .auth-gate-shell {
-    grid-template-columns: 0.85fr 1.15fr;
-    max-height: calc(100vh - 20px);
-  }
-
-  .auth-gate-aside,
-  .auth-gate-panel {
-    padding: 18px;
-  }
-
-  .auth-unitrack-logo {
-    height: 34px;
-  }
-
-  .auth-gate-copy,
-  .auth-gate-message {
-    font-size: 15px;
-  }
-}
-
-@media screen and (orientation: landscape) and (min-width: 768px) and (max-width: 1180px) {
-  .hero-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .modules-grid {
-    grid-template-columns: repeat(2, minmax(320px, 1fr));
-  }
-
-  .dashboard-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .dashboard-card.dashboard-wide {
-    grid-column: span 2;
-  }
-
-  .timeline-content,
-  .deadline-form-content,
-  .todo-content {
-    width: min(980px, calc(100vw - 28px));
+  body::after {
+    visibility: visible !important;
+    pointer-events: auto !important;
   }
 }

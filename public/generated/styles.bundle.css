@@ -8995,7 +8995,7 @@ body.theme-dark :focus-visible {
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 6px !important;
+    gap: 10px !important;
     margin: 6px auto 0 !important;
     padding: 0 16px 10px !important;
     font-family: "DM Mono", monospace !important;
@@ -9343,6 +9343,58 @@ body.theme-charcoal #deadline-form-modal .deadline-form-actions {
 
   #deadline-form-modal .deadline-form-actions {
     padding: 10px 18px 12px !important;
+  }
+}
+
+/* Mobile landscape guard */
+@media screen and (orientation: landscape) and (max-height: 560px) and (max-width: 950px) {
+  html,
+  body {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body {
+    padding-top: 0 !important;
+    background: var(--paper) !important;
+  }
+
+  body::after {
+    content: "Rotate back to portrait to use UniTrack comfortably.";
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    display: grid;
+    place-items: center;
+    padding: 28px;
+    background:
+      radial-gradient(circle at top left, rgba(255,255,255,0.42), transparent 32%),
+      var(--paper);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 20px;
+    line-height: 1.35;
+    text-align: center;
+  }
+
+  body.theme-dark::after,
+  body.theme-charcoal::after {
+    background:
+      radial-gradient(circle at top left, rgba(255,255,255,0.08), transparent 34%),
+      #111214;
+    color: #f1ede4;
+  }
+
+  body > * {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  body::after {
+    visibility: visible !important;
+    pointer-events: auto !important;
   }
 }
 
