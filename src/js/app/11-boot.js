@@ -32,9 +32,11 @@ function applyReducedMotionPreference() {
 
   clearLogoutFlagForSignedInUser();
 
-  setAuthLoading(true, "Loading your tracker...", isPendingNewAccount(currentUser?.email)
+  authLoadingMessage = isPendingNewAccount(currentUser?.email)
     ? "Preparing your setup so the first screen feels like yours."
-    : "Pulling your saved modules, marks, deadlines, and preferences.");
+    : "Pulling your saved modules, marks, deadlines, and preferences.";
+
+  renderAuthGate();
 
   cloudReady = false;
   pendingFirstRunSetup = false;
