@@ -1,3 +1,5 @@
+window.unitrackBootComplete = false;
+
 function applyReducedMotionPreference() {
   const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   document.documentElement.classList.toggle("reduce-motion", !!reduceMotion);
@@ -11,6 +13,7 @@ function applyReducedMotionPreference() {
   await waitForInitialAuth();
 
   if (!supabaseClient) {
+    window.unitrackBootComplete = true;
     setAuthLoading(false);
     updateAuthLock();
     renderCloudUnavailableGate();
@@ -19,6 +22,7 @@ function applyReducedMotionPreference() {
   }
 
   if (!currentUser) {
+    window.unitrackBootComplete = true;
     setAuthLoading(false);
     updateAuthLock();
     renderAuthGate("login");
@@ -46,10 +50,10 @@ function applyReducedMotionPreference() {
 
   // Prepare/render the app first while the loading gate is still covering it.
   refreshAppAfterAuth();
-  updateAuthLock();
 
-  // Only reveal the app after it has refreshed with the loaded preferences.
+  window.unitrackBootComplete = true;
   setAuthLoading(false);
+  updateAuthLock();
 
   setTimeout(() => {
     if (currentUser && document.getElementById("template-splash")?.classList.contains("hidden")) {
@@ -63,3 +67,4 @@ function applyReducedMotionPreference() {
 try {
   window.matchMedia?.("(prefers-reduced-motion: reduce)")?.addEventListener("change", applyReducedMotionPreference);
 } catch { }
+
