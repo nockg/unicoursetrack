@@ -9485,18 +9485,18 @@ body.theme-charcoal #deadline-form-modal .deadline-form-actions {
 }
 
 /* Mobile landscape guard */
-/* Mobile landscape guard */
 @media screen and (orientation: landscape) and (max-height: 560px) and (max-width: 950px) {
 
   html,
   body {
-    width: 100dvw !important;
-    height: 100dvh !important;
+    width: 100vw !important;
+    height: 100vh !important;
     min-width: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
     background: #f5f0e8 !important;
+    background-image: none !important;
   }
 
   body {
@@ -9506,53 +9506,70 @@ body.theme-charcoal #deadline-form-modal .deadline-form-actions {
     overscroll-behavior: none !important;
   }
 
+  html::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 2147483644;
+    width: 100vw;
+    height: 100vh;
+    background: #f5f0e8;
+    background-image: none;
+  }
+
   body::before {
     content: "";
     position: fixed;
-    inset: -2px;
-    z-index: 999998;
-    width: calc(100dvw + 4px);
-    height: calc(100dvh + 4px);
-    background:
-      radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.46), transparent 34%),
-      radial-gradient(circle at 82% 80%, rgba(212, 160, 23, 0.08), transparent 36%),
-      linear-gradient(135deg, #f7f2ea 0%, #ebe4d6 100%);
+    left: 50%;
+    top: calc(50% - 22px);
+    transform: translate(-50%, -50%);
+    z-index: 2147483645;
+    width: min(240px, 42vw);
+    height: 46px;
+    background-image: url("/unitrack-logo-black.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
   }
 
   body::after {
-    content: "UniTrack | V1.0.0\A Rotate back to portrait to use UniTrack.";
-    white-space: pre;
+    content: "V1.0.0  |  Rotate back to portrait to use UniTrack.";
     position: fixed;
-    inset: 0;
-    z-index: 999999;
-    display: grid;
-    place-items: center;
-    padding:
-      max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
-    color: var(--ink);
-    font-family: inherit;
-    font-size: clamp(11px, 2.15vw, 15px);
-    line-height: 2.1;
+    left: 50%;
+    top: calc(50% + 30px);
+    transform: translateX(-50%);
+    z-index: 2147483646;
+    width: calc(100vw - 48px);
+    color: #0e0c0a;
+    font-family: "DM Mono", Consolas, monospace;
+    font-size: clamp(9px, 1.55vw, 12px);
+    line-height: 1.35;
     letter-spacing: 0.08em;
     text-align: center;
+    white-space: nowrap;
   }
 
   body.theme-dark,
-  body.theme-charcoal {
+  body.theme-charcoal,
+  body.theme-dark html,
+  body.theme-charcoal html {
     background: #101113 !important;
+    background-image: none !important;
   }
 
   body.theme-dark::before,
   body.theme-charcoal::before {
-    background:
-      radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.08), transparent 34%),
-      radial-gradient(circle at 82% 80%, rgba(255, 255, 255, 0.035), transparent 38%),
-      linear-gradient(135deg, #101113 0%, #181515 100%);
+    background-image: url("/unitrack-logo-white.svg");
   }
 
   body.theme-dark::after,
   body.theme-charcoal::after {
     color: #f1ede4;
+  }
+
+  body.theme-dark~*,
+  body.theme-charcoal~* {
+    background: #101113 !important;
   }
 
   body>* {
