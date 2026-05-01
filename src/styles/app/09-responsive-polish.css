@@ -3143,7 +3143,7 @@ body.theme-dark :focus-visible {
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 6px !important;
+    gap: 10px !important;
     margin: 6px auto 0 !important;
     padding: 0 16px 10px !important;
     font-family: "DM Mono", monospace !important;
@@ -3491,5 +3491,167 @@ body.theme-charcoal #deadline-form-modal .deadline-form-actions {
 
   #deadline-form-modal .deadline-form-actions {
     padding: 10px 18px 12px !important;
+  }
+}
+
+@media screen and (orientation: landscape) and (max-height: 520px) {
+  body {
+    padding-top: 82px;
+  }
+
+  .sticky-exams {
+    min-height: 34px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .nav-bar {
+    min-height: 48px;
+    padding: 6px 10px;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-brand {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+  }
+
+  .nav-btn,
+  .nav-select {
+    min-height: 34px;
+    padding: 7px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .hero {
+    min-height: auto;
+    padding: 22px 14px 14px;
+  }
+
+  .hero-inner {
+    gap: 12px;
+  }
+
+  .hero h1,
+  #hero-title {
+    font-size: clamp(28px, 5vw, 42px);
+    line-height: 0.95;
+  }
+
+  .hero-grid {
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    gap: 10px;
+  }
+
+  .washi-card,
+  .dash-actions-card {
+    min-height: auto;
+    padding: 12px;
+  }
+
+  .content {
+    padding: 12px;
+  }
+
+  .modules-grid {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+    gap: 12px;
+  }
+
+  .mod-card {
+    padding: 12px;
+  }
+
+  .mod-header {
+    gap: 8px;
+  }
+
+  .mod-name {
+    font-size: 18px;
+    line-height: 1.05;
+  }
+
+  .dashboard-modal,
+  .deadline-splash {
+    align-items: flex-start;
+    padding: 10px;
+    overflow-y: auto;
+  }
+
+  .dashboard-content,
+  .deadline-splash-card,
+  .deadline-form-content,
+  .timeline-content,
+  .todo-content {
+    max-height: calc(100vh - 20px);
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  .dashboard-grid,
+  .deadline-form-grid {
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  .timeline-list,
+  .todo-list {
+    max-height: calc(100vh - 170px);
+    overflow-y: auto;
+  }
+
+  #auth-gate {
+    align-items: flex-start;
+    padding: 10px;
+    overflow-y: auto;
+  }
+
+  .auth-gate-shell {
+    grid-template-columns: 0.85fr 1.15fr;
+    max-height: calc(100vh - 20px);
+  }
+
+  .auth-gate-aside,
+  .auth-gate-panel {
+    padding: 18px;
+  }
+
+  .auth-unitrack-logo {
+    height: 34px;
+  }
+
+  .auth-gate-copy,
+  .auth-gate-message {
+    font-size: 15px;
+  }
+}
+
+@media screen and (orientation: landscape) and (min-width: 768px) and (max-width: 1180px) {
+  .hero-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .modules-grid {
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+  }
+
+  .dashboard-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-card.dashboard-wide {
+    grid-column: span 2;
+  }
+
+  .timeline-content,
+  .deadline-form-content,
+  .todo-content {
+    width: min(980px, calc(100vw - 28px));
   }
 }
