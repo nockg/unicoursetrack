@@ -3455,3 +3455,41 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
     grid-auto-columns: 90vw !important;
   }
 }
+
+/* Prevent clipped action buttons in Edit Calendar Event modal */
+#deadline-form-modal .dashboard-content.deadline-form-content {
+  max-height: min(92dvh, 760px) !important;
+  overflow: hidden !important;
+}
+
+#deadline-form-modal .deadline-form-grid {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  padding-bottom: 92px !important;
+}
+
+#deadline-form-modal .deadline-form-actions {
+  position: sticky !important;
+  bottom: 0 !important;
+  margin: 0 !important;
+  padding: 12px 28px 14px !important;
+  background: var(--paper3) !important;
+  border-top: 1px solid var(--border) !important;
+  z-index: 6 !important;
+}
+
+body.theme-dark #deadline-form-modal .deadline-form-actions,
+body.theme-charcoal #deadline-form-modal .deadline-form-actions {
+  background: #1b1b1e !important;
+  border-top-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+@media (max-width: 700px) {
+  #deadline-form-modal .deadline-form-grid {
+    padding-bottom: 86px !important;
+  }
+
+  #deadline-form-modal .deadline-form-actions {
+    padding: 10px 18px 12px !important;
+  }
+}

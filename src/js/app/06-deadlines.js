@@ -368,8 +368,7 @@ function downloadCalendarIcs(eventData) {
 }
 
 function navigateCalendarWindow(url) {
-  const opened = openTrustedUrl(url);
-  if (!opened) window.location.href = url;
+  openTrustedUrl(url);
 }
 
 function openCalendarEvent(eventData) {
