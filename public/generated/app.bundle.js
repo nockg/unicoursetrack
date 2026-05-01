@@ -973,10 +973,11 @@ function getModuleSectionStateKey(mi, section) {
 
 function isModuleSectionOpen(mi, section) {
   const key = getModuleSectionStateKey(mi, section);
+
   if (openModuleSections[key] === undefined) {
-    if (window.innerWidth <= 760) return section === "coursework";
     return false;
   }
+
   return !!openModuleSections[key];
 }
 
@@ -6547,7 +6548,6 @@ function openTodoPlanner() {
   if (!modal) return;
   const panelState = getTodoPanelState();
   modal.classList.remove("hidden");
-  syncModalScrollLock();
   renderTodoModuleOptions();
   setupTodoPanelResizePersistence();
   applyTodoPanelState(!panelState.hasOpenedOnce);
@@ -6560,7 +6560,6 @@ function closeTodoPlanner() {
   document.getElementById("todo-modal")?.classList.add("hidden");
   todoPanelDrag = null;
   todoPanelResize = null;
-  syncModalScrollLock();
 }
 
 function toggleTodoPlanner() {
@@ -7106,6 +7105,8 @@ function buildModules() {
     const term = getActiveTermFilter();
     container.innerHTML = `<div class="module-empty-state">${term === "all" ? "No modules yet." : `No modules in ${escapeHtml(getTermLabel(term))} yet.`}</div>`;
   }
+
+  setupMobileModuleCarousel();
 }
 
 window.addEventListener("resize", () => {
@@ -7120,6 +7121,84 @@ document.addEventListener("click", (event) => {
 });
 
 document.addEventListener("mouseup", stopTopicDrag);
+
+function setupMobileModuleCarousel() {
+  const carousel = document.getElementById("modules");
+  if (!carousel || carousel.dataset.mobileCarouselReady === "true") return;
+
+  carousel.dataset.mobileCarouselReady = "true";
+
+  let wrapLock = false;
+  let holdTimer = null;
+  let autoScrollTimer = null;
+
+  const isMobileCarousel = () => window.innerWidth <= 700 && carousel.scrollWidth > carousel.clientWidth + 20;
+
+  const stopAutoScroll = () => {
+    clearTimeout(holdTimer);
+    clearInterval(autoScrollTimer);
+    holdTimer = null;
+    autoScrollTimer = null;
+  };
+
+  const wrapIfNeeded = () => {
+    if (!isMobileCarousel() || wrapLock) return;
+
+    const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+    if (maxScroll <= 0) return;
+
+    if (carousel.scrollLeft >= maxScroll - 6) {
+      wrapLock = true;
+      carousel.scrollTo({ left: 0, behavior: "smooth" });
+      window.setTimeout(() => { wrapLock = false; }, 450);
+    }
+
+    if (carousel.scrollLeft <= 0) {
+      return;
+    }
+  };
+
+  carousel.addEventListener("scroll", () => {
+    window.clearTimeout(carousel._wrapTimer);
+    carousel._wrapTimer = window.setTimeout(wrapIfNeeded, 160);
+  }, { passive: true });
+
+  carousel.addEventListener("pointerdown", (event) => {
+    if (!isMobileCarousel()) return;
+
+    const rect = carousel.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const rightZone = rect.width * 0.78;
+    const leftZone = rect.width * 0.22;
+
+    let direction = 0;
+    if (x >= rightZone) direction = 1;
+    if (x <= leftZone) direction = -1;
+    if (!direction) return;
+
+    holdTimer = window.setTimeout(() => {
+      autoScrollTimer = window.setInterval(() => {
+        const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+
+        if (direction > 0 && carousel.scrollLeft >= maxScroll - 10) {
+          carousel.scrollTo({ left: 0, behavior: "smooth" });
+          return;
+        }
+
+        if (direction < 0 && carousel.scrollLeft <= 10) {
+          carousel.scrollTo({ left: maxScroll, behavior: "smooth" });
+          return;
+        }
+
+        carousel.scrollBy({ left: direction * 52, behavior: "smooth" });
+      }, 130);
+    }, 420);
+  }, { passive: true });
+
+  carousel.addEventListener("pointerup", stopAutoScroll, { passive: true });
+  carousel.addEventListener("pointercancel", stopAutoScroll, { passive: true });
+  carousel.addEventListener("pointerleave", stopAutoScroll, { passive: true });
+}
 
 /* 09-auth-cloud.js */
 function isRecoveryFlow() {
@@ -7710,7 +7789,7 @@ async function resetPasswordFromModal() {
   let error;
   try {
     ({ error } = await withCloudTimeout(supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + window.location.pathname
+      redirectTo: "https://unitrack.uk"
     }), "Password reset"));
   } catch (cloudError) {
     setAuthError(cloudError?.message || "Password reset failed. Please try again.");
@@ -7790,7 +7869,7 @@ async function signUpFromModal() {
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin + window.location.pathname
+        emailRedirectTo: "https://unitrack.uk"
       }
     }), "Account creation"));
   } catch (cloudError) {
@@ -9487,7 +9566,7 @@ try {
           <div class="account-clean-header-copy">
             <div class="account-clean-kicker">Account Overview</div>
             <h2>Account</h2>
-            <p>Signed in as <strong>${profileName}</strong>. Your everyday settings are grouped below so the important actions are easier to read, manage, and revisit.</p>
+            <p>Signed in as <strong>${profileName}</strong>.</p>
           </div>
           <div class="account-clean-status" aria-label="Account status">
             <div class="account-clean-status-label">Sync Status</div>
@@ -9545,7 +9624,7 @@ try {
           <div class="account-clean-session-copy">
             <div class="account-clean-kicker">Session</div>
             <h3>Sign out of this browser</h3>
-            <p>Use this when you are done on a shared or temporary device.</p>
+            <p>Logout from your UniTrack account.</p>
           </div>
           <button type="button" onclick="logoutCloud()">Logout</button>
         </section>
