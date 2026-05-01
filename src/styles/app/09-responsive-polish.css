@@ -2611,9 +2611,7 @@ body.theme-dark :focus-visible {
   }
 
   #hero-title {
-    font-size: clamp(32px, 9vw, 42px);
-    line-height: 1.02;
-    margin-bottom: 14px;
+    display: none;
   }
 
   .hero-grid {
@@ -2706,13 +2704,12 @@ body.theme-dark :focus-visible {
   #modules {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: 88vw;
-    gap: 12px;
+    grid-auto-columns: 82vw;
+    gap: 14px;
     overflow-x: auto;
     overflow-y: visible;
-    padding: 0 28px 18px 14px;
-    scroll-snap-type: x mandatory;
-    scroll-padding-left: 14px;
+    padding: 0 58px 18px 18px;
+    scroll-snap-type: none;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
@@ -2722,10 +2719,12 @@ body.theme-dark :focus-visible {
   }
 
   #modules .module {
-    scroll-snap-align: start;
     margin-bottom: 0;
     align-self: start;
     min-width: 0;
+    border-radius: 10px;
+    background: var(--paper3);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.16);
   }
 
   #modules .module::before {
@@ -2733,7 +2732,7 @@ body.theme-dark :focus-visible {
   }
 
   #modules .module-empty-state {
-    width: calc(100vw - 28px);
+    width: calc(100vw - 36px);
   }
 
   /* Mobile module card content */
