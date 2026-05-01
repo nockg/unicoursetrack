@@ -2872,31 +2872,103 @@ body.theme-dark :focus-visible {
   }
 }
 
+/* =========================================================
+   Final mobile footer + dashboard action row + carousel polish
+   ========================================================= */
+
 .footer.mobile-app-footnote {
+  display: none;
+}
+
+.mobile-app-footnote-logo-white {
   display: none;
 }
 
 @media (max-width: 700px) {
   .footer.mobile-app-footnote {
-    display: flex;
+    display: flex !important;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    margin: 20px auto 12px;
-    padding: 0 16px 20px;
+    gap: 7px;
+    margin: 22px auto 12px;
+    padding: 0 16px 22px;
     font-family: "DM Mono", monospace;
     font-size: 10px;
     letter-spacing: 0.08em;
-    color: rgba(245, 240, 232, 0.58);
+    color: rgba(26, 22, 18, 0.52);
     text-transform: uppercase;
   }
 
   .mobile-app-footnote-logo {
-    font-weight: 700;
-    letter-spacing: 0.1em;
+    width: 92px;
+    height: auto;
+    display: block;
   }
 
-  .mobile-app-footnote-divider {
-    opacity: 0.45;
+  .mobile-app-footnote-version {
+    display: block;
+    font-size: 9px;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    opacity: 0.62;
+  }
+
+  body.theme-dark .mobile-app-footnote-logo-black {
+    display: none;
+  }
+
+  body.theme-dark .mobile-app-footnote-logo-white {
+    display: block;
+  }
+
+  body.theme-dark .footer.mobile-app-footnote {
+    color: rgba(245, 240, 232, 0.58);
+  }
+
+  .hero-grid>.dash-actions-card,
+  .hero-grid .dash-actions-card,
+  .dash-actions-card {
+    grid-area: actions;
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    grid-template-rows: none !important;
+    gap: 10px !important;
+    min-height: 0 !important;
+  }
+
+  .hero-grid>.dash-actions-card>button,
+  .hero-grid .dash-actions-card>button,
+  .dash-actions-card>button {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .hero-grid .dash-hero-btn,
+  .dash-hero-btn {
+    min-height: 72px !important;
+    height: auto !important;
+    padding: 14px 10px !important;
+  }
+
+  .hero-grid .dash-launch-icon,
+  .dash-hero-btn .dash-launch-icon {
+    width: 100% !important;
+    max-width: none !important;
+    text-align: center !important;
+    font-size: clamp(15px, 4.6vw, 18px) !important;
+    line-height: 1.12 !important;
+  }
+
+  #modules {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  #modules::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
   }
 }
