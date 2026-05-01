@@ -1,4 +1,118 @@
 /* Global UI readability, responsive shell behaviour, and interaction polish */
+.nav-btn,
+.nav-select,
+.input,
+textarea,
+.bb-link,
+.bb-edit-btn,
+.formula-btn,
+.formula-edit-btn,
+.mini-btn,
+.topic-edit-btn,
+.topic-options-summary,
+.topic-options-action,
+.deadline-tab-btn,
+.priority-choice,
+.pref-toggle-pill,
+.auth-gate-tab {
+  border-radius: var(--ui-radius-sm);
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 160ms ease,
+    transform 140ms ease;
+}
+
+.nav-btn,
+.bb-link,
+.bb-edit-btn,
+.formula-btn,
+.formula-edit-btn,
+.mini-btn,
+.topic-edit-btn,
+.topic-options-summary,
+.topic-options-action,
+.deadline-tab-btn,
+.priority-choice,
+.pref-toggle-pill,
+.auth-gate-tab {
+  min-height: var(--ui-control-height);
+  border: 1px solid var(--ui-control-border);
+  background: var(--ui-control-bg);
+  box-shadow: none;
+}
+
+.nav-btn:hover,
+.bb-link:hover,
+.bb-edit-btn:hover,
+.formula-btn:hover,
+.formula-edit-btn:hover,
+.mini-btn:hover,
+.topic-edit-btn:hover,
+.topic-options-summary:hover,
+.topic-options-action:hover,
+.deadline-tab-btn:hover,
+.priority-choice:hover,
+.pref-toggle-pill:hover,
+.auth-gate-tab:hover {
+  background: var(--ui-control-bg-hover);
+  border-color: var(--ui-control-border-strong);
+}
+
+.nav-select,
+.input,
+textarea {
+  min-height: var(--ui-control-height);
+  border-radius: var(--ui-radius-sm);
+  border-color: var(--ui-control-border);
+  background: var(--ui-control-bg);
+}
+
+body.theme-dark .input::placeholder,
+body.theme-dark textarea::placeholder,
+body.theme-charcoal .input::placeholder,
+body.theme-charcoal textarea::placeholder {
+  color: rgba(241, 237, 228, 0.46);
+}
+
+.nav-btn:focus-visible,
+.nav-select:focus-visible,
+.input:focus-visible,
+textarea:focus-visible,
+.bb-link:focus-visible,
+.bb-edit-btn:focus-visible,
+.formula-btn:focus-visible,
+.formula-edit-btn:focus-visible,
+.mini-btn:focus-visible,
+.topic-edit-btn:focus-visible,
+.topic-options-summary:focus-visible,
+.topic-options-action:focus-visible,
+.deadline-tab-btn:focus-visible,
+.priority-choice:focus-visible,
+.pref-toggle-pill:focus-visible,
+.auth-gate-tab:focus-visible {
+  border-color: var(--ui-focus-border);
+  box-shadow: var(--ui-focus-ring);
+}
+
+.calendar-btn,
+.danger-btn,
+#deadline-calendar-btn,
+#deadline-save-btn {
+  background: var(--ui-primary-bg);
+  border-color: var(--ui-primary-bg);
+  color: var(--ui-primary-fg);
+}
+
+.calendar-btn:hover,
+.danger-btn:hover,
+#deadline-calendar-btn:hover,
+#deadline-save-btn:hover {
+  background: var(--ui-primary-bg-hover);
+  border-color: var(--ui-primary-bg-hover);
+}
+
 .context-menu {
   position: fixed;
   background: var(--paper, #faf8f3);
