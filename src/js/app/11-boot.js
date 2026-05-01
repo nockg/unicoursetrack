@@ -6,6 +6,7 @@ function applyReducedMotionPreference() {
 // Wait for Supabase to check/restore the session before showing login or the dashboard.
 (async function bootApp() {
   applyReducedMotionPreference();
+
   setAuthLoading(true, "Restoring your session...", "Checking whether you are already signed in before showing anything.");
   await waitForInitialAuth();
 
@@ -30,18 +31,25 @@ function applyReducedMotionPreference() {
   setAuthLoading(true, "Loading your tracker...", isPendingNewAccount(currentUser?.email)
     ? "Preparing your setup so the first screen feels like yours."
     : "Pulling your saved modules, marks, deadlines, and preferences.");
+
   cloudReady = false;
   pendingFirstRunSetup = false;
+
   await loadCloudSave();
+
   pendingFirstRunSetup = cloudLoadSucceeded && !cloudHadSave;
+
   if (pendingFirstRunSetup) {
     resetLocalAppState();
     cloudReady = true;
   }
 
-  setAuthLoading(false);
-  updateAuthLock();
+  // Prepare/render the app first while the loading gate is still covering it.
   refreshAppAfterAuth();
+  updateAuthLock();
+
+  // Only reveal the app after it has refreshed with the loaded preferences.
+  setAuthLoading(false);
 
   setTimeout(() => {
     if (currentUser && document.getElementById("template-splash")?.classList.contains("hidden")) {
@@ -54,4 +62,4 @@ function applyReducedMotionPreference() {
 
 try {
   window.matchMedia?.("(prefers-reduced-motion: reduce)")?.addEventListener("change", applyReducedMotionPreference);
-} catch {}
+} catch { }
