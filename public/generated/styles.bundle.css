@@ -8336,7 +8336,7 @@ body.theme-dark :focus-visible {
     grid-auto-columns: minmax(86vw, 86vw);
     gap: 14px;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: visible;
     padding: 0 14px 18px;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: 14px;
