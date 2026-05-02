@@ -2317,52 +2317,72 @@ body.theme-dark :focus-visible {
    module action buttons, scrollbar hiding, and app footer
    ========================================================= */
 
-.footer.unitrack-footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin: 36px auto 24px;
-  padding: 0 16px 18px;
-  text-align: center;
-  font-family: "DM Mono", monospace;
-  text-transform: uppercase;
+/* Footer supports the current unitrack-footer markup and the older mobile-app-footnote
+   markup so the logo never renders at raw SVG size during transition. */
+.footer.unitrack-footer,
+.footer.mobile-app-footnote {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin: 34px auto 24px !important;
+  padding: 0 16px 18px !important;
+  text-align: center !important;
+  font-family: "DM Mono", monospace !important;
+  text-transform: uppercase !important;
 }
 
-.unitrack-footer-logo {
-  width: 112px;
-  max-width: 40vw;
-  height: auto;
-  display: block;
+.footer.unitrack-footer .unitrack-footer-logo,
+.footer.mobile-app-footnote .mobile-app-footnote-logo {
+  display: block !important;
+  width: 112px !important;
+  max-width: 28vw !important;
+  height: auto !important;
+  max-height: 42px !important;
+  object-fit: contain !important;
+  flex: 0 0 auto !important;
 }
 
-.unitrack-footer-logo-white {
-  display: none;
+.footer.unitrack-footer .unitrack-footer-logo-black,
+.footer.mobile-app-footnote .mobile-app-footnote-logo-black {
+  display: block !important;
 }
 
-.unitrack-footer-version {
-  display: block;
-  font-size: 9px;
-  line-height: 1;
-  letter-spacing: 0.14em;
-  opacity: 0.62;
-  color: rgba(26, 22, 18, 0.56);
+.footer.unitrack-footer .unitrack-footer-logo-white,
+.footer.mobile-app-footnote .mobile-app-footnote-logo-white {
+  display: none !important;
 }
 
-body.theme-dark .unitrack-footer-logo-black,
-body.theme-charcoal .unitrack-footer-logo-black {
-  display: none;
+.footer.unitrack-footer .unitrack-footer-version,
+.footer.mobile-app-footnote .mobile-app-footnote-version {
+  display: block !important;
+  font-size: 9px !important;
+  line-height: 1 !important;
+  letter-spacing: 0.14em !important;
+  opacity: 0.62 !important;
+  color: rgba(26, 22, 18, 0.56) !important;
 }
 
-body.theme-dark .unitrack-footer-logo-white,
-body.theme-charcoal .unitrack-footer-logo-white {
-  display: block;
+body.theme-dark .footer.unitrack-footer .unitrack-footer-logo-black,
+body.theme-charcoal .footer.unitrack-footer .unitrack-footer-logo-black,
+body.theme-dark .footer.mobile-app-footnote .mobile-app-footnote-logo-black,
+body.theme-charcoal .footer.mobile-app-footnote .mobile-app-footnote-logo-black {
+  display: none !important;
 }
 
-body.theme-dark .unitrack-footer-version,
-body.theme-charcoal .unitrack-footer-version {
-  color: rgba(245, 240, 232, 0.6);
+body.theme-dark .footer.unitrack-footer .unitrack-footer-logo-white,
+body.theme-charcoal .footer.unitrack-footer .unitrack-footer-logo-white,
+body.theme-dark .footer.mobile-app-footnote .mobile-app-footnote-logo-white,
+body.theme-charcoal .footer.mobile-app-footnote .mobile-app-footnote-logo-white {
+  display: block !important;
+}
+
+body.theme-dark .footer.unitrack-footer .unitrack-footer-version,
+body.theme-charcoal .footer.unitrack-footer .unitrack-footer-version,
+body.theme-dark .footer.mobile-app-footnote .mobile-app-footnote-version,
+body.theme-charcoal .footer.mobile-app-footnote .mobile-app-footnote-version {
+  color: rgba(245, 240, 232, 0.6) !important;
 }
 
 @media (max-width: 700px) {
@@ -2567,50 +2587,18 @@ body.theme-charcoal .unitrack-footer-version {
   }
 
   /* Compact app-style footer */
-  .footer.unitrack-footer {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
+  .footer.unitrack-footer,
+  .footer.mobile-app-footnote {
     gap: 10px !important;
     margin: 18px auto 0 !important;
     padding: 0 16px 10px !important;
-    font-family: "DM Mono", monospace !important;
-    text-transform: uppercase !important;
   }
 
-  .unitrack-footer-logo {
+  .footer.unitrack-footer .unitrack-footer-logo,
+  .footer.mobile-app-footnote .mobile-app-footnote-logo {
     width: 88px !important;
-    height: auto !important;
-    display: block !important;
-  }
-
-  .unitrack-footer-logo-white {
-    display: none !important;
-  }
-
-  .unitrack-footer-version {
-    display: block !important;
-    font-size: 9px !important;
-    line-height: 1 !important;
-    letter-spacing: 0.14em !important;
-    opacity: 0.62 !important;
-    color: rgba(26, 22, 18, 0.56) !important;
-  }
-
-  body.theme-dark .unitrack-footer-logo-black,
-  body.theme-charcoal .unitrack-footer-logo-black {
-    display: none !important;
-  }
-
-  body.theme-dark .unitrack-footer-logo-white,
-  body.theme-charcoal .unitrack-footer-logo-white {
-    display: block !important;
-  }
-
-  body.theme-dark .unitrack-footer-version,
-  body.theme-charcoal .unitrack-footer-version {
-    color: rgba(245, 240, 232, 0.6) !important;
+    max-width: 30vw !important;
+    max-height: 34px !important;
   }
 }
 
@@ -3057,7 +3045,8 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
     font-size: 10px !important;
   }
 
-  .footer.unitrack-footer {
+  .footer.unitrack-footer,
+  .footer.mobile-app-footnote {
     margin-top: 18px !important;
     padding-bottom: 8px !important;
   }

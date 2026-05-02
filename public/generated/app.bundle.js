@@ -2052,6 +2052,10 @@ function getLibraryTarget() {
   if (moduleLibraryScopeMi !== null && moduleLibraryScopeMi !== undefined) return { customId: null, mi: moduleLibraryScopeMi };
   return parseLibraryFilterValue(moduleLibraryFilter);
 }
+function isLibraryHomeView() {
+  const target = getLibraryTarget();
+  return !target.customId && (target.mi === null || target.mi === undefined);
+}
 function libraryStateIsPlainObject(value) {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
@@ -4294,8 +4298,13 @@ function renderModuleLibrary() {
         <div class="library-v10-breadcrumbs">${libraryCleanBreadcrumbHtml()}</div>
       </div>
       <div class="library-v10-action-buttons">
-        <button class="nav-btn" type="button" ${source.kind === "all" ? "disabled" : ""} onclick="libraryCleanCreateFolder(event)">New Folder</button>
-        <button class="nav-btn calendar-btn" type="button" ${source.kind === "all" ? "disabled" : ""} onclick="libraryCleanOpenAddItem('formula', event)">Add Material</button>
+        ${source.kind === "all"
+          ? `<button class="nav-btn calendar-btn" type="button" disabled title="Choose a module or custom library first">Choose a library first</button>`
+          : `
+            <button class="nav-btn" type="button" onclick="libraryCleanCreateFolder(event)">New Folder</button>
+            <button class="nav-btn calendar-btn" type="button" onclick="libraryCleanOpenAddItem('formula', event)">Add Material</button>
+          `
+        }
         ${source.kind === "custom" ? `<button class="nav-btn" type="button" onclick="renameCustomLibrary()">Rename Library</button>` : ""}
         ${source.kind === "custom" ? `<button class="nav-btn danger-btn" type="button" onclick="deleteCustomLibrary()">Delete Library</button>` : ""}
       </div>
@@ -9633,7 +9642,6 @@ try {
             <div>
               <div class="account-clean-kicker">Main Settings</div>
               <h3>${trackerLabel}</h3>
-              <p>Update the core details tied to this tracker before changing anything more advanced.</p>
             </div>
           </div>
           <div class="account-clean-rows">
@@ -9652,7 +9660,6 @@ try {
             <span>
               <span class="account-clean-kicker">Privacy</span>
               <strong>Privacy notice and data use</strong>
-              <small>Open the full privacy notice in a separate tab before making account or deletion changes.</small>
             </span>
             <span class="account-clean-toggle-label">Open notice</span>
           </button>
@@ -9663,7 +9670,6 @@ try {
             <div>
               <div class="account-clean-kicker">Backup Tools</div>
               <h3>Export or restore a backup</h3>
-              <p>Download a copy, restore one, or grab the latest recovery backup.</p>
             </div>
           </div>
           <div class="account-clean-actions">
