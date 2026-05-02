@@ -3458,6 +3458,12 @@ body.theme-dark #module-library-modal .library-v5-folder.selected {
   align-items: center;
   margin-left: auto;
 }
+.library-v10-all-hint {
+  font-size: 0.8em;
+  color: var(--muted);
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
 
 .library-v10-grid {
   display: grid;
@@ -4197,6 +4203,14 @@ body.theme-dark .pref-toggle-pill.is-on {
   background: #f1ede4;
   color: #101010;
   border-color: #f1ede4;
+}
+
+.prefs-clear-btn {
+  opacity: 0.6;
+  font-size: 0.82em;
+}
+.prefs-clear-btn:hover {
+  opacity: 1;
 }
 
 .bg-picker {

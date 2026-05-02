@@ -1985,6 +1985,7 @@ function libraryCleanSortMenuHtml() {
       <option value="za" ${value === "za" ? "selected" : ""}>Name Z-A</option>
       <option value="library" ${value === "library" ? "selected" : ""}>Library</option>
       <option value="type" ${value === "type" ? "selected" : ""}>Type</option>
+      <option value="folder" ${value === "folder" ? "selected" : ""}>Folder</option>
     </select>
   </label>`;
 }
@@ -2687,7 +2688,7 @@ function libraryCleanRenderBody() {
         : `<div class="library-v10-grid">${results.folders.map(libraryCleanFolderCardHtml).join("")}${results.items.map(libraryCleanItemCardHtml).join("")}</div>`}`
       : `<div class="module-library-empty">No matching folders or resources.</div>`;
   } else if (source.kind === "all") {
-    const folders = libraryCleanSortFolders(libraryCleanAllFolderRecords());
+    const folders = libraryCleanSortFolders(libraryCleanAllFolderRecords().filter((r) => !r.folder.includes("/")));
     const items = libraryCleanSortItems(libraryCleanRecords().filter((record) => !record.folder));
     body = folders.length || items.length
       ? (viewMode === "details"
@@ -2774,7 +2775,7 @@ function renderModuleLibrary() {
       </div>
       <div class="library-v10-action-buttons">
         ${source.kind === "all"
-          ? `<button class="nav-btn calendar-btn" type="button" disabled title="Choose a module or custom library first">Choose a library first</button>`
+          ? `<span class="library-v10-all-hint">Select a library from quick access to add resources</span>`
           : `
             <button class="nav-btn" type="button" onclick="libraryCleanCreateFolder(event)">New Folder</button>
             <button class="nav-btn calendar-btn" type="button" onclick="libraryCleanOpenAddItem('formula', event)">Add Material</button>

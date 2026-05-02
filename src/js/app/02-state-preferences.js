@@ -855,7 +855,11 @@ function applyPreferences() {
     countdownToggle.classList.toggle("is-on", countdownVisible);
     countdownToggle.setAttribute("aria-pressed", String(countdownVisible));
   }
-  if (customBgInput) customBgInput.value = "";
+  if (customBgInput) {
+    const heroKey = preferences.hero || "";
+    const currentCustomUrl = heroKey.startsWith("custom_") ? (preferences.customBackgrounds?.[heroKey] || "") : "";
+    customBgInput.value = currentCustomUrl;
+  }
   if (bodyBgInput) bodyBgInput.value = preferences.bodyBackground || "";
 
   renderBackgroundPicker();
@@ -922,18 +926,15 @@ function addCustomBackground() {
 
   if (!url) return;
 
-  const customKey = "custom_" + Date.now();
+  if (!preferences.customBackgrounds) preferences.customBackgrounds = {};
 
-  if (!preferences.customBackgrounds) {
-    preferences.customBackgrounds = {};
-  }
+  const currentKey = preferences.hero || "";
+  const customKey = currentKey.startsWith("custom_") ? currentKey : "custom_" + Date.now();
 
   preferences.customBackgrounds[customKey] = url;
   preferences.hero = customKey;
 
   savePreferences();
-
-  input.value = "";
   applyPreferences();
 }
 
@@ -942,6 +943,22 @@ function setBodyBackground() {
   if (!input) return;
   const raw = input.value.trim();
   preferences.bodyBackground = raw ? safeUrl(raw) : "";
+  savePreferences();
+  applyPreferences();
+}
+
+function clearBodyBackground() {
+  preferences.bodyBackground = "";
+  savePreferences();
+  applyPreferences();
+}
+
+function clearCustomBackground() {
+  const heroKey = preferences.hero || "";
+  if (heroKey.startsWith("custom_") && preferences.customBackgrounds) {
+    delete preferences.customBackgrounds[heroKey];
+  }
+  preferences.hero = DEFAULT_PREFERENCES.hero;
   savePreferences();
   applyPreferences();
 }

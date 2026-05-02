@@ -300,6 +300,14 @@ body.theme-dark .pref-toggle-pill.is-on {
   border-color: #f1ede4;
 }
 
+.prefs-clear-btn {
+  opacity: 0.6;
+  font-size: 0.82em;
+}
+.prefs-clear-btn:hover {
+  opacity: 1;
+}
+
 .bg-picker {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
