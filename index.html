@@ -106,8 +106,8 @@
   </div>
 </div>
 
-<div id="deadline-splash" class="deadline-splash hidden">
-  <div class="deadline-splash-card">
+<div id="deadline-splash" class="deadline-splash hidden" onclick="closeDeadlineSplash()">
+  <div class="deadline-splash-card" onclick="event.stopPropagation()">
     <button class="deadline-splash-close" type="button" aria-label="Close welcome" onclick="closeDeadlineSplash()">&times;</button>
     <div class="deadline-splash-label">Upcoming Deadline</div>
     <div id="deadline-splash-title" class="deadline-splash-title"></div>
@@ -190,10 +190,10 @@
     <span class="youtube-icon" aria-hidden="true"></span>
     <span class="youtube-label">YouTube</span>
   </button>
-  <button class="nav-btn" onclick="addModuleToCurrentYear()">Add Module</button>
   <button class="nav-btn" onclick="openDeadlineTimeline()">Deadlines</button>
   <button class="nav-btn" onclick="toggleTodoPlanner()">To-Do List</button>
   <button class="nav-btn dashboard-nav-btn" onclick="openDashboard()">Dashboard</button>
+  <button class="nav-btn" onclick="addModuleToCurrentYear()">Add Module</button>
   <button class="nav-btn prefs-toggle-btn" onclick="togglePreferences()">Preferences</button>
   <button class="nav-btn" id="auth-btn" onclick="openAuthModal()">Account</button>
 </div>
@@ -261,11 +261,9 @@
       <button class="nav-btn" type="button" onclick="editCustomGradeMapping()">Edit Mapping</button>
     </div>
     <div class="field prefs-inline-field prefs-span-2 countdown-header-pref">
-      <div>
-        <label>Countdown Header</label>
-        <div class="countdown-header-pref-copy">Show or hide the fixed deadline countdown bar at the top.</div>
-      </div>
-      <button class="pref-toggle-pill" id="pref-countdown-header-toggle" type="button" onclick="toggleCountdownHeaderPreference()" aria-pressed="true">Shown</button>
+      <label>Countdown Header</label>
+      <button class="pref-toggle-pill" id="pref-countdown-header-toggle" type="button"
+        onclick="toggleCountdownHeaderPreference()" aria-pressed="true">Show</button>
     </div>
     <div class="field prefs-inline-field prefs-span-2 custom-bg-field">
       <label for="custom-bg-url">Header Image</label>

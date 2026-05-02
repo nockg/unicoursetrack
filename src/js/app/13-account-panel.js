@@ -370,7 +370,6 @@
             <div>
               <div class="account-clean-kicker">Main Settings</div>
               <h3>${trackerLabel}</h3>
-              <p>Update the core details tied to this tracker before changing anything more advanced.</p>
             </div>
           </div>
           <div class="account-clean-rows">
@@ -389,7 +388,6 @@
             <span>
               <span class="account-clean-kicker">Privacy</span>
               <strong>Privacy notice and data use</strong>
-              <small>Open the full privacy notice in a separate tab before making account or deletion changes.</small>
             </span>
             <span class="account-clean-toggle-label">Open notice</span>
           </button>
@@ -400,7 +398,6 @@
             <div>
               <div class="account-clean-kicker">Backup Tools</div>
               <h3>Export or restore a backup</h3>
-              <p>Download a copy, restore one, or grab the latest recovery backup.</p>
             </div>
           </div>
           <div class="account-clean-actions">
