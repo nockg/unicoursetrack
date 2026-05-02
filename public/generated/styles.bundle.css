@@ -9385,40 +9385,55 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
 }
 
 /* Prevent clipped action buttons in Edit Calendar Event modal */
-#deadline-form-modal .dashboard-content.deadline-form-content {
+#deadline-form-modal .dashboard-content.deadline-form-content,
+#calendar-modal .dashboard-content.calendar-form-content {
+  display: flex !important;
+  flex-direction: column !important;
   max-height: min(92dvh, 760px) !important;
+  padding: 0 !important;
   overflow: hidden !important;
 }
 
-#deadline-form-modal .deadline-form-grid {
+#deadline-form-modal .deadline-form-grid,
+#calendar-modal .deadline-form-grid {
+  flex: 1 1 auto !important;
   min-height: 0 !important;
   overflow-y: auto !important;
-  padding-bottom: 92px !important;
+  padding: 20px 28px 22px !important;
 }
 
-#deadline-form-modal .deadline-form-actions {
-  position: sticky !important;
-  bottom: 0 !important;
+#deadline-form-modal .deadline-form-actions,
+#deadline-form-modal.is-event-mode .deadline-form-actions,
+#calendar-modal .deadline-form-actions {
+  position: static !important;
   margin: 0 !important;
   padding: 12px 28px 14px !important;
   background: var(--paper3) !important;
   border-top: 1px solid var(--border) !important;
+  flex-shrink: 0 !important;
   z-index: 6 !important;
 }
 
 body.theme-dark #deadline-form-modal .deadline-form-actions,
-body.theme-charcoal #deadline-form-modal .deadline-form-actions {
+body.theme-dark #deadline-form-modal.is-event-mode .deadline-form-actions,
+body.theme-dark #calendar-modal .deadline-form-actions,
+body.theme-charcoal #deadline-form-modal .deadline-form-actions,
+body.theme-charcoal #deadline-form-modal.is-event-mode .deadline-form-actions,
+body.theme-charcoal #calendar-modal .deadline-form-actions {
   background: #1b1b1e !important;
   border-top-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 @media (max-width: 700px) {
-  #deadline-form-modal .deadline-form-grid {
-    padding-bottom: 86px !important;
+  #deadline-form-modal .deadline-form-actions,
+  #deadline-form-modal.is-event-mode .deadline-form-actions,
+  #calendar-modal .deadline-form-actions {
+    padding: 10px 18px 12px !important;
   }
 
-  #deadline-form-modal .deadline-form-actions {
-    padding: 10px 18px 12px !important;
+  #deadline-form-modal .deadline-form-grid,
+  #calendar-modal .deadline-form-grid {
+    padding: 20px 18px 18px !important;
   }
 }
 
