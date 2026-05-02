@@ -139,10 +139,11 @@
   padding: 24px;
 }
 .app-dialog-message {
-  color: rgba(245,240,232,0.72);
+  color: rgba(245, 240, 232, 0.72);
   font-size: 15px;
   line-height: 1.45;
   margin: 8px 0 12px;
+  white-space: pre-line;
 }
 .app-dialog-field {
   display: grid;

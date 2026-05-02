@@ -332,9 +332,48 @@
     btn.textContent = open ? "Hide deletion options" : "Show deletion options";
   }
 
+  function isUniTrackStandalone() {
+    try {
+      return window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true;
+    } catch {
+      return false;
+    }
+  }
+
+  async function showInstallInstructions() {
+    const installed = isUniTrackStandalone();
+
+    if (installed) {
+      await notify(
+        "UniTrack is installed",
+        "UniTrack is already running in app mode on this device."
+      );
+      return;
+    }
+
+    await notify(
+      "Install UniTrack on your phone",
+      [
+        "iPhone / Safari",
+        "1. Open unitrack.uk in Safari.",
+        "2. Tap the Share button.",
+        "3. Tap Add to Home Screen.",
+        "4. Tap Add.",
+        "",
+        "Android / Chrome",
+        "1. Open unitrack.uk in Chrome.",
+        "2. Tap the three-dot menu.",
+        "3. Tap Add to Home screen or Install app.",
+        "4. Follow the prompt."
+      ].join("\n")
+    );
+  }
+
   function renderAccountPanel() {
     const body = document.getElementById("auth-modal-body");
     if (!body || !hasCurrentUser()) return;
+
     const modalCard = body.closest(".deadline-form-content");
     const modalLabel = modalCard?.querySelector(".deadline-splash-label");
     const modalLegalCard = modalCard?.querySelector(".auth-legal-card");
@@ -346,89 +385,112 @@
     const status = escapeSafe(getCloudStatus());
     const trackerLabel = escapeSafe(getTrackerLabel());
     const profileName = escapeSafe(getProfileName());
+
+    const isInstalled = isUniTrackStandalone();
+    const installTitle = isInstalled ? "Installed on This Device" : "Install UniTrack on Your Phone";
+    const installCopy = isInstalled
+      ? "UniTrack is already opening in app mode on this device."
+      : "Add UniTrack to your Home Screen for faster app-like access.";
+    const installAction = isInstalled ? "Installed" : "How to install";
+
     const statusMeta = email
       ? `<small>${email}</small>`
       : `<small>Signed in to your UniTrack account</small>`;
 
     body.innerHTML = `
-      <div class="account-clean-panel">
-        <header class="account-clean-header">
-          <div class="account-clean-header-copy">
-            <div class="account-clean-kicker">Account Overview</div>
-            <h2>Account</h2>
-            <p>Signed in as <strong>${profileName}</strong>.</p>
-          </div>
-          <div class="account-clean-status" aria-label="Account status">
-            <div class="account-clean-status-label">Sync Status</div>
-            <span>${status}</span>
-            ${statusMeta}
-          </div>
-        </header>
+    <div class="account-clean-panel">
+      <header class="account-clean-header">
+        <div class="account-clean-header-copy">
+          <div class="account-clean-kicker">Account Overview</div>
+          <h2>Account</h2>
+          <p>Signed in as <strong>${profileName}</strong>.</p>
+        </div>
 
-        <section class="account-clean-section">
-          <div class="account-clean-section-head">
-            <div>
-              <div class="account-clean-kicker">Main Settings</div>
-              <h3>${trackerLabel}</h3>
-            </div>
-          </div>
-          <div class="account-clean-rows">
-            <button class="account-clean-row" type="button" onclick="editCourseProfile()">
-              <span>
-                <strong>Edit Course Setup</strong>
-                <small>Name, course, university, credits, grading system.</small>
-              </span>
-              <em>Primary</em>
-            </button>
-          </div>
-        </section>
+        <div class="account-clean-status" aria-label="Account status">
+          <div class="account-clean-status-label">Sync Status</div>
+          <span>${status}</span>
+          ${statusMeta}
+        </div>
+      </header>
 
-        <section class="account-clean-section account-clean-privacy">
-          <button class="account-clean-privacy-link" type="button" onclick="openTrustedUrl('/privacy.html')">
+      <section class="account-clean-section">
+        <div class="account-clean-section-head">
+          <div>
+            <div class="account-clean-kicker">Main Settings</div>
+            <h3>${trackerLabel}</h3>
+          </div>
+        </div>
+
+        <div class="account-clean-rows">
+          <button class="account-clean-row" type="button" onclick="editCourseProfile()">
             <span>
-              <span class="account-clean-kicker">Privacy</span>
-              <strong>Privacy Notice and Data Use</strong>
+              <strong>Edit Course Setup</strong>
+              <small>Name, course, university, credits, grading system.</small>
             </span>
-            <span class="account-clean-toggle-label">Open notice</span>
+            <em>Primary</em>
           </button>
-        </section>
+        </div>
+      </section>
 
-        <section class="account-clean-section">
-          <div class="account-clean-section-head">
-            <div>
-              <div class="account-clean-kicker">Backup Tools</div>
-              <h3>Export or Restore a Backup</h3>
-            </div>
-          </div>
-          <div class="account-clean-actions">
-            <button type="button" onclick="unitrackExportBackup()">Export Backup</button>
-            <button type="button" onclick="unitrackImportBackup()">Import Backup</button>
-            <button type="button" onclick="unitrackExportRecoveryBackup()">Last Recovery Backup</button>
-          </div>
-        </section>
+      <section class="account-clean-section account-clean-privacy">
+        <button class="account-clean-privacy-link" type="button" onclick="openTrustedUrl('/privacy.html')">
+          <span>
+            <span class="account-clean-kicker">Privacy</span>
+            <strong>Privacy Notice and Data Use</strong>
+          </span>
+          <span class="account-clean-toggle-label">Open notice</span>
+        </button>
+      </section>
 
-        <section class="account-clean-section account-clean-session">
-          <div class="account-clean-session-copy">
-            <div class="account-clean-kicker">Session</div>
-            <h3>Sign Out of This Browser</h3>
-            <p>Logout from your UniTrack account.</p>
-          </div>
-          <button type="button" onclick="logoutCloud()">Logout</button>
-        </section>
+      <section class="account-clean-section account-clean-install">
+        <button class="account-clean-privacy-link account-clean-install-link" type="button" onclick="unitrackShowInstallInstructions()">
+          <span>
+            <span class="account-clean-kicker">Device</span>
+            <strong>${installTitle}</strong>
+            <small>${installCopy}</small>
+          </span>
+          <span class="account-clean-toggle-label">${installAction}</span>
+        </button>
+      </section>
 
-        <section class="account-clean-section account-clean-danger">
-          <div id="unitrack-danger-zone-body" class="account-clean-danger-body">
-            <div>
-              <div class="account-clean-kicker">Danger Zone</div>
-              <h3>Remove tracker data completely</h3>
-              <p>This permanently deletes the saved tracker profile from your cloud account. It removes your synced tracker data completely, not just data stored in this browser.</p>
-            </div>
-            <button type="button" onclick="unitrackDeleteCloudSyncData()">Delete Cloud Sync Data</button>
+      <section class="account-clean-section">
+        <div class="account-clean-section-head">
+          <div>
+            <div class="account-clean-kicker">Backup Tools</div>
+            <h3>Export or Restore a Backup</h3>
           </div>
-          <button id="unitrack-danger-zone-toggle" class="account-clean-danger-toggle" type="button" aria-expanded="false" onclick="unitrackToggleDangerZone()">Show deletion options</button>
-        </section>
-      </div>
-    `;
+        </div>
+
+        <div class="account-clean-actions">
+          <button type="button" onclick="unitrackExportBackup()">Export Backup</button>
+          <button type="button" onclick="unitrackImportBackup()">Import Backup</button>
+          <button type="button" onclick="unitrackExportRecoveryBackup()">Last Recovery Backup</button>
+        </div>
+      </section>
+
+      <section class="account-clean-section account-clean-session">
+        <div class="account-clean-session-copy">
+          <div class="account-clean-kicker">Session</div>
+          <h3>Sign Out of This Browser</h3>
+          <p>Logout from your UniTrack account.</p>
+        </div>
+        <button type="button" onclick="logoutCloud()">Logout</button>
+      </section>
+
+      <section class="account-clean-section account-clean-danger">
+        <div id="unitrack-danger-zone-body" class="account-clean-danger-body">
+          <div>
+            <div class="account-clean-kicker">Danger Zone</div>
+            <h3>Remove tracker data completely</h3>
+            <p>This permanently deletes the saved tracker profile from your cloud account. It removes your synced tracker data completely, not just data stored in this browser.</p>
+          </div>
+          <button type="button" onclick="unitrackDeleteCloudSyncData()">Delete Cloud Sync Data</button>
+        </div>
+
+        <button id="unitrack-danger-zone-toggle" class="account-clean-danger-toggle" type="button" aria-expanded="false" onclick="unitrackToggleDangerZone()">Show deletion options</button>
+      </section>
+    </div>
+  `;
   }
 
   window.unitrackExportBackup = exportBackup;
@@ -437,6 +499,7 @@
   window.unitrackClearLocalDeviceData = clearLocalDeviceData;
   window.unitrackDeleteCloudSyncData = deleteCloudSyncData;
   window.unitrackToggleDangerZone = toggleDangerZone;
+  window.unitrackShowInstallInstructions = showInstallInstructions;
   window.unitrackRenderProfessionalAccountPanel = renderAccountPanel;
   window.unitrackIsSafeUserUrl = isSafeUserUrl;
 
