@@ -9348,6 +9348,69 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
   }
 }
 
+/* Mobile landscape guard */
+@media screen and (orientation: landscape) and (max-height: 560px) and (max-width: 950px) {
+  html,
+  body {
+    width: 100vw !important;
+    height: 100vh !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body {
+    position: fixed !important;
+    inset: 0 !important;
+    padding-top: 0 !important;
+    background: #f5f0e8 !important;
+    background-image: none !important;
+  }
+
+  body::before {
+    content: "V1.0.0  |  Rotate back to portrait to use UniTrack.";
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 76px 20px 20px;
+    box-sizing: border-box;
+    background-color: #f5f0e8;
+    background-image: url("/unitrack-logo-black.svg");
+    background-repeat: no-repeat;
+    background-position: center calc(50% - 26px);
+    background-size: min(240px, 42vw) auto;
+    color: #0e0c0a;
+    font-family: "DM Mono", Consolas, monospace;
+    font-size: clamp(9px, 1.55vw, 12px);
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    text-align: center;
+    white-space: normal;
+  }
+
+  body.theme-dark,
+  body.theme-charcoal {
+    background: #101113 !important;
+    background-image: none !important;
+  }
+
+  body.theme-dark::before,
+  body.theme-charcoal::before {
+    background-color: #101113;
+    background-image: url("/unitrack-logo-white.svg");
+    color: #f1ede4;
+  }
+
+  body > * {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+}
+
 /* 10-account-panel.css */
 /* UniTrack account panel UI
    Theme-aware account layout, privacy controls, and backup actions. */
