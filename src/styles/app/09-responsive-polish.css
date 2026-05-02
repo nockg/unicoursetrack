@@ -2064,14 +2064,29 @@ body.theme-dark :focus-visible {
   }
 
   #modules .module {
-    scroll-snap-align: center;
+    flex: 0 0 82vw;
+    width: 82vw;
+    max-width: 82vw;
     margin-bottom: 0;
-    align-self: start;
+    align-self: flex-start;
+    min-width: 0;
+    border-radius: 10px;
+    background: var(--paper3);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.16);
+    scroll-snap-align: start;
   }
 
   #modules .module-empty-state {
     width: calc(100vw - 28px);
   }
+  #modules .module-add-card {
+    flex: 0 0 82vw;
+    width: 82vw;
+    max-width: 82vw;
+    scroll-snap-align: start;
+  }
+
+
 }
 
 /* =========================================================

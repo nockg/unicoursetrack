@@ -83,7 +83,6 @@
 
 @media (max-width: 700px) {
   .module-add-card {
-    width: calc(100vw - 36px);
     min-height: 88px;
     border-radius: 10px;
   }
