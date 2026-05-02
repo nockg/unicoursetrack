@@ -2,57 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Course Progress Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400;500;700&family=Shippori+Mincho:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/generated/styles.bundle.css">
 
-<style>
-  .auth-legal-card {
-    margin-top: 16px;
-    padding: 16px;
-    border: 1px solid var(--border, rgba(24, 21, 16, 0.14));
-    border-radius: 18px;
-    background: var(--surface2, rgba(255, 255, 255, 0.10));
-  }
-
-  .auth-legal-card h3 {
-    margin: 0 0 6px;
-    color: var(--text, var(--ink, inherit));
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-  }
-
-  .auth-legal-card p {
-    margin: 0 0 14px;
-    color: var(--muted, rgba(24, 21, 16, 0.68));
-    font-size: 0.92rem;
-    line-height: 1.5;
-  }
-
-  .auth-privacy-btn {
-    width: 100%;
-    justify-content: flex-start;
-    text-align: left;
-  }
-</style>
 </head>
 <body class="auth-required">
-<script>
-  (function applyInitialThemeClass() {
-    try {
-      const raw = localStorage.getItem("course_progress_prefs_v1");
-      const parsed = raw ? JSON.parse(raw) : {};
-      const theme = parsed && typeof parsed.theme === "string" ? parsed.theme : "light";
-      if (theme === "dark" || theme === "quiet" || theme === "charcoal") {
-        document.body.classList.add(`theme-${theme}`);
-      }
-    } catch (error) {
-      // Keep default light classing if preferences cannot be read.
-    }
-  })();
-</script>
+<script src="/theme-preload.js"></script>
 
 <div id="auth-gate">
   <div class="auth-gate-shell">
@@ -106,7 +63,7 @@
   </div>
 </div>
 
-<div id="deadline-splash" class="deadline-splash hidden" onclick="closeDeadlineSplash()">
+<div id="deadline-splash" class="deadline-splash hidden" role="dialog" aria-modal="true" aria-label="Upcoming Deadline" onclick="closeDeadlineSplash()">
   <div class="deadline-splash-card" onclick="event.stopPropagation()">
     <button class="deadline-splash-close" type="button" aria-label="Close welcome" onclick="closeDeadlineSplash()">&times;</button>
     <div class="deadline-splash-label">Upcoming Deadline</div>
@@ -115,7 +72,7 @@
   </div>
 </div>
 
-<div id="template-splash" class="deadline-splash hidden">
+<div id="template-splash" class="deadline-splash hidden" role="dialog" aria-modal="true" aria-label="Starter Template">
   <div class="deadline-splash-card template-splash-card">
     <button class="deadline-splash-close" type="button" aria-label="Close template chooser" onclick="dismissTemplateSplash()">&times;</button>
     <div class="deadline-splash-label">Starter Template</div>
@@ -136,7 +93,7 @@
   </div>
 </div>
 
-<div id="auth-modal" class="deadline-splash hidden">
+<div id="auth-modal" class="deadline-splash hidden" role="dialog" aria-modal="true" aria-label="Cloud Account">
   <div class="deadline-splash-card deadline-form-content">
     <button class="deadline-splash-close" type="button" aria-label="Close account panel" onclick="closeAuthModal()">&times;</button>
     <div class="deadline-splash-label">Cloud Account</div>
@@ -180,7 +137,7 @@
 
 <div class="sticky-exams" id="live-exam-bar"></div>
 
-<div class="nav-bar">
+<nav class="nav-bar" aria-label="App navigation">
   <div class="nav-brand" aria-hidden="true"><img src="/sntutors-logo.png" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('logo-missing')"></div>
   <div class="year-controls">
     <select class="nav-select" id="year-select" onchange="handleYearDropdown(this.value)"></select>
@@ -196,7 +153,7 @@
   <button class="nav-btn" onclick="addModuleToCurrentYear()">Add Module</button>
   <button class="nav-btn prefs-toggle-btn" onclick="togglePreferences()">Preferences</button>
   <button class="nav-btn" id="auth-btn" onclick="openAuthModal()">Account</button>
-</div>
+</nav>
 
 <div class="prefs-panel hidden" id="prefs-panel">
   <div class="prefs-head">
@@ -287,6 +244,7 @@
   </div>
 </div>
 
+<main id="app-main">
 <div class="hero">
   <div class="hero-accent"></div>
   <div class="hero-inner">
@@ -326,7 +284,7 @@
   </div>
 </div>
 
-<div id="dashboard-modal" class="dashboard-modal hidden">
+<div id="dashboard-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-label="Dashboard">
   <div class="dashboard-content">
     <button class="dashboard-close" type="button" aria-label="Close dashboard" onclick="closeDashboard()">&times;</button>
     <div class="dashboard-title">Dashboard</div>
@@ -356,7 +314,7 @@
   </div>
 </div>
 
-<div id="timeline-modal" class="dashboard-modal hidden">
+<div id="timeline-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-label="Deadline Timeline">
   <div class="dashboard-content timeline-content">
     <button class="dashboard-close" type="button" aria-label="Close timeline" onclick="closeDeadlineTimeline()">&times;</button>
     <div class="timeline-head">
@@ -373,7 +331,7 @@
   </div>
 </div>
 
-<div id="todo-modal" class="dashboard-modal hidden">
+<div id="todo-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-label="To-Do List">
   <div class="dashboard-content timeline-content todo-content">
     <div class="timeline-head">
       <div class="timeline-subtitle todo-drag-handle" id="todo-drag-handle">Planner</div>
@@ -404,7 +362,7 @@
   </div>
 </div>
 
-<div id="deadline-form-modal" class="dashboard-modal hidden">
+<div id="deadline-form-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-labelledby="deadline-form-title">
   <div class="dashboard-content deadline-form-content form-modal form-modal--deadline">
     <button class="dashboard-close" type="button" aria-label="Close deadline form" onclick="closeDeadlineForm()">&times;</button>
     <div class="timeline-subtitle form-modal-kicker">Deadlines</div>
@@ -496,7 +454,7 @@
   </div>
 </div>
 
-<div id="calendar-modal" class="dashboard-modal hidden">
+<div id="calendar-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-labelledby="calendar-form-title">
   <div class="dashboard-content deadline-form-content calendar-form-content form-modal form-modal--calendar">
     <button class="dashboard-close" type="button" aria-label="Close calendar composer" onclick="closeCalendarComposer()">&times;</button>
     <div class="timeline-subtitle form-modal-kicker">Calendar</div>
@@ -568,7 +526,7 @@
   </div>
 </div>
 
-<div id="coursework-component-modal" class="dashboard-modal hidden">
+<div id="coursework-component-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-label="Coursework Component">
   <div class="dashboard-content deadline-form-content">
     <button class="dashboard-close" type="button" aria-label="Close coursework component form" onclick="closeCourseworkComponentForm()">&times;</button>
     <div class="timeline-subtitle">Coursework Calculator</div>
@@ -599,7 +557,7 @@
   </div>
 </div>
 
-<div id="module-form-modal" class="dashboard-modal hidden">
+<div id="module-form-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-label="Add Module">
   <div class="dashboard-content deadline-form-content">
     <button class="dashboard-close" type="button" aria-label="Close module form" onclick="closeModuleForm()">&times;</button>
     <div class="timeline-subtitle">Modules</div>
@@ -636,7 +594,7 @@
   </div>
 </div>
 
-<div id="link-form-modal" class="dashboard-modal hidden">
+<div id="link-form-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-labelledby="link-form-title">
   <div class="dashboard-content deadline-form-content">
     <button class="dashboard-close" type="button" aria-label="Close link form" onclick="closeLinkForm()">&times;</button>
     <div class="timeline-subtitle" id="link-form-subtitle">Links</div>
@@ -654,7 +612,7 @@
   </div>
 </div>
 
-<div id="module-library-modal" class="dashboard-modal hidden">
+<div id="module-library-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-labelledby="module-library-title">
   <div class="dashboard-content module-library-content">
     <button class="dashboard-close" type="button" aria-label="Close library" onclick="closeModuleLibrary()">&times;</button>
     <div class="timeline-subtitle">Library</div>
@@ -685,7 +643,7 @@
   </div>
 </div>
 
-<div id="course-setup-modal" class="dashboard-modal hidden">
+<div id="course-setup-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-labelledby="course-setup-title">
   <div class="dashboard-content setup-content">
     <button class="dashboard-close" id="course-setup-close" type="button" aria-label="Close course setup" onclick="closeCourseSetupModal()">&times;</button>
     <div class="timeline-subtitle">Course Setup</div>
@@ -751,7 +709,7 @@
   </div>
 </div>
 
-<div id="onboarding-modal" class="dashboard-modal hidden">
+<div id="onboarding-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
   <div class="dashboard-content onboarding-content">
     <button class="dashboard-close" type="button" aria-label="Close onboarding" onclick="closeOnboardingModal()">&times;</button>
     <div class="timeline-subtitle">Getting Started</div>
@@ -782,6 +740,7 @@
     <span class="mobile-app-footnote-version">V1.0.0</span>
   </div>
 </div>
+</main>
 
 <script src="/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

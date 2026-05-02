@@ -508,6 +508,32 @@ body.font-mono .deadline-splash-title {
   letter-spacing: 0;
 }
 
+.auth-legal-card {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--border, rgba(24, 21, 16, 0.14));
+  border-radius: 18px;
+  background: var(--surface2, rgba(255, 255, 255, 0.10));
+}
+.auth-legal-card h3 {
+  margin: 0 0 6px;
+  color: var(--text, var(--ink, inherit));
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.auth-legal-card p {
+  margin: 0 0 14px;
+  color: var(--muted, rgba(24, 21, 16, 0.68));
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.auth-privacy-btn {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+}
+
 /* 01-shell.css */
 .deadline-splash {
   position: fixed;

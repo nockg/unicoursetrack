@@ -1095,16 +1095,10 @@ function openYouTube() {
 function clearLocalTrackerStorage() {
   localStorage.removeItem(KEY);
   localStorage.removeItem(PREFS_KEY);
-
   localStorage.removeItem(LEGACY_TRACKER_KEY);
   localStorage.removeItem(LEGACY_PREFS_KEY);
-  localStorage.removeItem("uos_aero_jp_v2");
-  localStorage.removeItem("uos_aero_jp_v1");
-  localStorage.removeItem("uos_blackboard_links_v1");
-  localStorage.removeItem("uos_formula_links_v2");
-  localStorage.removeItem("uos_formula_links_v1");
-  localStorage.removeItem("uos_exams_v2");
-  localStorage.removeItem("uos_exams_v1");
+  [...LEGACY_STATE_KEYS, ...LEGACY_BLACKBOARD_KEYS, ...LEGACY_FORMULA_KEYS, ...LEGACY_EXAM_KEYS]
+    .forEach(k => localStorage.removeItem(k));
 }
 
 function save() {
