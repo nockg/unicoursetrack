@@ -6527,6 +6527,33 @@ textarea:focus-visible,
 #deadline-save-btn:hover {
   background: var(--ui-primary-bg-hover);
   border-color: var(--ui-primary-bg-hover);
+  color: var(--ui-primary-fg);
+}
+
+body.theme-dark .calendar-btn,
+body.theme-dark .danger-btn,
+body.theme-dark #deadline-calendar-btn,
+body.theme-dark #deadline-save-btn,
+body.theme-charcoal .calendar-btn,
+body.theme-charcoal .danger-btn,
+body.theme-charcoal #deadline-calendar-btn,
+body.theme-charcoal #deadline-save-btn {
+  background: var(--ui-primary-bg) !important;
+  border-color: var(--ui-primary-bg) !important;
+  color: var(--ui-primary-fg) !important;
+}
+
+body.theme-dark .calendar-btn:hover,
+body.theme-dark .danger-btn:hover,
+body.theme-dark #deadline-calendar-btn:hover,
+body.theme-dark #deadline-save-btn:hover,
+body.theme-charcoal .calendar-btn:hover,
+body.theme-charcoal .danger-btn:hover,
+body.theme-charcoal #deadline-calendar-btn:hover,
+body.theme-charcoal #deadline-save-btn:hover {
+  background: var(--ui-primary-bg-hover) !important;
+  border-color: var(--ui-primary-bg-hover) !important;
+  color: var(--ui-primary-fg) !important;
 }
 
 .context-menu {
