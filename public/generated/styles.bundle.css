@@ -5859,6 +5859,477 @@ body.theme-dark .priority-choice.active { color: #fff; background: rgba(255,255,
 body.theme-quiet .sticky-exams{ border-bottom-color: rgba(245,240,232,0.16) !important; }
 .module-library-section-collapsible.is-collapsed .module-library-list { display: none !important; }
 
+/* 09-modal-forms.css */
+/* Shared modal-form system for deadline and calendar editors.
+   This file is the single source of truth for form modal layout,
+   visual treatment, variants, theming, and responsive behaviour. */
+
+#deadline-form-modal.dashboard-modal,
+#calendar-modal.dashboard-modal {
+  background: rgba(8, 8, 8, 0.42);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.form-modal {
+  width: min(720px, calc(100vw - 42px));
+  max-height: min(88vh, 760px);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  background: var(--paper3);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(14, 12, 10, 0.18);
+}
+
+.form-modal--calendar {
+  width: min(760px, calc(100vw - 42px));
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0) 128px),
+    var(--paper3);
+}
+
+.form-modal > .form-modal-kicker {
+  padding: 24px 28px 4px;
+  margin: 0;
+  color: var(--muted);
+}
+
+.form-modal > .form-modal-title {
+  padding: 0 28px 18px;
+  margin: 0;
+  color: var(--sumi);
+  border-bottom: 1px solid var(--border);
+}
+
+.form-modal > .form-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 28px 22px;
+  scrollbar-width: thin;
+}
+
+.form-modal > .form-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 28px 14px;
+  background: var(--paper3);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.form-modal > .form-modal-footer .nav-btn {
+  min-height: 40px;
+  border-radius: 999px;
+  padding: 10px 16px;
+}
+
+.form-modal .dashboard-close {
+  top: 20px;
+  right: 22px;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.42);
+  font-size: 19px;
+  line-height: 1;
+}
+
+.form-modal .field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.form-modal .field > label {
+  margin-bottom: 0;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--muted) 82%, var(--sumi) 18%);
+}
+
+.form-modal .input,
+.form-modal .nav-select {
+  min-height: 44px;
+  border-radius: 12px;
+  border-color: color-mix(in srgb, var(--border2) 68%, transparent 32%);
+  background: rgba(255, 255, 255, 0.48);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.36);
+}
+
+.form-modal .input:focus,
+.form-modal .nav-select:focus {
+  border-color: color-mix(in srgb, var(--gold2) 70%, var(--border2) 30%);
+  box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+
+.form-modal .timeline-notes {
+  min-height: 72px;
+  height: 72px;
+  max-height: 72px;
+  resize: none;
+}
+
+.form-modal--deadline .deadline-form-section {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.form-modal--deadline .deadline-form-section-primary {
+  background: color-mix(in srgb, var(--paper3) 70%, white 30%);
+}
+
+.form-modal--deadline .deadline-section-title {
+  color: var(--sumi);
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.form-modal--deadline .deadline-title-module-row,
+.form-modal--deadline .deadline-form-row,
+.form-modal--calendar .deadline-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.form-modal--deadline .deadline-title-module-row {
+  grid-template-columns: minmax(0, 1.25fr) minmax(180px, 0.75fr);
+}
+
+.form-modal--calendar > .form-modal-kicker {
+  display: none;
+}
+
+.form-modal--calendar > .form-modal-title {
+  position: relative;
+  padding: 28px 70px 20px 30px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 72%, transparent 28%);
+  font-size: clamp(30px, 3vw, 40px);
+  line-height: 1;
+}
+
+.form-modal--calendar > .form-modal-title::before {
+  content: "Calendar";
+  display: block;
+  margin-bottom: 7px;
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.form-modal--calendar > .form-modal-body {
+  padding: 22px 30px 24px;
+  gap: 14px;
+}
+
+.form-modal--calendar .field {
+  gap: 6px;
+}
+
+.form-modal--calendar .field > label {
+  font-size: 9px;
+  letter-spacing: 0.13em;
+}
+
+.form-modal--calendar .input,
+.form-modal--calendar .nav-select,
+.form-modal--calendar .timeline-notes {
+  border-radius: 6px;
+  border-color: color-mix(in srgb, var(--border2) 62%, transparent 38%);
+  background: color-mix(in srgb, var(--paper) 72%, white 28%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38);
+}
+
+.form-modal--calendar .input,
+.form-modal--calendar .nav-select {
+  min-height: 42px;
+}
+
+.form-modal--calendar .deadline-form-row {
+  grid-template-columns: minmax(0, 1fr) minmax(128px, 0.48fr);
+}
+
+.form-modal--calendar .calendar-form-row--framed {
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%);
+  border-radius: 8px;
+  background: rgba(26, 22, 18, 0.018);
+}
+
+.form-modal--calendar .calendar-form-row--plain {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.form-modal--calendar .timeline-notes {
+  min-height: 92px;
+  height: 92px;
+  max-height: 92px;
+  line-height: 1.42;
+}
+
+.form-modal--calendar > .form-modal-footer .nav-btn {
+  border-radius: 6px;
+  min-height: 42px;
+}
+
+.form-modal--calendar > .form-modal-footer .calendar-btn {
+  min-width: 168px;
+  background: var(--sumi);
+  border-color: var(--sumi);
+  color: var(--paper3);
+  box-shadow: 0 10px 24px rgba(26, 44, 74, 0.14);
+}
+
+.form-modal--calendar > .form-modal-footer .calendar-btn:hover {
+  background: color-mix(in srgb, var(--sumi) 88%, var(--gold2) 12%);
+  border-color: color-mix(in srgb, var(--sumi) 82%, var(--gold2) 18%);
+}
+
+#deadline-save-btn,
+#deadline-calendar-btn {
+  box-shadow: 0 10px 24px rgba(26, 44, 74, 0.14);
+}
+
+#deadline-calendar-fields {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  padding: 42px 16px 16px;
+  border: 1px solid color-mix(in srgb, var(--border2) 68%, transparent 32%);
+  border-radius: 16px;
+  background: rgba(26, 22, 18, 0.022);
+}
+
+#deadline-calendar-fields::before {
+  content: "Event details";
+  position: absolute;
+  top: 15px;
+  left: 16px;
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+body.modal-scroll-locked .dashboard-modal:not(.hidden),
+body.modal-scroll-locked .deadline-splash:not(.hidden) {
+  overscroll-behavior: contain;
+}
+
+body.modal-scroll-locked .form-modal,
+body.modal-scroll-locked .form-modal-body {
+  overscroll-behavior: contain;
+}
+
+body.font-sans .form-modal-title,
+body.font-sans .form-modal-kicker,
+body.font-sans .form-modal .field > label,
+body.font-sans .form-modal .input,
+body.font-sans .form-modal .nav-select,
+body.font-sans .form-modal .timeline-notes {
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body.font-mono .form-modal-title,
+body.font-mono .form-modal-kicker,
+body.font-mono .form-modal .field > label,
+body.font-mono .form-modal .input,
+body.font-mono .form-modal .nav-select,
+body.font-mono .form-modal .timeline-notes {
+  font-family: "DM Mono", Consolas, monospace;
+  letter-spacing: 0;
+}
+
+body.theme-dark .form-modal,
+body.theme-charcoal .form-modal {
+  background: #1b1b1e;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
+body.theme-dark .form-modal--calendar,
+body.theme-charcoal .form-modal--calendar {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0) 128px),
+    #1b1b1e;
+}
+
+body.theme-dark .form-modal-title,
+body.theme-charcoal .form-modal-title {
+  color: #f1ede4;
+}
+
+body.theme-dark .form-modal-kicker,
+body.theme-dark .form-modal .field > label,
+body.theme-charcoal .form-modal-kicker,
+body.theme-charcoal .form-modal .field > label {
+  color: rgba(241, 237, 228, 0.7);
+}
+
+body.theme-dark .form-modal .input,
+body.theme-dark .form-modal .nav-select,
+body.theme-dark .form-modal .timeline-notes,
+body.theme-dark .form-modal .dashboard-close,
+body.theme-charcoal .form-modal .input,
+body.theme-charcoal .form-modal .nav-select,
+body.theme-charcoal .form-modal .timeline-notes,
+body.theme-charcoal .form-modal .dashboard-close {
+  background: #202024;
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #f4efe7;
+}
+
+body.theme-dark .form-modal--deadline .deadline-form-section,
+body.theme-dark #deadline-calendar-fields:not(.deadline-field-hidden),
+body.theme-charcoal .form-modal--deadline .deadline-form-section,
+body.theme-charcoal #deadline-calendar-fields:not(.deadline-field-hidden) {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+body.theme-dark .form-modal--deadline .deadline-form-section-primary,
+body.theme-charcoal .form-modal--deadline .deadline-form-section-primary {
+  background: rgba(255, 255, 255, 0.055);
+}
+
+body.theme-dark .form-modal--deadline .deadline-section-title,
+body.theme-charcoal .form-modal--deadline .deadline-section-title {
+  color: #f1ede4;
+}
+
+body.theme-dark .form-modal > .form-modal-footer,
+body.theme-charcoal .form-modal > .form-modal-footer {
+  background: #1b1b1e;
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+body.theme-dark .form-modal--calendar .calendar-form-row--framed,
+body.theme-charcoal .form-modal--calendar .calendar-form-row--framed {
+  background: rgba(255, 255, 255, 0.026);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.theme-dark .form-modal--calendar > .form-modal-footer .calendar-btn,
+body.theme-charcoal .form-modal--calendar > .form-modal-footer .calendar-btn {
+  background: #f1ede4;
+  border-color: #f1ede4;
+  color: #171719;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline {
+  max-height: min(92dvh, 760px);
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline > .form-modal-body {
+  gap: 8px;
+  padding: 10px 28px 18px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline .deadline-form-section {
+  gap: 6px;
+  padding: 8px 12px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline > .form-modal-kicker {
+  padding-top: 16px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline > .form-modal-title {
+  padding-bottom: 10px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline .deadline-form-type-pill {
+  padding: 3px 9px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline .deadline-form-row,
+#deadline-form-modal.is-event-mode .form-modal--deadline .deadline-title-module-row {
+  gap: 8px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline .field {
+  gap: 5px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline .input,
+#deadline-form-modal.is-event-mode .form-modal--deadline .nav-select {
+  min-height: 34px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline .timeline-notes {
+  min-height: 44px;
+  height: 44px;
+  max-height: 44px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline > .form-modal-footer .nav-btn {
+  min-height: 38px;
+}
+
+@media (max-width: 760px) {
+  body.modal-scroll-locked {
+    position: static !important;
+    top: auto !important;
+    width: auto !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .form-modal,
+  .form-modal--calendar {
+    width: calc(100vw - 18px);
+    max-height: 90vh;
+  }
+
+  .form-modal--deadline .deadline-title-module-row,
+  .form-modal--deadline .deadline-form-row,
+  .form-modal--calendar .deadline-form-row,
+  .form-modal--calendar .calendar-form-row--plain {
+    grid-template-columns: 1fr;
+  }
+
+  .form-modal > .form-modal-body,
+  .form-modal--calendar > .form-modal-body,
+  #deadline-form-modal.is-event-mode .form-modal--deadline > .form-modal-body {
+    padding: 20px 18px 18px;
+  }
+
+  .form-modal > .form-modal-footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 10px 18px 12px;
+  }
+}
+
 /* 09-responsive-polish.css */
 /* Global UI readability, responsive shell behaviour, and interaction polish */
 .nav-btn,
@@ -6171,198 +6642,6 @@ body.setup-required .dashboard-close {
   }
 }
 
-/* Premium calendar and deadline form layout */
-#deadline-form-modal .dashboard-content.deadline-form-content,
-#calendar-modal .dashboard-content.calendar-form-content {
-  width: min(720px, calc(100vw - 28px));
-  max-height: min(86vh, 760px);
-  padding: 0;
-  overflow: hidden;
-  border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--border2) 70%, transparent 30%);
-  background: var(--paper3);
-  box-shadow: 0 18px 42px rgba(14,12,10,0.16);
-}
-
-#deadline-form-modal .deadline-form-content > .timeline-subtitle,
-#deadline-form-modal .deadline-form-content > .dashboard-title,
-#calendar-modal .calendar-form-content > .timeline-subtitle,
-#calendar-modal .calendar-form-content > .dashboard-title {
-  padding-left: 28px;
-  padding-right: 62px;
-}
-
-#deadline-form-modal .deadline-form-content > .timeline-subtitle,
-#calendar-modal .calendar-form-content > .timeline-subtitle {
-  padding-top: 26px;
-  margin-bottom: 6px;
-  font-size: 11px;
-  color: color-mix(in srgb, var(--muted) 82%, var(--sumi) 18%);
-}
-
-#deadline-form-modal .deadline-form-content > .dashboard-title,
-#calendar-modal .calendar-form-content > .dashboard-title {
-  margin: 0;
-  padding-bottom: 18px;
-  font-family: "Shippori Mincho", serif;
-  font-size: clamp(30px, 3.2vw, 42px);
-  line-height: 0.98;
-  letter-spacing: -0.02em;
-  color: var(--sumi);
-  border-bottom: 1px solid var(--border);
-}
-
-#deadline-form-modal .deadline-form-grid,
-#calendar-modal .deadline-form-grid {
-  display: grid;
-  gap: 16px;
-  padding: 22px 28px 26px;
-  overflow: auto;
-  max-height: calc(86vh - 118px);
-  scrollbar-width: thin;
-}
-
-#deadline-form-modal .deadline-form-content .field,
-#calendar-modal .calendar-form-content .field {
-  display: grid;
-  gap: 7px;
-}
-
-#deadline-form-modal .deadline-form-content .field > label,
-#calendar-modal .calendar-form-content .field > label {
-  margin-bottom: 0;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  color: color-mix(in srgb, var(--muted) 82%, var(--sumi) 18%);
-}
-
-#deadline-form-modal .deadline-form-content .input,
-#deadline-form-modal .deadline-form-content .nav-select,
-#calendar-modal .calendar-form-content .input,
-#calendar-modal .calendar-form-content .nav-select {
-  min-height: 44px;
-  border-radius: 12px;
-  border-color: color-mix(in srgb, var(--border2) 68%, transparent 32%);
-  background: rgba(255,255,255,0.48);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.36);
-}
-
-#deadline-form-modal .deadline-form-content .input:focus,
-#deadline-form-modal .deadline-form-content .nav-select:focus,
-#calendar-modal .calendar-form-content .input:focus,
-#calendar-modal .calendar-form-content .nav-select:focus {
-  border-color: color-mix(in srgb, var(--gold2) 70%, var(--border2) 30%);
-  box-shadow: 0 0 0 3px rgba(212,160,23,0.12), inset 0 1px 0 rgba(255,255,255,0.42);
-}
-
-#deadline-form-type-pill {
-  border-radius: 999px;
-  padding: 7px 12px;
-  background: rgba(26,22,18,0.045);
-  color: color-mix(in srgb, var(--muted) 78%, var(--sumi) 22%);
-  border-color: color-mix(in srgb, var(--border2) 68%, transparent 32%);
-}
-
-#deadline-calendar-fields {
-  position: relative;
-  display: grid;
-  gap: 14px;
-  padding: 42px 16px 16px;
-  border: 1px solid color-mix(in srgb, var(--border2) 68%, transparent 32%);
-  border-radius: 16px;
-  background: rgba(26,22,18,0.022);
-}
-
-#deadline-calendar-fields::before {
-  content: "Event details";
-  position: absolute;
-  top: 15px;
-  left: 16px;
-  font-family: "DM Mono", monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-#deadline-form-modal .deadline-title-module-row,
-#deadline-form-modal .deadline-form-row,
-#calendar-modal .deadline-form-row {
-  gap: 14px;
-}
-
-#deadline-form-modal .deadline-title-module-row {
-  grid-template-columns: minmax(0, 1.25fr) minmax(190px, .75fr);
-}
-
-.deadline-priority-row {
-  padding: 4px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: rgba(26,22,18,0.026);
-  gap: 4px;
-}
-
-.priority-choice {
-  min-height: 38px;
-  border-radius: 10px;
-  border-color: transparent;
-  background: transparent;
-  font-size: 10px;
-}
-
-.priority-choice.active {
-  background: rgba(255,255,255,0.58);
-  box-shadow: 0 8px 20px rgba(14,12,10,0.07), inset 0 -3px 0 var(--priority-colour, var(--border2));
-}
-
-#deadline-form-modal .timeline-notes,
-#calendar-modal .timeline-notes {
-  min-height: 96px;
-  height: 96px;
-  max-height: 96px;
-  padding: 12px 13px;
-  border: 1px solid color-mix(in srgb, var(--border2) 68%, transparent 32%);
-  border-radius: 14px;
-  background: rgba(255,255,255,0.42);
-  font-style: normal;
-}
-
-.deadline-form-actions {
-  margin-top: 2px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-  gap: 10px;
-}
-
-.deadline-form-actions .nav-btn {
-  min-height: 40px;
-  border-radius: 999px;
-  padding: 10px 16px;
-}
-
-#deadline-calendar-btn,
-#deadline-save-btn,
-#calendar-modal .calendar-btn {
-  box-shadow: 0 10px 24px rgba(26,44,74,0.14);
-}
-
-#deadline-form-modal .dashboard-close,
-#calendar-modal .dashboard-close {
-  top: 20px;
-  right: 22px;
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  background: rgba(255,255,255,0.42);
-  font-size: 19px;
-  line-height: 1;
-}
-
 .timeline-content {
   width: min(780px, calc(100vw - 32px));
   overflow-x: hidden;
@@ -6403,42 +6682,6 @@ body.setup-required .dashboard-close {
   background: rgba(255,255,255,0.42);
 }
 
-body.theme-dark #deadline-form-modal .dashboard-content.deadline-form-content,
-body.theme-dark #calendar-modal .dashboard-content.calendar-form-content {
-  background: #1b1b1e;
-  border-color: rgba(255,255,255,0.1);
-  box-shadow: 0 18px 42px rgba(0,0,0,0.34);
-}
-
-body.theme-dark #deadline-form-modal .deadline-form-content > .dashboard-title,
-body.theme-dark #calendar-modal .calendar-form-content > .dashboard-title {
-  color: #f1ede4;
-  border-bottom-color: rgba(255,255,255,0.08);
-}
-
-body.theme-dark #deadline-calendar-fields,
-body.theme-dark .deadline-priority-row,
-body.theme-dark #deadline-form-modal .deadline-form-content .input,
-body.theme-dark #deadline-form-modal .deadline-form-content .nav-select,
-body.theme-dark #calendar-modal .calendar-form-content .input,
-body.theme-dark #calendar-modal .calendar-form-content .nav-select,
-body.theme-dark #deadline-form-modal .timeline-notes,
-body.theme-dark #calendar-modal .timeline-notes,
-body.theme-dark #deadline-form-modal .dashboard-close,
-body.theme-dark #calendar-modal .dashboard-close {
-  background: rgba(255,255,255,0.045);
-  border-color: rgba(255,255,255,0.12);
-  color: #f4efe7;
-}
-
-body.theme-dark .priority-choice.active {
-  background: rgba(255,255,255,0.09);
-}
-
-body.theme-dark .deadline-form-actions {
-  border-top-color: rgba(255,255,255,0.08);
-}
-
 body.theme-dark .deadline-choice-card {
   background: rgba(255,255,255,0.045);
   border-color: rgba(255,255,255,0.1);
@@ -6446,26 +6689,6 @@ body.theme-dark .deadline-choice-card {
 
 body.theme-dark .deadline-choice-card:hover {
   background: rgba(255,255,255,0.075);
-}
-
-@media (max-width: 700px) {
-  #deadline-form-modal .dashboard-content.deadline-form-content,
-  #calendar-modal .dashboard-content.calendar-form-content {
-    width: calc(100vw - 18px);
-    border-radius: 16px;
-  }
-
-  #deadline-form-modal .deadline-form-grid,
-  #calendar-modal .deadline-form-grid {
-    padding: 18px;
-    max-height: calc(86vh - 112px);
-  }
-
-  #deadline-form-modal .deadline-title-module-row,
-  #deadline-form-modal .deadline-form-row,
-  #calendar-modal .deadline-form-row {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* =========================================================
@@ -6820,140 +7043,6 @@ body.theme-dark .deadline-card-lower {
   content: none !important;
 }
 
-/* Remove the glow/halo. Keep the normal UniTrack paper modal feel. */
-#deadline-form-modal.dashboard-modal,
-#calendar-modal.dashboard-modal {
-  background: rgba(8,8,8,0.42) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-#deadline-form-modal .dashboard-content.deadline-form-content,
-#calendar-modal .dashboard-content.calendar-form-content {
-  width: min(720px, calc(100vw - 42px)) !important;
-  max-height: min(88vh, 760px) !important;
-  display: grid !important;
-  grid-template-rows: auto auto minmax(0, 1fr) !important;
-  overflow: hidden !important;
-  background: var(--paper3) !important;
-  border: 1px solid var(--border2) !important;
-  border-radius: 10px !important;
-  box-shadow: 0 12px 28px rgba(14,12,10,0.18) !important;
-}
-
-#deadline-form-modal .deadline-form-content > .timeline-subtitle,
-#calendar-modal .calendar-form-content > .timeline-subtitle {
-  padding: 24px 28px 4px !important;
-  margin: 0 !important;
-  color: var(--muted) !important;
-}
-
-#deadline-form-modal .deadline-form-content > .dashboard-title,
-#calendar-modal .calendar-form-content > .dashboard-title {
-  padding: 0 28px 18px !important;
-  margin: 0 !important;
-  color: var(--sumi) !important;
-  border-bottom: 1px solid var(--border) !important;
-}
-
-#deadline-form-modal .deadline-form-grid,
-#calendar-modal .deadline-form-grid {
-  gap: 14px !important;
-  min-height: 0 !important;
-  max-height: none !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  padding: 20px 28px 22px !important;
-  scrollbar-width: thin;
-}
-
-#deadline-form-modal .deadline-form-section {
-  display: grid !important;
-  gap: 12px !important;
-  padding: 14px !important;
-  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%) !important;
-  border-radius: 7px !important;
-  background: rgba(255,255,255,0.18) !important;
-}
-
-#deadline-form-modal .deadline-form-section-primary {
-  background: color-mix(in srgb, var(--paper3) 70%, white 30%) !important;
-}
-
-#deadline-form-modal .deadline-section-title {
-  color: var(--sumi) !important;
-  font-family: "DM Mono", monospace !important;
-  font-size: 10px !important;
-  line-height: 1.2 !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.1em !important;
-  text-transform: uppercase !important;
-}
-
-#deadline-form-modal .deadline-form-row,
-#calendar-modal .deadline-form-row {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 12px !important;
-  align-items: start !important;
-}
-
-#deadline-form-modal .deadline-title-module-row {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1.25fr) minmax(180px, 0.75fr) !important;
-  gap: 12px !important;
-  align-items: start !important;
-}
-
-#deadline-form-modal .timeline-notes,
-#calendar-modal .timeline-notes {
-  min-height: 72px !important;
-  height: 72px !important;
-  max-height: 72px !important;
-  resize: none !important;
-}
-
-#deadline-form-modal .deadline-form-actions,
-#calendar-modal .deadline-form-actions {
-  position: sticky !important;
-  bottom: 0 !important;
-  z-index: 5 !important;
-  display: flex !important;
-  justify-content: flex-end !important;
-  gap: 10px !important;
-  margin: 6px -28px -22px !important;
-  padding: 14px 28px 16px !important;
-  background: var(--paper3) !important;
-  border-top: 1px solid var(--border) !important;
-}
-
-/* Lock background page scrolling while edit/calendar modals are open. */
-body.modal-scroll-locked {
-  position: fixed !important;
-  width: 100% !important;
-  overflow: hidden !important;
-  left: 0 !important;
-  right: 0 !important;
-}
-
-body.modal-scroll-locked .dashboard-modal:not(.hidden),
-body.modal-scroll-locked .deadline-splash:not(.hidden) {
-  overscroll-behavior: contain !important;
-}
-
-body.modal-scroll-locked .deadline-form-grid,
-body.modal-scroll-locked .dashboard-content {
-  overscroll-behavior: contain !important;
-}
-
-@media (max-width: 760px) {
-  body.modal-scroll-locked {
-    position: static !important;
-    top: auto !important;
-    width: auto !important;
-  }
-}
-
 /* Final state rules: checked topics must stay visually complete across themes and layouts. */
 .topic-row .topic-label.done,
 .topic-row.subtopic-row .topic-label.done,
@@ -7013,8 +7102,6 @@ body.theme-dark .module-major-toggle {
 /* Font preferences: titles and deadline UI must follow selected style. */
 .timeline-page-title,
 .deadline-choice-title,
-#deadline-form-modal .dashboard-title,
-#calendar-modal .dashboard-title,
 #timeline-modal .dashboard-title {
   font-family: "Shippori Mincho", serif !important;
 }
@@ -7022,38 +7109,14 @@ body.theme-dark .module-major-toggle {
 body.font-sans .timeline-page-title,
 body.font-sans .deadline-choice-title,
 body.font-sans .deadline-choice-copy,
-body.font-sans #deadline-form-modal .dashboard-title,
-body.font-sans #calendar-modal .dashboard-title,
-body.font-sans #timeline-modal .dashboard-title,
-body.font-sans #deadline-form-modal .timeline-subtitle,
-body.font-sans #calendar-modal .timeline-subtitle,
-body.font-sans #deadline-form-modal .field label,
-body.font-sans #calendar-modal .field label,
-body.font-sans #deadline-form-modal .input,
-body.font-sans #deadline-form-modal .nav-select,
-body.font-sans #calendar-modal .input,
-body.font-sans #calendar-modal .nav-select,
-body.font-sans #deadline-form-modal .timeline-notes,
-body.font-sans #calendar-modal .timeline-notes {
+body.font-sans #timeline-modal .dashboard-title {
   font-family: "Segoe UI", Arial, sans-serif !important;
 }
 
 body.font-mono .timeline-page-title,
 body.font-mono .deadline-choice-title,
 body.font-mono .deadline-choice-copy,
-body.font-mono #deadline-form-modal .dashboard-title,
-body.font-mono #calendar-modal .dashboard-title,
-body.font-mono #timeline-modal .dashboard-title,
-body.font-mono #deadline-form-modal .timeline-subtitle,
-body.font-mono #calendar-modal .timeline-subtitle,
-body.font-mono #deadline-form-modal .field label,
-body.font-mono #calendar-modal .field label,
-body.font-mono #deadline-form-modal .input,
-body.font-mono #deadline-form-modal .nav-select,
-body.font-mono #calendar-modal .input,
-body.font-mono #calendar-modal .nav-select,
-body.font-mono #deadline-form-modal .timeline-notes,
-body.font-mono #calendar-modal .timeline-notes {
+body.font-mono #timeline-modal .dashboard-title {
   font-family: "DM Mono", Consolas, monospace !important;
   letter-spacing: 0 !important;
 }
@@ -7069,52 +7132,12 @@ body.theme-dark .deadline-choice-card:hover {
   background: rgba(255,255,255,0.075) !important;
 }
 
-body.theme-dark .deadline-choice-title,
-body.theme-dark #deadline-form-modal .deadline-form-content > .dashboard-title,
-body.theme-dark #calendar-modal .calendar-form-content > .dashboard-title {
+body.theme-dark .deadline-choice-title {
   color: #f1ede4 !important;
 }
 
-body.theme-dark .deadline-choice-copy,
-body.theme-dark #deadline-form-modal .deadline-form-content > .timeline-subtitle,
-body.theme-dark #calendar-modal .calendar-form-content > .timeline-subtitle,
-body.theme-dark #deadline-form-modal .field label,
-body.theme-dark #calendar-modal .field label {
+body.theme-dark .deadline-choice-copy {
   color: rgba(241,237,228,0.70) !important;
-}
-
-body.theme-dark #deadline-form-modal .dashboard-content.deadline-form-content,
-body.theme-dark #calendar-modal .dashboard-content.calendar-form-content {
-  background: #1b1b1e !important;
-  border-color: rgba(255,255,255,0.12) !important;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.28) !important;
-}
-
-body.theme-dark #deadline-form-modal .input,
-body.theme-dark #deadline-form-modal .nav-select,
-body.theme-dark #calendar-modal .input,
-body.theme-dark #calendar-modal .nav-select,
-body.theme-dark #deadline-form-modal .timeline-notes,
-body.theme-dark #calendar-modal .timeline-notes {
-  background: #202024 !important;
-  border-color: rgba(255,255,255,0.14) !important;
-  color: #f4efe7 !important;
-}
-
-body.theme-dark #deadline-form-modal .deadline-form-actions,
-body.theme-dark #calendar-modal .deadline-form-actions {
-  background: #1b1b1e !important;
-  border-top-color: rgba(255,255,255,0.1) !important;
-}
-
-body.theme-dark #deadline-form-modal .deadline-form-section,
-body.theme-dark #deadline-calendar-fields:not(.deadline-field-hidden) {
-  background: rgba(255,255,255,0.035) !important;
-  border-color: rgba(255,255,255,0.09) !important;
-}
-
-body.theme-dark #deadline-form-modal .deadline-section-title {
-  color: #f1ede4 !important;
 }
 
 /* Module card hierarchy: title first, controls second, dropdown content calm. */
@@ -7540,207 +7563,6 @@ body.theme-charcoal .formula-edit-btn:hover {
   }
 }
 
-/* Calendar composer polish */
-#calendar-modal .dashboard-content.calendar-form-content {
-  width: min(760px, calc(100vw - 42px)) !important;
-  grid-template-rows: auto minmax(0, 1fr) !important;
-  border-radius: 8px !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.36), rgba(255,255,255,0) 128px),
-    var(--paper3) !important;
-}
-
-#calendar-modal .calendar-form-content > .timeline-subtitle {
-  display: none !important;
-}
-
-#calendar-modal .calendar-form-content > .dashboard-title {
-  position: relative !important;
-  padding: 28px 70px 20px 30px !important;
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 72%, transparent 28%) !important;
-  font-size: clamp(30px, 3vw, 40px) !important;
-  line-height: 1 !important;
-}
-
-#calendar-modal .calendar-form-content > .dashboard-title::before {
-  content: "Calendar";
-  display: block;
-  margin-bottom: 7px;
-  font-family: "DM Mono", monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-#calendar-modal .deadline-form-grid {
-  padding: 22px 30px 24px !important;
-  gap: 14px !important;
-}
-
-#calendar-modal .calendar-form-content .field {
-  gap: 6px !important;
-}
-
-#calendar-modal .calendar-form-content .field > label {
-  font-size: 9px !important;
-  letter-spacing: 0.13em !important;
-}
-
-#calendar-modal .calendar-form-content .input,
-#calendar-modal .calendar-form-content .nav-select,
-#calendar-modal .calendar-form-content .timeline-notes {
-  border-radius: 6px !important;
-  border-color: color-mix(in srgb, var(--border2) 62%, transparent 38%) !important;
-  background: color-mix(in srgb, var(--paper) 72%, white 28%) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.38) !important;
-}
-
-#calendar-modal .calendar-form-content .input,
-#calendar-modal .calendar-form-content .nav-select {
-  min-height: 42px !important;
-}
-
-#calendar-modal .deadline-form-row {
-  grid-template-columns: minmax(0, 1fr) minmax(128px, 0.48fr) !important;
-  padding: 12px !important;
-  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%) !important;
-  border-radius: 8px !important;
-  background: rgba(26,22,18,0.018) !important;
-}
-
-#calendar-modal .deadline-form-row:nth-of-type(4) {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  background: transparent !important;
-  border: 0 !important;
-  padding: 0 !important;
-}
-
-#calendar-modal .timeline-notes {
-  min-height: 92px !important;
-  height: 92px !important;
-  max-height: 92px !important;
-  line-height: 1.42 !important;
-}
-
-#calendar-modal .deadline-form-actions {
-  margin-top: 2px !important;
-  padding-top: 14px !important;
-}
-
-#calendar-modal .deadline-form-actions .nav-btn {
-  border-radius: 6px !important;
-  min-height: 42px !important;
-}
-
-#calendar-modal .deadline-form-actions .calendar-btn {
-  min-width: 168px !important;
-  background: var(--sumi) !important;
-  border-color: var(--sumi) !important;
-  color: var(--paper3) !important;
-}
-
-#calendar-modal .deadline-form-actions .calendar-btn:hover {
-  background: color-mix(in srgb, var(--sumi) 88%, var(--gold2) 12%) !important;
-  border-color: color-mix(in srgb, var(--sumi) 82%, var(--gold2) 18%) !important;
-}
-
-#calendar-modal .dashboard-close {
-  border-radius: 6px !important;
-}
-
-#deadline-form-modal.is-event-mode .dashboard-content.deadline-form-content {
-  max-height: min(96dvh, 760px) !important;
-  grid-template-rows: auto auto minmax(0, 1fr) !important;
-}
-
-#deadline-form-modal.is-event-mode .deadline-form-grid {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  padding: 10px 28px 92px 28px !important;
-}
-
-#deadline-form-modal.is-event-mode .deadline-form-section {
-  gap: 6px !important;
-  padding: 8px 12px !important;
-}
-
-#deadline-form-modal.is-event-mode .deadline-form-content > .timeline-subtitle {
-  padding-top: 16px !important;
-}
-
-#deadline-form-modal.is-event-mode .deadline-form-content > .dashboard-title {
-  padding-bottom: 10px !important;
-}
-
-#deadline-form-modal.is-event-mode .deadline-form-type-pill {
-  padding: 3px 9px !important;
-}
-
-#deadline-form-modal.is-event-mode .deadline-form-row,
-#deadline-form-modal.is-event-mode .deadline-title-module-row {
-  gap: 8px !important;
-}
-
-#deadline-form-modal.is-event-mode .deadline-form-content .field {
-  gap: 5px !important;
-}
-
-#deadline-form-modal.is-event-mode .deadline-form-content .input,
-#deadline-form-modal.is-event-mode .deadline-form-content .nav-select {
-  min-height: 34px !important;
-  padding-top: 6px !important;
-  padding-bottom: 6px !important;
-}
-
-#deadline-form-modal.is-event-mode .timeline-notes {
-  min-height: 44px !important;
-  height: 44px !important;
-  max-height: 44px !important;
-}
-
-#deadline-form-modal.is-event-mode .deadline-form-actions {
-  position: sticky !important;
-  bottom: 0 !important;
-  margin: 0 -28px -92px -28px !important;
-  padding: 11px 28px 13px !important;
-  background: var(--paper3) !important;
-  border-top: 1px solid var(--border) !important;
-  flex-shrink: 0 !important;
-  z-index: 5 !important;
-}
-
-#deadline-form-modal.is-event-mode .deadline-form-actions .nav-btn {
-  min-height: 38px !important;
-}
-
-body.theme-dark #calendar-modal .dashboard-content.calendar-form-content {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0) 128px),
-    #1b1b1e !important;
-}
-
-body.theme-dark #calendar-modal .deadline-form-row {
-  background: rgba(255,255,255,0.026) !important;
-  border-color: rgba(255,255,255,0.08) !important;
-}
-
-body.theme-dark #calendar-modal .calendar-form-content .input,
-body.theme-dark #calendar-modal .calendar-form-content .nav-select,
-body.theme-dark #calendar-modal .calendar-form-content .timeline-notes {
-  background: #202024 !important;
-  border-color: rgba(255,255,255,0.13) !important;
-}
-
-body.theme-dark #calendar-modal .deadline-form-actions .calendar-btn {
-  background: #f1ede4 !important;
-  border-color: #f1ede4 !important;
-  color: #171719 !important;
-}
-
 @media (max-width: 700px) {
   .deadline-choice-grid.deadline-view-shell {
     grid-template-columns: 1fr !important;
@@ -7748,48 +7570,6 @@ body.theme-dark #calendar-modal .deadline-form-actions .calendar-btn {
 
   .deadline-choice-card {
     min-height: 104px !important;
-  }
-
-  #deadline-form-modal .dashboard-content.deadline-form-content,
-  #calendar-modal .dashboard-content.calendar-form-content {
-    width: calc(100vw - 18px) !important;
-    max-height: 90vh !important;
-  }
-
-  #deadline-form-modal .deadline-form-row,
-  #deadline-form-modal .deadline-title-module-row,
-  #calendar-modal .deadline-form-row {
-    grid-template-columns: 1fr !important;
-  }
-
-  #deadline-form-modal .deadline-form-grid,
-  #calendar-modal .deadline-form-grid {
-    padding: 18px !important;
-  }
-
-  #deadline-form-modal .deadline-form-actions,
-  #calendar-modal .deadline-form-actions {
-    margin: 6px -18px -18px !important;
-    padding: 12px 18px 14px !important;
-    flex-direction: column-reverse !important;
-  }
-
-  #deadline-form-modal .deadline-form-actions .nav-btn,
-  #calendar-modal .deadline-form-actions .nav-btn {
-    width: 100% !important;
-  }
-
-  #calendar-modal .calendar-form-content > .dashboard-title {
-    padding: 24px 58px 18px 20px !important;
-  }
-
-  #calendar-modal .deadline-form-grid {
-    padding: 18px 20px 20px !important;
-  }
-
-  #calendar-modal .deadline-form-row,
-  #calendar-modal .deadline-form-row:nth-of-type(4) {
-    grid-template-columns: 1fr !important;
   }
 }
 
@@ -8207,8 +7987,7 @@ body.theme-dark #calendar-modal .deadline-form-actions .calendar-btn {
     gap: 6px !important;
   }
 
-  .deadline-card-actions,
-  .deadline-form-actions {
+  .deadline-card-actions {
     display: grid !important;
     grid-template-columns: 1fr !important;
   }
@@ -8269,18 +8048,6 @@ body.theme-dark #calendar-modal .deadline-form-actions .calendar-btn {
     width: 48px !important;
     padding: 0 !important;
     justify-self: end !important;
-  }
-
-  #deadline-form-modal .deadline-form-grid,
-  #calendar-modal .deadline-form-grid {
-    padding: 16px !important;
-  }
-
-  #deadline-form-modal .deadline-form-actions,
-  #calendar-modal .deadline-form-actions {
-    position: static !important;
-    margin: 8px 0 0 !important;
-    padding: 12px 0 0 !important;
   }
 
   #timeline-list .timeline-item {
@@ -9381,59 +9148,6 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
 
   #modules {
     grid-auto-columns: 90vw !important;
-  }
-}
-
-/* Prevent clipped action buttons in Edit Calendar Event modal */
-#deadline-form-modal .dashboard-content.deadline-form-content,
-#calendar-modal .dashboard-content.calendar-form-content {
-  display: flex !important;
-  flex-direction: column !important;
-  max-height: min(92dvh, 760px) !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-}
-
-#deadline-form-modal .deadline-form-grid,
-#calendar-modal .deadline-form-grid {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  overflow-y: auto !important;
-  padding: 20px 28px 22px !important;
-}
-
-#deadline-form-modal .deadline-form-actions,
-#deadline-form-modal.is-event-mode .deadline-form-actions,
-#calendar-modal .deadline-form-actions {
-  position: static !important;
-  margin: 0 !important;
-  padding: 12px 28px 14px !important;
-  background: var(--paper3) !important;
-  border-top: 1px solid var(--border) !important;
-  flex-shrink: 0 !important;
-  z-index: 6 !important;
-}
-
-body.theme-dark #deadline-form-modal .deadline-form-actions,
-body.theme-dark #deadline-form-modal.is-event-mode .deadline-form-actions,
-body.theme-dark #calendar-modal .deadline-form-actions,
-body.theme-charcoal #deadline-form-modal .deadline-form-actions,
-body.theme-charcoal #deadline-form-modal.is-event-mode .deadline-form-actions,
-body.theme-charcoal #calendar-modal .deadline-form-actions {
-  background: #1b1b1e !important;
-  border-top-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-@media (max-width: 700px) {
-  #deadline-form-modal .deadline-form-actions,
-  #deadline-form-modal.is-event-mode .deadline-form-actions,
-  #calendar-modal .deadline-form-actions {
-    padding: 10px 18px 12px !important;
-  }
-
-  #deadline-form-modal .deadline-form-grid,
-  #calendar-modal .deadline-form-grid {
-    padding: 20px 18px 18px !important;
   }
 }
 

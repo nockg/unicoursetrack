@@ -1,0 +1,469 @@
+/* Shared modal-form system for deadline and calendar editors.
+   This file is the single source of truth for form modal layout,
+   visual treatment, variants, theming, and responsive behaviour. */
+
+#deadline-form-modal.dashboard-modal,
+#calendar-modal.dashboard-modal {
+  background: rgba(8, 8, 8, 0.42);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.form-modal {
+  width: min(720px, calc(100vw - 42px));
+  max-height: min(88vh, 760px);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  background: var(--paper3);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(14, 12, 10, 0.18);
+}
+
+.form-modal--calendar {
+  width: min(760px, calc(100vw - 42px));
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0) 128px),
+    var(--paper3);
+}
+
+.form-modal > .form-modal-kicker {
+  padding: 24px 28px 4px;
+  margin: 0;
+  color: var(--muted);
+}
+
+.form-modal > .form-modal-title {
+  padding: 0 28px 18px;
+  margin: 0;
+  color: var(--sumi);
+  border-bottom: 1px solid var(--border);
+}
+
+.form-modal > .form-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 28px 22px;
+  scrollbar-width: thin;
+}
+
+.form-modal > .form-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 28px 14px;
+  background: var(--paper3);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.form-modal > .form-modal-footer .nav-btn {
+  min-height: 40px;
+  border-radius: 999px;
+  padding: 10px 16px;
+}
+
+.form-modal .dashboard-close {
+  top: 20px;
+  right: 22px;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.42);
+  font-size: 19px;
+  line-height: 1;
+}
+
+.form-modal .field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.form-modal .field > label {
+  margin-bottom: 0;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--muted) 82%, var(--sumi) 18%);
+}
+
+.form-modal .input,
+.form-modal .nav-select {
+  min-height: 44px;
+  border-radius: 12px;
+  border-color: color-mix(in srgb, var(--border2) 68%, transparent 32%);
+  background: rgba(255, 255, 255, 0.48);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.36);
+}
+
+.form-modal .input:focus,
+.form-modal .nav-select:focus {
+  border-color: color-mix(in srgb, var(--gold2) 70%, var(--border2) 30%);
+  box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+
+.form-modal .timeline-notes {
+  min-height: 72px;
+  height: 72px;
+  max-height: 72px;
+  resize: none;
+}
+
+.form-modal--deadline .deadline-form-section {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.form-modal--deadline .deadline-form-section-primary {
+  background: color-mix(in srgb, var(--paper3) 70%, white 30%);
+}
+
+.form-modal--deadline .deadline-section-title {
+  color: var(--sumi);
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.form-modal--deadline .deadline-title-module-row,
+.form-modal--deadline .deadline-form-row,
+.form-modal--calendar .deadline-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.form-modal--deadline .deadline-title-module-row {
+  grid-template-columns: minmax(0, 1.25fr) minmax(180px, 0.75fr);
+}
+
+.form-modal--calendar > .form-modal-kicker {
+  display: none;
+}
+
+.form-modal--calendar > .form-modal-title {
+  position: relative;
+  padding: 28px 70px 20px 30px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 72%, transparent 28%);
+  font-size: clamp(30px, 3vw, 40px);
+  line-height: 1;
+}
+
+.form-modal--calendar > .form-modal-title::before {
+  content: "Calendar";
+  display: block;
+  margin-bottom: 7px;
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.form-modal--calendar > .form-modal-body {
+  padding: 22px 30px 24px;
+  gap: 14px;
+}
+
+.form-modal--calendar .field {
+  gap: 6px;
+}
+
+.form-modal--calendar .field > label {
+  font-size: 9px;
+  letter-spacing: 0.13em;
+}
+
+.form-modal--calendar .input,
+.form-modal--calendar .nav-select,
+.form-modal--calendar .timeline-notes {
+  border-radius: 6px;
+  border-color: color-mix(in srgb, var(--border2) 62%, transparent 38%);
+  background: color-mix(in srgb, var(--paper) 72%, white 28%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38);
+}
+
+.form-modal--calendar .input,
+.form-modal--calendar .nav-select {
+  min-height: 42px;
+}
+
+.form-modal--calendar .deadline-form-row {
+  grid-template-columns: minmax(0, 1fr) minmax(128px, 0.48fr);
+}
+
+.form-modal--calendar .calendar-form-row--framed {
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%);
+  border-radius: 8px;
+  background: rgba(26, 22, 18, 0.018);
+}
+
+.form-modal--calendar .calendar-form-row--plain {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.form-modal--calendar .timeline-notes {
+  min-height: 92px;
+  height: 92px;
+  max-height: 92px;
+  line-height: 1.42;
+}
+
+.form-modal--calendar > .form-modal-footer .nav-btn {
+  border-radius: 6px;
+  min-height: 42px;
+}
+
+.form-modal--calendar > .form-modal-footer .calendar-btn {
+  min-width: 168px;
+  background: var(--sumi);
+  border-color: var(--sumi);
+  color: var(--paper3);
+  box-shadow: 0 10px 24px rgba(26, 44, 74, 0.14);
+}
+
+.form-modal--calendar > .form-modal-footer .calendar-btn:hover {
+  background: color-mix(in srgb, var(--sumi) 88%, var(--gold2) 12%);
+  border-color: color-mix(in srgb, var(--sumi) 82%, var(--gold2) 18%);
+}
+
+#deadline-save-btn,
+#deadline-calendar-btn {
+  box-shadow: 0 10px 24px rgba(26, 44, 74, 0.14);
+}
+
+#deadline-calendar-fields {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  padding: 42px 16px 16px;
+  border: 1px solid color-mix(in srgb, var(--border2) 68%, transparent 32%);
+  border-radius: 16px;
+  background: rgba(26, 22, 18, 0.022);
+}
+
+#deadline-calendar-fields::before {
+  content: "Event details";
+  position: absolute;
+  top: 15px;
+  left: 16px;
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+body.modal-scroll-locked .dashboard-modal:not(.hidden),
+body.modal-scroll-locked .deadline-splash:not(.hidden) {
+  overscroll-behavior: contain;
+}
+
+body.modal-scroll-locked .form-modal,
+body.modal-scroll-locked .form-modal-body {
+  overscroll-behavior: contain;
+}
+
+body.font-sans .form-modal-title,
+body.font-sans .form-modal-kicker,
+body.font-sans .form-modal .field > label,
+body.font-sans .form-modal .input,
+body.font-sans .form-modal .nav-select,
+body.font-sans .form-modal .timeline-notes {
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body.font-mono .form-modal-title,
+body.font-mono .form-modal-kicker,
+body.font-mono .form-modal .field > label,
+body.font-mono .form-modal .input,
+body.font-mono .form-modal .nav-select,
+body.font-mono .form-modal .timeline-notes {
+  font-family: "DM Mono", Consolas, monospace;
+  letter-spacing: 0;
+}
+
+body.theme-dark .form-modal,
+body.theme-charcoal .form-modal {
+  background: #1b1b1e;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
+body.theme-dark .form-modal--calendar,
+body.theme-charcoal .form-modal--calendar {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0) 128px),
+    #1b1b1e;
+}
+
+body.theme-dark .form-modal-title,
+body.theme-charcoal .form-modal-title {
+  color: #f1ede4;
+}
+
+body.theme-dark .form-modal-kicker,
+body.theme-dark .form-modal .field > label,
+body.theme-charcoal .form-modal-kicker,
+body.theme-charcoal .form-modal .field > label {
+  color: rgba(241, 237, 228, 0.7);
+}
+
+body.theme-dark .form-modal .input,
+body.theme-dark .form-modal .nav-select,
+body.theme-dark .form-modal .timeline-notes,
+body.theme-dark .form-modal .dashboard-close,
+body.theme-charcoal .form-modal .input,
+body.theme-charcoal .form-modal .nav-select,
+body.theme-charcoal .form-modal .timeline-notes,
+body.theme-charcoal .form-modal .dashboard-close {
+  background: #202024;
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #f4efe7;
+}
+
+body.theme-dark .form-modal--deadline .deadline-form-section,
+body.theme-dark #deadline-calendar-fields:not(.deadline-field-hidden),
+body.theme-charcoal .form-modal--deadline .deadline-form-section,
+body.theme-charcoal #deadline-calendar-fields:not(.deadline-field-hidden) {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+body.theme-dark .form-modal--deadline .deadline-form-section-primary,
+body.theme-charcoal .form-modal--deadline .deadline-form-section-primary {
+  background: rgba(255, 255, 255, 0.055);
+}
+
+body.theme-dark .form-modal--deadline .deadline-section-title,
+body.theme-charcoal .form-modal--deadline .deadline-section-title {
+  color: #f1ede4;
+}
+
+body.theme-dark .form-modal > .form-modal-footer,
+body.theme-charcoal .form-modal > .form-modal-footer {
+  background: #1b1b1e;
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+body.theme-dark .form-modal--calendar .calendar-form-row--framed,
+body.theme-charcoal .form-modal--calendar .calendar-form-row--framed {
+  background: rgba(255, 255, 255, 0.026);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.theme-dark .form-modal--calendar > .form-modal-footer .calendar-btn,
+body.theme-charcoal .form-modal--calendar > .form-modal-footer .calendar-btn {
+  background: #f1ede4;
+  border-color: #f1ede4;
+  color: #171719;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline {
+  max-height: min(92dvh, 760px);
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline > .form-modal-body {
+  gap: 8px;
+  padding: 10px 28px 18px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline .deadline-form-section {
+  gap: 6px;
+  padding: 8px 12px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline > .form-modal-kicker {
+  padding-top: 16px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline > .form-modal-title {
+  padding-bottom: 10px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline .deadline-form-type-pill {
+  padding: 3px 9px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline .deadline-form-row,
+#deadline-form-modal.is-event-mode .form-modal--deadline .deadline-title-module-row {
+  gap: 8px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline .field {
+  gap: 5px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline .input,
+#deadline-form-modal.is-event-mode .form-modal--deadline .nav-select {
+  min-height: 34px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline .timeline-notes {
+  min-height: 44px;
+  height: 44px;
+  max-height: 44px;
+}
+
+#deadline-form-modal.is-event-mode .form-modal--deadline > .form-modal-footer .nav-btn {
+  min-height: 38px;
+}
+
+@media (max-width: 760px) {
+  body.modal-scroll-locked {
+    position: static !important;
+    top: auto !important;
+    width: auto !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .form-modal,
+  .form-modal--calendar {
+    width: calc(100vw - 18px);
+    max-height: 90vh;
+  }
+
+  .form-modal--deadline .deadline-title-module-row,
+  .form-modal--deadline .deadline-form-row,
+  .form-modal--calendar .deadline-form-row,
+  .form-modal--calendar .calendar-form-row--plain {
+    grid-template-columns: 1fr;
+  }
+
+  .form-modal > .form-modal-body,
+  .form-modal--calendar > .form-modal-body,
+  #deadline-form-modal.is-event-mode .form-modal--deadline > .form-modal-body {
+    padding: 20px 18px 18px;
+  }
+
+  .form-modal > .form-modal-footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 10px 18px 12px;
+  }
+}

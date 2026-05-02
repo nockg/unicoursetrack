@@ -14,6 +14,7 @@ const cssFiles = [
   '06-dashboard-timeline.css',
   '07-todo.css',
   '08-setup-deadlines.css',
+  '09-modal-forms.css',
   '09-responsive-polish.css',
   '10-account-panel.css'
 ].filter((file) => existsSync(join(root, 'src/styles/app', file)));

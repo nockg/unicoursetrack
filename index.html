@@ -407,11 +407,11 @@
 </div>
 
 <div id="deadline-form-modal" class="dashboard-modal hidden">
-  <div class="dashboard-content deadline-form-content">
+  <div class="dashboard-content deadline-form-content form-modal form-modal--deadline">
     <button class="dashboard-close" type="button" aria-label="Close deadline form" onclick="closeDeadlineForm()">&times;</button>
-    <div class="timeline-subtitle">Deadlines</div>
-    <div class="dashboard-title" id="deadline-form-title">Add Deadline</div>
-    <div class="deadline-form-grid">
+    <div class="timeline-subtitle form-modal-kicker">Deadlines</div>
+    <div class="dashboard-title form-modal-title" id="deadline-form-title">Add Deadline</div>
+    <div class="deadline-form-grid form-modal-body">
       <div class="deadline-form-type-pill" id="deadline-form-type-pill">Track a Date</div>
       <section class="deadline-form-section deadline-form-section-primary" aria-label="Deadline identity">
         <div class="deadline-section-title">Deadline</div>
@@ -490,7 +490,7 @@
         </div>
       </section>
     </div>
-    <div class="deadline-form-actions">
+    <div class="deadline-form-actions form-modal-footer">
       <button class="nav-btn" type="button" onclick="closeDeadlineForm()">Cancel</button>
       <button class="nav-btn" type="button" onclick="saveDeadlineForm(false)" id="deadline-save-btn">Save</button>
       <button class="nav-btn calendar-btn deadline-field-hidden" type="button" onclick="saveDeadlineForm(true)" id="deadline-calendar-btn">Save & Open Calendar</button>
@@ -499,16 +499,16 @@
 </div>
 
 <div id="calendar-modal" class="dashboard-modal hidden">
-  <div class="dashboard-content deadline-form-content calendar-form-content">
+  <div class="dashboard-content deadline-form-content calendar-form-content form-modal form-modal--calendar">
     <button class="dashboard-close" type="button" aria-label="Close calendar composer" onclick="closeCalendarComposer()">&times;</button>
-    <div class="timeline-subtitle">Calendar</div>
-    <div class="dashboard-title" id="calendar-form-title">Add Calendar Event</div>
-    <div class="deadline-form-grid">
+    <div class="timeline-subtitle form-modal-kicker">Calendar</div>
+    <div class="dashboard-title form-modal-title" id="calendar-form-title">Add Calendar Event</div>
+    <div class="deadline-form-grid form-modal-body">
       <div class="field">
         <label for="calendar-title-input">Title</label>
         <input class="input" id="calendar-title-input" placeholder="Study session, lecture, office hour...">
       </div>
-      <div class="deadline-form-row">
+      <div class="deadline-form-row calendar-form-row calendar-form-row--framed">
         <div class="field">
           <label for="calendar-start-date-input">Start Date</label>
           <input class="input" id="calendar-start-date-input" type="date">
@@ -518,7 +518,7 @@
           <input class="input" id="calendar-start-time-input" type="time">
         </div>
       </div>
-      <div class="deadline-form-row">
+      <div class="deadline-form-row calendar-form-row calendar-form-row--framed">
         <div class="field">
           <label for="calendar-end-date-input">End Date</label>
           <input class="input" id="calendar-end-date-input" type="date">
@@ -528,7 +528,7 @@
           <input class="input" id="calendar-end-time-input" type="time">
         </div>
       </div>
-      <div class="deadline-form-row">
+      <div class="deadline-form-row calendar-form-row calendar-form-row--plain">
         <div class="field">
           <label for="calendar-all-day-input">All Day</label>
           <select class="nav-select" id="calendar-all-day-input">
@@ -563,7 +563,7 @@
         <textarea class="timeline-notes" id="calendar-notes-input" placeholder="Agenda, prep notes, links, what to bring..."></textarea>
       </div>
     </div>
-    <div class="deadline-form-actions">
+    <div class="deadline-form-actions form-modal-footer">
       <button class="nav-btn" type="button" onclick="closeCalendarComposer()">Cancel</button>
       <button class="nav-btn calendar-btn" type="button" onclick="submitCalendarComposer()">Open in Calendar</button>
     </div>
