@@ -806,5 +806,57 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/generated/app.bundle.js"></script>
   <script defer src="/_vercel/insights/script.js"></script>
+
+
+
+
+<!-- grading-selector-close-settings-fix -->
+<script>
+(() => {
+  function isGradingTrigger(button) {
+    if (!button) return false;
+
+    const text = (button.textContent || "").trim().toLowerCase();
+    const aria = (button.getAttribute("aria-label") || "").trim().toLowerCase();
+    const onclick = (button.getAttribute("onclick") || "").trim().toLowerCase();
+    const className = String(button.className || "").toLowerCase();
+
+    return (
+      className.includes("grading") ||
+      aria.includes("grading") ||
+      onclick.includes("grading") ||
+      text.includes("grading system") ||
+      text === "change"
+    );
+  }
+
+  function closeSettingsModals() {
+    const courseSetup = document.getElementById("course-setup-modal");
+    const authModal = document.getElementById("auth-modal");
+
+    if (courseSetup && !courseSetup.classList.contains("hidden")) {
+      courseSetup.classList.add("hidden");
+    }
+
+    if (authModal && !authModal.classList.contains("hidden")) {
+      authModal.classList.add("hidden");
+    }
+
+    document.body.classList.remove("setup-required");
+
+    if (typeof syncModalScrollLock === "function") {
+      requestAnimationFrame(syncModalScrollLock);
+    }
+  }
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("#course-setup-modal button, #auth-modal button");
+    if (!isGradingTrigger(button)) return;
+
+    closeSettingsModals();
+  }, true);
+})();
+</script>
+
 </body>
 </html>
