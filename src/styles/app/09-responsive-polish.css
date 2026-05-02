@@ -2940,7 +2940,7 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
   #hero-title {
     font-size: clamp(20px, 7.2vw, 30px) !important;
     line-height: 1.06 !important;
-    max-width: 12ch !important;
+    max-width: 100% !important;
     text-wrap: balance !important;
     word-break: normal !important;
     overflow-wrap: normal !important;

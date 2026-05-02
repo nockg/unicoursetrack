@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Course Progress Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400;500;700&family=Shippori+Mincho:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/generated/styles.bundle.css">
@@ -223,23 +223,11 @@
         onclick="toggleCountdownHeaderPreference()" aria-pressed="true">Show</button>
     </div>
     <div class="field prefs-inline-field prefs-span-2 custom-bg-field">
-      <label for="custom-bg-url">Header Image</label>
-      <div class="prefs-input-row">
-        <input class="input" id="custom-bg-url" placeholder="Paste image URL">
-        <button class="nav-btn" type="button" onclick="addCustomBackground()">Add Header Image</button>
-      </div>
-    </div>
-    <div class="field prefs-inline-field prefs-span-2 custom-bg-field">
       <label for="body-bg-url">Page Background Image</label>
       <div class="prefs-input-row">
         <input class="input" id="body-bg-url" placeholder="Paste background image URL">
         <button class="nav-btn" type="button" onclick="setBodyBackground()">Apply Background</button>
       </div>
-    </div>
-
-    <div class="field prefs-span-2">
-      <label>Header Background</label>
-      <div class="bg-picker" id="bg-picker"></div>
     </div>
   </div>
 </div>

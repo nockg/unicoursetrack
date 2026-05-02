@@ -265,6 +265,10 @@ body.theme-charcoal .auth-gate-panel {
   color: #f1ede4;
 }
 
+#auth-gate .deadline-splash-title {
+  color: var(--ink);
+}
+
 body.theme-dark .auth-gate-label,
 body.theme-dark .auth-gate-title,
 body.theme-dark #auth-gate .deadline-splash-title,

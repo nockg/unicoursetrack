@@ -266,6 +266,10 @@ body.theme-charcoal .auth-gate-panel {
   color: #f1ede4;
 }
 
+#auth-gate .deadline-splash-title {
+  color: var(--ink);
+}
+
 body.theme-dark .auth-gate-label,
 body.theme-dark .auth-gate-title,
 body.theme-dark #auth-gate .deadline-splash-title,
@@ -9358,7 +9362,7 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
   #hero-title {
     font-size: clamp(20px, 7.2vw, 30px) !important;
     line-height: 1.06 !important;
-    max-width: 12ch !important;
+    max-width: 100% !important;
     text-wrap: balance !important;
     word-break: normal !important;
     overflow-wrap: normal !important;
