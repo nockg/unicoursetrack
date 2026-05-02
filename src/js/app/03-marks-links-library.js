@@ -1,5 +1,5 @@
-function parseMark(value) {
-  return parseGradeValue(value);
+function parseMark(value, system = getGradingSystem()) {
+  return parseGradeValue(value, system);
 }
 
 function parseGradeValue(value, system = getGradingSystem()) {
@@ -1037,7 +1037,7 @@ function getModuleFinal(mi) {
           : parseMark(store.coursework?.[mi], getComponentMarkSystem());
         const examMark = isDeScale
           ? parseGradeValue(store.exams?.[mi], "de5")
-          : parseMark(store.exams?.[mi]);
+          : parseMark(store.exams?.[mi], getComponentMarkSystem());
         if (cwWeight > 0 && examWeight === 0) {
           if (cwMark === null) return null;
           return isDeScale ? cwMark : percentToNativeGrade(cwMark, system);
@@ -1069,7 +1069,7 @@ function getModuleFinal(mi) {
   if (totalWeight <= 0) return null;
 
   const coursework = parseMark(store.coursework?.[mi], getComponentMarkSystem());
-  const exam = parseMark(store.exams?.[mi]);
+  const exam = parseMark(store.exams?.[mi], getComponentMarkSystem());
 
   // Coursework-only module.
   if (cwWeight > 0 && examWeight === 0) {

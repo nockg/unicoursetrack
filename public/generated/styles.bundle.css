@@ -6545,6 +6545,25 @@ body.theme-charcoal .form-modal--calendar > .form-modal-footer .calendar-btn {
   }
 }
 
+.form-modal .field > label.checkbox-label {
+  font-size: 13px;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+  color: var(--sumi);
+  text-transform: none;
+}
+
+.form-modal .field > .field-hint {
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+body.theme-dark .form-modal .field > label.checkbox-label,
+body.theme-charcoal .form-modal .field > label.checkbox-label {
+  color: #f1ede4;
+}
+
 /* 09-responsive-polish.css */
 /* Global UI readability, responsive shell behaviour, and interaction polish */
 .nav-btn,
