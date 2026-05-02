@@ -170,9 +170,9 @@ function renderBackgroundPicker() {
     <div class="bg-thumb-wrap">
       <button 
         class="bg-thumb ${preferences.hero === key ? "active" : ""}"
-        style="background-image: url('${url}')"
+        style="background-image: url('${safeImageUrl(url)}')"
         onclick="setPreference('hero', '${key}'); renderBackgroundPicker();"
-        title="${key}">
+        title="${escapeHtml(key)}"
       </button>
 
       ${key.startsWith("custom_") ? `

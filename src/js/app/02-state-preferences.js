@@ -80,6 +80,34 @@ function loadJson(key, fallback) {
   }
 }
 
+function safeUrl(value, options = {}) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+
+  try {
+    const url = new URL(raw, window.location.origin);
+    const allowedProtocols = options.allowMailto
+      ? ["https:", "http:", "mailto:"]
+      : ["https:", "http:"];
+
+    if (!allowedProtocols.includes(url.protocol)) return "";
+    return url.href;
+  } catch {
+    return "";
+  }
+}
+
+function safeImageUrl(value) {
+  const url = safeUrl(value);
+  if (!url) return "";
+  return url;
+}
+
+function setSafeHtml(element, html) {
+  if (!element) return;
+  element.innerHTML = html;
+}
+
 function firstExisting(keys, fallback) {
   for (const key of keys) {
     const value = loadJson(key, null);
@@ -921,10 +949,13 @@ function toggleCountdownHeaderPreference() {
 }
 
 function addCustomBackground() {
-  const input = document.getElementById("custom-bg-url");
-  const url = safeUrl(input.value);
+  const rawUrl = document.getElementById("custom-bg-url").value.trim();
+  const url = safeImageUrl(rawUrl);
 
-  if (!url) return;
+  if (!url) {
+    showAppNotice?.("Invalid image URL", "Use a normal http or https image URL.");
+    return;
+  }
 
   if (!preferences.customBackgrounds) preferences.customBackgrounds = {};
 
@@ -939,10 +970,15 @@ function addCustomBackground() {
 }
 
 function setBodyBackground() {
-  const input = document.getElementById("body-bg-url");
-  if (!input) return;
-  const raw = input.value.trim();
-  preferences.bodyBackground = raw ? safeUrl(raw) : "";
+  const rawUrl = document.getElementById("body-bg-url").value.trim();
+  const url = rawUrl ? safeImageUrl(rawUrl) : "";
+
+  if (rawUrl && !url) {
+    showAppNotice?.("Invalid image URL", "Use a normal http or https image URL.");
+    return;
+  }
+
+  preferences.bodyBackground = url;
   savePreferences();
   applyPreferences();
 }
