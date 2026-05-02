@@ -387,7 +387,7 @@
           <button class="account-clean-privacy-link" type="button" onclick="openTrustedUrl('/privacy.html')">
             <span>
               <span class="account-clean-kicker">Privacy</span>
-              <strong>Privacy notice and data use</strong>
+              <strong>Privacy Notice and Data Use</strong>
             </span>
             <span class="account-clean-toggle-label">Open notice</span>
           </button>
@@ -397,7 +397,7 @@
           <div class="account-clean-section-head">
             <div>
               <div class="account-clean-kicker">Backup Tools</div>
-              <h3>Export or restore a backup</h3>
+              <h3>Export or Restore a Backup</h3>
             </div>
           </div>
           <div class="account-clean-actions">
@@ -410,7 +410,7 @@
         <section class="account-clean-section account-clean-session">
           <div class="account-clean-session-copy">
             <div class="account-clean-kicker">Session</div>
-            <h3>Sign out of this browser</h3>
+            <h3>Sign Out of This Browser</h3>
             <p>Logout from your UniTrack account.</p>
           </div>
           <button type="button" onclick="logoutCloud()">Logout</button>
