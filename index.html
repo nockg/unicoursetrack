@@ -573,8 +573,12 @@
           </select>
         </div>
         <div class="field"><label for="module-credits-input" id="module-credits-label">Credits</label><input class="input" id="module-credits-input" type="number" min="0" step="1" value="15"></div>
-        <div class="field"><label for="module-cw-input">Coursework %</label><input class="input" id="module-cw-input" type="number" min="0" max="100" step="0.1" value="50"></div>
-        <div class="field"><label for="module-exam-input">Exam %</label><input class="input" id="module-exam-input" type="number" min="0" max="100" step="0.1" value="50"></div>
+        <div class="field prefs-span-2 hidden" id="module-prediction-field">
+          <label class="checkbox-label"><input type="checkbox" id="module-prediction-toggle"> Enable mark prediction</label>
+          <p class="field-hint">Tick this if your university returns your coursework mark as a percentage before the final transcript. You can then enter marks and see your predicted course grade. Leave unticked if you only receive a final grade on your transcript.</p>
+        </div>
+        <div class="field"><label for="module-cw-input" id="module-cw-label">Coursework %</label><input class="input" id="module-cw-input" type="number" min="0" max="100" step="0.1" value="50"></div>
+        <div class="field"><label for="module-exam-input" id="module-exam-label">Exam %</label><input class="input" id="module-exam-input" type="number" min="0" max="100" step="0.1" value="50"></div>
       </div>
       <div id="module-options-fields" class="hidden">
         <div class="field"><label for="module-blackboard-input">Blackboard Link</label><input class="input" id="module-blackboard-input" placeholder="https://..."></div>

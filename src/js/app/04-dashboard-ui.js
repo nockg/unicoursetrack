@@ -23,11 +23,13 @@ function updateModule(mi) {
   const exInput = document.getElementById(`exam-${mi}`);
   const compactCw = document.querySelector(`#topics-${mi} .compact-cw`);
   const compactEx = document.querySelector(`#topics-${mi} .compact-ex`);
+  const mod = MODULES[mi];
+  const isPredictionMode = getGradingSystem() !== "uk" && mod?.usesCwExamPrediction === true;
   if (getGradingSystem() === "uk" && cwInput) {
     const calculated = calculateCourseworkFromComponents(mi);
-    cwInput.disabled = MODULES[mi].cw === 0;
-    if (compactCw) compactCw.disabled = MODULES[mi].cw === 0;
-    if (MODULES[mi].cw === 0) cwInput.placeholder = "N/A";
+    cwInput.disabled = mod.cw === 0;
+    if (compactCw) compactCw.disabled = mod.cw === 0;
+    if (mod.cw === 0) cwInput.placeholder = "N/A";
     else {
       if (calculated.mark !== null) {
         const calculatedValue = formatGradeInputValue(calculated.mark);
@@ -40,13 +42,24 @@ function updateModule(mi) {
       }
     }
   }
+  if (isPredictionMode && cwInput) {
+    cwInput.disabled = (mod.cw ?? 0) === 0;
+    if (compactCw) compactCw.disabled = (mod.cw ?? 0) === 0;
+    if ((mod.cw ?? 0) === 0) { cwInput.placeholder = "N/A"; cwInput.value = ""; }
+  }
   if (getGradingSystem() === "uk" && exInput) {
-    exInput.disabled = MODULES[mi].exam === 0;
-    if (compactEx) compactEx.disabled = MODULES[mi].exam === 0;
-    exInput.placeholder = MODULES[mi].exam === 0 ? "N/A" : "-";
-    if (MODULES[mi].exam === 0) exInput.value = "";
+    exInput.disabled = mod.exam === 0;
+    if (compactEx) compactEx.disabled = mod.exam === 0;
+    exInput.placeholder = mod.exam === 0 ? "N/A" : "-";
+    if (mod.exam === 0) exInput.value = "";
+  }
+  if (isPredictionMode && exInput) {
+    exInput.disabled = (mod.exam ?? 0) === 0;
+    if (compactEx) compactEx.disabled = (mod.exam ?? 0) === 0;
+    if ((mod.exam ?? 0) === 0) { exInput.placeholder = "N/A"; exInput.value = ""; }
   }
   if (getGradingSystem() === "uk") updateCourseworkSummary(mi);
+  if (isPredictionMode) updateCourseworkSummary(mi);
 }
 
 function updateGlobal() {

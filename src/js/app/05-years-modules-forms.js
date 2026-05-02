@@ -91,15 +91,40 @@ function syncModuleWeightInputs(source = "cw") {
 }
 
 function updateModuleFormForGradingSystem() {
-  const ukMode = getGradingSystem() === "uk";
+  const system = getGradingSystem();
+  const ukMode = system === "uk";
   const creditsLabel = document.getElementById("module-credits-label");
   const cwInput = document.getElementById("module-cw-input");
   const examInput = document.getElementById("module-exam-input");
+  const cwLabel = document.getElementById("module-cw-label");
+  const examLabel = document.getElementById("module-exam-label");
   const cwField = cwInput?.closest(".field");
   const examField = examInput?.closest(".field");
+  const predictionField = document.getElementById("module-prediction-field");
+  const predictionToggle = document.getElementById("module-prediction-toggle");
+  const predictionEnabled = !ukMode && (predictionToggle?.checked ?? false);
+
   if (creditsLabel) creditsLabel.textContent = getModuleCreditFieldLabel();
-  if (cwField) cwField.classList.toggle("hidden", !ukMode);
-  if (examField) examField.classList.toggle("hidden", !ukMode);
+
+  if (ukMode) {
+    if (predictionField) predictionField.classList.add("hidden");
+    if (cwField) cwField.classList.remove("hidden");
+    if (examField) examField.classList.remove("hidden");
+    if (cwLabel) cwLabel.textContent = "Coursework %";
+    if (examLabel) examLabel.textContent = "Exam %";
+  } else {
+    if (predictionField) predictionField.classList.remove("hidden");
+    if (cwField) cwField.classList.toggle("hidden", !predictionEnabled);
+    if (examField) examField.classList.toggle("hidden", !predictionEnabled);
+    if (system === "de5") {
+      if (cwLabel) cwLabel.textContent = "Coursework Weight %";
+      if (examLabel) examLabel.textContent = "Exam Weight %";
+    } else {
+      if (cwLabel) cwLabel.textContent = "Coursework Weight %";
+      if (examLabel) examLabel.textContent = "Exam Weight %";
+    }
+  }
+
   populateModuleTermSelect();
 }
 
@@ -151,6 +176,10 @@ document.getElementById("module-term-input")?.addEventListener("change", (event)
 
 document.getElementById("module-cw-input")?.addEventListener("input", () => syncModuleWeightInputs("cw"));
 document.getElementById("module-exam-input")?.addEventListener("input", () => syncModuleWeightInputs("exam"));
+document.getElementById("module-prediction-toggle")?.addEventListener("change", () => {
+  updateModuleFormForGradingSystem();
+  if (document.getElementById("module-prediction-toggle")?.checked) syncModuleWeightInputs("cw");
+});
 document.getElementById("module-colour-input")?.addEventListener("input", (event) => {
   const preview = document.getElementById("module-colour-preview");
   if (preview) preview.style.background = event.target.value;
@@ -186,13 +215,15 @@ function editModuleWeights(mi, event) {
   if (cw) cw.value = mod.cw ?? 0;
   if (exam) exam.value = mod.exam ?? 0;
   if (blackboard) blackboard.value = getBlackboardLink(mi) || "";
+  const predictionToggle = document.getElementById("module-prediction-toggle");
+  if (predictionToggle) predictionToggle.checked = mod.usesCwExamPrediction === true;
   updateModuleFormForGradingSystem();
   populateModuleTermSelect(getModuleTerm(mi));
   if (optionsFields) optionsFields.classList.remove("hidden");
   if (colourField) colourField.classList.toggle("hidden", !isColourCustomisableTheme());
   if (colourInput) colourInput.value = getStoredModuleColourHex(mi);
   if (colourPreview) colourPreview.style.background = getModuleColourSet(mi).fill;
-  if (getGradingSystem() === "uk") syncModuleWeightInputs("cw");
+  if (getGradingSystem() === "uk" || mod.usesCwExamPrediction) syncModuleWeightInputs("cw");
   const title = document.querySelector("#module-form-modal .dashboard-title");
   const saveBtn = document.querySelector("#module-form-modal .deadline-form-actions .nav-btn:last-child");
   if (title) title.textContent = "Module Options";
@@ -217,11 +248,13 @@ function saveModuleForm() {
     return;
   }
   const credits = parseFloat(creditsInput.value || "");
+  const predictionToggle = document.getElementById("module-prediction-toggle");
+  const predictionEnabled = getGradingSystem() !== "uk" && (predictionToggle?.checked ?? false);
   let courseworkWeight = parseFloat(cwInput.value || "");
   let examWeight = parseFloat(examInput.value || "");
-  if (getGradingSystem() !== "uk") {
+  if (getGradingSystem() !== "uk" && !predictionEnabled) {
     courseworkWeight = 0;
-    examWeight = 100;
+    examWeight = 0;
   }
   if (Number.isFinite(courseworkWeight) && courseworkWeight >= 100) examWeight = 0;
   if (Number.isFinite(examWeight) && examWeight >= 100) courseworkWeight = 0;
@@ -231,8 +264,9 @@ function saveModuleForm() {
     short: code.toUpperCase(),
     term: normalizeTermValue(termInput?.value || "sem1"),
     credits: Number.isFinite(credits) ? credits : 15,
-    cw: Number.isFinite(courseworkWeight) ? courseworkWeight : 50,
-    exam: Number.isFinite(examWeight) ? examWeight : 50,
+    cw: Number.isFinite(courseworkWeight) ? courseworkWeight : 0,
+    exam: Number.isFinite(examWeight) ? examWeight : 0,
+    usesCwExamPrediction: getGradingSystem() === "uk" ? undefined : predictionEnabled,
     topics: []
   };
   if (editingModuleIndex !== null && MODULES[editingModuleIndex]) {
@@ -363,13 +397,17 @@ function updateCourseworkComponent(mi, ci, field, value) {
   const components = getCourseworkComponents(mi);
   if (!components[ci]) return;
   components[ci][field] = value;
-  const calculated = calculateCourseworkFromComponents(mi);
-  if (calculated.mark !== null) {
-    getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
-    const cwInput = document.getElementById(`cw-${mi}`);
-    const compactCw = document.querySelector(`#topics-${mi} .compact-cw`);
-    if (cwInput) cwInput.value = formatGradeInputValue(calculated.mark);
-    if (compactCw) compactCw.value = formatGradeInputValue(calculated.mark);
+  // For UK, component marks are rolled up into the CW field so getModuleFinal can use them.
+  // For non-UK, getModuleFinal reads components directly (DE) or they are informational (others).
+  if (getGradingSystem() === "uk") {
+    const calculated = calculateCourseworkFromComponents(mi);
+    if (calculated.mark !== null) {
+      getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
+      const cwInput = document.getElementById(`cw-${mi}`);
+      const compactCw = document.querySelector(`#topics-${mi} .compact-cw`);
+      if (cwInput) cwInput.value = formatGradeInputValue(calculated.mark);
+      if (compactCw) compactCw.value = formatGradeInputValue(calculated.mark);
+    }
   }
   save();
   updateModule(mi);
@@ -380,20 +418,38 @@ function updateCourseworkComponent(mi, ci, field, value) {
 function updateCourseworkSummary(mi) {
   const summary = document.getElementById(`cw-calc-summary-${mi}`);
   if (!summary) return;
+  const system = getGradingSystem();
   const calculated = calculateCourseworkFromComponents(mi);
-  const manual = parseMark(getStore().coursework[mi]);
 
+  if (system === "uk") {
+    const manual = parseMark(getStore().coursework[mi]);
+    if (calculated.mark !== null) {
+      summary.textContent = `Calculated coursework: ${formatSelectedGrade(calculated.mark).main} — components override manual coursework input`;
+      return;
+    }
+    if (manual !== null) {
+      summary.textContent = `Manual coursework override: ${formatSelectedGrade(manual).main}`;
+      return;
+    }
+    summary.textContent = `Enter an overall coursework mark above, or let this calculator build it from your assessments.`;
+    return;
+  }
+
+  if (system === "de5") {
+    if (calculated.mark !== null) {
+      summary.textContent = `Calculated grade: ${calculated.mark.toFixed(1)} — overrides the manual grade above`;
+      return;
+    }
+    summary.textContent = `Add graded components above, or enter your module grade directly.`;
+    return;
+  }
+
+  // US / AU / MY / NZ / CN / custom: components are %, summary is informational only
   if (calculated.mark !== null) {
-    summary.textContent = `Calculated coursework: ${formatSelectedGrade(calculated.mark).main} - Components override manual coursework input`;
+    summary.textContent = `Calculated average: ${calculated.mark.toFixed(1)}% — enter your final course grade above from your transcript.`;
     return;
   }
-
-  if (manual !== null) {
-    summary.textContent = `Manual coursework override: ${formatSelectedGrade(manual).main}`;
-    return;
-  }
-
-  summary.textContent = `Enter an overall coursework mark above, or let this calculator build it from your assessments.`;
+  summary.textContent = `Track individual assessment marks here. Your final course grade above is still required for GPA calculation.`;
 }
 
 function commitCourseworkPlaceholder(mi, event) {
@@ -407,8 +463,10 @@ function commitCourseworkPlaceholder(mi, event) {
   const items = getCourseworkComponents(mi);
   items.push({ name, mark, weight });
   getStore().courseworkComponents[mi] = items;
-  const calculated = calculateCourseworkFromComponents(mi);
-  if (calculated.mark !== null) getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
+  if (getGradingSystem() === "uk") {
+    const calculated = calculateCourseworkFromComponents(mi);
+    if (calculated.mark !== null) getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
+  }
   save();
   buildModules();
   updateGlobal();

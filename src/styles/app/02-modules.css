@@ -316,6 +316,7 @@ body.theme-dark .weight-edit-btn:hover{
 .cls-s-21 { background: rgba(184,134,11,0.1); color: var(--gold); border: 1px solid rgba(184,134,11,0.3); }
 .cls-s-22 { background: rgba(26,44,74,0.1); color: var(--indigo); border: 1px solid rgba(26,44,74,0.25); }
 .cls-s-third { background: rgba(74,85,104,0.1); color: var(--slate); border: 1px solid var(--border2); }
+.predicted-label { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 0.08em; color: var(--slate); opacity: 0.7; margin-top: 3px; text-transform: uppercase; }
 .chevron {
   color: var(--faint);
   transition: transform 0.25s ease;

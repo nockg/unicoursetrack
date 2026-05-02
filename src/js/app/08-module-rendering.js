@@ -10,15 +10,22 @@ function buildModules() {
     const gradeScale = getGradeScaleConfig();
     const gradingSystem = getGradingSystem();
     const gradeOptions = getGradeOptions(gradingSystem);
-    const usesFinalGradeOnly = gradingSystem !== "uk";
+    const compScale = getComponentScaleConfig(gradingSystem);
+    const isPredictionMode = gradingSystem !== "uk" && mod.usesCwExamPrediction === true;
+    const usesFinalGradeOnly = gradingSystem !== "uk" && !isPredictionMode;
     const usesUsGrades = ["us4", "us43"].includes(gradingSystem);
     const termLabel = getTermLabel(getModuleTerm(mi));
+    const predictionWeightMeta = isPredictionMode
+      ? ` &middot; CW ${mod.cw === 0 ? "N/A" : escapeHtml(String(mod.cw ?? 0)) + "%"} &middot; Exam ${mod.exam === 0 ? "N/A" : escapeHtml(String(mod.exam ?? 0)) + "%"}`
+      : "";
     const moduleMeta = gradingSystem === "uk"
       ? `${escapeHtml(mod.kanji)} · CW ${mod.cw === 0 ? "N/A" : escapeHtml(String(mod.cw ?? 0)) + "%"} · EXAMS ${mod.exam === 0 ? "N/A" : escapeHtml(String(mod.exam ?? 0)) + "%"}`
-      : `${escapeHtml(mod.kanji)} · ${escapeHtml(String(mod.credits ?? 0))} ${escapeHtml(getCreditUnitLabel({ plural: Number(mod.credits) !== 1 }))}`;
+      : `${escapeHtml(mod.kanji)} · ${escapeHtml(String(mod.credits ?? 0))} ${escapeHtml(getCreditUnitLabel({ plural: Number(mod.credits) !== 1 }))}${predictionWeightMeta}`;
     const moduleMetaWithTerm = gradingSystem === "uk"
       ? `${escapeHtml(mod.kanji)} &middot; ${escapeHtml(termLabel)} &middot; CW ${mod.cw === 0 ? "N/A" : escapeHtml(String(mod.cw ?? 0)) + "%"} &middot; EXAMS ${mod.exam === 0 ? "N/A" : escapeHtml(String(mod.exam ?? 0)) + "%"}`
-      : `${escapeHtml(mod.kanji)} &middot; ${escapeHtml(termLabel)} &middot; ${escapeHtml(String(mod.credits ?? 0))} ${escapeHtml(getCreditUnitLabel({ plural: Number(mod.credits) !== 1 }))}`;
+      : `${escapeHtml(mod.kanji)} &middot; ${escapeHtml(termLabel)} &middot; ${escapeHtml(String(mod.credits ?? 0))} ${escapeHtml(getCreditUnitLabel({ plural: Number(mod.credits) !== 1 }))}${predictionWeightMeta}`;
+    const cwPredLabel = gradingSystem === "de5" ? "Coursework Grade (1.0–5.0)" : "Coursework %";
+    const examPredLabel = gradingSystem === "de5" ? "Exam Grade (1.0–5.0)" : "Exam %";
     const finalGradeControl = (id, className = "") => {
       if (gradeOptions && gradeScale.freeformGradeInput) {
         const listId = `${id}-options`;
@@ -75,6 +82,15 @@ function buildModules() {
           <label>${gradeScale.finalLabel}</label>
           ${finalGradeControl(`final-grade-${mi}`)}
         </div>
+        ` : isPredictionMode ? `
+        <div class="field">
+          <label>${escapeHtml(cwPredLabel)}</label>
+          <input class="input" type="number" min="${compScale.min}" max="${compScale.max}" step="${compScale.step}" id="cw-${mi}" placeholder="${escapeHtml(compScale.placeholder)}" value="${store.coursework[mi] ?? ""}">
+        </div>
+        <div class="field">
+          <label>${escapeHtml(examPredLabel)}</label>
+          <input class="input" type="number" min="${compScale.min}" max="${compScale.max}" step="${compScale.step}" id="exam-${mi}" placeholder="${escapeHtml(compScale.placeholder)}" value="${store.exams[mi] ?? ""}">
+        </div>
         ` : `
         <div class="field">
           <label>${gradeScale.courseworkLabel}</label>
@@ -89,6 +105,7 @@ function buildModules() {
       <div class="final-col">
         <div class="final-mark" id="mfinal-${mi}">-</div>
         <div id="mcls-${mi}" class="final-cls"></div>
+        ${isPredictionMode ? `<div class="predicted-label">Estimated</div>` : ""}
       </div>
       <div class="module-actions"></div>
       <div class="chevron" id="chev-${mi}" aria-hidden="true"></div>
@@ -118,14 +135,22 @@ function buildModules() {
     `;
     list.appendChild(moduleEditTools);
 
-    if (!usesFinalGradeOnly && mod.cw > 0) {
-      const courseworkSection = createModuleSection(mi, "coursework", "Assessments", "");
+    // UK: only show when the module has a coursework component. Non-UK: always show.
+    const showAssessmentSection = gradingSystem === "uk" ? mod.cw > 0 : true;
+    if (showAssessmentSection) {
+      const sectionTitle = gradingSystem === "uk" ? "Assessments"
+        : gradingSystem === "de5" ? "Grade Components"
+        : "Assessment Breakdown";
+      const courseworkSection = createModuleSection(mi, "coursework", sectionTitle, "");
       const courseworkWrap = courseworkSection.body;
       const components = getCourseworkComponents(mi);
+      const innerTitle = gradingSystem === "uk" ? "Assessment Breakdown"
+        : gradingSystem === "de5" ? "Grade Components"
+        : "Assessment Breakdown (Optional)";
       courseworkWrap.innerHTML = `
         <div class="coursework-calc-wrap">
           <div class="coursework-calc-head">
-            <div class="coursework-calc-title">Assessment Breakdown</div>
+            <div class="coursework-calc-title">${escapeHtml(innerTitle)}</div>
             <button class="mini-btn" type="button" onclick="addBlankCourseworkComponent(${mi}, event)">Add Row</button>
           </div>
           <div class="coursework-calc-summary" id="cw-calc-summary-${mi}"></div>
@@ -134,9 +159,12 @@ function buildModules() {
       `;
       const componentsHost = courseworkWrap.querySelector(`#cw-components-${mi}`);
       if (!components.length) {
-        componentsHost.innerHTML = `
-          <div class="coursework-empty">Add each assessment below, or type your overall coursework mark in the main coursework box above.</div>
-        `;
+        const emptyText = gradingSystem === "uk"
+          ? "Add each assessment below, or type your overall coursework mark in the main coursework box above."
+          : gradingSystem === "de5"
+            ? "Add each graded component (written exam, term paper, oral exam, etc.). The weighted average becomes your module grade, overriding the manual grade above."
+            : "Optional: add individual assessment marks in %. Your final course grade above (from your transcript) is still used for GPA calculation.";
+        componentsHost.innerHTML = `<div class="coursework-empty">${escapeHtml(emptyText)}</div>`;
       } else {
         components.forEach((component, ci) => {
           const componentRow = document.createElement("div");
@@ -144,11 +172,11 @@ function buildModules() {
           componentRow.innerHTML = `
             <div class="field">
               <label>Component</label>
-              <input class="input cw-comp-name" value="${escapeHtml(component.name || "")}" placeholder="Coursework name">
+              <input class="input cw-comp-name" value="${escapeHtml(component.name || "")}" placeholder="Assessment name">
             </div>
             <div class="field">
-              <label>${gradeScale.markLabel}</label>
-              <input class="input cw-comp-mark" type="number" min="0" max="${gradeScale.max}" step="${gradeScale.step}" value="${component.mark ?? ""}" placeholder="${gradeScale.placeholder}">
+              <label>${escapeHtml(compScale.label)}</label>
+              <input class="input cw-comp-mark" type="number" min="${compScale.min}" max="${compScale.max}" step="${compScale.step}" value="${component.mark ?? ""}" placeholder="${escapeHtml(compScale.placeholder)}">
             </div>
             <div class="field">
               <label>Weight %</label>
@@ -177,6 +205,15 @@ function buildModules() {
         <div class="field">
           <label>${gradeScale.finalLabel}</label>
           ${finalGradeControl(`compact-final-grade-${mi}`, "compact-final-grade")}
+        </div>
+        ` : isPredictionMode ? `
+        <div class="field">
+          <label>${escapeHtml(cwPredLabel)}</label>
+          <input class="input compact-cw" type="number" min="${compScale.min}" max="${compScale.max}" step="${compScale.step}" placeholder="${escapeHtml(compScale.placeholder)}" value="${store.coursework[mi] ?? ""}">
+        </div>
+        <div class="field">
+          <label>${escapeHtml(examPredLabel)}</label>
+          <input class="input compact-ex" type="number" min="${compScale.min}" max="${compScale.max}" step="${compScale.step}" placeholder="${escapeHtml(compScale.placeholder)}" value="${store.exams[mi] ?? ""}">
         </div>
         ` : `
         <div class="field">
@@ -484,8 +521,10 @@ function buildModules() {
     };
     const clampAndSyncMark = (key, input) => {
       if (!input) return;
-      if (key === "cw") store.coursework[mi] = clampGradeInputValue(input.value);
-      if (key === "exam") store.exams[mi] = clampGradeInputValue(input.value);
+      // CW and Exam inputs are always on the component % scale (or DE 1–5 scale),
+      // never on the output GPA scale, so clamp using the component system.
+      if (key === "cw") store.coursework[mi] = clampGradeInputValue(input.value, getComponentMarkSystem());
+      if (key === "exam") store.exams[mi] = clampGradeInputValue(input.value, getComponentMarkSystem());
       if (key === "final") {
         if (!store.finalGrades) store.finalGrades = {};
         store.finalGrades[mi] = clampGradeInputValue(input.value);

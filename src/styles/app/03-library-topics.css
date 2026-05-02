@@ -620,11 +620,22 @@ body.theme-dark .module-library-folder-count{
   text-transform: uppercase;
   line-height: 1.25;
 }
-.coursework-calc-summary {
+.topic-list .coursework-calc-summary {
   font-family: "DM Mono", monospace;
-  font-size: 10px;
+  font-size: 12px;
+  line-height: 1.45;
   color: var(--muted);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+}
+.topic-list .checkbox-label,
+.topic-list .module-major-toggle {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.topic-list .module-major-toggle input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
 }
 .coursework-component-row {
   display: grid;

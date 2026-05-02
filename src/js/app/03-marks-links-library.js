@@ -220,7 +220,8 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       suffix: "grade",
       finalLabel: "Module Grade",
       markLabel: "Grade",
-      placeholder: "1.0-5.0"
+      placeholder: "1.0-5.0",
+      allowNumericGradeInput: true
     };
   }
   return {
@@ -234,6 +235,86 @@ function getGradeScaleConfig(system = getGradingSystem()) {
     markLabel: "Mark %",
     placeholder: "-"
   };
+}
+
+// Returns the grading system used to parse individual component marks.
+// DE components are on the 1.0–5.0 scale; all other systems use % (0–100).
+function getComponentMarkSystem(system = getGradingSystem()) {
+  return system === "de5" ? "de5" : "uk";
+}
+
+// Returns min/max/step/label config for assessment component mark inputs.
+function getComponentScaleConfig(system = getGradingSystem()) {
+  if (system === "de5") {
+    return { min: 1, max: 5, step: "0.1", placeholder: "1.0–5.0", label: "Grade (1.0–5.0)" };
+  }
+  return { min: 0, max: 100, step: "0.1", placeholder: "-", label: "Mark %" };
+}
+
+// Converts a raw weighted percentage (0–100) to the native grade-point value for non-UK systems.
+// Thresholds reflect the most common institutional standards; students should confirm with their own scale.
+function percentToNativeGrade(pct, system) {
+  if (system === "us4" || system === "us43") {
+    if (pct >= 93) return 4.0;   // A
+    if (pct >= 90) return 3.7;   // A-
+    if (pct >= 87) return 3.3;   // B+
+    if (pct >= 83) return 3.0;   // B
+    if (pct >= 80) return 2.7;   // B-
+    if (pct >= 77) return 2.3;   // C+
+    if (pct >= 73) return 2.0;   // C
+    if (pct >= 70) return 1.7;   // C-
+    if (pct >= 67) return 1.3;   // D+
+    if (pct >= 63) return 1.0;   // D
+    if (pct >= 60) return 0.7;   // D-
+    return 0;                    // F
+  }
+  if (system === "au7") {
+    if (pct >= 85) return 7;     // HD
+    if (pct >= 75) return 6;     // Distinction
+    if (pct >= 65) return 5;     // Credit
+    if (pct >= 50) return 4;     // Pass
+    return 0;                    // Fail
+  }
+  if (system === "au4") {
+    if (pct >= 85) return 4.0;
+    if (pct >= 75) return 3.0;
+    if (pct >= 65) return 2.0;
+    if (pct >= 50) return 1.0;
+    return 0;
+  }
+  if (system === "my4") {
+    if (pct >= 90) return 4.0;   // A+
+    if (pct >= 80) return 4.0;   // A
+    if (pct >= 75) return 3.67;  // A-
+    if (pct >= 70) return 3.33;  // B+
+    if (pct >= 65) return 3.0;   // B
+    if (pct >= 60) return 2.67;  // B-
+    if (pct >= 55) return 2.33;  // C+
+    if (pct >= 50) return 2.0;   // C
+    if (pct >= 45) return 1.67;  // C-
+    if (pct >= 40) return 1.0;   // D
+    return 0;                    // F/E
+  }
+  if (system === "nz9") {
+    if (pct >= 90) return 9;     // A+
+    if (pct >= 85) return 8;     // A
+    if (pct >= 80) return 7;     // A-
+    if (pct >= 75) return 6;     // B+
+    if (pct >= 70) return 5;     // B
+    if (pct >= 65) return 4;     // B-
+    if (pct >= 60) return 3;     // C+
+    if (pct >= 55) return 2;     // C
+    if (pct >= 50) return 1;     // C-
+    return 0;                    // Fail
+  }
+  if (system === "cn4") {
+    if (pct >= 90) return 4.0;   // A
+    if (pct >= 75) return 3.0;   // B
+    if (pct >= 65) return 2.0;   // C
+    if (pct >= 60) return 1.0;   // D
+    return 0;                    // F
+  }
+  return pct;
 }
 
 function formatGradeInputValue(value) {
@@ -889,12 +970,13 @@ function getCourseworkComponents(mi) {
 }
 
 function calculateCourseworkFromComponents(mi) {
+  const componentSystem = getComponentMarkSystem();
   const components = getCourseworkComponents(mi);
   const valid = components
     .map((component, index) => ({
       index,
       name: component.name || `Component ${index + 1}`,
-      mark: parseGradeValue(component.mark),
+      mark: parseGradeValue(component.mark, componentSystem),
       weight: parseGradeValue(component.weight, "uk")
     }))
     .filter((component) => component.mark !== null);
@@ -939,8 +1021,44 @@ function getModuleFinal(mi) {
 
   if (!mod) return null;
 
-  // Non-UK grading systems use a direct final grade field.
+  // Non-UK grading systems.
   if (getGradingSystem() !== "uk") {
+    const system = getGradingSystem();
+
+    // Prediction mode: user has set CW/Exam weights and enters marks as percentages (or 1–5 for DE).
+    if (mod.usesCwExamPrediction) {
+      const cwWeight = Number(mod.cw) || 0;
+      const examWeight = Number(mod.exam) || 0;
+      const totalWeight = cwWeight + examWeight;
+      if (totalWeight > 0) {
+        const isDeScale = system === "de5";
+        const cwMark = isDeScale
+          ? parseGradeValue(store.coursework?.[mi], "de5")
+          : parseMark(store.coursework?.[mi], getComponentMarkSystem());
+        const examMark = isDeScale
+          ? parseGradeValue(store.exams?.[mi], "de5")
+          : parseMark(store.exams?.[mi]);
+        if (cwWeight > 0 && examWeight === 0) {
+          if (cwMark === null) return null;
+          return isDeScale ? cwMark : percentToNativeGrade(cwMark, system);
+        }
+        if (examWeight > 0 && cwWeight === 0) {
+          if (examMark === null) return null;
+          return isDeScale ? examMark : percentToNativeGrade(examMark, system);
+        }
+        if (cwMark === null || examMark === null) return null;
+        const weighted = (cwMark * cwWeight + examMark * examWeight) / totalWeight;
+        return isDeScale ? weighted : percentToNativeGrade(weighted, system);
+      }
+    }
+
+    // DE assessment breakdown: individual component grades drive the module grade.
+    if (system === "de5") {
+      const calculated = calculateCourseworkFromComponents(mi);
+      if (calculated.mark !== null) return calculated.mark;
+    }
+
+    // Transcript mode: student enters the final grade directly from their transcript.
     return parseGradeValue(store.finalGrades?.[mi]);
   }
 
@@ -950,7 +1068,7 @@ function getModuleFinal(mi) {
 
   if (totalWeight <= 0) return null;
 
-  const coursework = parseMark(store.coursework?.[mi]);
+  const coursework = parseMark(store.coursework?.[mi], getComponentMarkSystem());
   const exam = parseMark(store.exams?.[mi]);
 
   // Coursework-only module.

@@ -1785,7 +1785,8 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       suffix: "grade",
       finalLabel: "Module Grade",
       markLabel: "Grade",
-      placeholder: "1.0-5.0"
+      placeholder: "1.0-5.0",
+      allowNumericGradeInput: true
     };
   }
   return {
@@ -1799,6 +1800,86 @@ function getGradeScaleConfig(system = getGradingSystem()) {
     markLabel: "Mark %",
     placeholder: "-"
   };
+}
+
+// Returns the grading system used to parse individual component marks.
+// DE components are on the 1.0–5.0 scale; all other systems use % (0–100).
+function getComponentMarkSystem(system = getGradingSystem()) {
+  return system === "de5" ? "de5" : "uk";
+}
+
+// Returns min/max/step/label config for assessment component mark inputs.
+function getComponentScaleConfig(system = getGradingSystem()) {
+  if (system === "de5") {
+    return { min: 1, max: 5, step: "0.1", placeholder: "1.0–5.0", label: "Grade (1.0–5.0)" };
+  }
+  return { min: 0, max: 100, step: "0.1", placeholder: "-", label: "Mark %" };
+}
+
+// Converts a raw weighted percentage (0–100) to the native grade-point value for non-UK systems.
+// Thresholds reflect the most common institutional standards; students should confirm with their own scale.
+function percentToNativeGrade(pct, system) {
+  if (system === "us4" || system === "us43") {
+    if (pct >= 93) return 4.0;   // A
+    if (pct >= 90) return 3.7;   // A-
+    if (pct >= 87) return 3.3;   // B+
+    if (pct >= 83) return 3.0;   // B
+    if (pct >= 80) return 2.7;   // B-
+    if (pct >= 77) return 2.3;   // C+
+    if (pct >= 73) return 2.0;   // C
+    if (pct >= 70) return 1.7;   // C-
+    if (pct >= 67) return 1.3;   // D+
+    if (pct >= 63) return 1.0;   // D
+    if (pct >= 60) return 0.7;   // D-
+    return 0;                    // F
+  }
+  if (system === "au7") {
+    if (pct >= 85) return 7;     // HD
+    if (pct >= 75) return 6;     // Distinction
+    if (pct >= 65) return 5;     // Credit
+    if (pct >= 50) return 4;     // Pass
+    return 0;                    // Fail
+  }
+  if (system === "au4") {
+    if (pct >= 85) return 4.0;
+    if (pct >= 75) return 3.0;
+    if (pct >= 65) return 2.0;
+    if (pct >= 50) return 1.0;
+    return 0;
+  }
+  if (system === "my4") {
+    if (pct >= 90) return 4.0;   // A+
+    if (pct >= 80) return 4.0;   // A
+    if (pct >= 75) return 3.67;  // A-
+    if (pct >= 70) return 3.33;  // B+
+    if (pct >= 65) return 3.0;   // B
+    if (pct >= 60) return 2.67;  // B-
+    if (pct >= 55) return 2.33;  // C+
+    if (pct >= 50) return 2.0;   // C
+    if (pct >= 45) return 1.67;  // C-
+    if (pct >= 40) return 1.0;   // D
+    return 0;                    // F/E
+  }
+  if (system === "nz9") {
+    if (pct >= 90) return 9;     // A+
+    if (pct >= 85) return 8;     // A
+    if (pct >= 80) return 7;     // A-
+    if (pct >= 75) return 6;     // B+
+    if (pct >= 70) return 5;     // B
+    if (pct >= 65) return 4;     // B-
+    if (pct >= 60) return 3;     // C+
+    if (pct >= 55) return 2;     // C
+    if (pct >= 50) return 1;     // C-
+    return 0;                    // Fail
+  }
+  if (system === "cn4") {
+    if (pct >= 90) return 4.0;   // A
+    if (pct >= 75) return 3.0;   // B
+    if (pct >= 65) return 2.0;   // C
+    if (pct >= 60) return 1.0;   // D
+    return 0;                    // F
+  }
+  return pct;
 }
 
 function formatGradeInputValue(value) {
@@ -2454,12 +2535,13 @@ function getCourseworkComponents(mi) {
 }
 
 function calculateCourseworkFromComponents(mi) {
+  const componentSystem = getComponentMarkSystem();
   const components = getCourseworkComponents(mi);
   const valid = components
     .map((component, index) => ({
       index,
       name: component.name || `Component ${index + 1}`,
-      mark: parseGradeValue(component.mark),
+      mark: parseGradeValue(component.mark, componentSystem),
       weight: parseGradeValue(component.weight, "uk")
     }))
     .filter((component) => component.mark !== null);
@@ -2504,8 +2586,44 @@ function getModuleFinal(mi) {
 
   if (!mod) return null;
 
-  // Non-UK grading systems use a direct final grade field.
+  // Non-UK grading systems.
   if (getGradingSystem() !== "uk") {
+    const system = getGradingSystem();
+
+    // Prediction mode: user has set CW/Exam weights and enters marks as percentages (or 1–5 for DE).
+    if (mod.usesCwExamPrediction) {
+      const cwWeight = Number(mod.cw) || 0;
+      const examWeight = Number(mod.exam) || 0;
+      const totalWeight = cwWeight + examWeight;
+      if (totalWeight > 0) {
+        const isDeScale = system === "de5";
+        const cwMark = isDeScale
+          ? parseGradeValue(store.coursework?.[mi], "de5")
+          : parseMark(store.coursework?.[mi], getComponentMarkSystem());
+        const examMark = isDeScale
+          ? parseGradeValue(store.exams?.[mi], "de5")
+          : parseMark(store.exams?.[mi]);
+        if (cwWeight > 0 && examWeight === 0) {
+          if (cwMark === null) return null;
+          return isDeScale ? cwMark : percentToNativeGrade(cwMark, system);
+        }
+        if (examWeight > 0 && cwWeight === 0) {
+          if (examMark === null) return null;
+          return isDeScale ? examMark : percentToNativeGrade(examMark, system);
+        }
+        if (cwMark === null || examMark === null) return null;
+        const weighted = (cwMark * cwWeight + examMark * examWeight) / totalWeight;
+        return isDeScale ? weighted : percentToNativeGrade(weighted, system);
+      }
+    }
+
+    // DE assessment breakdown: individual component grades drive the module grade.
+    if (system === "de5") {
+      const calculated = calculateCourseworkFromComponents(mi);
+      if (calculated.mark !== null) return calculated.mark;
+    }
+
+    // Transcript mode: student enters the final grade directly from their transcript.
     return parseGradeValue(store.finalGrades?.[mi]);
   }
 
@@ -2515,7 +2633,7 @@ function getModuleFinal(mi) {
 
   if (totalWeight <= 0) return null;
 
-  const coursework = parseMark(store.coursework?.[mi]);
+  const coursework = parseMark(store.coursework?.[mi], getComponentMarkSystem());
   const exam = parseMark(store.exams?.[mi]);
 
   // Coursework-only module.
@@ -4710,11 +4828,13 @@ function updateModule(mi) {
   const exInput = document.getElementById(`exam-${mi}`);
   const compactCw = document.querySelector(`#topics-${mi} .compact-cw`);
   const compactEx = document.querySelector(`#topics-${mi} .compact-ex`);
+  const mod = MODULES[mi];
+  const isPredictionMode = getGradingSystem() !== "uk" && mod?.usesCwExamPrediction === true;
   if (getGradingSystem() === "uk" && cwInput) {
     const calculated = calculateCourseworkFromComponents(mi);
-    cwInput.disabled = MODULES[mi].cw === 0;
-    if (compactCw) compactCw.disabled = MODULES[mi].cw === 0;
-    if (MODULES[mi].cw === 0) cwInput.placeholder = "N/A";
+    cwInput.disabled = mod.cw === 0;
+    if (compactCw) compactCw.disabled = mod.cw === 0;
+    if (mod.cw === 0) cwInput.placeholder = "N/A";
     else {
       if (calculated.mark !== null) {
         const calculatedValue = formatGradeInputValue(calculated.mark);
@@ -4727,13 +4847,24 @@ function updateModule(mi) {
       }
     }
   }
+  if (isPredictionMode && cwInput) {
+    cwInput.disabled = (mod.cw ?? 0) === 0;
+    if (compactCw) compactCw.disabled = (mod.cw ?? 0) === 0;
+    if ((mod.cw ?? 0) === 0) { cwInput.placeholder = "N/A"; cwInput.value = ""; }
+  }
   if (getGradingSystem() === "uk" && exInput) {
-    exInput.disabled = MODULES[mi].exam === 0;
-    if (compactEx) compactEx.disabled = MODULES[mi].exam === 0;
-    exInput.placeholder = MODULES[mi].exam === 0 ? "N/A" : "-";
-    if (MODULES[mi].exam === 0) exInput.value = "";
+    exInput.disabled = mod.exam === 0;
+    if (compactEx) compactEx.disabled = mod.exam === 0;
+    exInput.placeholder = mod.exam === 0 ? "N/A" : "-";
+    if (mod.exam === 0) exInput.value = "";
+  }
+  if (isPredictionMode && exInput) {
+    exInput.disabled = (mod.exam ?? 0) === 0;
+    if (compactEx) compactEx.disabled = (mod.exam ?? 0) === 0;
+    if ((mod.exam ?? 0) === 0) { exInput.placeholder = "N/A"; exInput.value = ""; }
   }
   if (getGradingSystem() === "uk") updateCourseworkSummary(mi);
+  if (isPredictionMode) updateCourseworkSummary(mi);
 }
 
 function updateGlobal() {
@@ -5101,15 +5232,40 @@ function syncModuleWeightInputs(source = "cw") {
 }
 
 function updateModuleFormForGradingSystem() {
-  const ukMode = getGradingSystem() === "uk";
+  const system = getGradingSystem();
+  const ukMode = system === "uk";
   const creditsLabel = document.getElementById("module-credits-label");
   const cwInput = document.getElementById("module-cw-input");
   const examInput = document.getElementById("module-exam-input");
+  const cwLabel = document.getElementById("module-cw-label");
+  const examLabel = document.getElementById("module-exam-label");
   const cwField = cwInput?.closest(".field");
   const examField = examInput?.closest(".field");
+  const predictionField = document.getElementById("module-prediction-field");
+  const predictionToggle = document.getElementById("module-prediction-toggle");
+  const predictionEnabled = !ukMode && (predictionToggle?.checked ?? false);
+
   if (creditsLabel) creditsLabel.textContent = getModuleCreditFieldLabel();
-  if (cwField) cwField.classList.toggle("hidden", !ukMode);
-  if (examField) examField.classList.toggle("hidden", !ukMode);
+
+  if (ukMode) {
+    if (predictionField) predictionField.classList.add("hidden");
+    if (cwField) cwField.classList.remove("hidden");
+    if (examField) examField.classList.remove("hidden");
+    if (cwLabel) cwLabel.textContent = "Coursework %";
+    if (examLabel) examLabel.textContent = "Exam %";
+  } else {
+    if (predictionField) predictionField.classList.remove("hidden");
+    if (cwField) cwField.classList.toggle("hidden", !predictionEnabled);
+    if (examField) examField.classList.toggle("hidden", !predictionEnabled);
+    if (system === "de5") {
+      if (cwLabel) cwLabel.textContent = "Coursework Weight %";
+      if (examLabel) examLabel.textContent = "Exam Weight %";
+    } else {
+      if (cwLabel) cwLabel.textContent = "Coursework Weight %";
+      if (examLabel) examLabel.textContent = "Exam Weight %";
+    }
+  }
+
   populateModuleTermSelect();
 }
 
@@ -5161,6 +5317,10 @@ document.getElementById("module-term-input")?.addEventListener("change", (event)
 
 document.getElementById("module-cw-input")?.addEventListener("input", () => syncModuleWeightInputs("cw"));
 document.getElementById("module-exam-input")?.addEventListener("input", () => syncModuleWeightInputs("exam"));
+document.getElementById("module-prediction-toggle")?.addEventListener("change", () => {
+  updateModuleFormForGradingSystem();
+  if (document.getElementById("module-prediction-toggle")?.checked) syncModuleWeightInputs("cw");
+});
 document.getElementById("module-colour-input")?.addEventListener("input", (event) => {
   const preview = document.getElementById("module-colour-preview");
   if (preview) preview.style.background = event.target.value;
@@ -5196,13 +5356,15 @@ function editModuleWeights(mi, event) {
   if (cw) cw.value = mod.cw ?? 0;
   if (exam) exam.value = mod.exam ?? 0;
   if (blackboard) blackboard.value = getBlackboardLink(mi) || "";
+  const predictionToggle = document.getElementById("module-prediction-toggle");
+  if (predictionToggle) predictionToggle.checked = mod.usesCwExamPrediction === true;
   updateModuleFormForGradingSystem();
   populateModuleTermSelect(getModuleTerm(mi));
   if (optionsFields) optionsFields.classList.remove("hidden");
   if (colourField) colourField.classList.toggle("hidden", !isColourCustomisableTheme());
   if (colourInput) colourInput.value = getStoredModuleColourHex(mi);
   if (colourPreview) colourPreview.style.background = getModuleColourSet(mi).fill;
-  if (getGradingSystem() === "uk") syncModuleWeightInputs("cw");
+  if (getGradingSystem() === "uk" || mod.usesCwExamPrediction) syncModuleWeightInputs("cw");
   const title = document.querySelector("#module-form-modal .dashboard-title");
   const saveBtn = document.querySelector("#module-form-modal .deadline-form-actions .nav-btn:last-child");
   if (title) title.textContent = "Module Options";
@@ -5227,11 +5389,13 @@ function saveModuleForm() {
     return;
   }
   const credits = parseFloat(creditsInput.value || "");
+  const predictionToggle = document.getElementById("module-prediction-toggle");
+  const predictionEnabled = getGradingSystem() !== "uk" && (predictionToggle?.checked ?? false);
   let courseworkWeight = parseFloat(cwInput.value || "");
   let examWeight = parseFloat(examInput.value || "");
-  if (getGradingSystem() !== "uk") {
+  if (getGradingSystem() !== "uk" && !predictionEnabled) {
     courseworkWeight = 0;
-    examWeight = 100;
+    examWeight = 0;
   }
   if (Number.isFinite(courseworkWeight) && courseworkWeight >= 100) examWeight = 0;
   if (Number.isFinite(examWeight) && examWeight >= 100) courseworkWeight = 0;
@@ -5241,8 +5405,9 @@ function saveModuleForm() {
     short: code.toUpperCase(),
     term: normalizeTermValue(termInput?.value || "sem1"),
     credits: Number.isFinite(credits) ? credits : 15,
-    cw: Number.isFinite(courseworkWeight) ? courseworkWeight : 50,
-    exam: Number.isFinite(examWeight) ? examWeight : 50,
+    cw: Number.isFinite(courseworkWeight) ? courseworkWeight : 0,
+    exam: Number.isFinite(examWeight) ? examWeight : 0,
+    usesCwExamPrediction: getGradingSystem() === "uk" ? undefined : predictionEnabled,
     topics: []
   };
   if (editingModuleIndex !== null && MODULES[editingModuleIndex]) {
@@ -5373,13 +5538,17 @@ function updateCourseworkComponent(mi, ci, field, value) {
   const components = getCourseworkComponents(mi);
   if (!components[ci]) return;
   components[ci][field] = value;
-  const calculated = calculateCourseworkFromComponents(mi);
-  if (calculated.mark !== null) {
-    getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
-    const cwInput = document.getElementById(`cw-${mi}`);
-    const compactCw = document.querySelector(`#topics-${mi} .compact-cw`);
-    if (cwInput) cwInput.value = formatGradeInputValue(calculated.mark);
-    if (compactCw) compactCw.value = formatGradeInputValue(calculated.mark);
+  // For UK, component marks are rolled up into the CW field so getModuleFinal can use them.
+  // For non-UK, getModuleFinal reads components directly (DE) or they are informational (others).
+  if (getGradingSystem() === "uk") {
+    const calculated = calculateCourseworkFromComponents(mi);
+    if (calculated.mark !== null) {
+      getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
+      const cwInput = document.getElementById(`cw-${mi}`);
+      const compactCw = document.querySelector(`#topics-${mi} .compact-cw`);
+      if (cwInput) cwInput.value = formatGradeInputValue(calculated.mark);
+      if (compactCw) compactCw.value = formatGradeInputValue(calculated.mark);
+    }
   }
   save();
   updateModule(mi);
@@ -5390,20 +5559,38 @@ function updateCourseworkComponent(mi, ci, field, value) {
 function updateCourseworkSummary(mi) {
   const summary = document.getElementById(`cw-calc-summary-${mi}`);
   if (!summary) return;
+  const system = getGradingSystem();
   const calculated = calculateCourseworkFromComponents(mi);
-  const manual = parseMark(getStore().coursework[mi]);
 
+  if (system === "uk") {
+    const manual = parseMark(getStore().coursework[mi]);
+    if (calculated.mark !== null) {
+      summary.textContent = `Calculated coursework: ${formatSelectedGrade(calculated.mark).main} — components override manual coursework input`;
+      return;
+    }
+    if (manual !== null) {
+      summary.textContent = `Manual coursework override: ${formatSelectedGrade(manual).main}`;
+      return;
+    }
+    summary.textContent = `Enter an overall coursework mark above, or let this calculator build it from your assessments.`;
+    return;
+  }
+
+  if (system === "de5") {
+    if (calculated.mark !== null) {
+      summary.textContent = `Calculated grade: ${calculated.mark.toFixed(1)} — overrides the manual grade above`;
+      return;
+    }
+    summary.textContent = `Add graded components above, or enter your module grade directly.`;
+    return;
+  }
+
+  // US / AU / MY / NZ / CN / custom: components are %, summary is informational only
   if (calculated.mark !== null) {
-    summary.textContent = `Calculated coursework: ${formatSelectedGrade(calculated.mark).main} - Components override manual coursework input`;
+    summary.textContent = `Calculated average: ${calculated.mark.toFixed(1)}% — enter your final course grade above from your transcript.`;
     return;
   }
-
-  if (manual !== null) {
-    summary.textContent = `Manual coursework override: ${formatSelectedGrade(manual).main}`;
-    return;
-  }
-
-  summary.textContent = `Enter an overall coursework mark above, or let this calculator build it from your assessments.`;
+  summary.textContent = `Track individual assessment marks here. Your final course grade above is still required for GPA calculation.`;
 }
 
 function commitCourseworkPlaceholder(mi, event) {
@@ -5417,8 +5604,10 @@ function commitCourseworkPlaceholder(mi, event) {
   const items = getCourseworkComponents(mi);
   items.push({ name, mark, weight });
   getStore().courseworkComponents[mi] = items;
-  const calculated = calculateCourseworkFromComponents(mi);
-  if (calculated.mark !== null) getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
+  if (getGradingSystem() === "uk") {
+    const calculated = calculateCourseworkFromComponents(mi);
+    if (calculated.mark !== null) getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
+  }
   save();
   buildModules();
   updateGlobal();
@@ -6658,15 +6847,22 @@ function buildModules() {
     const gradeScale = getGradeScaleConfig();
     const gradingSystem = getGradingSystem();
     const gradeOptions = getGradeOptions(gradingSystem);
-    const usesFinalGradeOnly = gradingSystem !== "uk";
+    const compScale = getComponentScaleConfig(gradingSystem);
+    const isPredictionMode = gradingSystem !== "uk" && mod.usesCwExamPrediction === true;
+    const usesFinalGradeOnly = gradingSystem !== "uk" && !isPredictionMode;
     const usesUsGrades = ["us4", "us43"].includes(gradingSystem);
     const termLabel = getTermLabel(getModuleTerm(mi));
+    const predictionWeightMeta = isPredictionMode
+      ? ` &middot; CW ${mod.cw === 0 ? "N/A" : escapeHtml(String(mod.cw ?? 0)) + "%"} &middot; Exam ${mod.exam === 0 ? "N/A" : escapeHtml(String(mod.exam ?? 0)) + "%"}`
+      : "";
     const moduleMeta = gradingSystem === "uk"
       ? `${escapeHtml(mod.kanji)} · CW ${mod.cw === 0 ? "N/A" : escapeHtml(String(mod.cw ?? 0)) + "%"} · EXAMS ${mod.exam === 0 ? "N/A" : escapeHtml(String(mod.exam ?? 0)) + "%"}`
-      : `${escapeHtml(mod.kanji)} · ${escapeHtml(String(mod.credits ?? 0))} ${escapeHtml(getCreditUnitLabel({ plural: Number(mod.credits) !== 1 }))}`;
+      : `${escapeHtml(mod.kanji)} · ${escapeHtml(String(mod.credits ?? 0))} ${escapeHtml(getCreditUnitLabel({ plural: Number(mod.credits) !== 1 }))}${predictionWeightMeta}`;
     const moduleMetaWithTerm = gradingSystem === "uk"
       ? `${escapeHtml(mod.kanji)} &middot; ${escapeHtml(termLabel)} &middot; CW ${mod.cw === 0 ? "N/A" : escapeHtml(String(mod.cw ?? 0)) + "%"} &middot; EXAMS ${mod.exam === 0 ? "N/A" : escapeHtml(String(mod.exam ?? 0)) + "%"}`
-      : `${escapeHtml(mod.kanji)} &middot; ${escapeHtml(termLabel)} &middot; ${escapeHtml(String(mod.credits ?? 0))} ${escapeHtml(getCreditUnitLabel({ plural: Number(mod.credits) !== 1 }))}`;
+      : `${escapeHtml(mod.kanji)} &middot; ${escapeHtml(termLabel)} &middot; ${escapeHtml(String(mod.credits ?? 0))} ${escapeHtml(getCreditUnitLabel({ plural: Number(mod.credits) !== 1 }))}${predictionWeightMeta}`;
+    const cwPredLabel = gradingSystem === "de5" ? "Coursework Grade (1.0–5.0)" : "Coursework %";
+    const examPredLabel = gradingSystem === "de5" ? "Exam Grade (1.0–5.0)" : "Exam %";
     const finalGradeControl = (id, className = "") => {
       if (gradeOptions && gradeScale.freeformGradeInput) {
         const listId = `${id}-options`;
@@ -6723,6 +6919,15 @@ function buildModules() {
           <label>${gradeScale.finalLabel}</label>
           ${finalGradeControl(`final-grade-${mi}`)}
         </div>
+        ` : isPredictionMode ? `
+        <div class="field">
+          <label>${escapeHtml(cwPredLabel)}</label>
+          <input class="input" type="number" min="${compScale.min}" max="${compScale.max}" step="${compScale.step}" id="cw-${mi}" placeholder="${escapeHtml(compScale.placeholder)}" value="${store.coursework[mi] ?? ""}">
+        </div>
+        <div class="field">
+          <label>${escapeHtml(examPredLabel)}</label>
+          <input class="input" type="number" min="${compScale.min}" max="${compScale.max}" step="${compScale.step}" id="exam-${mi}" placeholder="${escapeHtml(compScale.placeholder)}" value="${store.exams[mi] ?? ""}">
+        </div>
         ` : `
         <div class="field">
           <label>${gradeScale.courseworkLabel}</label>
@@ -6737,6 +6942,7 @@ function buildModules() {
       <div class="final-col">
         <div class="final-mark" id="mfinal-${mi}">-</div>
         <div id="mcls-${mi}" class="final-cls"></div>
+        ${isPredictionMode ? `<div class="predicted-label">Estimated</div>` : ""}
       </div>
       <div class="module-actions"></div>
       <div class="chevron" id="chev-${mi}" aria-hidden="true"></div>
@@ -6766,14 +6972,22 @@ function buildModules() {
     `;
     list.appendChild(moduleEditTools);
 
-    if (!usesFinalGradeOnly && mod.cw > 0) {
-      const courseworkSection = createModuleSection(mi, "coursework", "Assessments", "");
+    // UK: only show when the module has a coursework component. Non-UK: always show.
+    const showAssessmentSection = gradingSystem === "uk" ? mod.cw > 0 : true;
+    if (showAssessmentSection) {
+      const sectionTitle = gradingSystem === "uk" ? "Assessments"
+        : gradingSystem === "de5" ? "Grade Components"
+        : "Assessment Breakdown";
+      const courseworkSection = createModuleSection(mi, "coursework", sectionTitle, "");
       const courseworkWrap = courseworkSection.body;
       const components = getCourseworkComponents(mi);
+      const innerTitle = gradingSystem === "uk" ? "Assessment Breakdown"
+        : gradingSystem === "de5" ? "Grade Components"
+        : "Assessment Breakdown (Optional)";
       courseworkWrap.innerHTML = `
         <div class="coursework-calc-wrap">
           <div class="coursework-calc-head">
-            <div class="coursework-calc-title">Assessment Breakdown</div>
+            <div class="coursework-calc-title">${escapeHtml(innerTitle)}</div>
             <button class="mini-btn" type="button" onclick="addBlankCourseworkComponent(${mi}, event)">Add Row</button>
           </div>
           <div class="coursework-calc-summary" id="cw-calc-summary-${mi}"></div>
@@ -6782,9 +6996,12 @@ function buildModules() {
       `;
       const componentsHost = courseworkWrap.querySelector(`#cw-components-${mi}`);
       if (!components.length) {
-        componentsHost.innerHTML = `
-          <div class="coursework-empty">Add each assessment below, or type your overall coursework mark in the main coursework box above.</div>
-        `;
+        const emptyText = gradingSystem === "uk"
+          ? "Add each assessment below, or type your overall coursework mark in the main coursework box above."
+          : gradingSystem === "de5"
+            ? "Add each graded component (written exam, term paper, oral exam, etc.). The weighted average becomes your module grade, overriding the manual grade above."
+            : "Optional: add individual assessment marks in %. Your final course grade above (from your transcript) is still used for GPA calculation.";
+        componentsHost.innerHTML = `<div class="coursework-empty">${escapeHtml(emptyText)}</div>`;
       } else {
         components.forEach((component, ci) => {
           const componentRow = document.createElement("div");
@@ -6792,11 +7009,11 @@ function buildModules() {
           componentRow.innerHTML = `
             <div class="field">
               <label>Component</label>
-              <input class="input cw-comp-name" value="${escapeHtml(component.name || "")}" placeholder="Coursework name">
+              <input class="input cw-comp-name" value="${escapeHtml(component.name || "")}" placeholder="Assessment name">
             </div>
             <div class="field">
-              <label>${gradeScale.markLabel}</label>
-              <input class="input cw-comp-mark" type="number" min="0" max="${gradeScale.max}" step="${gradeScale.step}" value="${component.mark ?? ""}" placeholder="${gradeScale.placeholder}">
+              <label>${escapeHtml(compScale.label)}</label>
+              <input class="input cw-comp-mark" type="number" min="${compScale.min}" max="${compScale.max}" step="${compScale.step}" value="${component.mark ?? ""}" placeholder="${escapeHtml(compScale.placeholder)}">
             </div>
             <div class="field">
               <label>Weight %</label>
@@ -6825,6 +7042,15 @@ function buildModules() {
         <div class="field">
           <label>${gradeScale.finalLabel}</label>
           ${finalGradeControl(`compact-final-grade-${mi}`, "compact-final-grade")}
+        </div>
+        ` : isPredictionMode ? `
+        <div class="field">
+          <label>${escapeHtml(cwPredLabel)}</label>
+          <input class="input compact-cw" type="number" min="${compScale.min}" max="${compScale.max}" step="${compScale.step}" placeholder="${escapeHtml(compScale.placeholder)}" value="${store.coursework[mi] ?? ""}">
+        </div>
+        <div class="field">
+          <label>${escapeHtml(examPredLabel)}</label>
+          <input class="input compact-ex" type="number" min="${compScale.min}" max="${compScale.max}" step="${compScale.step}" placeholder="${escapeHtml(compScale.placeholder)}" value="${store.exams[mi] ?? ""}">
         </div>
         ` : `
         <div class="field">
@@ -7132,8 +7358,10 @@ function buildModules() {
     };
     const clampAndSyncMark = (key, input) => {
       if (!input) return;
-      if (key === "cw") store.coursework[mi] = clampGradeInputValue(input.value);
-      if (key === "exam") store.exams[mi] = clampGradeInputValue(input.value);
+      // CW and Exam inputs are always on the component % scale (or DE 1–5 scale),
+      // never on the output GPA scale, so clamp using the component system.
+      if (key === "cw") store.coursework[mi] = clampGradeInputValue(input.value, getComponentMarkSystem());
+      if (key === "exam") store.exams[mi] = clampGradeInputValue(input.value, getComponentMarkSystem());
       if (key === "final") {
         if (!store.finalGrades) store.finalGrades = {};
         store.finalGrades[mi] = clampGradeInputValue(input.value);

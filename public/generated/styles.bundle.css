@@ -1559,6 +1559,7 @@ body.theme-dark .weight-edit-btn:hover{
 .cls-s-21 { background: rgba(184,134,11,0.1); color: var(--gold); border: 1px solid rgba(184,134,11,0.3); }
 .cls-s-22 { background: rgba(26,44,74,0.1); color: var(--indigo); border: 1px solid rgba(26,44,74,0.25); }
 .cls-s-third { background: rgba(74,85,104,0.1); color: var(--slate); border: 1px solid var(--border2); }
+.predicted-label { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 0.08em; color: var(--slate); opacity: 0.7; margin-top: 3px; text-transform: uppercase; }
 .chevron {
   color: var(--faint);
   transition: transform 0.25s ease;
@@ -2468,11 +2469,22 @@ body.theme-dark .module-library-folder-count{
   text-transform: uppercase;
   line-height: 1.25;
 }
-.coursework-calc-summary {
+.topic-list .coursework-calc-summary {
   font-family: "DM Mono", monospace;
-  font-size: 10px;
+  font-size: 12px;
+  line-height: 1.45;
   color: var(--muted);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+}
+.topic-list .checkbox-label,
+.topic-list .module-major-toggle {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.topic-list .module-major-toggle input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
 }
 .coursework-component-row {
   display: grid;
@@ -6145,6 +6157,21 @@ body.theme-quiet .sticky-exams{ border-bottom-color: rgba(245,240,232,0.16) !imp
   font-size: 10px;
   letter-spacing: 0.14em;
   color: color-mix(in srgb, var(--muted) 82%, var(--sumi) 18%);
+}
+.field-hint {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.04em;
 }
 
 .form-modal .input,
