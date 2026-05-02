@@ -2054,6 +2054,9 @@ body.theme-dark :focus-visible {
     scroll-padding-inline: 14px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
+    touch-action: pan-x pan-y;
   }
 
   #modules::-webkit-scrollbar {
