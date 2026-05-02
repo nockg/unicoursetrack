@@ -1,6 +1,12 @@
 const MAX_BODY_BYTES = 750_000;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 90;
+// NOTE: rateBuckets is in-process memory. In a serverless environment (Vercel Functions)
+// each cold start resets this Map and concurrent instances do not share it, so this
+// limiter only adds a best-effort defence within a single warm instance. The primary
+// data-isolation guarantee is Supabase RLS (auth.uid() = user_id), which cannot be
+// bypassed regardless. For hard per-user rate limiting, replace this with a shared
+// KV store (e.g. Vercel KV / Upstash Redis) keyed by user.id.
 const rateBuckets = new Map();
 
 function json(response, statusCode, payload) {
@@ -21,6 +27,13 @@ function getClientKey(request, userId = "") {
 
 function checkRateLimit(key) {
   const now = Date.now();
+  // Prune expired entries when the map grows large to prevent unbounded memory use
+  // in long-lived instances (e.g. dev server, long-warm serverless containers).
+  if (rateBuckets.size > 5000) {
+    for (const [k, v] of rateBuckets) {
+      if (now > v.resetAt) rateBuckets.delete(k);
+    }
+  }
   const bucket = rateBuckets.get(key);
   if (!bucket || now > bucket.resetAt) {
     rateBuckets.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });

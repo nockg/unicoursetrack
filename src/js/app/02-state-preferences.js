@@ -98,14 +98,7 @@ function safeUrl(value, options = {}) {
 }
 
 function safeImageUrl(value) {
-  const url = safeUrl(value);
-  if (!url) return "";
-  return url;
-}
-
-function setSafeHtml(element, html) {
-  if (!element) return;
-  element.innerHTML = html;
+  return safeUrl(value);
 }
 
 function firstExisting(keys, fallback) {

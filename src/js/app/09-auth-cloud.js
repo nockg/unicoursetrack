@@ -446,39 +446,36 @@ function renderAuthModal(mode = "login") {
   const body = document.getElementById("auth-modal-body");
   if (!body) return;
 
-  if (currentUser) {
-    const syncStatus = cloudLoadSucceeded ? "Synced to cloud" : (cloudReady ? "Signed in, sync catching up" : "Signed in locally");
-    body.innerHTML = `
-      <div class="account-card">
-        <div class="account-title">Account</div>
-        <div class="account-copy">Check account settings, sync status, and saved data controls here.</div>
-        <div class="account-meta">
-          <div class="account-meta-row">
-            <div class="account-meta-label">Signed In As</div>
-            <div class="account-meta-value auth-email">${escapeHtml(currentUser.email || "Cloud account")}</div>
-          </div>
-          <div class="account-meta-row">
-            <div class="account-meta-label">Status</div>
-            <div class="account-meta-value">${escapeHtml(syncStatus)}</div>
-          </div>
+  const syncStatus = cloudLoadSucceeded ? "Synced to cloud" : (cloudReady ? "Signed in, sync catching up" : "Signed in locally");
+  body.innerHTML = `
+    <div class="account-card">
+      <div class="account-title">Account</div>
+      <div class="account-copy">Check account settings, sync status, and saved data controls here.</div>
+      <div class="account-meta">
+        <div class="account-meta-row">
+          <div class="account-meta-label">Signed In As</div>
+          <div class="account-meta-value auth-email">${escapeHtml(currentUser.email || "Cloud account")}</div>
         </div>
-        <div class="account-section">
-          <div class="account-section-title">Tracker</div>
-          <div class="account-actions">
-            <button class="nav-btn" type="button" onclick="editCourseProfile()">Edit Course Setup</button>
-            <button class="nav-btn danger-btn" type="button" onclick="clearTrackerStorage()">Clear Saved Data</button>
-          </div>
-        </div>
-        <div class="account-section">
-          <div class="account-section-title">Session</div>
-          <div class="account-actions">
-            <button class="nav-btn" type="button" onclick="logoutCloud()">Logout</button>
-          </div>
+        <div class="account-meta-row">
+          <div class="account-meta-label">Status</div>
+          <div class="account-meta-value">${escapeHtml(syncStatus)}</div>
         </div>
       </div>
-    `;
-    return;
-  }
+      <div class="account-section">
+        <div class="account-section-title">Tracker</div>
+        <div class="account-actions">
+          <button class="nav-btn" type="button" onclick="editCourseProfile()">Edit Course Setup</button>
+          <button class="nav-btn danger-btn" type="button" onclick="clearTrackerStorage()">Clear Saved Data</button>
+        </div>
+      </div>
+      <div class="account-section">
+        <div class="account-section-title">Session</div>
+        <div class="account-actions">
+          <button class="nav-btn" type="button" onclick="logoutCloud()">Logout</button>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function shiftModuleColourMapAfterDelete(map, deletedIndex) {
@@ -612,7 +609,7 @@ async function resetPasswordFromModal() {
   let error;
   try {
     ({ error } = await withCloudTimeout(supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: "https://unitrack.uk"
+      redirectTo: window.location.origin
     }), "Password reset"));
   } catch (cloudError) {
     setAuthError(cloudError?.message || "Password reset failed. Please try again.");
@@ -692,7 +689,7 @@ async function signUpFromModal() {
       email,
       password,
       options: {
-        emailRedirectTo: "https://unitrack.uk"
+        emailRedirectTo: window.location.origin
       }
     }), "Account creation"));
   } catch (cloudError) {
@@ -847,7 +844,6 @@ async function loadCloudSaveInner(options = {}) {
     currentUser = currentSession?.user || null;
   }
 
-  console.log("Cloud user:", currentUser?.email || "not logged in");
   updateAuthButton();
 
   if (!currentUser) {
