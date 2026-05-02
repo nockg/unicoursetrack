@@ -14,6 +14,7 @@ const ignoredDirs = new Set([
 
 const ignoredFiles = new Set([
   "scripts/security-check.mjs",
+  "scripts/xss-check.mjs",
   "public/config.js",
   "public/config.local.js",
   "public/config.example.js",
