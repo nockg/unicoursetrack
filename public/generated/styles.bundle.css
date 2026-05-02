@@ -9253,6 +9253,246 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
   }
 }
 
+/* Final phone pass: tighten the first screen and keep high-use controls clearer. */
+@media (max-width: 700px) {
+  .nav-bar {
+    gap: 6px !important;
+    padding: 8px 10px !important;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 10px;
+  }
+
+  .nav-bar > * {
+    scroll-snap-align: start;
+  }
+
+  .dashboard-nav-btn {
+    display: none !important;
+  }
+
+  .nav-bar > .nav-btn {
+    min-height: 36px !important;
+    padding: 8px 10px !important;
+    font-size: 9.5px !important;
+    letter-spacing: 0.05em !important;
+  }
+
+  .year-controls {
+    min-width: 132px !important;
+    flex: 0 0 132px !important;
+  }
+
+  .year-controls .nav-select,
+  #year-select {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding-left: 10px !important;
+    padding-right: 28px !important;
+    font-size: 11px !important;
+  }
+
+  .eyebrow {
+    font-size: 9px !important;
+    line-height: 1.45 !important;
+    letter-spacing: 0.13em !important;
+    gap: 8px !important;
+  }
+
+  #hero-title {
+    font-size: clamp(24px, 9vw, 38px) !important;
+    line-height: 1.02 !important;
+    max-width: 11ch !important;
+    text-wrap: balance !important;
+  }
+
+  .hero-grid,
+  .dash-actions-card {
+    gap: 8px !important;
+  }
+
+  .hero-grid > .washi-card,
+  .hero-grid > .dash-actions-card > .dash-hero-btn {
+    padding: 14px !important;
+  }
+
+  .hero-grid > .dash-actions-card > .dash-hero-btn,
+  .dash-actions-card > .dash-hero-btn {
+    min-height: 64px !important;
+  }
+
+  .hero-summary {
+    font-size: 16px !important;
+    line-height: 1.3 !important;
+  }
+
+  #modules {
+    grid-auto-columns: 88vw !important;
+  }
+
+  .module-header {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "summary summary"
+      "final progress" !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 14px 12px !important;
+  }
+
+  .module-header .module-summary {
+    grid-column: 1 / -1 !important;
+    padding-right: 28px !important;
+  }
+
+  .module-header .module-summary .mod-name {
+    font-size: 17px !important;
+    line-height: 1.08 !important;
+  }
+
+  .module-header .module-summary .mod-kanji {
+    font-size: 9.5px !important;
+    line-height: 1.4 !important;
+  }
+
+  .module-header .module-links {
+    gap: 7px !important;
+  }
+
+  .module-header .module-links .bb-link,
+  .module-header .module-links .formula-btn {
+    min-height: 40px !important;
+    padding: 9px 12px !important;
+    font-size: 11px !important;
+  }
+
+  .module-header .final-col,
+  .module-header .progress-section {
+    grid-column: auto !important;
+    min-height: 0 !important;
+    padding: 10px !important;
+  }
+
+  .module-header .final-col {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    align-content: start !important;
+    gap: 6px !important;
+  }
+
+  .module-header .final-mark {
+    font-size: 28px !important;
+  }
+
+  .module-header .final-cls {
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+  }
+
+  .module-header .prog-header {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .module-header .prog-done {
+    font-size: 24px !important;
+  }
+
+  .module-header .prog-of,
+  .module-header .prog-pct {
+    font-size: 10px !important;
+  }
+
+  .footer.mobile-app-footnote {
+    margin-top: 2px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .dashboard-content,
+  .timeline-content,
+  .deadline-form-content,
+  .calendar-form-content,
+  .module-library-content,
+  .onboarding-content,
+  .setup-content,
+  .deadline-splash-card,
+  .app-dialog-card {
+    width: calc(100vw - 12px) !important;
+    max-width: none !important;
+    max-height: calc(100dvh - 12px) !important;
+  }
+
+  .timeline-topline,
+  .module-library-topline {
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .deadline-tabs {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .module-library-toolbar {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 10px 12px !important;
+  }
+
+  .module-library-top-actions,
+  .todo-header-actions {
+    width: 100% !important;
+  }
+
+  .deadline-form-actions,
+  .app-dialog-actions,
+  .setup-actions,
+  .onboarding-actions {
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .deadline-form-actions .nav-btn,
+  .app-dialog-actions .nav-btn,
+  .setup-actions .nav-btn,
+  .onboarding-actions .nav-btn {
+    flex: 1 1 140px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .nav-bar > .nav-btn {
+    font-size: 9px !important;
+    padding: 8px 9px !important;
+  }
+
+  .year-controls {
+    min-width: 122px !important;
+    flex: 0 0 122px !important;
+  }
+
+  #hero-title {
+    max-width: 10ch !important;
+  }
+
+  .module-header {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "summary"
+      "final"
+      "progress" !important;
+  }
+
+  .deadline-form-actions,
+  .app-dialog-actions,
+  .setup-actions,
+  .onboarding-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+}
+
 @media screen and (orientation: landscape) and (max-height: 520px) {
   body {
     padding-top: 82px;
