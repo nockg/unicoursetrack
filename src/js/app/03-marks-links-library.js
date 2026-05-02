@@ -934,18 +934,39 @@ function getEffectiveCourseworkMark(mi) {
 }
 
 function getModuleFinal(mi) {
-  const mod = MODULES[mi];
   const store = getStore();
+  const mod = MODULES[mi];
+
+  if (!mod) return null;
+
+  // Non-UK grading systems use a direct final grade field.
   if (getGradingSystem() !== "uk") {
-    if (!store.finalGrades) store.finalGrades = {};
-    return parseMark(store.finalGrades[mi]);
+    return parseGradeValue(store.finalGrades?.[mi]);
   }
-  const cw = getEffectiveCourseworkMark(mi);
-  const ex = parseMark(store.exams[mi]);
-  if (mod.cw === 0) return ex;
-  if (cw === null || ex === null) return null;
-  const final = (cw * mod.cw + ex * mod.exam) / 100;
-  return Math.max(0, Math.min(getGradeScaleConfig().max, final));
+
+  const cwWeight = Number(mod.cw) || 0;
+  const examWeight = Number(mod.exam) || 0;
+  const totalWeight = cwWeight + examWeight;
+
+  if (totalWeight <= 0) return null;
+
+  const coursework = parseMark(store.coursework?.[mi]);
+  const exam = parseMark(store.exams?.[mi]);
+
+  // Coursework-only module.
+  if (cwWeight > 0 && examWeight === 0) {
+    return coursework === null ? null : coursework;
+  }
+
+  // Exam-only module.
+  if (examWeight > 0 && cwWeight === 0) {
+    return exam === null ? null : exam;
+  }
+
+  // Mixed coursework + exam module.
+  if (coursework === null || exam === null) return null;
+
+  return ((coursework * cwWeight) + (exam * examWeight)) / totalWeight;
 }
 
 function classify(mark) {
