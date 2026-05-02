@@ -2907,10 +2907,13 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
   }
 
   #hero-title {
-    font-size: clamp(24px, 9vw, 38px) !important;
-    line-height: 1.02 !important;
-    max-width: 11ch !important;
+    font-size: clamp(20px, 7.2vw, 30px) !important;
+    line-height: 1.06 !important;
+    max-width: 12ch !important;
     text-wrap: balance !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
   }
 
   .hero-grid,
@@ -3081,7 +3084,9 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
   }
 
   #hero-title {
-    max-width: 10ch !important;
+    font-size: clamp(19px, 6.9vw, 27px) !important;
+    line-height: 1.08 !important;
+    max-width: 11ch !important;
   }
 
   .module-header {
