@@ -7,3 +7,4 @@ public/config.local.js
 .DS_Store
 *.log
 .vercel/
+.claude/

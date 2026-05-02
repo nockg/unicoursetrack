@@ -8,8 +8,10 @@
     "dev": "npm run sync && node scripts/dev-server.mjs",
     "build": "npm run check && npm run sync && node scripts/build-dist.mjs",
     "preview": "node scripts/dev-server.mjs",
-    "check": "node scripts/security-check.mjs",
-    "test:e2e": "playwright test"
+    "check": "npm run check:security && npm run check:xss",
+    "test:e2e": "playwright test",
+    "check:security": "node scripts/security-check.mjs",
+    "check:xss": "node scripts/xss-check.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1"
