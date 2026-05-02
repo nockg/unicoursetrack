@@ -173,16 +173,22 @@ body.theme-charcoal .auth-unitrack-logo-white {
   font-size: 20px;
   line-height: 1.4;
   color: #5a4d40;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-wrap: pretty;
 }
 .auth-gate-heading {
   color: var(--ink);
 }
 .auth-gate-panel {
+  min-width: 0;
   padding: 38px 34px;
   background: rgba(250,247,242,0.98);
 }
 .auth-gate-card {
   display: grid;
+  min-width: 0;
   gap: 16px;
 }
 .auth-gate-tabs {
@@ -224,6 +230,16 @@ body.theme-charcoal .auth-unitrack-logo-white {
 }
 .auth-email {
   font-size: 12px;
+  word-break: break-word;
+}
+
+.auth-gate-message code,
+.auth-switch-copy code,
+.auth-email code {
+  font-family: "DM Mono", monospace;
+  font-size: 0.88em;
+  white-space: normal;
+  overflow-wrap: anywhere;
   word-break: break-word;
 }
 body.theme-dark #auth-gate,
@@ -303,6 +319,33 @@ body.theme-charcoal .auth-error {
   .auth-gate-title { font-size: 38px; }
   .auth-gate-copy, .auth-gate-message { font-size: 17px; }
   .auth-gate-tab { flex: 1 1 auto; min-height: 38px; text-align: center; }
+}
+
+@media (max-width: 420px) {
+  #auth-gate { padding: 12px 10px; }
+  .auth-gate-aside,
+  .auth-gate-panel { padding: 18px 16px; }
+  .auth-gate-copy,
+  .auth-gate-message {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  #auth-gate .deadline-splash-title {
+    font-size: clamp(20px, 8vw, 31px);
+    line-height: 1.12;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+  .auth-gate-label {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+  }
+  .auth-error,
+  .auth-success {
+    font-size: 9px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
 }
 
 body.auth-required {

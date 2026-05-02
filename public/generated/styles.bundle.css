@@ -174,16 +174,22 @@ body.theme-charcoal .auth-unitrack-logo-white {
   font-size: 20px;
   line-height: 1.4;
   color: #5a4d40;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-wrap: pretty;
 }
 .auth-gate-heading {
   color: var(--ink);
 }
 .auth-gate-panel {
+  min-width: 0;
   padding: 38px 34px;
   background: rgba(250,247,242,0.98);
 }
 .auth-gate-card {
   display: grid;
+  min-width: 0;
   gap: 16px;
 }
 .auth-gate-tabs {
@@ -225,6 +231,16 @@ body.theme-charcoal .auth-unitrack-logo-white {
 }
 .auth-email {
   font-size: 12px;
+  word-break: break-word;
+}
+
+.auth-gate-message code,
+.auth-switch-copy code,
+.auth-email code {
+  font-family: "DM Mono", monospace;
+  font-size: 0.88em;
+  white-space: normal;
+  overflow-wrap: anywhere;
   word-break: break-word;
 }
 body.theme-dark #auth-gate,
@@ -304,6 +320,33 @@ body.theme-charcoal .auth-error {
   .auth-gate-title { font-size: 38px; }
   .auth-gate-copy, .auth-gate-message { font-size: 17px; }
   .auth-gate-tab { flex: 1 1 auto; min-height: 38px; text-align: center; }
+}
+
+@media (max-width: 420px) {
+  #auth-gate { padding: 12px 10px; }
+  .auth-gate-aside,
+  .auth-gate-panel { padding: 18px 16px; }
+  .auth-gate-copy,
+  .auth-gate-message {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  #auth-gate .deadline-splash-title {
+    font-size: clamp(20px, 8vw, 31px);
+    line-height: 1.12;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+  .auth-gate-label {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+  }
+  .auth-error,
+  .auth-success {
+    font-size: 9px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
 }
 
 body.auth-required {
@@ -9302,74 +9345,6 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
   .auth-gate-copy,
   .auth-gate-message {
     font-size: 15px;
-  }
-}
-
-/* Mobile landscape guard */
-@media screen and (orientation: landscape) and (max-height: 560px) and (max-width: 950px) {
-
-  html,
-  body {
-    width: 100vw !important;
-    height: 100vh !important;
-    min-width: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-    background: #f5f0e8 !important;
-    background-image: none !important;
-  }
-
-  body {
-    position: fixed !important;
-    inset: 0 !important;
-    padding-top: 0 !important;
-  }
-
-  body::before {
-    content: "V1.0.0  |  Rotate back to portrait to use UniTrack.";
-    position: fixed;
-    inset: 0;
-    z-index: 2147483647;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding-top: 76px;
-    box-sizing: border-box;
-
-    background-color: #f5f0e8;
-    background-image: url("/unitrack-logo-black.svg");
-    background-repeat: no-repeat;
-    background-position: center calc(50% - 26px);
-    background-size: min(240px, 42vw) auto;
-
-    color: #0e0c0a;
-    font-family: "DM Mono", Consolas, monospace;
-    font-size: clamp(9px, 1.55vw, 12px);
-    line-height: 1.35;
-    letter-spacing: 0.08em;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  body.theme-dark,
-  body.theme-charcoal {
-    background: #101113 !important;
-    background-image: none !important;
-  }
-
-  body.theme-dark::before,
-  body.theme-charcoal::before {
-    background-color: #101113;
-    background-image: url("/unitrack-logo-white.svg");
-    color: #f1ede4;
-  }
-
-  body>* {
-    visibility: hidden !important;
-    pointer-events: none !important;
   }
 }
 
