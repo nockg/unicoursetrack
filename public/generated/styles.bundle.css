@@ -10517,6 +10517,82 @@ body.theme-charcoal .account-clean-danger-toggle {
   color: #f08b80;
 }
 
+.account-clean-install {
+  background: var(--sumi);
+  border-color: var(--sumi);
+}
+
+.account-clean-install .account-clean-install-link {
+  background: transparent;
+  color: var(--paper3);
+  border: 0;
+}
+
+.account-clean-install .account-clean-kicker {
+  color: rgba(245, 240, 232, 0.62);
+}
+
+.account-clean-install .account-clean-install-link strong {
+  color: var(--paper3);
+}
+
+.account-clean-install .account-clean-install-link small {
+  color: rgba(245, 240, 232, 0.72);
+}
+
+.account-clean-install .account-clean-toggle-label {
+  color: var(--sumi);
+  background: var(--paper3);
+  border-color: var(--paper3);
+}
+
+.account-clean-install .account-clean-install-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+/* Dark themes: invert the install card the other way so it still stands out */
+body.theme-dark .account-clean-install,
+body.theme-charcoal .account-clean-install {
+  background: #f2ece0;
+  border-color: #f2ece0;
+}
+
+body.theme-dark .account-clean-install .account-clean-install-link,
+body.theme-charcoal .account-clean-install .account-clean-install-link {
+  background: transparent;
+  color: #161618;
+  border: 0;
+}
+
+body.theme-dark .account-clean-install .account-clean-kicker,
+body.theme-charcoal .account-clean-install .account-clean-kicker {
+  color: rgba(22, 22, 24, 0.58);
+}
+
+body.theme-dark .account-clean-install .account-clean-install-link strong,
+body.theme-charcoal .account-clean-install .account-clean-install-link strong {
+  color: #161618;
+}
+
+body.theme-dark .account-clean-install .account-clean-install-link small,
+body.theme-charcoal .account-clean-install .account-clean-install-link small {
+  color: rgba(22, 22, 24, 0.72);
+}
+
+body.theme-dark .account-clean-install .account-clean-toggle-label,
+body.theme-charcoal .account-clean-install .account-clean-toggle-label {
+  color: #f2ece0;
+  background: #161618;
+  border-color: #161618;
+}
+
+body.theme-dark .account-clean-install .account-clean-install-link:hover,
+body.theme-charcoal .account-clean-install .account-clean-install-link:hover {
+  background: rgba(22, 22, 24, 0.06);
+  box-shadow: none;
+}
+
 @media (max-width: 760px) {
   #auth-modal .deadline-splash-card.deadline-form-content {
     width: calc(100vw - 18px);
