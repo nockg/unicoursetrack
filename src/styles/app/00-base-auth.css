@@ -174,6 +174,9 @@ body.theme-charcoal .auth-unitrack-logo-white {
   line-height: 1.4;
   color: #5a4d40;
 }
+.auth-gate-heading {
+  color: var(--ink);
+}
 .auth-gate-panel {
   padding: 38px 34px;
   background: rgba(250,247,242,0.98);
@@ -259,11 +262,17 @@ body.theme-dark .auth-gate-copy,
 body.theme-dark .auth-gate-message,
 body.theme-dark .auth-switch-copy,
 body.theme-dark .auth-email,
+body.theme-dark .auth-gate-heading,
 body.theme-charcoal .auth-gate-copy,
 body.theme-charcoal .auth-gate-message,
 body.theme-charcoal .auth-switch-copy,
-body.theme-charcoal .auth-email {
+body.theme-charcoal .auth-email,
+body.theme-charcoal .auth-gate-heading {
   color: rgba(241,237,228,0.72);
+}
+body.theme-dark .auth-gate-heading,
+body.theme-charcoal .auth-gate-heading {
+  color: #f1ede4;
 }
 body.theme-dark .auth-gate-tab,
 body.theme-charcoal .auth-gate-tab {
@@ -339,6 +348,40 @@ body.auth-loading #auth-modal {
 }
 body.auth-loading #auth-gate {
   display: flex;
+}
+body.auth-loading .auth-gate-card {
+  min-height: 160px;
+  align-content: center;
+}
+body.theme-dark.auth-loading .auth-gate-shell,
+body.theme-charcoal.auth-loading .auth-gate-shell {
+  background: rgba(22,22,24,0.96);
+  border-color: rgba(255,255,255,0.10);
+  box-shadow: 0 22px 64px rgba(0,0,0,0.38);
+}
+body.theme-dark.auth-loading .auth-gate-aside,
+body.theme-charcoal.auth-loading .auth-gate-aside {
+  background: rgba(255,255,255,0.035);
+  border-right-color: rgba(255,255,255,0.08);
+}
+body.theme-dark.auth-loading .auth-gate-panel,
+body.theme-charcoal.auth-loading .auth-gate-panel {
+  background: rgba(18,18,20,0.98);
+  color: #f1ede4;
+}
+body:not(.theme-dark):not(.theme-charcoal).auth-loading .auth-gate-shell {
+  background: rgba(250,247,242,0.985);
+  border: 1px solid rgba(26,22,18,0.16);
+  box-shadow: 0 24px 60px rgba(14,12,10,0.12);
+}
+body:not(.theme-dark):not(.theme-charcoal).auth-loading .auth-gate-aside {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.7), rgba(237,232,220,0.86)),
+    var(--paper2);
+  border-right-color: rgba(26,22,18,0.12);
+}
+body:not(.theme-dark):not(.theme-charcoal).auth-loading .auth-gate-panel {
+  background: rgba(255,255,255,0.9);
 }
 body.setup-required {
   padding-top: 0;

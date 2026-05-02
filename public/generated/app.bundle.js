@@ -7473,7 +7473,7 @@ function renderAuthGate(mode = authViewMode) {
   if ((bootLocked || authScreenLoading) && !isRecovery) {
     host.innerHTML = `
     <div class="auth-gate-card">
-      <div class="deadline-splash-title" style="color: var(--ink);">${escapeHtml(authLoadingTitle || "Restoring your session...")}</div>
+      <div class="deadline-splash-title auth-gate-heading">${escapeHtml(authLoadingTitle || "Restoring your session...")}</div>
       <div class="auth-gate-message">${escapeHtml(authLoadingMessage || "Checking whether you are already signed in before showing anything.")}</div>
       <div id="auth-gate-feedback" class="auth-success"></div>
     </div>
@@ -7484,7 +7484,7 @@ function renderAuthGate(mode = authViewMode) {
   host.innerHTML = isRecovery ? `
     <div class="auth-gate-card">
       <div class="auth-gate-label">Password Recovery</div>
-      <div class="deadline-splash-title" style="color: var(--ink);">Set a new password</div>
+      <div class="deadline-splash-title auth-gate-heading">Set a new password</div>
       <div class="auth-gate-message">Finish the reset here before going back into the app.</div>
       <div class="deadline-form-grid">
         <div class="field">
@@ -7503,7 +7503,7 @@ function renderAuthGate(mode = authViewMode) {
         <button class="auth-gate-tab ${!isSignup ? "active" : ""}" type="button" onclick="setAuthScreen('login')">Sign In</button>
         <button class="auth-gate-tab ${isSignup ? "active" : ""}" type="button" onclick="setAuthScreen('signup')">Create Account</button>
       </div>
-      <div class="deadline-splash-title" style="color: var(--ink);">${isSignup ? "Create your account" : loginTitle}</div>
+      <div class="deadline-splash-title auth-gate-heading">${isSignup ? "Create your account" : loginTitle}</div>
       <div class="auth-gate-message">${isSignup ? "Create a new cloud account to keep your tracker, deadlines, and preferences synced." : "Sign in with your existing account to view your tracker."}</div>
       <div class="deadline-form-grid">
         <div class="field">
@@ -7542,7 +7542,7 @@ function renderAuthGate(mode = authViewMode) {
           <button class="auth-gate-tab" type="button" onclick="setAuthScreen('login')">Sign In</button>
           <button class="auth-gate-tab" type="button" onclick="setAuthScreen('signup')">Create Account</button>
         </div>
-        <div class="deadline-splash-title" style="color: var(--ink);">Reset your password</div>
+        <div class="deadline-splash-title auth-gate-heading">Reset your password</div>
         <div class="auth-gate-message">Enter the email tied to your account and I'll send you a reset link.</div>
         <div class="deadline-form-grid">
           <div class="field">
