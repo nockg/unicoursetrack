@@ -2766,11 +2766,27 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
   .nav-bar {
     padding-left: max(10px, env(safe-area-inset-left)) !important;
     padding-right: max(10px, env(safe-area-inset-right)) !important;
+    gap: 6px !important;
   }
 
   .year-controls {
-    min-width: 116px !important;
-    flex-basis: 116px !important;
+    position: relative;
+    z-index: 2;
+    min-width: 136px !important;
+    flex: 0 0 136px !important;
+  }
+
+  .year-controls .nav-select,
+  #year-select {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding-left: 10px !important;
+    padding-right: 28px !important;
+  }
+
+  .nav-bar > .nav-btn {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
   }
 
   .exam-ticker {
@@ -2798,8 +2814,8 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
 
 @media (max-width: 420px) {
   .year-controls {
-    min-width: 104px !important;
-    flex-basis: 104px !important;
+    min-width: 128px !important;
+    flex: 0 0 128px !important;
   }
 
   .nav-brand {

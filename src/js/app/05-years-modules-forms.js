@@ -256,6 +256,7 @@ function saveModuleForm() {
   }
   save();
   refreshActiveYear();
+  renderYearSelector();
   buildModules();
   updateGlobal();
   closeModuleForm();
