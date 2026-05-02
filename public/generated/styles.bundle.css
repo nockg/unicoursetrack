@@ -1282,40 +1282,59 @@ h1 {
   text-align: left;
 }
 
-.module-empty-copy-block {
+.module-add-card {
+  appearance: none;
   display: grid;
-  gap: 6px;
-  min-width: 0;
-}
-
-.module-empty-title {
-  font-family: "Shippori Mincho", serif;
-  font-size: 22px;
-  font-weight: 700;
+  place-items: center;
+  width: 100%;
+  min-height: 96px;
+  margin: 2px 0 0;
+  padding: 0;
+  border: 1px dashed var(--border2);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--paper2) 84%, white 16%);
   color: var(--ink);
-  line-height: 1.15;
+  cursor: pointer;
+  box-shadow: none;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
 }
 
-.module-empty-copy {
-  font-size: 16px;
-  line-height: 1.45;
-  color: var(--muted);
+.module-add-card::before {
+  display: none !important;
+  content: none !important;
 }
 
-.module-empty-action {
-  flex: 0 0 auto;
+.module-add-card:hover {
+  border-color: var(--gold2);
+  background: color-mix(in srgb, var(--paper2) 76%, white 24%);
+  transform: translateY(-1px);
+}
+
+.module-add-card:focus-visible {
+  outline: 2px solid var(--gold2);
+  outline-offset: 2px;
+}
+
+.module-add-card-plus {
+  font-family: "Shippori Mincho", serif;
+  font-size: 38px;
+  line-height: 1;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 @media (max-width: 700px) {
-  .module-empty-state {
-    align-items: stretch;
-    flex-direction: column;
+  .module-add-card {
+    width: calc(100vw - 36px);
+    min-height: 88px;
+    border-radius: 10px;
   }
 
-  .module-empty-action {
-    width: 100%;
+  .module-add-card-plus {
+    font-size: 34px;
   }
 }
+
 
 .module-header {
   display: grid;
@@ -9876,8 +9895,10 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
   width: min(860px, calc(100vw - 28px));
   max-width: 860px;
   max-height: 86vh;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: none;
+  box-sizing: border-box;
   background: color-mix(in srgb, var(--paper) 90%, white 10%);
   border-color: color-mix(in srgb, var(--border) 78%, var(--gold2) 22%);
   background-image: none !important;
@@ -9900,6 +9921,9 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
 .account-clean-panel {
   display: grid;
   gap: 14px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
   color: var(--sumi);
   background: transparent;
   font-family: inherit;
@@ -9938,8 +9962,13 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
 .account-clean-header h2,
 .account-clean-section h3 {
   margin: 0;
+  min-width: 0;
+  max-width: 100%;
   color: var(--sumi);
   font-family: inherit;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .account-clean-header h2 {
@@ -9958,10 +9987,15 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
 .account-clean-header p,
 .account-clean-section p {
   margin: 9px 0 0;
+  min-width: 0;
+  max-width: 100%;
   color: color-mix(in srgb, var(--sumi) 78%, var(--muted) 22%);
   font-family: inherit;
   font-size: 15px;
   line-height: 1.45;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .account-clean-header p {
@@ -9971,16 +10005,20 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
 
 .account-clean-header-copy {
   max-width: 640px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
-
 .account-clean-status {
   display: grid;
   align-content: start;
   gap: 8px;
+  min-width: 0;
+  max-width: 100%;
   padding: 8px 0 0;
   border: 0;
   background: transparent;
   border-radius: 0;
+  overflow-wrap: anywhere;
 }
 
 .account-clean-status-label {
@@ -10000,10 +10038,14 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
 }
 
 .account-clean-status small {
+  min-width: 0;
+  max-width: 100%;
   font-family: "DM Mono", Consolas, monospace;
   font-size: 11px;
   letter-spacing: 0.03em;
   color: var(--muted);
+  white-space: normal;
+  overflow-wrap: anywhere;
   word-break: break-word;
 }
 
@@ -10039,6 +10081,16 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
   cursor: pointer;
   font: inherit;
   border-radius: 2px;
+}
+
+.account-clean-row>span,
+.account-clean-privacy-link>span,
+.account-clean-session-copy,
+.account-clean-danger-body>div,
+.account-clean-section-head>div {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .account-clean-row:hover {
@@ -10295,8 +10347,17 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
 }
 
 /* Reduced motion utility */
-html.reduce-motion *,
+html.reduce-motion .account-clean-row,
+html.reduce-motion .account-clean-actions button,
+html.reduce-motion .account-clean-session button,
+html.reduce-motion .account-clean-danger-toggle,
+html.reduce-motion .account-clean-danger-body button,
+html.reduce-motion .account-clean-chevron {
+  transition: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
+
   .account-clean-row,
   .account-clean-actions button,
   .account-clean-session button,
@@ -10441,6 +10502,11 @@ body.theme-charcoal .account-clean-danger-toggle {
 @media (max-width: 760px) {
   #auth-modal .deadline-splash-card.deadline-form-content {
     width: calc(100vw - 18px);
+    max-width: calc(100vw - 18px);
+    max-height: 88vh;
+    padding-left: 18px;
+    padding-right: 18px;
+    overflow-x: hidden;
   }
 
   .account-clean-header,

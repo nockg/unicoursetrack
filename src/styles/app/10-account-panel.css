@@ -5,8 +5,10 @@
   width: min(860px, calc(100vw - 28px));
   max-width: 860px;
   max-height: 86vh;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: none;
+  box-sizing: border-box;
   background: color-mix(in srgb, var(--paper) 90%, white 10%);
   border-color: color-mix(in srgb, var(--border) 78%, var(--gold2) 22%);
   background-image: none !important;
@@ -29,6 +31,9 @@
 .account-clean-panel {
   display: grid;
   gap: 14px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
   color: var(--sumi);
   background: transparent;
   font-family: inherit;
@@ -67,8 +72,13 @@
 .account-clean-header h2,
 .account-clean-section h3 {
   margin: 0;
+  min-width: 0;
+  max-width: 100%;
   color: var(--sumi);
   font-family: inherit;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .account-clean-header h2 {
@@ -87,10 +97,15 @@
 .account-clean-header p,
 .account-clean-section p {
   margin: 9px 0 0;
+  min-width: 0;
+  max-width: 100%;
   color: color-mix(in srgb, var(--sumi) 78%, var(--muted) 22%);
   font-family: inherit;
   font-size: 15px;
   line-height: 1.45;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .account-clean-header p {
@@ -100,16 +115,20 @@
 
 .account-clean-header-copy {
   max-width: 640px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
-
 .account-clean-status {
   display: grid;
   align-content: start;
   gap: 8px;
+  min-width: 0;
+  max-width: 100%;
   padding: 8px 0 0;
   border: 0;
   background: transparent;
   border-radius: 0;
+  overflow-wrap: anywhere;
 }
 
 .account-clean-status-label {
@@ -129,10 +148,14 @@
 }
 
 .account-clean-status small {
+  min-width: 0;
+  max-width: 100%;
   font-family: "DM Mono", Consolas, monospace;
   font-size: 11px;
   letter-spacing: 0.03em;
   color: var(--muted);
+  white-space: normal;
+  overflow-wrap: anywhere;
   word-break: break-word;
 }
 
@@ -168,6 +191,16 @@
   cursor: pointer;
   font: inherit;
   border-radius: 2px;
+}
+
+.account-clean-row>span,
+.account-clean-privacy-link>span,
+.account-clean-session-copy,
+.account-clean-danger-body>div,
+.account-clean-section-head>div {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .account-clean-row:hover {
@@ -424,8 +457,17 @@
 }
 
 /* Reduced motion utility */
-html.reduce-motion *,
+html.reduce-motion .account-clean-row,
+html.reduce-motion .account-clean-actions button,
+html.reduce-motion .account-clean-session button,
+html.reduce-motion .account-clean-danger-toggle,
+html.reduce-motion .account-clean-danger-body button,
+html.reduce-motion .account-clean-chevron {
+  transition: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
+
   .account-clean-row,
   .account-clean-actions button,
   .account-clean-session button,
@@ -570,6 +612,11 @@ body.theme-charcoal .account-clean-danger-toggle {
 @media (max-width: 760px) {
   #auth-modal .deadline-splash-card.deadline-form-content {
     width: calc(100vw - 18px);
+    max-width: calc(100vw - 18px);
+    max-height: 88vh;
+    padding-left: 18px;
+    padding-right: 18px;
+    overflow-x: hidden;
   }
 
   .account-clean-header,

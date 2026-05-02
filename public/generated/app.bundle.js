@@ -7202,6 +7202,18 @@ function buildModules() {
       <button class="nav-btn calendar-btn module-empty-action" type="button" onclick="addModuleToCurrentYear()">Add Module</button>
     </div>
   `;
+  } else {
+  container.insertAdjacentHTML("beforeend", `
+      <button
+        type="button"
+        class="module-add-card"
+        onclick="addModuleToCurrentYear()"
+        aria-label="Add module"
+        title="Add module"
+      >
+        <span class="module-add-card-plus" aria-hidden="true">+</span>
+      </button>
+  `);
   }
 
   setupMobileModuleCarousel();
