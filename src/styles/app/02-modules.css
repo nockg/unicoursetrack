@@ -29,13 +29,52 @@
 .module-empty-state {
   border: 1px dashed var(--border2);
   border-radius: 8px;
-  padding: 24px;
+  padding: 22px 24px;
   color: var(--muted);
-  background: rgba(26,22,18,0.025);
+  background: rgba(26, 22, 18, 0.025);
   font-family: "Cormorant Garamond", serif;
-  font-size: 18px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  text-align: left;
 }
+
+.module-empty-copy-block {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.module-empty-title {
+  font-family: "Shippori Mincho", serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.15;
+}
+
+.module-empty-copy {
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.module-empty-action {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 700px) {
+  .module-empty-state {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .module-empty-action {
+    width: 100%;
+  }
+}
+
 .module-header {
   display: grid;
   grid-template-columns: 20px minmax(240px, 1.5fr) minmax(220px, 1fr) minmax(280px, 1fr) auto auto 20px;

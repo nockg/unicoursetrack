@@ -484,13 +484,40 @@ body.countdown-header-hidden .nav-bar {
 
 h1 {
   font-family: "Shippori Mincho", serif;
-  font-size: clamp(48px, 5vw, 56px);
+  font-size: clamp(38px, 5vw, 56px);
   font-weight: 800;
   color: #f5f0e8;
   line-height: 1.05;
   letter-spacing: 0;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
+
+  width: min(100%, 960px);
+  max-width: calc(100vw - 64px);
+  min-width: 0;
+
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
+
+#hero-title.hero-title-long {
+  font-size: clamp(32px, 4.2vw, 48px);
+  line-height: 1.06;
+  max-width: min(100%, 980px);
+}
+
+#hero-title.hero-title-very-long {
+  font-size: clamp(26px, 3.4vw, 38px);
+  line-height: 1.08;
+  max-width: min(100%, 1040px);
+}
+
+#hero-title.hero-title-extreme {
+  font-size: clamp(20px, 2.6vw, 30px);
+  line-height: 1.12;
+  max-width: min(100%, 1080px);
+}
+
 .h1-jp {
   font-family: "Noto Serif JP", serif;
   font-weight: 500;

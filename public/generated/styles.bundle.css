@@ -1025,13 +1025,40 @@ body.countdown-header-hidden .nav-bar {
 
 h1 {
   font-family: "Shippori Mincho", serif;
-  font-size: clamp(48px, 5vw, 56px);
+  font-size: clamp(38px, 5vw, 56px);
   font-weight: 800;
   color: #f5f0e8;
   line-height: 1.05;
   letter-spacing: 0;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
+
+  width: min(100%, 960px);
+  max-width: calc(100vw - 64px);
+  min-width: 0;
+
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
+
+#hero-title.hero-title-long {
+  font-size: clamp(32px, 4.2vw, 48px);
+  line-height: 1.06;
+  max-width: min(100%, 980px);
+}
+
+#hero-title.hero-title-very-long {
+  font-size: clamp(26px, 3.4vw, 38px);
+  line-height: 1.08;
+  max-width: min(100%, 1040px);
+}
+
+#hero-title.hero-title-extreme {
+  font-size: clamp(20px, 2.6vw, 30px);
+  line-height: 1.12;
+  max-width: min(100%, 1080px);
+}
+
 .h1-jp {
   font-family: "Noto Serif JP", serif;
   font-weight: 500;
@@ -1244,13 +1271,52 @@ h1 {
 .module-empty-state {
   border: 1px dashed var(--border2);
   border-radius: 8px;
-  padding: 24px;
+  padding: 22px 24px;
   color: var(--muted);
-  background: rgba(26,22,18,0.025);
+  background: rgba(26, 22, 18, 0.025);
   font-family: "Cormorant Garamond", serif;
-  font-size: 18px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  text-align: left;
 }
+
+.module-empty-copy-block {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.module-empty-title {
+  font-family: "Shippori Mincho", serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.15;
+}
+
+.module-empty-copy {
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.module-empty-action {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 700px) {
+  .module-empty-state {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .module-empty-action {
+    width: 100%;
+  }
+}
+
 .module-header {
   display: grid;
   grid-template-columns: 20px minmax(240px, 1.5fr) minmax(220px, 1fr) minmax(280px, 1fr) auto auto 20px;
@@ -8525,6 +8591,8 @@ body.theme-dark :focus-visible {
 
   .hero-inner {
     max-width: 100%;
+    min-width: 0;
+    overflow: visible;
   }
 
   .eyebrow {
@@ -8538,7 +8606,32 @@ body.theme-dark :focus-visible {
   }
 
   #hero-title {
-    display: none;
+    display: block;
+    width: 100%;
+    max-width: calc(100vw - 28px);
+    min-width: 0;
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    font-size: clamp(30px, 8.5vw, 40px);
+    line-height: 1.08;
+    margin-bottom: 18px;
+  }
+
+  #hero-title.hero-title-long {
+    font-size: clamp(25px, 6.8vw, 34px);
+    line-height: 1.08;
+  }
+
+  #hero-title.hero-title-very-long {
+    font-size: clamp(19px, 5.4vw, 27px);
+    line-height: 1.1;
+  }
+
+  #hero-title.hero-title-extreme {
+    font-size: clamp(13px, 3.7vw, 19px);
+    line-height: 1.14;
   }
 
   .hero-grid {
@@ -8550,6 +8643,7 @@ body.theme-dark :focus-visible {
       "progress progress";
     gap: 10px;
     margin-top: 8px;
+    clear: both;
   }
 
   .hero-grid>.washi-card:first-child {
@@ -8747,7 +8841,6 @@ body.theme-dark :focus-visible {
     grid-template-columns: 1fr;
   }
 }
-
 /* =========================================================
    Final mobile UX pass: nav cleanup, carousel spacing,
    module action buttons, scrollbar hiding, and app footer

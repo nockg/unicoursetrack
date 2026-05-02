@@ -2089,6 +2089,8 @@ body.theme-dark :focus-visible {
 
   .hero-inner {
     max-width: 100%;
+    min-width: 0;
+    overflow: visible;
   }
 
   .eyebrow {
@@ -2102,7 +2104,32 @@ body.theme-dark :focus-visible {
   }
 
   #hero-title {
-    display: none;
+    display: block;
+    width: 100%;
+    max-width: calc(100vw - 28px);
+    min-width: 0;
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    font-size: clamp(30px, 8.5vw, 40px);
+    line-height: 1.08;
+    margin-bottom: 18px;
+  }
+
+  #hero-title.hero-title-long {
+    font-size: clamp(25px, 6.8vw, 34px);
+    line-height: 1.08;
+  }
+
+  #hero-title.hero-title-very-long {
+    font-size: clamp(19px, 5.4vw, 27px);
+    line-height: 1.1;
+  }
+
+  #hero-title.hero-title-extreme {
+    font-size: clamp(13px, 3.7vw, 19px);
+    line-height: 1.14;
   }
 
   .hero-grid {
@@ -2114,6 +2141,7 @@ body.theme-dark :focus-visible {
       "progress progress";
     gap: 10px;
     margin-top: 8px;
+    clear: both;
   }
 
   .hero-grid>.washi-card:first-child {
@@ -2311,7 +2339,6 @@ body.theme-dark :focus-visible {
     grid-template-columns: 1fr;
   }
 }
-
 /* =========================================================
    Final mobile UX pass: nav cleanup, carousel spacing,
    module action buttons, scrollbar hiding, and app footer

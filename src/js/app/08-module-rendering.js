@@ -531,7 +531,22 @@ function buildModules() {
   });
   if (!renderedModules) {
     const term = getActiveTermFilter();
-    container.innerHTML = `<div class="module-empty-state">${term === "all" ? "No modules yet." : `No modules in ${escapeHtml(getTermLabel(term))} yet.`}</div>`;
+    const isAllTerms = term === "all";
+    const termLabel = escapeHtml(getTermLabel(term));
+
+    container.innerHTML = `
+    <div class="module-empty-state">
+      <div class="module-empty-copy-block">
+        <div class="module-empty-title">${isAllTerms ? "No modules yet." : `No modules in ${termLabel} yet.`}</div>
+        <div class="module-empty-copy">
+          ${isAllTerms
+        ? "Add your first module to start tracking marks, topics, deadlines, and materials."
+        : `Add a module to ${termLabel}, or switch back to Overall to view all modules.`}
+        </div>
+      </div>
+      <button class="nav-btn calendar-btn module-empty-action" type="button" onclick="addModuleToCurrentYear()">Add Module</button>
+    </div>
+  `;
   }
 
   setupMobileModuleCarousel();

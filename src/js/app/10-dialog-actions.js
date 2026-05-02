@@ -324,6 +324,16 @@ function renderYearSelector() {
     ? `${userName} - ${university} - ${currentYear.label}${termSuffix} - ${startYear}-${String(endYear).slice(2)}`
     : `${university} - ${currentYear.label}${termSuffix} - ${startYear}-${String(endYear).slice(2)}`;
   const title = document.getElementById("hero-title");
+  if (title) {
+    const titleText = activeTerm === "all" ? `Year ${yearNumber} ${course}` : `${getTermLabel(activeTerm)} ${course}`;
+    title.textContent = titleText;
+
+    title.classList.remove("hero-title-long", "hero-title-very-long", "hero-title-extreme");
+
+    if (titleText.length > 80) title.classList.add("hero-title-extreme");
+    else if (titleText.length > 55) title.classList.add("hero-title-very-long");
+    else if (titleText.length > 34) title.classList.add("hero-title-long");
+  }
   if (title) title.textContent = activeTerm === "all" ? `Year ${yearNumber} ${course}` : `${getTermLabel(activeTerm)} ${course}`;
 
   const footer = document.getElementById("footer-label");

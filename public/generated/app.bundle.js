@@ -387,9 +387,9 @@ function renderBackgroundPicker() {
     <div class="bg-thumb-wrap">
       <button 
         class="bg-thumb ${preferences.hero === key ? "active" : ""}"
-        style="background-image: url('${url}')"
+        style="background-image: url('${safeImageUrl(url)}')"
         onclick="setPreference('hero', '${key}'); renderBackgroundPicker();"
-        title="${key}">
+        title="${escapeHtml(key)}"
       </button>
 
       ${key.startsWith("custom_") ? `
@@ -480,6 +480,34 @@ function loadJson(key, fallback) {
   } catch (error) {
     return fallback;
   }
+}
+
+function safeUrl(value, options = {}) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+
+  try {
+    const url = new URL(raw, window.location.origin);
+    const allowedProtocols = options.allowMailto
+      ? ["https:", "http:", "mailto:"]
+      : ["https:", "http:"];
+
+    if (!allowedProtocols.includes(url.protocol)) return "";
+    return url.href;
+  } catch {
+    return "";
+  }
+}
+
+function safeImageUrl(value) {
+  const url = safeUrl(value);
+  if (!url) return "";
+  return url;
+}
+
+function setSafeHtml(element, html) {
+  if (!element) return;
+  element.innerHTML = html;
 }
 
 function firstExisting(keys, fallback) {
@@ -1323,10 +1351,13 @@ function toggleCountdownHeaderPreference() {
 }
 
 function addCustomBackground() {
-  const input = document.getElementById("custom-bg-url");
-  const url = safeUrl(input.value);
+  const rawUrl = document.getElementById("custom-bg-url").value.trim();
+  const url = safeImageUrl(rawUrl);
 
-  if (!url) return;
+  if (!url) {
+    showAppNotice?.("Invalid image URL", "Use a normal http or https image URL.");
+    return;
+  }
 
   if (!preferences.customBackgrounds) preferences.customBackgrounds = {};
 
@@ -1341,10 +1372,15 @@ function addCustomBackground() {
 }
 
 function setBodyBackground() {
-  const input = document.getElementById("body-bg-url");
-  if (!input) return;
-  const raw = input.value.trim();
-  preferences.bodyBackground = raw ? safeUrl(raw) : "";
+  const rawUrl = document.getElementById("body-bg-url").value.trim();
+  const url = rawUrl ? safeImageUrl(rawUrl) : "";
+
+  if (rawUrl && !url) {
+    showAppNotice?.("Invalid image URL", "Use a normal http or https image URL.");
+    return;
+  }
+
+  preferences.bodyBackground = url;
   savePreferences();
   applyPreferences();
 }
@@ -2470,18 +2506,39 @@ function getEffectiveCourseworkMark(mi) {
 }
 
 function getModuleFinal(mi) {
-  const mod = MODULES[mi];
   const store = getStore();
+  const mod = MODULES[mi];
+
+  if (!mod) return null;
+
+  // Non-UK grading systems use a direct final grade field.
   if (getGradingSystem() !== "uk") {
-    if (!store.finalGrades) store.finalGrades = {};
-    return parseMark(store.finalGrades[mi]);
+    return parseGradeValue(store.finalGrades?.[mi]);
   }
-  const cw = getEffectiveCourseworkMark(mi);
-  const ex = parseMark(store.exams[mi]);
-  if (mod.cw === 0) return ex;
-  if (cw === null || ex === null) return null;
-  const final = (cw * mod.cw + ex * mod.exam) / 100;
-  return Math.max(0, Math.min(getGradeScaleConfig().max, final));
+
+  const cwWeight = Number(mod.cw) || 0;
+  const examWeight = Number(mod.exam) || 0;
+  const totalWeight = cwWeight + examWeight;
+
+  if (totalWeight <= 0) return null;
+
+  const coursework = parseMark(store.coursework?.[mi]);
+  const exam = parseMark(store.exams?.[mi]);
+
+  // Coursework-only module.
+  if (cwWeight > 0 && examWeight === 0) {
+    return coursework === null ? null : coursework;
+  }
+
+  // Exam-only module.
+  if (examWeight > 0 && cwWeight === 0) {
+    return exam === null ? null : exam;
+  }
+
+  // Mixed coursework + exam module.
+  if (coursework === null || exam === null) return null;
+
+  return ((coursework * cwWeight) + (exam * examWeight)) / totalWeight;
 }
 
 function classify(mark) {
@@ -7129,7 +7186,22 @@ function buildModules() {
   });
   if (!renderedModules) {
     const term = getActiveTermFilter();
-    container.innerHTML = `<div class="module-empty-state">${term === "all" ? "No modules yet." : `No modules in ${escapeHtml(getTermLabel(term))} yet.`}</div>`;
+    const isAllTerms = term === "all";
+    const termLabel = escapeHtml(getTermLabel(term));
+
+    container.innerHTML = `
+    <div class="module-empty-state">
+      <div class="module-empty-copy-block">
+        <div class="module-empty-title">${isAllTerms ? "No modules yet." : `No modules in ${termLabel} yet.`}</div>
+        <div class="module-empty-copy">
+          ${isAllTerms
+        ? "Add your first module to start tracking marks, topics, deadlines, and materials."
+        : `Add a module to ${termLabel}, or switch back to Overall to view all modules.`}
+        </div>
+      </div>
+      <button class="nav-btn calendar-btn module-empty-action" type="button" onclick="addModuleToCurrentYear()">Add Module</button>
+    </div>
+  `;
   }
 
   setupMobileModuleCarousel();
@@ -8524,6 +8596,16 @@ function renderYearSelector() {
     ? `${userName} - ${university} - ${currentYear.label}${termSuffix} - ${startYear}-${String(endYear).slice(2)}`
     : `${university} - ${currentYear.label}${termSuffix} - ${startYear}-${String(endYear).slice(2)}`;
   const title = document.getElementById("hero-title");
+  if (title) {
+    const titleText = activeTerm === "all" ? `Year ${yearNumber} ${course}` : `${getTermLabel(activeTerm)} ${course}`;
+    title.textContent = titleText;
+
+    title.classList.remove("hero-title-long", "hero-title-very-long", "hero-title-extreme");
+
+    if (titleText.length > 80) title.classList.add("hero-title-extreme");
+    else if (titleText.length > 55) title.classList.add("hero-title-very-long");
+    else if (titleText.length > 34) title.classList.add("hero-title-long");
+  }
   if (title) title.textContent = activeTerm === "all" ? `Year ${yearNumber} ${course}` : `${getTermLabel(activeTerm)} ${course}`;
 
   const footer = document.getElementById("footer-label");
@@ -9671,7 +9753,7 @@ try {
           <button class="account-clean-privacy-link" type="button" onclick="openTrustedUrl('/privacy.html')">
             <span>
               <span class="account-clean-kicker">Privacy</span>
-              <strong>Privacy notice and data use</strong>
+              <strong>Privacy Notice and Data Use</strong>
             </span>
             <span class="account-clean-toggle-label">Open notice</span>
           </button>
@@ -9681,7 +9763,7 @@ try {
           <div class="account-clean-section-head">
             <div>
               <div class="account-clean-kicker">Backup Tools</div>
-              <h3>Export or restore a backup</h3>
+              <h3>Export or Restore a Backup</h3>
             </div>
           </div>
           <div class="account-clean-actions">
@@ -9694,7 +9776,7 @@ try {
         <section class="account-clean-section account-clean-session">
           <div class="account-clean-session-copy">
             <div class="account-clean-kicker">Session</div>
-            <h3>Sign out of this browser</h3>
+            <h3>Sign Out of This Browser</h3>
             <p>Logout from your UniTrack account.</p>
           </div>
           <button type="button" onclick="logoutCloud()">Logout</button>
