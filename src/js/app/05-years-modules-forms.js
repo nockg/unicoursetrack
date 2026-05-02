@@ -333,21 +333,29 @@ function shiftTopicsAfterModuleDelete(topics, deletedIndex) {
 
 function addCourseworkComponent(mi, event) {
   if (event) event.stopPropagation();
+
   courseworkFormModuleIndex = mi;
+
   const nameInput = document.getElementById("cw-component-name-input");
   const markInput = document.getElementById("cw-component-mark-input");
   const weightInput = document.getElementById("cw-component-weight-input");
-  const gradeScale = getGradeScaleConfig();
+  const componentScale = getComponentScaleConfig();
+
   if (nameInput) nameInput.value = "";
+
   if (markInput) {
     markInput.value = "";
-    markInput.max = String(gradeScale.max);
-    markInput.step = gradeScale.step;
-    markInput.placeholder = gradeScale.placeholder;
+    markInput.min = String(componentScale.min);
+    markInput.max = String(componentScale.max);
+    markInput.step = componentScale.step;
+    markInput.placeholder = componentScale.placeholder;
   }
+
   if (weightInput) weightInput.value = "";
+
   const markLabel = document.querySelector('label[for="cw-component-mark-input"]');
-  if (markLabel) markLabel.textContent = gradeScale.markLabel;
+  if (markLabel) markLabel.textContent = componentScale.label;
+
   document.getElementById("coursework-component-modal").classList.remove("hidden");
   setTimeout(() => nameInput && nameInput.focus(), 0);
 }
@@ -360,10 +368,12 @@ function closeCourseworkComponentForm() {
 function saveCourseworkComponentForm() {
   const mi = courseworkFormModuleIndex;
   if (mi === null || mi === undefined || !MODULES[mi]) return;
+
   const nameInput = document.getElementById("cw-component-name-input");
   const markInput = document.getElementById("cw-component-mark-input");
   const weightInput = document.getElementById("cw-component-weight-input");
   const input = (nameInput?.value || "").trim();
+
   if (!input) {
     alert("Please enter a coursework component name.");
     return;
@@ -382,9 +392,11 @@ function saveCourseworkComponentForm() {
     components.push({ name, mark, weight });
   });
 
-  const calculated = calculateCourseworkFromComponents(mi);
-  if (calculated.mark !== null) {
-    getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
+  if (shouldAssessmentRollUpToCoursework(mi)) {
+    const calculated = calculateCourseworkFromComponents(mi);
+    if (calculated.mark !== null) {
+      getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
+    }
   }
 
   save();
@@ -396,19 +408,24 @@ function saveCourseworkComponentForm() {
 function updateCourseworkComponent(mi, ci, field, value) {
   const components = getCourseworkComponents(mi);
   if (!components[ci]) return;
+
   components[ci][field] = value;
-  // For UK, component marks are rolled up into the CW field so getModuleFinal can use them.
-  // For non-UK, getModuleFinal reads components directly (DE) or they are informational (others).
-  if (getGradingSystem() === "uk") {
+
+  if (shouldAssessmentRollUpToCoursework(mi)) {
     const calculated = calculateCourseworkFromComponents(mi);
+
     if (calculated.mark !== null) {
-      getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
+      const calculatedValue = formatGradeInputValue(calculated.mark);
+      getStore().coursework[mi] = calculatedValue;
+
       const cwInput = document.getElementById(`cw-${mi}`);
       const compactCw = document.querySelector(`#topics-${mi} .compact-cw`);
-      if (cwInput) cwInput.value = formatGradeInputValue(calculated.mark);
-      if (compactCw) compactCw.value = formatGradeInputValue(calculated.mark);
+
+      if (cwInput) cwInput.value = calculatedValue;
+      if (compactCw) compactCw.value = calculatedValue;
     }
   }
+
   save();
   updateModule(mi);
   updateGlobal();
@@ -418,55 +435,76 @@ function updateCourseworkComponent(mi, ci, field, value) {
 function updateCourseworkSummary(mi) {
   const summary = document.getElementById(`cw-calc-summary-${mi}`);
   if (!summary) return;
+
   const system = getGradingSystem();
+  const predictionMode = isModulePredictionMode(MODULES[mi], system);
   const calculated = calculateCourseworkFromComponents(mi);
+  const manual = parseGradeValue(getStore().coursework[mi], getComponentMarkSystem(system));
 
-  if (system === "uk") {
-    const manual = parseMark(getStore().coursework[mi]);
+  if (system === "uk" || predictionMode) {
     if (calculated.mark !== null) {
-      summary.textContent = `Calculated coursework: ${formatSelectedGrade(calculated.mark).main} — components override manual coursework input`;
+      const main = system === "de5"
+        ? `${calculated.mark.toFixed(1)} grade`
+        : `${calculated.mark.toFixed(1)}%`;
+
+      summary.textContent = `Calculated coursework: ${main} — components override manual coursework input`;
       return;
     }
+
     if (manual !== null) {
-      summary.textContent = `Manual coursework override: ${formatSelectedGrade(manual).main}`;
+      const main = system === "de5"
+        ? `${manual.toFixed(1)} grade`
+        : `${manual.toFixed(1)}%`;
+
+      summary.textContent = `Manual coursework input: ${main}`;
       return;
     }
-    summary.textContent = `Enter an overall coursework mark above, or let this calculator build it from your assessments.`;
+
+    summary.textContent = "Enter an overall coursework mark above, or let this calculator build it from your assessments.";
     return;
   }
 
-  if (system === "de5") {
+  if (shouldAssessmentDriveModuleGrade(mi, system)) {
     if (calculated.mark !== null) {
-      summary.textContent = `Calculated grade: ${calculated.mark.toFixed(1)} — overrides the manual grade above`;
+      summary.textContent = `Calculated module grade: ${calculated.mark.toFixed(1)} — components override the manual module grade`;
       return;
     }
-    summary.textContent = `Add graded components above, or enter your module grade directly.`;
+
+    summary.textContent = "Add German component grades above, or enter your module grade directly.";
     return;
   }
 
-  // US / AU / MY / NZ / CN / custom: components are %, summary is informational only
   if (calculated.mark !== null) {
-    summary.textContent = `Calculated average: ${calculated.mark.toFixed(1)}% — enter your final course grade above from your transcript.`;
+    summary.textContent = `Calculated average: ${calculated.mark.toFixed(1)}% — reference only. Enable mark prediction in Module Options to use this as coursework.`;
     return;
   }
-  summary.textContent = `Track individual assessment marks here. Your final course grade above is still required for GPA calculation.`;
+
+  summary.textContent = "Track individual assessment marks here. Enable mark prediction in Module Options to use them as coursework.";
 }
 
 function commitCourseworkPlaceholder(mi, event) {
   if (event) event.stopPropagation();
+
   const host = document.getElementById(`cw-components-${mi}`);
   if (!host) return;
+
   const name = host.querySelector(".cw-placeholder-name")?.value || "";
   const mark = host.querySelector(".cw-placeholder-mark")?.value || "";
   const weight = host.querySelector(".cw-placeholder-weight")?.value || "";
+
   if (!name.trim() && !mark && !weight) return;
+
   const items = getCourseworkComponents(mi);
   items.push({ name, mark, weight });
   getStore().courseworkComponents[mi] = items;
-  if (getGradingSystem() === "uk") {
+
+  if (shouldAssessmentRollUpToCoursework(mi)) {
     const calculated = calculateCourseworkFromComponents(mi);
-    if (calculated.mark !== null) getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
+    if (calculated.mark !== null) {
+      getStore().coursework[mi] = formatGradeInputValue(calculated.mark);
+    }
   }
+
   save();
   buildModules();
   updateGlobal();

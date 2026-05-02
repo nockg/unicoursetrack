@@ -1338,7 +1338,7 @@ h1 {
 
 .module-header {
   display: grid;
-  grid-template-columns: 20px minmax(240px, 1.5fr) minmax(220px, 1fr) minmax(280px, 1fr) auto auto 20px;
+  grid-template-columns: 20px minmax(220px, 1.35fr) minmax(190px, 0.8fr) minmax(230px, 0.9fr) minmax(230px, 0.95fr) auto 20px;
   gap: 18px;
   align-items: center;
   padding: 18px 20px;
@@ -1538,28 +1538,48 @@ body.theme-dark .weight-edit-btn:hover{
 }
 .input:focus { border-color: var(--vermillion); }
 .input:disabled { opacity: 0.45; cursor: not-allowed; }
-.final-col { text-align: right; }
+.final-col {
+  text-align: right;
+  min-width: 170px;
+  justify-self: end;
+}
+
 .final-mark {
   font-family: "Shippori Mincho", serif;
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 700;
   color: var(--ink);
   line-height: 1;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  white-space: nowrap;
 }
+
 .final-cls {
   font-family: "DM Mono", monospace;
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  padding: 3px 7px;
-  border-radius: 1px;
+  font-size: 10.5px;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  padding: 5px 7px;
+  border-radius: 2px;
   display: inline-block;
+  max-width: 190px;
+  white-space: normal;
+  text-align: right;
 }
 .cls-s-first { background: rgba(192,57,43,0.1); color: var(--vermillion); border: 1px solid rgba(192,57,43,0.3); }
 .cls-s-21 { background: rgba(184,134,11,0.1); color: var(--gold); border: 1px solid rgba(184,134,11,0.3); }
 .cls-s-22 { background: rgba(26,44,74,0.1); color: var(--indigo); border: 1px solid rgba(26,44,74,0.25); }
 .cls-s-third { background: rgba(74,85,104,0.1); color: var(--slate); border: 1px solid var(--border2); }
-.predicted-label { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 0.08em; color: var(--slate); opacity: 0.7; margin-top: 3px; text-transform: uppercase; }
+.predicted-label {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  color: var(--slate);
+  opacity: 0.72;
+  margin-top: 5px;
+  text-transform: uppercase;
+}
 .chevron {
   color: var(--faint);
   transition: transform 0.25s ease;
@@ -9948,6 +9968,82 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
   body > * {
     visibility: hidden !important;
     pointer-events: none !important;
+  }
+}
+
+/* hero-year-prediction-overflow-fix */
+.hero-grid .washi-card:has(.predictor-hero-number) {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.hero-grid .washi-card:has(.predictor-hero-number) .predictor-hero-number {
+  font-size: clamp(46px, 6.2vw, 72px);
+  line-height: 0.92;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  letter-spacing: -0.03em;
+}
+
+.hero-grid .washi-card:has(.predictor-hero-number) .hero-summary {
+  font-size: 16px;
+  line-height: 1.38;
+  max-width: 100%;
+}
+
+/* The hero already has the readable Classification line, so hide the duplicate tiny badge */
+.hero-grid .washi-card:has(.predictor-hero-number) .final-cls {
+  display: none !important;
+}
+
+@media (max-width: 980px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-grid .washi-card:has(.predictor-hero-number) .predictor-hero-number {
+    font-size: clamp(44px, 12vw, 68px);
+  }
+}
+
+/* germany-hero-prediction-fit-fix */
+.hero-grid .washi-card:has(.predictor-hero-number) {
+  overflow: hidden;
+}
+
+.hero-grid .washi-card:has(.predictor-hero-number) .predictor-hero-number {
+  font-size: clamp(40px, 5.4vw, 62px) !important;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+  overflow: visible;
+  max-width: 100%;
+}
+
+.hero-grid .washi-card:has(.predictor-hero-number) .hero-summary {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+/* Hide duplicate hero badge; the Classification line is enough */
+.hero-grid .washi-card:has(.predictor-hero-number) .final-cls {
+  display: none !important;
+}
+
+@media (min-width: 980px) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.1fr) minmax(180px, 0.5fr) minmax(360px, 1fr);
+  }
+}
+
+@media (max-width: 980px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-grid .washi-card:has(.predictor-hero-number) .predictor-hero-number {
+    font-size: clamp(38px, 11vw, 58px) !important;
   }
 }
 

@@ -1,6 +1,7 @@
 function updateModule(mi) {
   const done = getModuleDone(mi);
   const pct = getModulePct(mi);
+
   document.getElementById(`mdone-${mi}`).textContent = done;
   document.getElementById(`mpct-${mi}`).textContent = pct.toFixed(1) + "% complete";
   document.getElementById(`mfill-${mi}`).style.width = pct.toFixed(1) + "%";
@@ -9,7 +10,9 @@ function updateModule(mi) {
   const finalEl = document.getElementById(`mfinal-${mi}`);
   const clsEl = document.getElementById(`mcls-${mi}`);
   const displayGrade = formatModuleGradeDisplay(mi);
+
   finalEl.textContent = displayGrade.main;
+
   if (final !== null) {
     const cls = classify(final);
     clsEl.className = "final-cls " + (cls.cls || "");
@@ -24,42 +27,51 @@ function updateModule(mi) {
   const compactCw = document.querySelector(`#topics-${mi} .compact-cw`);
   const compactEx = document.querySelector(`#topics-${mi} .compact-ex`);
   const mod = MODULES[mi];
-  const isPredictionMode = getGradingSystem() !== "uk" && mod?.usesCwExamPrediction === true;
-  if (getGradingSystem() === "uk" && cwInput) {
+  const system = getGradingSystem();
+  const isPredictionMode = isModulePredictionMode(mod, system);
+  const componentScale = getComponentScaleConfig(system);
+
+  if ((system === "uk" || isPredictionMode) && cwInput) {
+    const cwDisabled = (Number(mod.cw) || 0) === 0;
     const calculated = calculateCourseworkFromComponents(mi);
-    cwInput.disabled = mod.cw === 0;
-    if (compactCw) compactCw.disabled = mod.cw === 0;
-    if (mod.cw === 0) cwInput.placeholder = "N/A";
-    else {
-      if (calculated.mark !== null) {
-        const calculatedValue = formatGradeInputValue(calculated.mark);
-        getStore().coursework[mi] = calculatedValue;
-        cwInput.value = calculatedValue;
-        if (compactCw) compactCw.value = calculatedValue;
-        cwInput.placeholder = `Calc ${formatSelectedGrade(calculated.mark).main}`;
-      } else {
-        cwInput.placeholder = getGradeScaleConfig().placeholder;
-      }
+
+    cwInput.disabled = cwDisabled;
+    if (compactCw) compactCw.disabled = cwDisabled;
+
+    if (cwDisabled) {
+      cwInput.placeholder = "N/A";
+      cwInput.value = "";
+      if (compactCw) compactCw.value = "";
+    } else if (shouldAssessmentRollUpToCoursework(mi, system) && calculated.mark !== null) {
+      const calculatedValue = formatGradeInputValue(calculated.mark);
+      getStore().coursework[mi] = calculatedValue;
+      cwInput.value = calculatedValue;
+      if (compactCw) compactCw.value = calculatedValue;
+
+      cwInput.placeholder = system === "de5"
+        ? `Calc ${calculated.mark.toFixed(1)} grade`
+        : `Calc ${calculated.mark.toFixed(1)}%`;
+    } else {
+      cwInput.placeholder = componentScale.placeholder || "-";
     }
   }
-  if (isPredictionMode && cwInput) {
-    cwInput.disabled = (mod.cw ?? 0) === 0;
-    if (compactCw) compactCw.disabled = (mod.cw ?? 0) === 0;
-    if ((mod.cw ?? 0) === 0) { cwInput.placeholder = "N/A"; cwInput.value = ""; }
+
+  if ((system === "uk" || isPredictionMode) && exInput) {
+    const examDisabled = (Number(mod.exam) || 0) === 0;
+
+    exInput.disabled = examDisabled;
+    if (compactEx) compactEx.disabled = examDisabled;
+
+    if (examDisabled) {
+      exInput.placeholder = "N/A";
+      exInput.value = "";
+      if (compactEx) compactEx.value = "";
+    } else {
+      exInput.placeholder = componentScale.placeholder || "-";
+    }
   }
-  if (getGradingSystem() === "uk" && exInput) {
-    exInput.disabled = mod.exam === 0;
-    if (compactEx) compactEx.disabled = mod.exam === 0;
-    exInput.placeholder = mod.exam === 0 ? "N/A" : "-";
-    if (mod.exam === 0) exInput.value = "";
-  }
-  if (isPredictionMode && exInput) {
-    exInput.disabled = (mod.exam ?? 0) === 0;
-    if (compactEx) compactEx.disabled = (mod.exam ?? 0) === 0;
-    if ((mod.exam ?? 0) === 0) { exInput.placeholder = "N/A"; exInput.value = ""; }
-  }
-  if (getGradingSystem() === "uk") updateCourseworkSummary(mi);
-  if (isPredictionMode) updateCourseworkSummary(mi);
+
+  updateCourseworkSummary(mi);
 }
 
 function updateGlobal() {

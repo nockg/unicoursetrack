@@ -103,7 +103,6 @@ const GRADE_POINT_OPTIONS = {
   au7: AU_GRADE_OPTIONS,
   us4: US_GRADE_OPTIONS,
   my4: MY_GRADE_OPTIONS,
-  cn4: CN_GRADE_OPTIONS,
   nz9: NZ_GRADE_OPTIONS,
   de5: DE_GRADE_OPTIONS
 };
@@ -180,14 +179,15 @@ function getGradeScaleConfig(system = getGradingSystem()) {
   if (system === "cn4") {
     return {
       min: 0,
-      max: 4,
-      step: "0.01",
-      suffix: "GPA",
-      finalLabel: "Course Grade / GPA",
-      markLabel: "Grade / GPA",
-      placeholder: "A-F or 0.00-4.00",
-      allowNumericGradeInput: true,
-      freeformGradeInput: true
+      max: 100,
+      step: "0.1",
+      suffix: "/100",
+      finalLabel: "Final Score",
+      courseworkLabel: "Coursework %",
+      examLabel: "Exam %",
+      markLabel: "Score",
+      placeholder: "0–100",
+      allowNumericGradeInput: true
     };
   }
   if (system === "au7") {
@@ -253,6 +253,27 @@ function getComponentScaleConfig(system = getGradingSystem()) {
 
 // Converts a raw weighted percentage (0–100) to the native grade-point value for non-UK systems.
 // Thresholds reflect the most common institutional standards; students should confirm with their own scale.
+
+function isModulePredictionMode(mod, system = getGradingSystem()) {
+  return system !== "uk" && mod?.usesCwExamPrediction === true;
+}
+
+function shouldAssessmentRollUpToCoursework(mi, system = getGradingSystem()) {
+  const mod = MODULES[mi];
+
+  // UK coursework calculator always builds Coursework.
+  // Non-UK prediction mode uses assessment rows to build Coursework before combining with Exam.
+  return system === "uk" || isModulePredictionMode(mod, system);
+}
+
+function shouldAssessmentDriveModuleGrade(mi, system = getGradingSystem()) {
+  const mod = MODULES[mi];
+
+  // Germany uses native 1.0–5.0 component grades.
+  // When prediction is OFF, those components directly form the module grade.
+  return system === "de5" && !isModulePredictionMode(mod, system);
+}
+
 function percentToNativeGrade(pct, system) {
   if (system === "us4" || system === "us43") {
     if (pct >= 93) return 4.0;   // A
@@ -308,11 +329,7 @@ function percentToNativeGrade(pct, system) {
     return 0;                    // Fail
   }
   if (system === "cn4") {
-    if (pct >= 90) return 4.0;   // A
-    if (pct >= 75) return 3.0;   // B
-    if (pct >= 65) return 2.0;   // C
-    if (pct >= 60) return 1.0;   // D
-    return 0;                    // F
+    return pct; // Mainland China: keep the weighted 0–100 score as the primary result.
   }
   return pct;
 }
@@ -364,6 +381,25 @@ function classifyNzGpa(mark) {
   return { label: "Fail", badge: "Fail", cls: "", heroCls: "" };
 }
 
+function chinaScoreToApproxGpa(score) {
+  // Mainland China GPA conversion is institution-specific.
+  // This is a generic side estimate only. Chinese universities use institution-specific GPA conversion rules.
+  // 85–100 = 4.0; 60–84 = 1.5–3.9, +0.1 per point; below 60 = 0.
+  if (score >= 85) return 4.0;
+  if (score >= 60) return Math.min(3.9, 1.5 + ((Math.floor(score) - 60) * 0.1));
+  return 0;
+}
+
+function classifyChinaScore(mark) {
+  const gpa = chinaScoreToApproxGpa(mark);
+
+  if (mark >= 90) return { label: `Excellent / 优秀 · GPA est. ${gpa.toFixed(2)}`, badge: "Excellent", cls: "cls-s-first", heroCls: "cls-first" };
+  if (mark >= 80) return { label: `Good / 良好 · GPA est. ${gpa.toFixed(2)}`, badge: "Good", cls: "cls-s-21", heroCls: "cls-21" };
+  if (mark >= 70) return { label: `Average / 中等 · GPA est. ${gpa.toFixed(2)}`, badge: "Average", cls: "cls-s-22", heroCls: "cls-22" };
+  if (mark >= 60) return { label: `Pass / 及格 · GPA est. ${gpa.toFixed(2)}`, badge: "Pass", cls: "cls-s-third", heroCls: "cls-third" };
+  return { label: "Fail / 不及格 · GPA est. 0.00", badge: "Fail", cls: "", heroCls: "" };
+}
+
 function classifyGermanGrade(mark) {
   if (mark <= 1.4) return { label: "Very Good", badge: "Very Good", cls: "cls-s-first", heroCls: "cls-first" };
   if (mark <= 2.4) return { label: "Good", badge: "Good", cls: "cls-s-21", heroCls: "cls-21" };
@@ -404,12 +440,12 @@ function formatSelectedGrade(mark, options = {}) {
     };
   }
   if (system === "cn4") {
-    const exact = options.courseDisplay ? getGradeOption(system, options.rawValue) : null;
-    const grade = exact || classifyFourPointGpa(mark);
+    const grade = classifyChinaScore(mark);
+
     return {
-      main: options.courseDisplay && exact ? exact.label : `${mark.toFixed(2)} GPA`,
-      label: options.courseDisplay ? `${mark.toFixed(2)} grade points` : grade.label,
-      secondary: ""
+      main: `${mark.toFixed(1)}/100`,
+      label: grade.label,
+      secondary: "varies by uni"
     };
   }
   if (system === "au7") {
@@ -1009,10 +1045,14 @@ function calculateCourseworkFromComponents(mi) {
   };
 }
 
-function getEffectiveCourseworkMark(mi) {
+function getEffectiveCourseworkMark(mi, system = getGradingSystem()) {
   const calculated = calculateCourseworkFromComponents(mi);
-  if (calculated.mark !== null) return calculated.mark;
-  return parseMark(getStore().coursework[mi]);
+
+  if (shouldAssessmentRollUpToCoursework(mi, system) && calculated.mark !== null) {
+    return calculated.mark;
+  }
+
+  return parseGradeValue(getStore().coursework?.[mi], getComponentMarkSystem(system));
 }
 
 function getModuleFinal(mi) {
@@ -1021,83 +1061,62 @@ function getModuleFinal(mi) {
 
   if (!mod) return null;
 
-  // Non-UK grading systems.
-  if (getGradingSystem() !== "uk") {
-    const system = getGradingSystem();
-
-    // Prediction mode: user has set CW/Exam weights and enters marks as percentages (or 1–5 for DE).
-    if (mod.usesCwExamPrediction) {
-      const cwWeight = Number(mod.cw) || 0;
-      const examWeight = Number(mod.exam) || 0;
-      const totalWeight = cwWeight + examWeight;
-      if (totalWeight > 0) {
-        const isDeScale = system === "de5";
-        const cwMark = isDeScale
-          ? parseGradeValue(store.coursework?.[mi], "de5")
-          : parseMark(store.coursework?.[mi], getComponentMarkSystem());
-        const examMark = isDeScale
-          ? parseGradeValue(store.exams?.[mi], "de5")
-          : parseMark(store.exams?.[mi], getComponentMarkSystem());
-        if (cwWeight > 0 && examWeight === 0) {
-          if (cwMark === null) return null;
-          return isDeScale ? cwMark : percentToNativeGrade(cwMark, system);
-        }
-        if (examWeight > 0 && cwWeight === 0) {
-          if (examMark === null) return null;
-          return isDeScale ? examMark : percentToNativeGrade(examMark, system);
-        }
-        if (cwMark === null || examMark === null) return null;
-        const weighted = (cwMark * cwWeight + examMark * examWeight) / totalWeight;
-        return isDeScale ? weighted : percentToNativeGrade(weighted, system);
-      }
-    }
-
-    // DE assessment breakdown: individual component grades drive the module grade.
-    if (system === "de5") {
-      const calculated = calculateCourseworkFromComponents(mi);
-      if (calculated.mark !== null) return calculated.mark;
-    }
-
-    // Transcript mode: student enters the final grade directly from their transcript.
-    return parseGradeValue(store.finalGrades?.[mi]);
-  }
-
+  const system = getGradingSystem();
   const cwWeight = Number(mod.cw) || 0;
   const examWeight = Number(mod.exam) || 0;
   const totalWeight = cwWeight + examWeight;
 
+  if (system !== "uk") {
+    if (!isModulePredictionMode(mod, system)) {
+      if (system === "de5") {
+        const calculated = calculateCourseworkFromComponents(mi);
+        if (calculated.mark !== null) return calculated.mark;
+      }
+
+      return parseGradeValue(store.finalGrades?.[mi], system);
+    }
+
+    if (totalWeight <= 0) return parseGradeValue(store.finalGrades?.[mi], system);
+
+    const coursework = getEffectiveCourseworkMark(mi, system);
+    const exam = parseGradeValue(store.exams?.[mi], getComponentMarkSystem(system));
+
+    if (cwWeight > 0 && coursework === null) return null;
+    if (examWeight > 0 && exam === null) return null;
+
+    const weighted =
+      ((cwWeight > 0 ? coursework * cwWeight : 0) +
+       (examWeight > 0 ? exam * examWeight : 0)) / totalWeight;
+
+    return system === "de5" ? weighted : percentToNativeGrade(weighted, system);
+  }
+
   if (totalWeight <= 0) return null;
 
-  const coursework = parseMark(store.coursework?.[mi], getComponentMarkSystem());
-  const exam = parseMark(store.exams?.[mi], getComponentMarkSystem());
+  const coursework = getEffectiveCourseworkMark(mi, "uk");
+  const exam = parseMark(store.exams?.[mi], "uk");
 
-  // Coursework-only module.
-  if (cwWeight > 0 && examWeight === 0) {
-    return coursework === null ? null : coursework;
-  }
-
-  // Exam-only module.
-  if (examWeight > 0 && cwWeight === 0) {
-    return exam === null ? null : exam;
-  }
-
-  // Mixed coursework + exam module.
+  if (cwWeight > 0 && examWeight === 0) return coursework;
+  if (examWeight > 0 && cwWeight === 0) return exam;
   if (coursework === null || exam === null) return null;
 
-  return ((coursework * cwWeight) + (exam * examWeight)) / totalWeight;
+  return (coursework * cwWeight + exam * examWeight) / totalWeight;
 }
 
 function classify(mark) {
-  if (mark === null) return null;
   const system = getGradingSystem();
-  if (system === "us4" || system === "my4" || system === "cn4") return classifyFourPointGpa(mark);
-  if (system === "au7") return classifyAuGpa(mark);
-  if (system === "nz9") return classifyNzGpa(mark);
+
   if (system === "de5") return classifyGermanGrade(mark);
-  if (mark >= 70) return { label: "1st", badge: "1st Class", cls: "cls-s-first", heroCls: "cls-first" };
-  if (mark >= 60) return { label: "2:1", badge: "2:1", cls: "cls-s-21", heroCls: "cls-21" };
-  if (mark >= 50) return { label: "2:2", badge: "2:2", cls: "cls-s-22", heroCls: "cls-22" };
-  if (mark >= 40) return { label: "3rd", badge: "3rd", cls: "cls-s-third", heroCls: "cls-third" };
+  if (system === "cn4") return classifyChinaScore(mark);
+  if (system === "au7") return classifyAuGpa(mark);
+  if (system === "au4") return typeof classifyAu4Gpa === "function" ? classifyAu4Gpa(mark) : classifyFourPointGpa(mark);
+  if (system === "nz9") return classifyNzGpa(mark);
+  if (["us4", "us43", "my4"].includes(system)) return classifyFourPointGpa(mark);
+
+  if (mark >= 70) return { label: "First", badge: "First", cls: "cls-s-first", heroCls: "cls-first" };
+  if (mark >= 60) return { label: "2:1", badge: "Upper Second", cls: "cls-s-21", heroCls: "cls-21" };
+  if (mark >= 50) return { label: "2:2", badge: "Lower Second", cls: "cls-s-22", heroCls: "cls-22" };
+  if (mark >= 40) return { label: "Third", badge: "Third", cls: "cls-s-third", heroCls: "cls-third" };
   return { label: "Fail", badge: "Fail", cls: "", heroCls: "" };
 }
 

@@ -11,7 +11,7 @@ function buildModules() {
     const gradingSystem = getGradingSystem();
     const gradeOptions = getGradeOptions(gradingSystem);
     const compScale = getComponentScaleConfig(gradingSystem);
-    const isPredictionMode = gradingSystem !== "uk" && mod.usesCwExamPrediction === true;
+    const isPredictionMode = isModulePredictionMode(mod, gradingSystem);
     const usesFinalGradeOnly = gradingSystem !== "uk" && !isPredictionMode;
     const usesUsGrades = ["us4", "us43"].includes(gradingSystem);
     const termLabel = getTermLabel(getModuleTerm(mi));
@@ -136,17 +136,17 @@ function buildModules() {
     list.appendChild(moduleEditTools);
 
     // UK: only show when the module has a coursework component. Non-UK: always show.
-    const showAssessmentSection = gradingSystem === "uk" ? mod.cw > 0 : true;
+    const showAssessmentSection = gradingSystem === "uk" ? (Number(mod.cw) || 0) > 0 : gradingSystem === "de5" || isPredictionMode;
     if (showAssessmentSection) {
       const sectionTitle = gradingSystem === "uk" ? "Assessments"
         : gradingSystem === "de5" ? "Grade Components"
-        : "Assessment Breakdown";
+        : isPredictionMode ? "Coursework Breakdown" : "Assessment Breakdown";
       const courseworkSection = createModuleSection(mi, "coursework", sectionTitle, "");
       const courseworkWrap = courseworkSection.body;
       const components = getCourseworkComponents(mi);
       const innerTitle = gradingSystem === "uk" ? "Assessment Breakdown"
         : gradingSystem === "de5" ? "Grade Components"
-        : "Assessment Breakdown (Optional)";
+        : isPredictionMode ? "Coursework Breakdown" : "Assessment Breakdown (Reference)";
       courseworkWrap.innerHTML = `
         <div class="coursework-calc-wrap">
           <div class="coursework-calc-head">
@@ -163,7 +163,9 @@ function buildModules() {
           ? "Add each assessment below, or type your overall coursework mark in the main coursework box above."
           : gradingSystem === "de5"
             ? "Add each graded component (written exam, term paper, oral exam, etc.). The weighted average becomes your module grade, overriding the manual grade above."
-            : "Optional: add individual assessment marks in %. Your final course grade above (from your transcript) is still used for GPA calculation.";
+            : isPredictionMode
+              ? "Add assessment marks in %. These calculate your Coursework %, then combine with your predicted Exam %."
+              : "Optional: add individual assessment marks in %. This is reference only until you enable mark prediction in Module Options.";
         componentsHost.innerHTML = `<div class="coursework-empty">${escapeHtml(emptyText)}</div>`;
       } else {
         components.forEach((component, ci) => {

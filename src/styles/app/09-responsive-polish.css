@@ -3383,3 +3383,79 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
     pointer-events: none !important;
   }
 }
+
+/* hero-year-prediction-overflow-fix */
+.hero-grid .washi-card:has(.predictor-hero-number) {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.hero-grid .washi-card:has(.predictor-hero-number) .predictor-hero-number {
+  font-size: clamp(46px, 6.2vw, 72px);
+  line-height: 0.92;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  letter-spacing: -0.03em;
+}
+
+.hero-grid .washi-card:has(.predictor-hero-number) .hero-summary {
+  font-size: 16px;
+  line-height: 1.38;
+  max-width: 100%;
+}
+
+/* The hero already has the readable Classification line, so hide the duplicate tiny badge */
+.hero-grid .washi-card:has(.predictor-hero-number) .final-cls {
+  display: none !important;
+}
+
+@media (max-width: 980px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-grid .washi-card:has(.predictor-hero-number) .predictor-hero-number {
+    font-size: clamp(44px, 12vw, 68px);
+  }
+}
+
+/* germany-hero-prediction-fit-fix */
+.hero-grid .washi-card:has(.predictor-hero-number) {
+  overflow: hidden;
+}
+
+.hero-grid .washi-card:has(.predictor-hero-number) .predictor-hero-number {
+  font-size: clamp(40px, 5.4vw, 62px) !important;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+  overflow: visible;
+  max-width: 100%;
+}
+
+.hero-grid .washi-card:has(.predictor-hero-number) .hero-summary {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+/* Hide duplicate hero badge; the Classification line is enough */
+.hero-grid .washi-card:has(.predictor-hero-number) .final-cls {
+  display: none !important;
+}
+
+@media (min-width: 980px) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.1fr) minmax(180px, 0.5fr) minmax(360px, 1fr);
+  }
+}
+
+@media (max-width: 980px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-grid .washi-card:has(.predictor-hero-number) .predictor-hero-number {
+    font-size: clamp(38px, 11vw, 58px) !important;
+  }
+}
