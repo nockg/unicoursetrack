@@ -116,13 +116,8 @@ function updateModuleFormForGradingSystem() {
     if (predictionField) predictionField.classList.remove("hidden");
     if (cwField) cwField.classList.toggle("hidden", !predictionEnabled);
     if (examField) examField.classList.toggle("hidden", !predictionEnabled);
-    if (system === "de5") {
-      if (cwLabel) cwLabel.textContent = "Coursework Weight %";
-      if (examLabel) examLabel.textContent = "Exam Weight %";
-    } else {
-      if (cwLabel) cwLabel.textContent = "Coursework Weight %";
-      if (examLabel) examLabel.textContent = "Exam Weight %";
-    }
+    if (cwLabel) cwLabel.textContent = "Coursework Weight %";
+    if (examLabel) examLabel.textContent = "Exam Weight %";
   }
 
   populateModuleTermSelect();

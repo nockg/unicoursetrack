@@ -25,8 +25,32 @@ const AU_GRADE_OPTIONS = [
   { code: "F", value: 0, label: "Fail", short: "Fail" }
 ];
 
+const AU4_GRADE_OPTIONS = [
+  { code: "HD", value: 4.0, label: "High Distinction", short: "HD" },
+  { code: "D", value: 3.0, label: "Distinction", short: "D" },
+  { code: "CR", value: 2.0, label: "Credit", short: "Credit" },
+  { code: "P", value: 1.0, label: "Pass", short: "Pass" },
+  { code: "F", value: 0, label: "Fail", short: "Fail" }
+];
+
 const US_GRADE_OPTIONS = [
   { code: "A+", value: 4.0, label: "A+" },
+  { code: "A", value: 4.0, label: "A" },
+  { code: "A-", value: 3.7, label: "A-" },
+  { code: "B+", value: 3.3, label: "B+" },
+  { code: "B", value: 3.0, label: "B" },
+  { code: "B-", value: 2.7, label: "B-" },
+  { code: "C+", value: 2.3, label: "C+" },
+  { code: "C", value: 2.0, label: "C" },
+  { code: "C-", value: 1.7, label: "C-" },
+  { code: "D+", value: 1.3, label: "D+" },
+  { code: "D", value: 1.0, label: "D" },
+  { code: "D-", value: 0.7, label: "D-" },
+  { code: "F", value: 0, label: "F" }
+];
+
+const US43_GRADE_OPTIONS = [
+  { code: "A+", value: 4.3, label: "A+" },
   { code: "A", value: 4.0, label: "A" },
   { code: "A-", value: 3.7, label: "A-" },
   { code: "B+", value: 3.3, label: "B+" },
@@ -76,13 +100,14 @@ const NZ_GRADE_OPTIONS = [
 // AU HD cutoffs are commonly 85%, but some universities, such as Monash, use 80%.
 // US 4.00 is the mainstream transcript model, though a few institutions use 4.3 for A+.
 // Malaysia commonly treats both E and F as 0 points; the distinction is institution-specific.
-// China GPA conversion is especially institution-specific, so cn4 accepts common letters and direct 0-4 grade points.
+// China uses a 100-point (百分制) scale. Letter grades A–F are accepted as shortcuts and map
+// to representative mid-range scores; numeric entry (0–100) always takes precedence.
 const CN_GRADE_OPTIONS = [
-  { code: "A", value: 4.0, label: "A" },
-  { code: "B", value: 3.0, label: "B" },
-  { code: "C", value: 2.0, label: "C" },
-  { code: "D", value: 1.0, label: "D" },
-  { code: "F", value: 0, label: "F" }
+  { code: "A", value: 95, label: "A (Excellent / 优秀)" },
+  { code: "B", value: 82, label: "B (Good / 良好)" },
+  { code: "C", value: 72, label: "C (Average / 中等)" },
+  { code: "D", value: 62, label: "D (Pass / 及格)" },
+  { code: "F", value: 0, label: "F (Fail / 不及格)" }
 ];
 
 const DE_GRADE_OPTIONS = [
@@ -101,9 +126,12 @@ const DE_GRADE_OPTIONS = [
 
 const GRADE_POINT_OPTIONS = {
   au7: AU_GRADE_OPTIONS,
+  au4: AU4_GRADE_OPTIONS,
   us4: US_GRADE_OPTIONS,
+  us43: US43_GRADE_OPTIONS,
   my4: MY_GRADE_OPTIONS,
   nz9: NZ_GRADE_OPTIONS,
+  cn4: CN_GRADE_OPTIONS,
   de5: DE_GRADE_OPTIONS
 };
 
@@ -139,7 +167,7 @@ function getCreditUnitLabel(options = {}) {
   const system = options.system || getGradingSystem();
   // Credit naming is local: AU units/credit points, US/MY credit hours, NZ points, DE ECTS.
   if (system === "au7") return plural ? "units" : "unit";
-  if (system === "us4") return plural ? "GPA hours" : "GPA hour";
+  if (system === "us4" || system === "us43") return plural ? "GPA hours" : "GPA hour";
   if (system === "nz9") return plural ? "points" : "point";
   if (system === "de5") return "ECTS";
   return plural ? "credits" : "credit";
@@ -147,17 +175,17 @@ function getCreditUnitLabel(options = {}) {
 
 function getModuleCreditFieldLabel(system = getGradingSystem()) {
   if (system === "au7") return "Units / Credit Points";
-  if (system === "us4") return "Credit Hours / GPA Hours";
+  if (system === "us4" || system === "us43") return "Credit Hours / GPA Hours";
   if (system === "nz9") return "Course Points";
   if (system === "de5") return "ECTS Credits";
   return "Credits";
 }
 
 function getGradeScaleConfig(system = getGradingSystem()) {
-  if (system === "us4") {
+  if (system === "us4" || system === "us43") {
     return {
       min: 0,
-      max: 4,
+      max: system === "us43" ? 4.3 : 4,
       step: "0.01",
       suffix: "GPA",
       finalLabel: "Course Grade",
@@ -165,6 +193,7 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       placeholder: "Select grade"
     };
   }
+
   if (system === "my4") {
     return {
       min: 0,
@@ -176,6 +205,7 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       placeholder: "Select grade"
     };
   }
+
   if (system === "cn4") {
     return {
       min: 0,
@@ -190,6 +220,7 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       allowNumericGradeInput: true
     };
   }
+
   if (system === "au7") {
     return {
       min: 0,
@@ -201,6 +232,19 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       placeholder: "Select grade"
     };
   }
+
+  if (system === "au4") {
+    return {
+      min: 0,
+      max: 4,
+      step: "0.01",
+      suffix: "GPA",
+      finalLabel: "Course Grade",
+      markLabel: "Grade",
+      placeholder: "Select grade"
+    };
+  }
+
   if (system === "nz9") {
     return {
       min: 0,
@@ -212,6 +256,7 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       placeholder: "Select grade"
     };
   }
+
   if (system === "de5") {
     return {
       min: 1,
@@ -224,6 +269,7 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       allowNumericGradeInput: true
     };
   }
+
   return {
     min: 0,
     max: 100,
@@ -237,22 +283,17 @@ function getGradeScaleConfig(system = getGradingSystem()) {
   };
 }
 
-// Returns the grading system used to parse individual component marks.
-// DE components are on the 1.0–5.0 scale; all other systems use % (0–100).
 function getComponentMarkSystem(system = getGradingSystem()) {
   return system === "de5" ? "de5" : "uk";
 }
 
-// Returns min/max/step/label config for assessment component mark inputs.
 function getComponentScaleConfig(system = getGradingSystem()) {
   if (system === "de5") {
     return { min: 1, max: 5, step: "0.1", placeholder: "1.0–5.0", label: "Grade (1.0–5.0)" };
   }
+
   return { min: 0, max: 100, step: "0.1", placeholder: "-", label: "Mark %" };
 }
-
-// Converts a raw weighted percentage (0–100) to the native grade-point value for non-UK systems.
-// Thresholds reflect the most common institutional standards; students should confirm with their own scale.
 
 function isModulePredictionMode(mod, system = getGradingSystem()) {
   return system !== "uk" && mod?.usesCwExamPrediction === true;
@@ -260,42 +301,54 @@ function isModulePredictionMode(mod, system = getGradingSystem()) {
 
 function shouldAssessmentRollUpToCoursework(mi, system = getGradingSystem()) {
   const mod = MODULES[mi];
-
-  // UK coursework calculator always builds Coursework.
-  // Non-UK prediction mode uses assessment rows to build Coursework before combining with Exam.
   return system === "uk" || isModulePredictionMode(mod, system);
 }
 
 function shouldAssessmentDriveModuleGrade(mi, system = getGradingSystem()) {
   const mod = MODULES[mi];
-
-  // Germany uses native 1.0–5.0 component grades.
-  // When prediction is OFF, those components directly form the module grade.
   return system === "de5" && !isModulePredictionMode(mod, system);
 }
 
 function percentToNativeGrade(pct, system) {
-  if (system === "us4" || system === "us43") {
-    if (pct >= 93) return 4.0;   // A
-    if (pct >= 90) return 3.7;   // A-
-    if (pct >= 87) return 3.3;   // B+
-    if (pct >= 83) return 3.0;   // B
-    if (pct >= 80) return 2.7;   // B-
-    if (pct >= 77) return 2.3;   // C+
-    if (pct >= 73) return 2.0;   // C
-    if (pct >= 70) return 1.7;   // C-
-    if (pct >= 67) return 1.3;   // D+
-    if (pct >= 63) return 1.0;   // D
-    if (pct >= 60) return 0.7;   // D-
-    return 0;                    // F
+  if (system === "us43") {
+    if (pct >= 97) return 4.3;
+    if (pct >= 93) return 4.0;
+    if (pct >= 90) return 3.7;
+    if (pct >= 87) return 3.3;
+    if (pct >= 83) return 3.0;
+    if (pct >= 80) return 2.7;
+    if (pct >= 77) return 2.3;
+    if (pct >= 73) return 2.0;
+    if (pct >= 70) return 1.7;
+    if (pct >= 67) return 1.3;
+    if (pct >= 63) return 1.0;
+    if (pct >= 60) return 0.7;
+    return 0;
   }
+
+  if (system === "us4") {
+    if (pct >= 93) return 4.0;
+    if (pct >= 90) return 3.7;
+    if (pct >= 87) return 3.3;
+    if (pct >= 83) return 3.0;
+    if (pct >= 80) return 2.7;
+    if (pct >= 77) return 2.3;
+    if (pct >= 73) return 2.0;
+    if (pct >= 70) return 1.7;
+    if (pct >= 67) return 1.3;
+    if (pct >= 63) return 1.0;
+    if (pct >= 60) return 0.7;
+    return 0;
+  }
+
   if (system === "au7") {
-    if (pct >= 85) return 7;     // HD
-    if (pct >= 75) return 6;     // Distinction
-    if (pct >= 65) return 5;     // Credit
-    if (pct >= 50) return 4;     // Pass
-    return 0;                    // Fail
+    if (pct >= 85) return 7;
+    if (pct >= 75) return 6;
+    if (pct >= 65) return 5;
+    if (pct >= 50) return 4;
+    return 0;
   }
+
   if (system === "au4") {
     if (pct >= 85) return 4.0;
     if (pct >= 75) return 3.0;
@@ -303,34 +356,40 @@ function percentToNativeGrade(pct, system) {
     if (pct >= 50) return 1.0;
     return 0;
   }
+
   if (system === "my4") {
-    if (pct >= 90) return 4.0;   // A+
-    if (pct >= 80) return 4.0;   // A
-    if (pct >= 75) return 3.67;  // A-
-    if (pct >= 70) return 3.33;  // B+
-    if (pct >= 65) return 3.0;   // B
-    if (pct >= 60) return 2.67;  // B-
-    if (pct >= 55) return 2.33;  // C+
-    if (pct >= 50) return 2.0;   // C
-    if (pct >= 45) return 1.67;  // C-
-    if (pct >= 40) return 1.0;   // D
-    return 0;                    // F/E
+    if (pct >= 90) return 4.0;
+    if (pct >= 80) return 4.0;
+    if (pct >= 75) return 3.67;
+    if (pct >= 70) return 3.33;
+    if (pct >= 65) return 3.0;
+    if (pct >= 60) return 2.67;
+    if (pct >= 55) return 2.33;
+    if (pct >= 50) return 2.0;
+    if (pct >= 45) return 1.67;
+    if (pct >= 40) return 1.33;
+    if (pct >= 35) return 1.0;
+    if (pct >= 30) return 0.67;
+    return 0;
   }
+
   if (system === "nz9") {
-    if (pct >= 90) return 9;     // A+
-    if (pct >= 85) return 8;     // A
-    if (pct >= 80) return 7;     // A-
-    if (pct >= 75) return 6;     // B+
-    if (pct >= 70) return 5;     // B
-    if (pct >= 65) return 4;     // B-
-    if (pct >= 60) return 3;     // C+
-    if (pct >= 55) return 2;     // C
-    if (pct >= 50) return 1;     // C-
-    return 0;                    // Fail
+    if (pct >= 90) return 9;
+    if (pct >= 85) return 8;
+    if (pct >= 80) return 7;
+    if (pct >= 75) return 6;
+    if (pct >= 70) return 5;
+    if (pct >= 65) return 4;
+    if (pct >= 60) return 3;
+    if (pct >= 55) return 2;
+    if (pct >= 50) return 1;
+    return 0;
   }
+
   if (system === "cn4") {
-    return pct; // Mainland China: keep the weighted 0–100 score as the primary result.
+    return pct;
   }
+
   return pct;
 }
 
@@ -373,12 +432,31 @@ function classifyAuGpa(mark) {
   return { label: "Fail", badge: "Fail", cls: "", heroCls: "" };
 }
 
+function classifyAu4Gpa(mark) {
+  if (mark >= 3.5) return { label: "HD", badge: "High Distinction", cls: "cls-s-first", heroCls: "cls-first" };
+  if (mark >= 2.5) return { label: "D", badge: "Distinction", cls: "cls-s-21", heroCls: "cls-21" };
+  if (mark >= 1.5) return { label: "Credit", badge: "Credit", cls: "cls-s-22", heroCls: "cls-22" };
+  if (mark >= 1.0) return { label: "Pass", badge: "Pass", cls: "cls-s-third", heroCls: "cls-third" };
+  return { label: "Fail", badge: "Fail", cls: "", heroCls: "" };
+}
+
 function classifyNzGpa(mark) {
   if (mark >= 8) return { label: "A", badge: "A range", cls: "cls-s-first", heroCls: "cls-first" };
   if (mark >= 6) return { label: "B+", badge: "B range", cls: "cls-s-21", heroCls: "cls-21" };
   if (mark >= 4) return { label: "B-", badge: "B range", cls: "cls-s-22", heroCls: "cls-22" };
   if (mark >= 1) return { label: "C", badge: "Pass", cls: "cls-s-third", heroCls: "cls-third" };
   return { label: "Fail", badge: "Fail", cls: "", heroCls: "" };
+}
+
+function classifyMalaysianGpa(mark) {
+  if (mark >= 3.67) return { label: "A", badge: "A range", cls: "cls-s-first", heroCls: "cls-first" };
+  if (mark >= 3.33) return { label: "B+", badge: "B+", cls: "cls-s-21", heroCls: "cls-21" };
+  if (mark >= 3.0) return { label: "B", badge: "B", cls: "cls-s-21", heroCls: "cls-21" };
+  if (mark >= 2.67) return { label: "B-", badge: "B-", cls: "cls-s-22", heroCls: "cls-22" };
+  if (mark >= 2.33) return { label: "C+", badge: "C+", cls: "cls-s-22", heroCls: "cls-22" };
+  if (mark >= 2.0) return { label: "C", badge: "C", cls: "cls-s-third", heroCls: "cls-third" };
+  if (mark >= 1.0) return { label: "D", badge: "D", cls: "cls-s-third", heroCls: "cls-third" };
+  return { label: "E", badge: "E/F", cls: "", heroCls: "" };
 }
 
 function chinaScoreToApproxGpa(score) {
@@ -421,11 +499,14 @@ function formatGradeOptionLabel(option, system = getGradingSystem()) {
 
 function formatSelectedGrade(mark, options = {}) {
   if (mark === null || mark === undefined) return { main: "-", label: "", secondary: "" };
+
   const system = getGradingSystem();
-  if (["us4", "my4"].includes(system)) {
+
+  if (["us4", "us43", "my4"].includes(system)) {
     const exact = options.courseDisplay ? getGradeOption(system, options.rawValue) : null;
-    const grade = exact || classifyFourPointGpa(mark);
-    const pointLabel = system === "us4" ? "quality points" : "grade points";
+    const grade = exact || (system === "my4" ? classifyMalaysianGpa(mark) : classifyFourPointGpa(mark));
+    const pointLabel = system === "us4" || system === "us43" ? "quality points" : "grade points";
+
     if (options.courseDisplay) {
       return {
         main: grade.short || grade.label || exact?.code || "-",
@@ -433,12 +514,14 @@ function formatSelectedGrade(mark, options = {}) {
         secondary: ""
       };
     }
+
     return {
       main: `${mark.toFixed(2)} GPA`,
       label: grade.label,
       secondary: ""
     };
   }
+
   if (system === "cn4") {
     const grade = classifyChinaScore(mark);
 
@@ -448,9 +531,11 @@ function formatSelectedGrade(mark, options = {}) {
       secondary: "varies by uni"
     };
   }
+
   if (system === "au7") {
     const exact = options.courseDisplay ? getGradeOption(system, options.rawValue) : null;
     const grade = exact || classifyAuGpa(mark);
+
     if (options.courseDisplay) {
       return {
         main: grade.short || grade.label || exact?.code || "-",
@@ -458,15 +543,37 @@ function formatSelectedGrade(mark, options = {}) {
         secondary: ""
       };
     }
+
     return {
       main: `${mark.toFixed(2)} GPA`,
       label: grade.label,
       secondary: ""
     };
   }
+
+  if (system === "au4") {
+    const exact = options.courseDisplay ? getGradeOption(system, options.rawValue) : null;
+    const grade = exact || classifyAu4Gpa(mark);
+
+    if (options.courseDisplay) {
+      return {
+        main: grade.short || grade.label || exact?.code || "-",
+        label: `${mark.toFixed(2)} grade points`,
+        secondary: ""
+      };
+    }
+
+    return {
+      main: `${mark.toFixed(2)} GPA`,
+      label: grade.label,
+      secondary: ""
+    };
+  }
+
   if (system === "nz9") {
     const exact = options.courseDisplay ? getGradeOption(system, options.rawValue) : null;
     const grade = exact || classifyNzGpa(mark);
+
     if (options.courseDisplay) {
       return {
         main: grade.short || grade.label || exact?.code || "-",
@@ -474,20 +581,24 @@ function formatSelectedGrade(mark, options = {}) {
         secondary: ""
       };
     }
+
     return {
       main: `${mark.toFixed(2)} GPA`,
       label: grade.label,
       secondary: ""
     };
   }
+
   if (system === "de5") {
     const grade = classifyGermanGrade(mark);
+
     return {
       main: `${mark.toFixed(2)} grade`,
       label: grade.label,
       secondary: "Lower is better"
     };
   }
+
   const percent = `${mark.toFixed(1)}%`;
   const cls = classify(mark);
   return { main: percent, label: cls?.label || "", secondary: "" };
@@ -495,7 +606,17 @@ function formatSelectedGrade(mark, options = {}) {
 
 function formatModuleGradeDisplay(mi) {
   const final = getModuleFinal(mi);
-  const rawValue = getStore().finalGrades?.[mi];
+  const system = getGradingSystem();
+  const mod = MODULES[mi];
+
+  // In prediction mode, the displayed grade must come from the calculated
+  // CW/Exam result, not from a stale finalGrades dropdown value.
+  const usesCalculatedPrediction =
+    system === "uk" ||
+    isModulePredictionMode(mod, system);
+
+  const rawValue = usesCalculatedPrediction ? null : getStore().finalGrades?.[mi];
+
   return formatSelectedGrade(final, { courseDisplay: true, rawValue });
 }
 
@@ -1109,9 +1230,10 @@ function classify(mark) {
   if (system === "de5") return classifyGermanGrade(mark);
   if (system === "cn4") return classifyChinaScore(mark);
   if (system === "au7") return classifyAuGpa(mark);
-  if (system === "au4") return typeof classifyAu4Gpa === "function" ? classifyAu4Gpa(mark) : classifyFourPointGpa(mark);
+  if (system === "au4") return classifyAu4Gpa(mark);
   if (system === "nz9") return classifyNzGpa(mark);
-  if (["us4", "us43", "my4"].includes(system)) return classifyFourPointGpa(mark);
+  if (system === "my4") return classifyMalaysianGpa(mark);
+  if (system === "us4" || system === "us43") return classifyFourPointGpa(mark);
 
   if (mark >= 70) return { label: "First", badge: "First", cls: "cls-s-first", heroCls: "cls-first" };
   if (mark >= 60) return { label: "2:1", badge: "Upper Second", cls: "cls-s-21", heroCls: "cls-21" };
@@ -1219,13 +1341,6 @@ function escapeHtml(text) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
-}
-
-function safeUrl(url) {
-  const trimmed = String(url || "").trim();
-  if (!trimmed) return "";
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  return "https://" + trimmed.replace(/^\/+/, "");
 }
 
 function parseDeadlineInput(input) {

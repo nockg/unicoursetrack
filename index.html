@@ -198,15 +198,15 @@
     <div class="field">
       <label for="pref-grading-system">Grading System</label>
       <select class="nav-select" id="pref-grading-system" onchange="setGradingSystemPreference(this.value)">
-        <option value="uk">UK Honours Convention</option>
-        <option value="us4">US Common 4.00 GPA</option>
-        <option value="us43">US 4.30 GPA</option>
-        <option value="au7">Australia Common 7.00 GPA</option>
+        <option value="uk">UK Honours / Percentage</option>
+        <option value="us4">US 4.00 GPA</option>
+        <option value="us43">US 4.30 GPA / A+ Scale</option>
+        <option value="au7">Australia 7.00 GPA</option>
         <option value="au4">Australia 4.00 GPA</option>
-        <option value="my4">Malaysia Common 4.00 GPA</option>
-        <option value="cn4">China Common 4.00 Conversion</option>
+        <option value="my4">Malaysia 4.00 GPA</option>
+        <option value="cn4">China Mainland 100-point + GPA Estimate</option>
         <option value="nz9">New Zealand 9.00 GPA</option>
-        <option value="de5">Germany 1.0-5.0 Grade</option>
+        <option value="de5">Germany 1.0–5.0 Grade</option>
         <option value="custom">Custom Grade Mapping</option>
       </select>
     </div>
@@ -237,6 +237,65 @@
         <button class="nav-btn" type="button" onclick="setBodyBackground()">Apply Background</button>
         <button class="nav-btn prefs-clear-btn" type="button" onclick="clearBodyBackground()" title="Remove page background">Clear</button>
       </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="grading-system-guide-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-labelledby="grading-system-guide-title">
+  <div class="dashboard-content deadline-form-content grading-guide-modal">
+    <button class="dashboard-close" type="button" aria-label="Close grading guide" onclick="closeGradingSystemGuideModal()">&times;</button>
+    <div class="timeline-subtitle">Grading Systems</div>
+    <div class="dashboard-title" id="grading-system-guide-title">Choose the closest system</div>
+    <p class="grading-guide-intro">
+      Pick the system that matches how your university reports module results. For non-UK systems, mark prediction can still be enabled per module when you receive coursework marks before the final transcript.
+    </p>
+
+    <div class="grading-guide-grid">
+      <section class="grading-guide-card">
+        <h3>UK Honours / Percentage</h3>
+        <p>For 0–100 marks with First, 2:1, 2:2, Third classifications.</p>
+      </section>
+      <section class="grading-guide-card">
+        <h3>US 4.00 GPA</h3>
+        <p>Use when A and A+ both cap at 4.00 quality points.</p>
+      </section>
+      <section class="grading-guide-card">
+        <h3>US 4.30 GPA</h3>
+        <p>Use when A+ is worth 4.30 quality points.</p>
+      </section>
+      <section class="grading-guide-card">
+        <h3>Australia 7.00 GPA</h3>
+        <p>For HD, D, Credit, Pass mapped to a 7-point scale.</p>
+      </section>
+      <section class="grading-guide-card">
+        <h3>Australia 4.00 GPA</h3>
+        <p>For HD, D, Credit, Pass mapped to 4.00, 3.00, 2.00, 1.00.</p>
+      </section>
+      <section class="grading-guide-card">
+        <h3>Malaysia 4.00 GPA</h3>
+        <p>For Malaysian A, A-, B+, B, C-style GPA systems. Exact bands can vary.</p>
+      </section>
+      <section class="grading-guide-card">
+        <h3>China Mainland 100-point</h3>
+        <p>Uses 0–100 as the main score. GPA is shown only as an institution-specific estimate.</p>
+      </section>
+      <section class="grading-guide-card">
+        <h3>New Zealand 9.00 GPA</h3>
+        <p>For A+ to C- style grade points on a 9-point scale.</p>
+      </section>
+      <section class="grading-guide-card">
+        <h3>Germany 1.0–5.0</h3>
+        <p>Lower is better. 1.0 is strongest; 5.0 is fail.</p>
+      </section>
+      <section class="grading-guide-card">
+        <h3>Custom Mapping</h3>
+        <p>Use when your institution has its own grade-to-point conversion table.</p>
+      </section>
+    </div>
+
+    <div class="grading-guide-note">
+      If your university only gives a final transcript grade, leave mark prediction off. If you receive coursework marks before exams, enable mark prediction inside Module Options.
     </div>
   </div>
 </div>
@@ -676,17 +735,17 @@
         <div class="field">
           <label for="setup-grading-system-input">Grading System</label>
           <select class="nav-select" id="setup-grading-system-input">
-            <option value="uk">UK Honours Convention</option>
-            <option value="us4">US Common 4.00 GPA</option>
-            <option value="us43">US 4.30 GPA</option>
-            <option value="au7">Australia Common 7.00 GPA</option>
-            <option value="au4">Australia 4.00 GPA</option>
-            <option value="my4">Malaysia Common 4.00 GPA</option>
-            <option value="cn4">China Common 4.00 Conversion</option>
-            <option value="nz9">New Zealand 9.00 GPA</option>
-            <option value="de5">Germany 1.0-5.0 Grade</option>
-            <option value="custom">Custom Grade Mapping</option>
-          </select>
+        <option value="uk">UK Honours / Percentage</option>
+        <option value="us4">US 4.00 GPA</option>
+        <option value="us43">US 4.30 GPA / A+ Scale</option>
+        <option value="au7">Australia 7.00 GPA</option>
+        <option value="au4">Australia 4.00 GPA</option>
+        <option value="my4">Malaysia 4.00 GPA</option>
+        <option value="cn4">China Mainland 100-point + GPA Estimate</option>
+        <option value="nz9">New Zealand 9.00 GPA</option>
+        <option value="de5">Germany 1.0–5.0 Grade</option>
+        <option value="custom">Custom Grade Mapping</option>
+      </select>
         </div>
       </div>
       <div class="setup-template-block" id="setup-template-block">

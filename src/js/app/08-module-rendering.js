@@ -26,21 +26,37 @@ function buildModules() {
       : `${escapeHtml(mod.kanji)} &middot; ${escapeHtml(termLabel)} &middot; ${escapeHtml(String(mod.credits ?? 0))} ${escapeHtml(getCreditUnitLabel({ plural: Number(mod.credits) !== 1 }))}${predictionWeightMeta}`;
     const cwPredLabel = gradingSystem === "de5" ? "Coursework Grade (1.0–5.0)" : "Coursework %";
     const examPredLabel = gradingSystem === "de5" ? "Exam Grade (1.0–5.0)" : "Exam %";
+    const getFinalGradeControlValue = () => {
+      const raw = store.finalGrades?.[mi] ?? "";
+      if (raw === "" || raw === null || raw === undefined) return "";
+
+      // Dropdown/text grade systems can keep letter codes like HD, A+, B.
+      if (gradeOptions || gradeScale.freeformGradeInput) return String(raw);
+
+      // Numeric systems must not receive stale letter codes from another grading system.
+      const parsed = parseGradeValue(raw, gradingSystem);
+      return parsed === null ? "" : String(parsed);
+    };
+
     const finalGradeControl = (id, className = "") => {
+      const safeValue = escapeHtml(getFinalGradeControlValue());
+
       if (gradeOptions && gradeScale.freeformGradeInput) {
         const listId = `${id}-options`;
-        return `<input class="input ${className}" type="text" id="${id}" list="${listId}" placeholder="${gradeScale.placeholder}" value="${store.finalGrades?.[mi] ?? ""}">
+        return `<input class="input ${className}" type="text" id="${id}" list="${listId}" placeholder="${escapeHtml(gradeScale.placeholder)}" value="${safeValue}">
           <datalist id="${listId}">
             ${gradeOptions.map((option) => `<option value="${escapeHtml(option.code)}">${escapeHtml(formatGradeOptionLabel(option, gradingSystem))}</option>`).join("")}
           </datalist>`;
       }
+
       if (gradeOptions) {
         return `<select class="nav-select ${className}" id="${id}">
           <option value="">Not graded yet</option>
           ${gradeOptions.map((option) => `<option value="${escapeHtml(option.code)}">${escapeHtml(formatGradeOptionLabel(option, gradingSystem))}</option>`).join("")}
         </select>`;
       }
-      return `<input class="input ${className}" type="number" min="${gradeScale.min ?? 0}" max="${gradeScale.max}" step="${gradeScale.step}" id="${id}" placeholder="${gradeScale.placeholder}" value="${store.finalGrades?.[mi] ?? ""}">`;
+
+      return `<input class="input ${className}" type="number" min="${gradeScale.min ?? 0}" max="${gradeScale.max}" step="${gradeScale.step}" id="${id}" placeholder="${escapeHtml(gradeScale.placeholder)}" value="${safeValue}">`;
     };
     const customisableTheme = isColourCustomisableTheme();
     const themeFamilyLabel = preferences.theme === "dark" ? "Dark theme colour" : "Light theme colour";

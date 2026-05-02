@@ -1562,6 +1562,576 @@ function savePreferences() {
   saveCloudDebounced();
 }
 
+
+function openGradingSystemGuideModal(event, selectId = "pref-grading-system") {
+  if (event) event.stopPropagation();
+
+  activeGradingSystemSelectId = selectId || "pref-grading-system";
+
+  const select = document.getElementById(activeGradingSystemSelectId);
+  const currentValue = select?.value || state.profile?.gradingSystem || "uk";
+  activeGradingGuideRegion = getGradingGuideGroupForValue(currentValue);
+
+  // Desktop opens in World View by default. Mobile stays List View because tiny map pins are awkward to tap.
+  const isMobile = window.matchMedia?.("(max-width: 760px)")?.matches;
+  activeGradingGuideView = isMobile ? "list" : "world";
+
+  const modal = ensureGradingSystemGuideModal();
+  modal.classList.remove("hidden");
+
+  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
+}
+
+
+
+
+
+function closeGradingSystemGuideModal() {
+  document.getElementById("grading-system-guide-modal")?.classList.add("hidden");
+  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
+}
+
+
+/* grading-system-modal-selector */
+let activeGradingSystemSelectId = "pref-grading-system";
+let activeGradingGuideRegion = "";
+let activeGradingGuideView = "world";
+
+function getGradingSystemGuideOptions() {
+  return [
+    {
+      group: "UK",
+      tone: "uk",
+      items: [
+        {
+          value: "uk",
+          title: "UK Honours / Percentage",
+          meta: "0–100% · First · 2:1 · 2:2 · Third"
+        }
+      ]
+    },
+    {
+      group: "United States",
+      tone: "us",
+      items: [
+        {
+          value: "us4",
+          title: "US 4.00 GPA",
+          meta: "A / A+ = 4.00 · B+ = 3.30"
+        },
+        {
+          value: "us43",
+          title: "US 4.30 GPA",
+          meta: "A+ = 4.30 · A = 4.00"
+        }
+      ]
+    },
+    {
+      group: "Australia",
+      tone: "au",
+      items: [
+        {
+          value: "au7",
+          title: "Australia 7.00 GPA",
+          meta: "HD = 7 · D = 6 · Credit = 5 · Pass = 4"
+        },
+        {
+          value: "au4",
+          title: "Australia 4.00 GPA",
+          meta: "HD = 4 · D = 3 · Credit = 2 · Pass = 1"
+        }
+      ]
+    },
+    {
+      group: "Asia-Pacific",
+      tone: "apac",
+      items: [
+        {
+          value: "my4",
+          title: "Malaysia 4.00 GPA",
+          meta: "A = 4.00 · A- = 3.67 · B+ = 3.33"
+        },
+        {
+          value: "cn4",
+          title: "China Mainland 100-point",
+          meta: "Main score: 0–100 · GPA estimate shown"
+        },
+        {
+          value: "nz9",
+          title: "New Zealand 9.00 GPA",
+          meta: "A+ = 9 · A = 8 · A- = 7"
+        }
+      ]
+    },
+    {
+      group: "Europe",
+      tone: "eu",
+      items: [
+        {
+          value: "de5",
+          title: "Germany 1.0–5.0 Grade",
+          meta: "1.0 best · 4.0 pass · 5.0 fail"
+        }
+      ]
+    },
+    {
+      group: "Advanced",
+      tone: "advanced",
+      items: [
+        {
+          value: "custom",
+          title: "Custom Mapping",
+          meta: "Use your university’s own table"
+        }
+      ]
+    }
+  ];
+}
+
+
+
+
+
+function getGradingGuideGroupForValue(value) {
+  for (const group of getGradingSystemGuideOptions()) {
+    if (group.items.some((item) => item.value === value)) return group.group;
+  }
+  return getGradingSystemGuideOptions()[0]?.group || "UK";
+}
+
+function setActiveGradingGuideRegion(groupName) {
+  activeGradingGuideRegion = groupName;
+  ensureGradingSystemGuideModal();
+}
+
+function setGradingGuideViewMode(mode) {
+  activeGradingGuideView = mode === "world" ? "world" : "list";
+  ensureGradingSystemGuideModal();
+}
+
+function previewGradingGuideRegion(groupName) {
+  const canHover = window.matchMedia?.("(hover: hover) and (min-width: 761px)")?.matches;
+  if (!canHover) return;
+
+  document.querySelectorAll(".grading-map-pin").forEach((pin) => {
+    pin.classList.toggle("is-preview", pin.dataset.region === groupName);
+  });
+}
+
+
+
+function clearGradingGuideRegionPreview() {
+  document.querySelectorAll(".grading-map-pin").forEach((pin) => {
+    pin.classList.remove("is-preview");
+  });
+}
+
+function getGradingSystemOptionTitle(value) {
+  for (const group of getGradingSystemGuideOptions()) {
+    const found = group.items.find((item) => item.value === value);
+    if (found) return found.title;
+  }
+  return "Choose grading system";
+}
+
+function getGradingGuideWorldMapSvg() {
+  // Equirectangular projection calibrated to match pin % positions:
+  // x = (lon + 161) * 2.367   y = (98 - lat) * 2.489
+  return `
+    <svg viewBox="0 0 800 420" class="grading-guide-world-svg" role="img" aria-label="World map" preserveAspectRatio="xMidYMid meet">
+      <g class="map-outline">
+
+        <!-- North America -->
+        <path d="M12,67 C6,74 0,82 0,92 L0,107 C10,103 16,101 21,100
+                 C44,97 60,104 73,105 C82,113 88,119 90,122
+                 C89,127 88,129 88,130 C90,140 91,146 92,150
+                 C98,158 102,161 104,164 C111,173 117,181 121,187
+                 C132,192 144,195 154,197 C161,195 166,193 169,192
+                 C176,200 181,206 184,209 C192,219 199,224 199,224
+                 C205,218 208,208 204,194 C199,187 194,184 191,182
+                 C194,172 198,164 200,157 C206,150 211,144 215,139
+                 C220,136 222,135 224,134 C234,130 245,128 255,127
+                 C251,121 249,119 247,117 C246,113 245,111 245,110
+                 C237,101 232,96 229,92 C222,89 218,88 216,87
+                 C208,78 199,73 191,70 C175,67 148,65 109,65
+                 C90,66 72,68 50,72 Z" />
+
+        <!-- Florida peninsula stub -->
+        <path d="M191,182 C188,185 186,188 185,192 C183,197 186,200 191,198
+                 C194,196 195,190 191,182 Z" />
+
+        <!-- Greenland -->
+        <path d="M252,60 C258,50 270,44 283,41 C296,38 306,41 310,49
+                 C306,59 298,64 284,66 C268,67 255,64 252,60 Z" />
+
+        <!-- South America -->
+        <path d="M199,224 C201,231 200,239 200,245
+                 C207,251 215,256 216,260 C222,260 230,259 237,259
+                 C240,263 240,267 239,272 C233,281 227,290 222,302
+                 C218,312 217,320 218,331 C216,341 214,347 214,349
+                 C215,360 217,369 218,376 C217,381 214,384 213,384
+                 C207,376 204,364 202,353 C200,340 198,328 198,318
+                 C198,307 200,297 202,287 C203,275 202,263 200,251
+                 C199,243 198,233 199,224 Z" />
+
+        <!-- Cuba (island stub) -->
+        <path d="M183,190 C188,188 196,187 202,190 C200,193 194,193 183,190 Z" />
+
+        <!-- UK — Great Britain -->
+        <path d="M373,100 C377,96 384,96 388,102 C391,110 389,118 383,122
+                 C377,121 373,117 371,112 C370,106 371,103 373,100 Z" />
+
+        <!-- UK — Ireland -->
+        <path d="M362,107 C366,101 372,101 374,107 C374,114 369,118 363,114
+                 C360,110 360,108 362,107 Z" />
+
+        <!-- Iberian Peninsula (Spain/Portugal) -->
+        <path d="M357,134 C362,130 368,128 372,127 C377,126 380,125 381,117
+                 C384,115 388,114 391,114 C389,122 387,127 384,132
+                 C380,137 376,142 375,148 C372,152 367,154 362,154
+                 C357,150 355,143 357,134 Z" />
+
+        <!-- Europe mainland + Scandinavia -->
+        <path d="M381,117 C384,115 388,114 391,114 C397,110 401,104 403,102
+                 C401,99 399,98 400,99 C395,92 392,88 391,87
+                 C395,81 403,76 413,73 C421,71 430,70 437,69
+                 C441,69 445,68 448,70 C451,80 453,88 453,95
+                 C455,104 458,114 460,121 C461,128 460,131 459,130
+                 C462,127 465,124 467,121 C470,117 472,112 472,107
+                 C464,108 460,109 453,109 C443,116 435,121 426,127
+                 C418,132 413,134 413,134 C410,134 407,133 407,132
+                 C404,132 400,134 393,134 C388,138 383,142 381,144
+                 C378,148 375,151 375,148 C378,142 381,136 381,130
+                 C381,125 381,120 381,117 Z" />
+
+        <!-- Italian peninsula -->
+        <path d="M413,134 C415,137 417,141 418,145 C420,149 419,152 416,154
+                 C413,151 410,146 409,140 C408,136 410,133 413,134 Z" />
+
+        <!-- Scandinavian peninsula -->
+        <path d="M403,102 C401,97 399,91 400,87 C403,81 408,77 414,74
+                 C421,71 430,70 437,69 C441,69 445,68 448,70
+                 C446,77 442,83 436,87 C429,91 422,94 416,96
+                 C410,99 405,101 403,102 Z" />
+
+        <!-- Africa -->
+        <path d="M357,154 C362,154 367,154 375,152 C381,157 388,164 393,172
+                 C398,181 400,191 400,201 C401,213 399,223 398,233
+                 C397,244 400,255 406,266 C411,278 417,291 419,306
+                 C421,320 417,335 408,346 C399,357 386,364 374,363
+                 C361,360 351,352 345,338 C340,322 342,306 346,290
+                 C350,273 353,257 352,241 C351,225 347,209 344,193
+                 C342,179 345,166 350,158 Z" />
+
+        <!-- Horn of Africa -->
+        <path d="M419,306 C422,313 424,320 422,328 C416,337 408,346 408,346
+                 C411,338 418,328 417,318 C415,312 416,308 419,306 Z" />
+
+        <!-- Asia (main body) -->
+        <path d="M453,95 C450,99 447,103 443,107 C440,110 436,112 432,114
+                 C427,117 422,120 415,124 C411,127 408,130 407,132
+                 C410,133 413,134 413,134 C420,132 429,130 438,130
+                 C446,129 454,127 461,123 C468,119 476,113 483,107
+                 C492,100 503,94 516,89 C530,84 547,81 565,80
+                 C583,79 602,81 622,85 C641,89 660,95 678,102
+                 C694,108 708,115 720,123 C731,130 740,138 744,147
+                 C746,155 744,163 736,168 C726,173 712,174 696,172
+                 C680,170 662,166 644,163 C628,160 612,160 597,163
+                 C580,167 565,174 551,181 C539,187 528,194 518,199
+                 C510,203 501,206 492,205 C481,204 471,199 463,191
+                 C456,183 452,172 452,161 C452,148 453,120 453,95 Z" />
+
+        <!-- Indian subcontinent -->
+        <path d="M518,199 C523,200 531,199 539,195 C547,190 553,183 556,190
+                 C559,199 559,212 555,226 C551,240 543,254 534,266
+                 C525,277 516,285 514,287 C507,279 500,265 496,249
+                 C492,233 492,217 496,205 C502,198 510,196 518,199 Z" />
+
+        <!-- SE Asia / Malay Peninsula -->
+        <path d="M597,163 C611,162 624,162 636,164 C648,167 658,172 664,180
+                 C668,186 666,193 658,197 C649,200 637,199 625,196
+                 C614,192 604,186 598,179 C593,172 593,166 597,163 Z" />
+
+        <!-- Indonesia / Borneo (simplified island chain) -->
+        <path d="M636,196 C648,196 660,199 670,206 C678,212 682,220 676,227
+                 C668,232 655,230 645,223 C635,216 632,206 636,196 Z" />
+        <path d="M680,208 C692,213 703,220 710,229 C715,236 713,243 706,245
+                 C698,245 688,239 682,230 C677,221 677,212 680,208 Z" />
+        <path d="M644,224 C654,226 662,233 664,241 C662,248 654,250 645,247
+                 C638,242 636,234 644,224 Z" />
+
+        <!-- Philippines (tiny stub) -->
+        <path d="M688,168 C692,165 697,166 698,172 C697,177 692,178 688,175
+                 C686,172 686,169 688,168 Z" />
+
+        <!-- Japan — Honshu -->
+        <path d="M716,106 C720,102 727,101 731,107 C732,114 729,120 723,121
+                 C717,119 714,114 716,106 Z" />
+
+        <!-- Japan — Kyushu/Shikoku stub -->
+        <path d="M709,120 C713,117 719,118 721,123 C721,129 717,132 712,131
+                 C708,128 708,123 709,120 Z" />
+
+        <!-- Hokkaido stub -->
+        <path d="M726,93 C730,89 735,91 737,97 C736,102 733,104 729,102
+                 C726,100 725,96 726,93 Z" />
+
+        <!-- Australia -->
+        <path d="M607,296 C620,286 638,281 656,279 C674,277 691,281 706,291
+                 C720,300 731,313 735,328 C738,342 734,356 725,365
+                 C715,374 700,378 683,378 C666,376 649,370 634,360
+                 C618,349 607,334 603,318 Z" />
+
+        <!-- Tasmania -->
+        <path d="M662,379 C667,379 671,383 671,388 C669,392 664,392 661,389
+                 C658,385 659,380 662,379 Z" />
+
+        <!-- New Zealand — North Island -->
+        <path d="M748,336 C753,330 760,331 763,337 C764,345 760,352 754,353
+                 C749,350 746,343 748,336 Z" />
+
+        <!-- New Zealand — South Island -->
+        <path d="M747,356 C751,351 758,352 760,358 C762,367 758,375 752,377
+                 C748,373 746,364 747,356 Z" />
+
+        <!-- Antarctica coastline hint -->
+        <path d="M40,408 C120,399 200,406 280,402 C360,397 440,404 520,400
+                 C600,395 680,402 760,397"
+              class="map-antarctica" />
+
+      </g>
+    </svg>`;
+}
+
+
+
+function ensureGradingSystemGuideModal() {
+  let modal = document.getElementById("grading-system-guide-modal");
+
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "grading-system-guide-modal";
+    modal.className = "dashboard-modal hidden grading-system-guide-shell";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-labelledby", "grading-system-guide-title");
+    document.body.appendChild(modal);
+
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closeGradingSystemGuideModal();
+    });
+  }
+
+  const select = document.getElementById(activeGradingSystemSelectId);
+  const currentValue = select?.value || state.profile?.gradingSystem || "uk";
+  const groups = getGradingSystemGuideOptions();
+  const currentGroupName = activeGradingGuideRegion || getGradingGuideGroupForValue(currentValue);
+  const activeGroup = groups.find((group) => group.group === currentGroupName) || groups[0];
+  const viewMode = activeGradingGuideView === "world" ? "world" : "list";
+
+  const regionButtons = groups.map((group) => `
+    <button
+      type="button"
+      class="grading-guide-region-btn tone-${escapeHtml(group.tone || "uk")} ${group.group === activeGroup.group ? "active" : ""}"
+      onclick="setActiveGradingGuideRegion('${escapeHtml(group.group)}')"
+    >
+      ${escapeHtml(group.group)}
+    </button>
+  `).join("");
+
+  const systemCards = activeGroup.items.map((item) => `
+    <button
+      class="module-library-card grading-guide-row ${item.value === currentValue ? "selected active" : ""}"
+      type="button"
+      onclick="chooseGradingSystemFromGuide('${escapeHtml(item.value)}')"
+    >
+      <span class="module-library-module-accent" aria-hidden="true"></span>
+      <span class="module-library-card-head">
+        <span>
+          <span class="module-library-card-title grading-guide-row-title">${escapeHtml(item.title)}</span>
+          <span class="module-library-card-meta">
+            <span class="module-library-pill">${escapeHtml(item.meta)}</span>
+            ${item.value === currentValue ? '<span class="module-library-pill grading-guide-current-pill">Current</span>' : ""}
+          </span>
+        </span>
+      </span>
+    </button>
+  `).join("");
+
+  const pinPositions = {
+    uk: "left: 47.6%; top: 27.5%;",
+    us: "left: 19.2%; top: 35.5%;",
+    au: "left: 82.8%; top: 74.5%;",
+    apac: "left: 78.6%; top: 50.8%;",
+    eu: "left: 53.2%; top: 29.8%;",
+    advanced: "left: 50%; top: 91.5%;"
+  };
+
+  const worldPins = groups.map((group) => {
+    const tone = escapeHtml(group.tone || "uk");
+    const label = escapeHtml(group.group);
+    const isActive = group.group === activeGroup.group ? "active" : "";
+    const pinStyle = pinPositions[group.tone || "uk"] || "left:50%;top:50%;";
+
+    return `
+      <button
+        type="button"
+        class="grading-map-pin tone-${tone} ${isActive}"
+        data-region="${label}"
+        aria-label="${label}"
+        style="${pinStyle}"
+        onmouseenter="previewGradingGuideRegion('${label}')"
+        onmouseleave="clearGradingGuideRegionPreview()"
+        onfocus="previewGradingGuideRegion('${label}')"
+        onblur="clearGradingGuideRegionPreview()"
+        onclick="setActiveGradingGuideRegion('${label}')"
+      >
+        <span class="grading-map-pin-dot"></span>
+        <span class="grading-map-pin-label">${label}</span>
+      </button>
+    `;
+  }).join("");
+
+  const listSelector = `
+    <aside class="grading-guide-region-nav" aria-label="Grading regions">
+      ${regionButtons}
+    </aside>
+  `;
+
+  const worldSelector = `
+    <div class="grading-guide-world-card" aria-label="World grading regions">
+      <div class="grading-guide-world-map" aria-hidden="true">
+        ${getGradingGuideWorldMapSvg()}
+      </div>
+      ${worldPins}
+      <div class="grading-guide-world-hint">Hover a pin to see the region · Click to select</div>
+    </div>
+  `;
+
+  modal.innerHTML = `
+    <div class="dashboard-content module-library-content grading-guide-modal grading-guide-modal--library grading-guide-modal--focused view-${viewMode} tone-${escapeHtml(activeGroup.tone || "uk")}" onclick="event.stopPropagation()">
+      <button class="dashboard-close" type="button" aria-label="Close grading guide" onclick="closeGradingSystemGuideModal()">&times;</button>
+
+      <div class="timeline-head">
+        <div class="timeline-subtitle">Grading Systems</div>
+        <div class="timeline-topline module-library-topline grading-guide-topline">
+          <div class="timeline-page-title" id="grading-system-guide-title">Choose Your Grading System</div>
+          <div class="grading-guide-view-toggle" role="group" aria-label="Grading guide view">
+            <button class="${viewMode === "list" ? "active" : ""}" type="button" onclick="setGradingGuideViewMode('list')">List View</button>
+            <button class="${viewMode === "world" ? "active" : ""}" type="button" onclick="setGradingGuideViewMode('world')">World View</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grading-guide-focus-layout">
+        ${viewMode === "world" ? worldSelector : listSelector}
+
+        <section class="module-library-section grading-guide-section grading-guide-focused-section tone-${escapeHtml(activeGroup.tone || "uk")}">
+          <div class="module-library-section-head">
+            <div>
+              <div class="module-library-section-label">${escapeHtml(activeGroup.group)}</div>
+              <div class="module-library-section-copy">Select the scale closest to your transcript.</div>
+            </div>
+          </div>
+
+          <div class="module-library-list grading-guide-list grading-guide-list--focused">
+            ${systemCards}
+          </div>
+        </section>
+      </div>
+    </div>
+  `;
+
+  return modal;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+function updateGradingSystemChooserButtons() {
+  document.querySelectorAll(".grading-system-modal-button").forEach((button) => {
+    const select = document.getElementById(button.dataset.selectId);
+    const value = select?.value || state.profile?.gradingSystem || "uk";
+    button.querySelector(".grading-system-modal-current").textContent = getGradingSystemOptionTitle(value);
+  });
+}
+
+function installGradingSystemModalSelector() {
+  ["pref-grading-system", "setup-grading-system-input"].forEach((selectId) => {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+
+    select.classList.add("grading-native-select-hidden");
+
+    const existing = document.querySelector(`.grading-system-modal-button[data-select-id="${selectId}"]`);
+    if (existing) existing.remove();
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "nav-btn grading-system-modal-button";
+    button.dataset.selectId = selectId;
+    button.innerHTML = `
+      <span class="grading-system-modal-label">Grading System</span>
+      <span class="grading-system-modal-current">${escapeHtml(getGradingSystemOptionTitle(select.value || "uk"))}</span>
+      <span class="grading-system-modal-action">Change</span>
+    `;
+
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      openGradingSystemGuideModal(event, selectId);
+    });
+
+    select.insertAdjacentElement("afterend", button);
+  });
+
+  updateGradingSystemChooserButtons();
+}
+
+function openGradingSystemGuideModal(event, selectId = "pref-grading-system") {
+  if (event) event.stopPropagation();
+  activeGradingSystemSelectId = selectId || "pref-grading-system";
+  const modal = ensureGradingSystemGuideModal();
+  modal.classList.remove("hidden");
+  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
+}
+
+function closeGradingSystemGuideModal() {
+  document.getElementById("grading-system-guide-modal")?.classList.add("hidden");
+  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
+}
+
+function chooseGradingSystemFromGuide(system) {
+  if (!SUPPORTED_GRADING_SYSTEMS.includes(system)) return;
+
+  const select = document.getElementById(activeGradingSystemSelectId);
+  if (select) select.value = system;
+
+  if (activeGradingSystemSelectId === "pref-grading-system") {
+    setGradingSystemPreference(system);
+  } else {
+    updateSetupCreditLabel();
+  }
+
+  updateGradingSystemChooserButtons();
+  closeGradingSystemGuideModal();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", installGradingSystemModalSelector);
+} else {
+  installGradingSystemModalSelector();
+}
+
 /* 03-marks-links-library.js */
 function parseMark(value, system = getGradingSystem()) {
   return parseGradeValue(value, system);
@@ -1590,8 +2160,32 @@ const AU_GRADE_OPTIONS = [
   { code: "F", value: 0, label: "Fail", short: "Fail" }
 ];
 
+const AU4_GRADE_OPTIONS = [
+  { code: "HD", value: 4.0, label: "High Distinction", short: "HD" },
+  { code: "D", value: 3.0, label: "Distinction", short: "D" },
+  { code: "CR", value: 2.0, label: "Credit", short: "Credit" },
+  { code: "P", value: 1.0, label: "Pass", short: "Pass" },
+  { code: "F", value: 0, label: "Fail", short: "Fail" }
+];
+
 const US_GRADE_OPTIONS = [
   { code: "A+", value: 4.0, label: "A+" },
+  { code: "A", value: 4.0, label: "A" },
+  { code: "A-", value: 3.7, label: "A-" },
+  { code: "B+", value: 3.3, label: "B+" },
+  { code: "B", value: 3.0, label: "B" },
+  { code: "B-", value: 2.7, label: "B-" },
+  { code: "C+", value: 2.3, label: "C+" },
+  { code: "C", value: 2.0, label: "C" },
+  { code: "C-", value: 1.7, label: "C-" },
+  { code: "D+", value: 1.3, label: "D+" },
+  { code: "D", value: 1.0, label: "D" },
+  { code: "D-", value: 0.7, label: "D-" },
+  { code: "F", value: 0, label: "F" }
+];
+
+const US43_GRADE_OPTIONS = [
+  { code: "A+", value: 4.3, label: "A+" },
   { code: "A", value: 4.0, label: "A" },
   { code: "A-", value: 3.7, label: "A-" },
   { code: "B+", value: 3.3, label: "B+" },
@@ -1641,13 +2235,14 @@ const NZ_GRADE_OPTIONS = [
 // AU HD cutoffs are commonly 85%, but some universities, such as Monash, use 80%.
 // US 4.00 is the mainstream transcript model, though a few institutions use 4.3 for A+.
 // Malaysia commonly treats both E and F as 0 points; the distinction is institution-specific.
-// China GPA conversion is especially institution-specific, so cn4 accepts common letters and direct 0-4 grade points.
+// China uses a 100-point (百分制) scale. Letter grades A–F are accepted as shortcuts and map
+// to representative mid-range scores; numeric entry (0–100) always takes precedence.
 const CN_GRADE_OPTIONS = [
-  { code: "A", value: 4.0, label: "A" },
-  { code: "B", value: 3.0, label: "B" },
-  { code: "C", value: 2.0, label: "C" },
-  { code: "D", value: 1.0, label: "D" },
-  { code: "F", value: 0, label: "F" }
+  { code: "A", value: 95, label: "A (Excellent / 优秀)" },
+  { code: "B", value: 82, label: "B (Good / 良好)" },
+  { code: "C", value: 72, label: "C (Average / 中等)" },
+  { code: "D", value: 62, label: "D (Pass / 及格)" },
+  { code: "F", value: 0, label: "F (Fail / 不及格)" }
 ];
 
 const DE_GRADE_OPTIONS = [
@@ -1666,9 +2261,12 @@ const DE_GRADE_OPTIONS = [
 
 const GRADE_POINT_OPTIONS = {
   au7: AU_GRADE_OPTIONS,
+  au4: AU4_GRADE_OPTIONS,
   us4: US_GRADE_OPTIONS,
+  us43: US43_GRADE_OPTIONS,
   my4: MY_GRADE_OPTIONS,
   nz9: NZ_GRADE_OPTIONS,
+  cn4: CN_GRADE_OPTIONS,
   de5: DE_GRADE_OPTIONS
 };
 
@@ -1704,7 +2302,7 @@ function getCreditUnitLabel(options = {}) {
   const system = options.system || getGradingSystem();
   // Credit naming is local: AU units/credit points, US/MY credit hours, NZ points, DE ECTS.
   if (system === "au7") return plural ? "units" : "unit";
-  if (system === "us4") return plural ? "GPA hours" : "GPA hour";
+  if (system === "us4" || system === "us43") return plural ? "GPA hours" : "GPA hour";
   if (system === "nz9") return plural ? "points" : "point";
   if (system === "de5") return "ECTS";
   return plural ? "credits" : "credit";
@@ -1712,17 +2310,17 @@ function getCreditUnitLabel(options = {}) {
 
 function getModuleCreditFieldLabel(system = getGradingSystem()) {
   if (system === "au7") return "Units / Credit Points";
-  if (system === "us4") return "Credit Hours / GPA Hours";
+  if (system === "us4" || system === "us43") return "Credit Hours / GPA Hours";
   if (system === "nz9") return "Course Points";
   if (system === "de5") return "ECTS Credits";
   return "Credits";
 }
 
 function getGradeScaleConfig(system = getGradingSystem()) {
-  if (system === "us4") {
+  if (system === "us4" || system === "us43") {
     return {
       min: 0,
-      max: 4,
+      max: system === "us43" ? 4.3 : 4,
       step: "0.01",
       suffix: "GPA",
       finalLabel: "Course Grade",
@@ -1730,6 +2328,7 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       placeholder: "Select grade"
     };
   }
+
   if (system === "my4") {
     return {
       min: 0,
@@ -1741,6 +2340,7 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       placeholder: "Select grade"
     };
   }
+
   if (system === "cn4") {
     return {
       min: 0,
@@ -1755,6 +2355,7 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       allowNumericGradeInput: true
     };
   }
+
   if (system === "au7") {
     return {
       min: 0,
@@ -1766,6 +2367,19 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       placeholder: "Select grade"
     };
   }
+
+  if (system === "au4") {
+    return {
+      min: 0,
+      max: 4,
+      step: "0.01",
+      suffix: "GPA",
+      finalLabel: "Course Grade",
+      markLabel: "Grade",
+      placeholder: "Select grade"
+    };
+  }
+
   if (system === "nz9") {
     return {
       min: 0,
@@ -1777,6 +2391,7 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       placeholder: "Select grade"
     };
   }
+
   if (system === "de5") {
     return {
       min: 1,
@@ -1789,6 +2404,7 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       allowNumericGradeInput: true
     };
   }
+
   return {
     min: 0,
     max: 100,
@@ -1802,22 +2418,17 @@ function getGradeScaleConfig(system = getGradingSystem()) {
   };
 }
 
-// Returns the grading system used to parse individual component marks.
-// DE components are on the 1.0–5.0 scale; all other systems use % (0–100).
 function getComponentMarkSystem(system = getGradingSystem()) {
   return system === "de5" ? "de5" : "uk";
 }
 
-// Returns min/max/step/label config for assessment component mark inputs.
 function getComponentScaleConfig(system = getGradingSystem()) {
   if (system === "de5") {
     return { min: 1, max: 5, step: "0.1", placeholder: "1.0–5.0", label: "Grade (1.0–5.0)" };
   }
+
   return { min: 0, max: 100, step: "0.1", placeholder: "-", label: "Mark %" };
 }
-
-// Converts a raw weighted percentage (0–100) to the native grade-point value for non-UK systems.
-// Thresholds reflect the most common institutional standards; students should confirm with their own scale.
 
 function isModulePredictionMode(mod, system = getGradingSystem()) {
   return system !== "uk" && mod?.usesCwExamPrediction === true;
@@ -1825,42 +2436,54 @@ function isModulePredictionMode(mod, system = getGradingSystem()) {
 
 function shouldAssessmentRollUpToCoursework(mi, system = getGradingSystem()) {
   const mod = MODULES[mi];
-
-  // UK coursework calculator always builds Coursework.
-  // Non-UK prediction mode uses assessment rows to build Coursework before combining with Exam.
   return system === "uk" || isModulePredictionMode(mod, system);
 }
 
 function shouldAssessmentDriveModuleGrade(mi, system = getGradingSystem()) {
   const mod = MODULES[mi];
-
-  // Germany uses native 1.0–5.0 component grades.
-  // When prediction is OFF, those components directly form the module grade.
   return system === "de5" && !isModulePredictionMode(mod, system);
 }
 
 function percentToNativeGrade(pct, system) {
-  if (system === "us4" || system === "us43") {
-    if (pct >= 93) return 4.0;   // A
-    if (pct >= 90) return 3.7;   // A-
-    if (pct >= 87) return 3.3;   // B+
-    if (pct >= 83) return 3.0;   // B
-    if (pct >= 80) return 2.7;   // B-
-    if (pct >= 77) return 2.3;   // C+
-    if (pct >= 73) return 2.0;   // C
-    if (pct >= 70) return 1.7;   // C-
-    if (pct >= 67) return 1.3;   // D+
-    if (pct >= 63) return 1.0;   // D
-    if (pct >= 60) return 0.7;   // D-
-    return 0;                    // F
+  if (system === "us43") {
+    if (pct >= 97) return 4.3;
+    if (pct >= 93) return 4.0;
+    if (pct >= 90) return 3.7;
+    if (pct >= 87) return 3.3;
+    if (pct >= 83) return 3.0;
+    if (pct >= 80) return 2.7;
+    if (pct >= 77) return 2.3;
+    if (pct >= 73) return 2.0;
+    if (pct >= 70) return 1.7;
+    if (pct >= 67) return 1.3;
+    if (pct >= 63) return 1.0;
+    if (pct >= 60) return 0.7;
+    return 0;
   }
+
+  if (system === "us4") {
+    if (pct >= 93) return 4.0;
+    if (pct >= 90) return 3.7;
+    if (pct >= 87) return 3.3;
+    if (pct >= 83) return 3.0;
+    if (pct >= 80) return 2.7;
+    if (pct >= 77) return 2.3;
+    if (pct >= 73) return 2.0;
+    if (pct >= 70) return 1.7;
+    if (pct >= 67) return 1.3;
+    if (pct >= 63) return 1.0;
+    if (pct >= 60) return 0.7;
+    return 0;
+  }
+
   if (system === "au7") {
-    if (pct >= 85) return 7;     // HD
-    if (pct >= 75) return 6;     // Distinction
-    if (pct >= 65) return 5;     // Credit
-    if (pct >= 50) return 4;     // Pass
-    return 0;                    // Fail
+    if (pct >= 85) return 7;
+    if (pct >= 75) return 6;
+    if (pct >= 65) return 5;
+    if (pct >= 50) return 4;
+    return 0;
   }
+
   if (system === "au4") {
     if (pct >= 85) return 4.0;
     if (pct >= 75) return 3.0;
@@ -1868,34 +2491,40 @@ function percentToNativeGrade(pct, system) {
     if (pct >= 50) return 1.0;
     return 0;
   }
+
   if (system === "my4") {
-    if (pct >= 90) return 4.0;   // A+
-    if (pct >= 80) return 4.0;   // A
-    if (pct >= 75) return 3.67;  // A-
-    if (pct >= 70) return 3.33;  // B+
-    if (pct >= 65) return 3.0;   // B
-    if (pct >= 60) return 2.67;  // B-
-    if (pct >= 55) return 2.33;  // C+
-    if (pct >= 50) return 2.0;   // C
-    if (pct >= 45) return 1.67;  // C-
-    if (pct >= 40) return 1.0;   // D
-    return 0;                    // F/E
+    if (pct >= 90) return 4.0;
+    if (pct >= 80) return 4.0;
+    if (pct >= 75) return 3.67;
+    if (pct >= 70) return 3.33;
+    if (pct >= 65) return 3.0;
+    if (pct >= 60) return 2.67;
+    if (pct >= 55) return 2.33;
+    if (pct >= 50) return 2.0;
+    if (pct >= 45) return 1.67;
+    if (pct >= 40) return 1.33;
+    if (pct >= 35) return 1.0;
+    if (pct >= 30) return 0.67;
+    return 0;
   }
+
   if (system === "nz9") {
-    if (pct >= 90) return 9;     // A+
-    if (pct >= 85) return 8;     // A
-    if (pct >= 80) return 7;     // A-
-    if (pct >= 75) return 6;     // B+
-    if (pct >= 70) return 5;     // B
-    if (pct >= 65) return 4;     // B-
-    if (pct >= 60) return 3;     // C+
-    if (pct >= 55) return 2;     // C
-    if (pct >= 50) return 1;     // C-
-    return 0;                    // Fail
+    if (pct >= 90) return 9;
+    if (pct >= 85) return 8;
+    if (pct >= 80) return 7;
+    if (pct >= 75) return 6;
+    if (pct >= 70) return 5;
+    if (pct >= 65) return 4;
+    if (pct >= 60) return 3;
+    if (pct >= 55) return 2;
+    if (pct >= 50) return 1;
+    return 0;
   }
+
   if (system === "cn4") {
-    return pct; // Mainland China: keep the weighted 0–100 score as the primary result.
+    return pct;
   }
+
   return pct;
 }
 
@@ -1938,12 +2567,31 @@ function classifyAuGpa(mark) {
   return { label: "Fail", badge: "Fail", cls: "", heroCls: "" };
 }
 
+function classifyAu4Gpa(mark) {
+  if (mark >= 3.5) return { label: "HD", badge: "High Distinction", cls: "cls-s-first", heroCls: "cls-first" };
+  if (mark >= 2.5) return { label: "D", badge: "Distinction", cls: "cls-s-21", heroCls: "cls-21" };
+  if (mark >= 1.5) return { label: "Credit", badge: "Credit", cls: "cls-s-22", heroCls: "cls-22" };
+  if (mark >= 1.0) return { label: "Pass", badge: "Pass", cls: "cls-s-third", heroCls: "cls-third" };
+  return { label: "Fail", badge: "Fail", cls: "", heroCls: "" };
+}
+
 function classifyNzGpa(mark) {
   if (mark >= 8) return { label: "A", badge: "A range", cls: "cls-s-first", heroCls: "cls-first" };
   if (mark >= 6) return { label: "B+", badge: "B range", cls: "cls-s-21", heroCls: "cls-21" };
   if (mark >= 4) return { label: "B-", badge: "B range", cls: "cls-s-22", heroCls: "cls-22" };
   if (mark >= 1) return { label: "C", badge: "Pass", cls: "cls-s-third", heroCls: "cls-third" };
   return { label: "Fail", badge: "Fail", cls: "", heroCls: "" };
+}
+
+function classifyMalaysianGpa(mark) {
+  if (mark >= 3.67) return { label: "A", badge: "A range", cls: "cls-s-first", heroCls: "cls-first" };
+  if (mark >= 3.33) return { label: "B+", badge: "B+", cls: "cls-s-21", heroCls: "cls-21" };
+  if (mark >= 3.0) return { label: "B", badge: "B", cls: "cls-s-21", heroCls: "cls-21" };
+  if (mark >= 2.67) return { label: "B-", badge: "B-", cls: "cls-s-22", heroCls: "cls-22" };
+  if (mark >= 2.33) return { label: "C+", badge: "C+", cls: "cls-s-22", heroCls: "cls-22" };
+  if (mark >= 2.0) return { label: "C", badge: "C", cls: "cls-s-third", heroCls: "cls-third" };
+  if (mark >= 1.0) return { label: "D", badge: "D", cls: "cls-s-third", heroCls: "cls-third" };
+  return { label: "E", badge: "E/F", cls: "", heroCls: "" };
 }
 
 function chinaScoreToApproxGpa(score) {
@@ -1986,11 +2634,14 @@ function formatGradeOptionLabel(option, system = getGradingSystem()) {
 
 function formatSelectedGrade(mark, options = {}) {
   if (mark === null || mark === undefined) return { main: "-", label: "", secondary: "" };
+
   const system = getGradingSystem();
-  if (["us4", "my4"].includes(system)) {
+
+  if (["us4", "us43", "my4"].includes(system)) {
     const exact = options.courseDisplay ? getGradeOption(system, options.rawValue) : null;
-    const grade = exact || classifyFourPointGpa(mark);
-    const pointLabel = system === "us4" ? "quality points" : "grade points";
+    const grade = exact || (system === "my4" ? classifyMalaysianGpa(mark) : classifyFourPointGpa(mark));
+    const pointLabel = system === "us4" || system === "us43" ? "quality points" : "grade points";
+
     if (options.courseDisplay) {
       return {
         main: grade.short || grade.label || exact?.code || "-",
@@ -1998,12 +2649,14 @@ function formatSelectedGrade(mark, options = {}) {
         secondary: ""
       };
     }
+
     return {
       main: `${mark.toFixed(2)} GPA`,
       label: grade.label,
       secondary: ""
     };
   }
+
   if (system === "cn4") {
     const grade = classifyChinaScore(mark);
 
@@ -2013,9 +2666,11 @@ function formatSelectedGrade(mark, options = {}) {
       secondary: "varies by uni"
     };
   }
+
   if (system === "au7") {
     const exact = options.courseDisplay ? getGradeOption(system, options.rawValue) : null;
     const grade = exact || classifyAuGpa(mark);
+
     if (options.courseDisplay) {
       return {
         main: grade.short || grade.label || exact?.code || "-",
@@ -2023,15 +2678,37 @@ function formatSelectedGrade(mark, options = {}) {
         secondary: ""
       };
     }
+
     return {
       main: `${mark.toFixed(2)} GPA`,
       label: grade.label,
       secondary: ""
     };
   }
+
+  if (system === "au4") {
+    const exact = options.courseDisplay ? getGradeOption(system, options.rawValue) : null;
+    const grade = exact || classifyAu4Gpa(mark);
+
+    if (options.courseDisplay) {
+      return {
+        main: grade.short || grade.label || exact?.code || "-",
+        label: `${mark.toFixed(2)} grade points`,
+        secondary: ""
+      };
+    }
+
+    return {
+      main: `${mark.toFixed(2)} GPA`,
+      label: grade.label,
+      secondary: ""
+    };
+  }
+
   if (system === "nz9") {
     const exact = options.courseDisplay ? getGradeOption(system, options.rawValue) : null;
     const grade = exact || classifyNzGpa(mark);
+
     if (options.courseDisplay) {
       return {
         main: grade.short || grade.label || exact?.code || "-",
@@ -2039,20 +2716,24 @@ function formatSelectedGrade(mark, options = {}) {
         secondary: ""
       };
     }
+
     return {
       main: `${mark.toFixed(2)} GPA`,
       label: grade.label,
       secondary: ""
     };
   }
+
   if (system === "de5") {
     const grade = classifyGermanGrade(mark);
+
     return {
       main: `${mark.toFixed(2)} grade`,
       label: grade.label,
       secondary: "Lower is better"
     };
   }
+
   const percent = `${mark.toFixed(1)}%`;
   const cls = classify(mark);
   return { main: percent, label: cls?.label || "", secondary: "" };
@@ -2060,7 +2741,17 @@ function formatSelectedGrade(mark, options = {}) {
 
 function formatModuleGradeDisplay(mi) {
   const final = getModuleFinal(mi);
-  const rawValue = getStore().finalGrades?.[mi];
+  const system = getGradingSystem();
+  const mod = MODULES[mi];
+
+  // In prediction mode, the displayed grade must come from the calculated
+  // CW/Exam result, not from a stale finalGrades dropdown value.
+  const usesCalculatedPrediction =
+    system === "uk" ||
+    isModulePredictionMode(mod, system);
+
+  const rawValue = usesCalculatedPrediction ? null : getStore().finalGrades?.[mi];
+
   return formatSelectedGrade(final, { courseDisplay: true, rawValue });
 }
 
@@ -2674,9 +3365,10 @@ function classify(mark) {
   if (system === "de5") return classifyGermanGrade(mark);
   if (system === "cn4") return classifyChinaScore(mark);
   if (system === "au7") return classifyAuGpa(mark);
-  if (system === "au4") return typeof classifyAu4Gpa === "function" ? classifyAu4Gpa(mark) : classifyFourPointGpa(mark);
+  if (system === "au4") return classifyAu4Gpa(mark);
   if (system === "nz9") return classifyNzGpa(mark);
-  if (["us4", "us43", "my4"].includes(system)) return classifyFourPointGpa(mark);
+  if (system === "my4") return classifyMalaysianGpa(mark);
+  if (system === "us4" || system === "us43") return classifyFourPointGpa(mark);
 
   if (mark >= 70) return { label: "First", badge: "First", cls: "cls-s-first", heroCls: "cls-first" };
   if (mark >= 60) return { label: "2:1", badge: "Upper Second", cls: "cls-s-21", heroCls: "cls-21" };
@@ -2784,13 +3476,6 @@ function escapeHtml(text) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
-}
-
-function safeUrl(url) {
-  const trimmed = String(url || "").trim();
-  if (!trimmed) return "";
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  return "https://" + trimmed.replace(/^\/+/, "");
 }
 
 function parseDeadlineInput(input) {
@@ -5288,13 +5973,8 @@ function updateModuleFormForGradingSystem() {
     if (predictionField) predictionField.classList.remove("hidden");
     if (cwField) cwField.classList.toggle("hidden", !predictionEnabled);
     if (examField) examField.classList.toggle("hidden", !predictionEnabled);
-    if (system === "de5") {
-      if (cwLabel) cwLabel.textContent = "Coursework Weight %";
-      if (examLabel) examLabel.textContent = "Exam Weight %";
-    } else {
-      if (cwLabel) cwLabel.textContent = "Coursework Weight %";
-      if (examLabel) examLabel.textContent = "Exam Weight %";
-    }
+    if (cwLabel) cwLabel.textContent = "Coursework Weight %";
+    if (examLabel) examLabel.textContent = "Exam Weight %";
   }
 
   populateModuleTermSelect();
@@ -6932,21 +7612,37 @@ function buildModules() {
       : `${escapeHtml(mod.kanji)} &middot; ${escapeHtml(termLabel)} &middot; ${escapeHtml(String(mod.credits ?? 0))} ${escapeHtml(getCreditUnitLabel({ plural: Number(mod.credits) !== 1 }))}${predictionWeightMeta}`;
     const cwPredLabel = gradingSystem === "de5" ? "Coursework Grade (1.0–5.0)" : "Coursework %";
     const examPredLabel = gradingSystem === "de5" ? "Exam Grade (1.0–5.0)" : "Exam %";
+    const getFinalGradeControlValue = () => {
+      const raw = store.finalGrades?.[mi] ?? "";
+      if (raw === "" || raw === null || raw === undefined) return "";
+
+      // Dropdown/text grade systems can keep letter codes like HD, A+, B.
+      if (gradeOptions || gradeScale.freeformGradeInput) return String(raw);
+
+      // Numeric systems must not receive stale letter codes from another grading system.
+      const parsed = parseGradeValue(raw, gradingSystem);
+      return parsed === null ? "" : String(parsed);
+    };
+
     const finalGradeControl = (id, className = "") => {
+      const safeValue = escapeHtml(getFinalGradeControlValue());
+
       if (gradeOptions && gradeScale.freeformGradeInput) {
         const listId = `${id}-options`;
-        return `<input class="input ${className}" type="text" id="${id}" list="${listId}" placeholder="${gradeScale.placeholder}" value="${store.finalGrades?.[mi] ?? ""}">
+        return `<input class="input ${className}" type="text" id="${id}" list="${listId}" placeholder="${escapeHtml(gradeScale.placeholder)}" value="${safeValue}">
           <datalist id="${listId}">
             ${gradeOptions.map((option) => `<option value="${escapeHtml(option.code)}">${escapeHtml(formatGradeOptionLabel(option, gradingSystem))}</option>`).join("")}
           </datalist>`;
       }
+
       if (gradeOptions) {
         return `<select class="nav-select ${className}" id="${id}">
           <option value="">Not graded yet</option>
           ${gradeOptions.map((option) => `<option value="${escapeHtml(option.code)}">${escapeHtml(formatGradeOptionLabel(option, gradingSystem))}</option>`).join("")}
         </select>`;
       }
-      return `<input class="input ${className}" type="number" min="${gradeScale.min ?? 0}" max="${gradeScale.max}" step="${gradeScale.step}" id="${id}" placeholder="${gradeScale.placeholder}" value="${store.finalGrades?.[mi] ?? ""}">`;
+
+      return `<input class="input ${className}" type="number" min="${gradeScale.min ?? 0}" max="${gradeScale.max}" step="${gradeScale.step}" id="${id}" placeholder="${escapeHtml(gradeScale.placeholder)}" value="${safeValue}">`;
     };
     const customisableTheme = isColourCustomisableTheme();
     const themeFamilyLabel = preferences.theme === "dark" ? "Dark theme colour" : "Light theme colour";

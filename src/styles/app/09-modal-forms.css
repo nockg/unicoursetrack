@@ -459,7 +459,7 @@ body.theme-charcoal .form-modal--calendar > .form-modal-footer .calendar-btn {
 @media (max-width: 700px) {
   .form-modal,
   .form-modal--calendar {
-    width: calc(100vw - 18px);
+    width: calc(100vw - 10px);
     max-height: 90vh;
   }
 
@@ -500,4 +500,1117 @@ body.theme-charcoal .form-modal--calendar > .form-modal-footer .calendar-btn {
 body.theme-dark .form-modal .field > label.checkbox-label,
 body.theme-charcoal .form-modal .field > label.checkbox-label {
   color: #f1ede4;
+}
+
+
+/* grading-system-modal-selector-style */
+.grading-native-select-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.grading-system-modal-button {
+  width: 100%;
+  min-height: 54px;
+  padding: 10px 12px;
+  margin-top: 6px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  align-items: center;
+  text-align: left;
+  border-radius: 8px;
+}
+
+.grading-system-modal-label {
+  grid-column: 1 / -1;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.grading-system-modal-current {
+  font-family: "DM Mono", monospace;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.grading-system-modal-action {
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vermillion);
+}
+
+.grading-guide-modal {
+  width: min(980px, calc(100vw - 28px));
+  max-height: min(820px, calc(100vh - 36px));
+  overflow: auto;
+}
+
+.grading-guide-intro {
+  margin: 8px 0 18px;
+  color: var(--muted);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.grading-guide-groups {
+  display: grid;
+  gap: 18px;
+}
+
+.grading-guide-group-title {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.grading-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.grading-guide-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--paper2) 88%, white 12%);
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.grading-guide-card:hover,
+.grading-guide-card.active {
+  border-color: var(--vermillion);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+}
+
+.grading-guide-card-head {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.grading-guide-card-title {
+  font-family: "Shippori Mincho", serif;
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.grading-guide-card-meta {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vermillion);
+}
+
+.grading-guide-card-body {
+  display: block;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.grading-guide-note {
+  margin-top: 16px;
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: rgba(26, 44, 74, 0.06);
+  color: var(--slate);
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+body.theme-dark .grading-system-modal-current,
+body.theme-charcoal .grading-system-modal-current {
+  color: #f1ede4;
+}
+
+body.theme-dark .grading-guide-card,
+body.theme-charcoal .grading-guide-card {
+  background: rgba(255,255,255,0.045);
+  border-color: rgba(255,255,255,0.09);
+}
+
+body.theme-dark .grading-guide-card:hover,
+body.theme-dark .grading-guide-card.active,
+body.theme-charcoal .grading-guide-card:hover,
+body.theme-charcoal .grading-guide-card.active {
+  border-color: var(--gold2);
+}
+
+body.theme-dark .grading-guide-card-title,
+body.theme-charcoal .grading-guide-card-title {
+  color: #f1ede4;
+}
+
+body.theme-dark .grading-guide-card-body,
+body.theme-charcoal .grading-guide-card-body {
+  color: rgba(241,237,228,0.72);
+}
+
+@media (max-width: 720px) {
+  .grading-guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .grading-guide-modal {
+    width: calc(100vw - 20px);
+  }
+}
+
+
+
+/* grading-modal-final-language */
+.grading-system-guide-shell.dashboard-modal {
+  z-index: 11000;
+  background: rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(6px);
+}
+
+.grading-guide-modal--focused {
+  width: min(680px, calc(100vw - 28px));
+  max-height: 82vh;
+  overflow: auto;
+  padding: 20px 18px 16px;
+  animation: none !important;
+}
+
+.grading-guide-modal--focused .timeline-head {
+  margin-bottom: 14px;
+  padding-right: 44px;
+}
+
+.grading-guide-modal--focused .timeline-subtitle {
+  margin-bottom: 8px;
+}
+
+.grading-guide-modal--focused .timeline-page-title {
+  font-size: clamp(30px, 3.2vw, 42px);
+  line-height: 0.98;
+}
+
+.grading-guide-focus-layout {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.grading-guide-region-nav {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--border) 86%, transparent 14%);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.grading-guide-region-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-family: "DM Mono", monospace;
+  font-size: 13px;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 11px 11px;
+  border-radius: 6px;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+}
+
+.grading-guide-region-btn.tone-uk { --region-accent: #b54a3f; }
+.grading-guide-region-btn.tone-us { --region-accent: #2f5f8f; }
+.grading-guide-region-btn.tone-au { --region-accent: #8a6d1f; }
+.grading-guide-region-btn.tone-apac { --region-accent: #2f7a62; }
+.grading-guide-region-btn.tone-eu { --region-accent: #6d5ba7; }
+.grading-guide-region-btn.tone-advanced { --region-accent: #7b6b5c; }
+
+.grading-guide-region-btn:hover {
+  color: var(--ink);
+  background: rgba(26, 22, 18, 0.04);
+  border-color: color-mix(in srgb, var(--region-accent, var(--gold2)) 45%, transparent 55%);
+}
+
+.grading-guide-region-btn.active {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--paper2) 84%, white 16%);
+  border-color: color-mix(in srgb, var(--region-accent, var(--gold2)) 58%, var(--border2) 42%);
+  border-left-color: var(--region-accent);
+  box-shadow: inset 3px 0 0 var(--region-accent);
+}
+
+.grading-guide-focused-section {
+  min-height: 0;
+}
+
+.grading-guide-focused-section.tone-uk,
+.grading-guide-modal--focused.tone-uk { --grading-region-accent: #b54a3f; }
+
+.grading-guide-focused-section.tone-us,
+.grading-guide-modal--focused.tone-us { --grading-region-accent: #2f5f8f; }
+
+.grading-guide-focused-section.tone-au,
+.grading-guide-modal--focused.tone-au { --grading-region-accent: #8a6d1f; }
+
+.grading-guide-focused-section.tone-apac,
+.grading-guide-modal--focused.tone-apac { --grading-region-accent: #2f7a62; }
+
+.grading-guide-focused-section.tone-eu,
+.grading-guide-modal--focused.tone-eu { --grading-region-accent: #6d5ba7; }
+
+.grading-guide-focused-section.tone-advanced,
+.grading-guide-modal--focused.tone-advanced { --grading-region-accent: #7b6b5c; }
+
+.grading-guide-focused-section .module-library-section-head {
+  padding: 14px 16px 12px;
+  border-bottom-color: color-mix(in srgb, var(--grading-region-accent) 32%, var(--border) 68%);
+}
+
+.grading-guide-focused-section .module-library-section-label {
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+
+.grading-guide-focused-section .module-library-section-copy {
+  margin-top: 6px;
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.grading-guide-list--focused {
+  grid-template-columns: 1fr;
+  gap: 10px;
+  padding: 14px 16px 16px;
+}
+
+.grading-guide-list--focused .grading-guide-row {
+  width: 100%;
+  min-height: 78px;
+  grid-template-columns: 8px minmax(0, 1fr);
+  align-items: center;
+  text-align: left;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.grading-guide-list--focused .grading-guide-row .module-library-module-accent {
+  background: color-mix(in srgb, var(--grading-region-accent) 72%, var(--gold2) 28%);
+  border-radius: 999px;
+}
+
+.grading-guide-list--focused .grading-guide-row:hover,
+.grading-guide-list--focused .grading-guide-row.active,
+.grading-guide-list--focused .grading-guide-row.selected {
+  border-color: color-mix(in srgb, var(--grading-region-accent) 58%, var(--border2) 42%);
+}
+
+.grading-guide-list--focused .grading-guide-row-title {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.grading-guide-list--focused .module-library-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 0;
+}
+
+.grading-guide-list--focused .module-library-pill {
+  font-size: 12px;
+  line-height: 1.35;
+  letter-spacing: 0.03em;
+  padding: 5px 8px;
+}
+
+.grading-guide-current-pill {
+  border-color: color-mix(in srgb, var(--grading-region-accent) 68%, var(--border2) 32%);
+  color: var(--grading-region-accent);
+}
+
+body.theme-dark .grading-system-guide-shell.dashboard-modal,
+body.theme-charcoal .grading-system-guide-shell.dashboard-modal {
+  background: rgba(0, 0, 0, 0.30);
+}
+
+body.theme-dark .grading-guide-region-nav,
+body.theme-charcoal .grading-guide-region-nav {
+  background: #232428;
+  border-color: rgba(255,255,255,0.10);
+}
+
+body.theme-dark .grading-guide-region-btn,
+body.theme-charcoal .grading-guide-region-btn {
+  color: rgba(241,237,228,0.70);
+}
+
+body.theme-dark .grading-guide-region-btn:hover,
+body.theme-charcoal .grading-guide-region-btn:hover {
+  color: #f1ede4;
+  background: rgba(255,255,255,0.05);
+}
+
+body.theme-dark .grading-guide-region-btn.active,
+body.theme-charcoal .grading-guide-region-btn.active {
+  color: #f1ede4;
+  background: rgba(255,255,255,0.07);
+  border-left-color: color-mix(in srgb, var(--region-accent) 70%, #f1ede4 30%);
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--region-accent) 70%, #f1ede4 30%);
+}
+
+body.theme-dark .grading-guide-list--focused .grading-guide-row .module-library-module-accent,
+body.theme-charcoal .grading-guide-list--focused .grading-guide-row .module-library-module-accent {
+  background: color-mix(in srgb, var(--grading-region-accent) 66%, #f1ede4 34%);
+}
+
+@media (max-width: 900px) {
+  .grading-guide-modal--focused {
+    width: min(640px, calc(100vw - 20px));
+  }
+}
+
+@media (max-width: 760px) {
+  .grading-guide-modal--focused {
+    width: calc(100vw - 18px);
+    max-height: 88vh;
+    padding: 14px 10px 10px;
+  }
+
+  .grading-guide-modal--focused .timeline-head {
+    padding-right: 38px;
+    margin-bottom: 12px;
+  }
+
+  .grading-guide-modal--focused .timeline-page-title {
+    font-size: clamp(26px, 7vw, 34px);
+    line-height: 1.02;
+  }
+
+  .grading-guide-focus-layout {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .grading-guide-region-nav {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 8px;
+    scrollbar-width: none;
+  }
+
+  .grading-guide-region-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .grading-guide-region-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 10px 11px;
+  }
+
+  .grading-guide-focused-section .module-library-section-head {
+    padding: 12px 14px 10px;
+  }
+
+  .grading-guide-focused-section .module-library-section-label {
+    font-size: 12px;
+  }
+
+  .grading-guide-focused-section .module-library-section-copy {
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  .grading-guide-list--focused {
+    padding: 12px 14px 14px;
+    gap: 8px;
+  }
+
+  .grading-guide-list--focused .grading-guide-row {
+    min-height: 72px;
+  }
+
+  .grading-guide-list--focused .grading-guide-row-title {
+    font-size: 17px;
+    margin-bottom: 7px;
+  }
+
+  .grading-guide-list--focused .module-library-pill {
+    font-size: 11.5px;
+    line-height: 1.35;
+    padding: 5px 7px;
+  }
+}
+
+@media (max-width: 480px) {
+  .grading-guide-modal--focused {
+    width: calc(100vw - 6px);
+    padding: 16px 12px 12px;
+  }
+
+  .grading-guide-modal--focused .timeline-page-title {
+    font-size: 24px;
+  }
+
+  .grading-guide-region-btn {
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+
+  .grading-guide-list--focused .grading-guide-row-title {
+    font-size: 16px;
+  }
+
+  .grading-guide-list--focused .module-library-pill {
+    font-size: 11px;
+  }
+}
+
+
+/* grading-modal-world-view-toggle */
+.grading-guide-topline {
+  align-items: flex-start;
+}
+
+.grading-guide-view-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent 16%);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.42);
+  flex: 0 0 auto;
+}
+
+.grading-guide-view-toggle button {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.grading-guide-view-toggle button:hover,
+.grading-guide-view-toggle button.active {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--paper2) 82%, white 18%);
+  border-color: color-mix(in srgb, var(--border2) 78%, var(--gold2) 22%);
+}
+
+.grading-guide-modal--focused.view-world {
+  width: min(760px, calc(100vw - 28px));
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-focus-layout {
+  grid-template-columns: 255px minmax(0, 1fr);
+}
+
+.grading-guide-world-card {
+  position: relative;
+  min-height: 326px;
+  border: 1px solid color-mix(in srgb, var(--border) 86%, transparent 14%);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 22% 38%, rgba(255,255,255,0.55), transparent 28%),
+    color-mix(in srgb, var(--paper2) 86%, white 14%);
+  overflow: hidden;
+}
+
+.grading-guide-world-map {
+  position: absolute;
+  inset: 16px 12px 34px;
+  opacity: 0.92;
+}
+
+.world-blob {
+  position: absolute;
+  border: 1px solid color-mix(in srgb, var(--muted) 22%, transparent 78%);
+  background: color-mix(in srgb, var(--muted) 11%, transparent 89%);
+  border-radius: 999px;
+}
+
+.world-blob-americas {
+  width: 90px;
+  height: 122px;
+  left: 14px;
+  top: 62px;
+  transform: rotate(-16deg);
+}
+
+.world-blob-europe {
+  width: 64px;
+  height: 56px;
+  left: 126px;
+  top: 70px;
+  transform: rotate(8deg);
+}
+
+.world-blob-asia {
+  width: 100px;
+  height: 82px;
+  right: 18px;
+  top: 86px;
+  transform: rotate(-5deg);
+}
+
+.world-blob-australia {
+  width: 58px;
+  height: 38px;
+  right: 32px;
+  bottom: 42px;
+  transform: rotate(-8deg);
+}
+
+.grading-map-pin {
+  --pin-accent: var(--gold2);
+  position: absolute;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: inline-grid;
+  gap: 6px;
+  justify-items: center;
+  color: var(--ink);
+  transform: translate(-50%, -50%);
+}
+
+.grading-map-pin-dot {
+  width: 15px;
+  height: 15px;
+  border-radius: 999px;
+  background: var(--pin-accent);
+  border: 2px solid color-mix(in srgb, var(--paper) 82%, white 18%);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--pin-accent) 20%, transparent 80%);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.grading-map-pin-label {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-2px);
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--paper) 92%, white 8%);
+  border: 1px solid color-mix(in srgb, var(--pin-accent) 48%, var(--border2) 52%);
+  padding: 4px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.grading-map-pin:hover .grading-map-pin-dot,
+.grading-map-pin:focus-visible .grading-map-pin-dot,
+.grading-map-pin.active .grading-map-pin-dot {
+  transform: scale(1.22);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--pin-accent) 26%, transparent 74%);
+}
+
+.grading-map-pin:hover .grading-map-pin-label,
+.grading-map-pin:focus-visible .grading-map-pin-label,
+.grading-map-pin.active .grading-map-pin-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.grading-map-pin.tone-uk {
+  --pin-accent: #b54a3f;
+  left: 50%;
+  top: 34%;
+}
+
+.grading-map-pin.tone-us {
+  --pin-accent: #2f5f8f;
+  left: 28%;
+  top: 45%;
+}
+
+.grading-map-pin.tone-au {
+  --pin-accent: #8a6d1f;
+  left: 76%;
+  top: 73%;
+}
+
+.grading-map-pin.tone-apac {
+  --pin-accent: #2f7a62;
+  left: 74%;
+  top: 47%;
+}
+
+.grading-map-pin.tone-eu {
+  --pin-accent: #6d5ba7;
+  left: 56%;
+  top: 36%;
+}
+
+.grading-map-pin.tone-advanced {
+  --pin-accent: #7b6b5c;
+  left: 50%;
+  top: 86%;
+}
+
+.grading-guide-world-hint {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+body.theme-dark .grading-guide-view-toggle,
+body.theme-charcoal .grading-guide-view-toggle,
+body.theme-dark .grading-guide-world-card,
+body.theme-charcoal .grading-guide-world-card {
+  background: #232428;
+  border-color: rgba(255,255,255,0.1);
+}
+
+body.theme-dark .grading-guide-view-toggle button.active,
+body.theme-charcoal .grading-guide-view-toggle button.active {
+  background: rgba(255,255,255,0.07);
+  color: #f1ede4;
+  border-color: rgba(216,200,176,0.34);
+}
+
+body.theme-dark .grading-map-pin-label,
+body.theme-charcoal .grading-map-pin-label {
+  background: #1b1c1f;
+  color: #f1ede4;
+}
+
+@media (hover: none), (max-width: 760px) {
+  .grading-guide-view-toggle button:nth-child(2) {
+    display: none;
+  }
+
+  .grading-guide-modal--focused.view-world .grading-guide-focus-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .grading-guide-world-card {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .grading-guide-topline {
+    align-items: stretch;
+  }
+
+  .grading-guide-view-toggle {
+    width: fit-content;
+  }
+}
+
+
+/* grading-modal-actual-line-map */
+.grading-guide-modal--focused.view-world {
+  width: min(720px, calc(100vw - 20px));
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-focus-layout {
+  grid-template-columns: 250px minmax(0, 1fr);
+}
+
+.grading-guide-world-card {
+  position: relative;
+  min-height: 300px;
+  border: 1px solid color-mix(in srgb, var(--border) 86%, transparent 14%);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--paper2) 88%, white 12%);
+  overflow: hidden;
+}
+
+.grading-guide-world-map {
+  position: absolute;
+  inset: 12px 10px 32px;
+}
+
+.grading-guide-world-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.grading-guide-world-svg .map-outline {
+  fill: none;
+  stroke: color-mix(in srgb, var(--muted) 46%, transparent 54%);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.92;
+}
+
+.grading-map-pin {
+  --pin-accent: var(--gold2);
+  position: absolute;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: inline-grid;
+  gap: 6px;
+  justify-items: center;
+  color: var(--ink);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.grading-map-pin-dot {
+  width: 15px;
+  height: 15px;
+  border-radius: 999px;
+  background: var(--pin-accent);
+  border: 2px solid color-mix(in srgb, var(--paper) 82%, white 18%);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--pin-accent) 18%, transparent 82%);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.grading-map-pin-label {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-2px);
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--paper) 92%, white 8%);
+  border: 1px solid color-mix(in srgb, var(--pin-accent) 48%, var(--border2) 52%);
+  padding: 4px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.grading-map-pin:hover .grading-map-pin-dot,
+.grading-map-pin:focus-visible .grading-map-pin-dot,
+.grading-map-pin.active .grading-map-pin-dot,
+.grading-map-pin.is-preview .grading-map-pin-dot {
+  transform: scale(1.18);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--pin-accent) 24%, transparent 76%);
+}
+
+.grading-map-pin:hover .grading-map-pin-label,
+.grading-map-pin:focus-visible .grading-map-pin-label,
+.grading-map-pin.active .grading-map-pin-label,
+.grading-map-pin.is-preview .grading-map-pin-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.grading-map-pin.tone-uk { --pin-accent: #b54a3f; }
+.grading-map-pin.tone-us { --pin-accent: #2f5f8f; }
+.grading-map-pin.tone-au { --pin-accent: #8a6d1f; }
+.grading-map-pin.tone-apac { --pin-accent: #2f7a62; }
+.grading-map-pin.tone-eu { --pin-accent: #6d5ba7; }
+.grading-map-pin.tone-advanced { --pin-accent: #7b6b5c; }
+
+.grading-guide-world-hint {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+body.theme-dark .grading-guide-world-card,
+body.theme-charcoal .grading-guide-world-card {
+  background: #232428;
+  border-color: rgba(255,255,255,0.1);
+}
+
+body.theme-dark .grading-guide-world-svg .map-outline,
+body.theme-charcoal .grading-guide-world-svg .map-outline {
+  stroke: rgba(241,237,228,0.26);
+}
+
+body.theme-dark .grading-map-pin-label,
+body.theme-charcoal .grading-map-pin-label {
+  background: #1b1c1f;
+  color: #f1ede4;
+}
+
+@media (hover: none), (max-width: 760px) {
+  .grading-guide-view-toggle button:nth-child(2) {
+    display: none;
+  }
+
+  .grading-guide-modal--focused.view-world .grading-guide-focus-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .grading-guide-world-card {
+    display: none;
+  }
+}
+
+
+/* grading-modal-world-view-priority-fix */
+.grading-guide-modal--focused.view-world {
+  width: min(820px, calc(100vw - 18px));
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-focus-layout {
+  grid-template-columns: minmax(360px, 1.45fr) minmax(220px, 0.85fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-world-card {
+  min-height: 382px;
+  border-radius: 12px;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-world-map {
+  inset: 10px 8px 34px;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-world-svg {
+  transform: scale(1.06);
+  transform-origin: center center;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-focused-section {
+  min-height: 382px;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-focused-section .module-library-section-head {
+  padding: 12px 13px 10px;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-focused-section .module-library-section-label {
+  font-size: 12px;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-focused-section .module-library-section-copy {
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-list--focused {
+  padding: 10px 12px 12px;
+  gap: 8px;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-list--focused .grading-guide-row {
+  min-height: 70px;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-list--focused .grading-guide-row-title {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-list--focused .module-library-pill {
+  font-size: 10.5px;
+  padding: 4px 6px;
+}
+
+.grading-guide-modal--focused.view-world .grading-map-pin-dot {
+  width: 16px;
+  height: 16px;
+}
+
+.grading-guide-modal--focused.view-world .grading-map-pin-label {
+  font-size: 10px;
+  padding: 5px 7px;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-world-hint {
+  left: 12px;
+  right: 12px;
+  bottom: 10px;
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+@media (max-width: 980px) {
+  .grading-guide-modal--focused.view-world {
+    width: min(760px, calc(100vw - 14px));
+  }
+
+  .grading-guide-modal--focused.view-world .grading-guide-focus-layout {
+    grid-template-columns: minmax(320px, 1.35fr) minmax(210px, 0.9fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .grading-guide-modal--focused.view-world .grading-guide-focus-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .grading-guide-modal--focused.view-world .grading-guide-world-card {
+    min-height: 0;
+  }
+}
+
+
+/* grading-modal-world-map-resolution-pass */
+.grading-guide-modal--focused.view-world {
+  width: min(860px, calc(100vw - 14px));
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-focus-layout {
+  grid-template-columns: minmax(420px, 1.6fr) minmax(210px, 0.8fr);
+  gap: 10px;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-world-card {
+  min-height: 400px;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-world-map {
+  inset: 8px 8px 34px;
+}
+
+.grading-guide-world-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  shape-rendering: geometricPrecision;
+  text-rendering: geometricPrecision;
+}
+
+.grading-guide-world-svg .map-outline {
+  fill: none;
+  stroke: color-mix(in srgb, var(--muted) 48%, transparent 52%);
+  stroke-width: 2.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.96;
+}
+
+.grading-guide-modal--focused.view-world .grading-map-pin-dot {
+  width: 16px;
+  height: 16px;
+}
+
+.grading-guide-modal--focused.view-world .grading-map-pin-label {
+  font-size: 10px;
+}
+
+body.theme-dark .grading-guide-world-svg .map-outline,
+body.theme-charcoal .grading-guide-world-svg .map-outline {
+  stroke: rgba(241,237,228,0.28);
+}
+
+@media (max-width: 980px) {
+  .grading-guide-modal--focused.view-world {
+    width: min(790px, calc(100vw - 12px));
+  }
+
+  .grading-guide-modal--focused.view-world .grading-guide-focus-layout {
+    grid-template-columns: minmax(360px, 1.45fr) minmax(210px, 0.85fr);
+  }
+
+  .grading-guide-modal--focused.view-world .grading-guide-world-card {
+    min-height: 360px;
+  }
+}
+
+
+/* grading-modal-organic-map-polish */
+.grading-guide-modal--focused.view-world {
+  width: min(850px, calc(100vw - 14px));
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-focus-layout {
+  grid-template-columns: minmax(430px, 1.65fr) minmax(210px, 0.82fr);
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-world-card {
+  min-height: 410px;
+}
+
+.grading-guide-modal--focused.view-world .grading-guide-world-map {
+  inset: 4px 8px 28px;
+}
+
+.grading-guide-world-svg .map-outline {
+  fill: none;
+  stroke: color-mix(in srgb, var(--muted) 46%, transparent 54%);
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.88;
+}
+
+.grading-guide-world-svg .map-antarctica {
+  stroke-dasharray: 4 5;
+  opacity: 0.56;
+}
+
+.grading-guide-modal--focused.view-world .grading-map-pin-dot {
+  width: 16px;
+  height: 16px;
+}
+
+.grading-guide-modal--focused.view-world .grading-map-pin-label {
+  font-size: 10px;
+  padding: 5px 7px;
+}
+
+@media (max-width: 980px) {
+  .grading-guide-modal--focused.view-world .grading-guide-focus-layout {
+    grid-template-columns: minmax(360px, 1.45fr) minmax(210px, 0.85fr);
+  }
+
+  .grading-guide-modal--focused.view-world .grading-guide-world-card {
+    min-height: 360px;
+  }
+}
+
+@media (max-width: 760px) {
+  .grading-guide-modal--focused.view-world {
+    width: calc(100vw - 10px);
+  }
+
+  .grading-guide-view-toggle button:nth-child(2) {
+    display: none;
+  }
 }
