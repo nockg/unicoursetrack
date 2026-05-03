@@ -592,6 +592,29 @@ function handleAuthKeydown(event, mode) {
   else loginFromModal();
 }
 
+
+/* auth-redirect-origin-fix */
+function getAuthRedirectOrigin() {
+  const productionOrigin = "https://unitrack.uk";
+  const host = window.location.hostname;
+
+  const isLocalHost =
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host === "0.0.0.0" ||
+    host === "::1";
+
+  const isVercelPreview =
+    host.endsWith(".vercel.app") &&
+    host !== "unitrack.uk";
+
+  if (isLocalHost || isVercelPreview) {
+    return productionOrigin;
+  }
+
+  return window.location.origin || productionOrigin;
+}
+
 async function resetPasswordFromModal() {
   if (!ensureCloudAuthReady()) return;
   const email = getAuthInputValue("email");
@@ -609,7 +632,7 @@ async function resetPasswordFromModal() {
   let error;
   try {
     ({ error } = await withCloudTimeout(supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin
+      redirectTo: getAuthRedirectOrigin()
     }), "Password reset"));
   } catch (cloudError) {
     setAuthError(cloudError?.message || "Password reset failed. Please try again.");
@@ -689,7 +712,7 @@ async function signUpFromModal() {
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin
+        emailRedirectTo: getAuthRedirectOrigin()
       }
     }), "Account creation"));
   } catch (cloudError) {

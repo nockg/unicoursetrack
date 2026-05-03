@@ -1563,33 +1563,13 @@ function savePreferences() {
 }
 
 
-function openGradingSystemGuideModal(event, selectId = "pref-grading-system") {
-  if (event) event.stopPropagation();
-
-  activeGradingSystemSelectId = selectId || "pref-grading-system";
-
-  const select = document.getElementById(activeGradingSystemSelectId);
-  const currentValue = select?.value || state.profile?.gradingSystem || "uk";
-  activeGradingGuideRegion = getGradingGuideGroupForValue(currentValue);
-
-  // Desktop opens in World View by default. Mobile stays List View because tiny map pins are awkward to tap.
-  const isMobile = window.matchMedia?.("(max-width: 760px)")?.matches;
-  activeGradingGuideView = isMobile ? "list" : "world";
-
-  const modal = ensureGradingSystemGuideModal();
-  modal.classList.remove("hidden");
-
-  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
-}
 
 
 
 
 
-function closeGradingSystemGuideModal() {
-  document.getElementById("grading-system-guide-modal")?.classList.add("hidden");
-  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
-}
+
+
 
 
 /* grading-system-modal-selector */
@@ -2097,6 +2077,8 @@ function installGradingSystemModalSelector() {
   updateGradingSystemChooserButtons();
 }
 
+
+
 /* grading-selector-source-modal-flow-fix */
 let gradingSelectorReturnModalId = "";
 
@@ -2137,7 +2119,10 @@ function restoreModalAfterGradingSelector() {
 }
 
 function openGradingSystemGuideModal(event, selectId = "pref-grading-system") {
-  if (event) event.stopPropagation();
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
 
   activeGradingSystemSelectId = selectId || "pref-grading-system";
 
@@ -2160,6 +2145,7 @@ function closeGradingSystemGuideModal() {
     syncModalScrollLock();
   }
 }
+
 
 function chooseGradingSystemFromGuide(system) {
   if (!SUPPORTED_GRADING_SYSTEMS.includes(system)) return;
@@ -8885,6 +8871,29 @@ function handleAuthKeydown(event, mode) {
   else loginFromModal();
 }
 
+
+/* auth-redirect-origin-fix */
+function getAuthRedirectOrigin() {
+  const productionOrigin = "https://unitrack.uk";
+  const host = window.location.hostname;
+
+  const isLocalHost =
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host === "0.0.0.0" ||
+    host === "::1";
+
+  const isVercelPreview =
+    host.endsWith(".vercel.app") &&
+    host !== "unitrack.uk";
+
+  if (isLocalHost || isVercelPreview) {
+    return productionOrigin;
+  }
+
+  return window.location.origin || productionOrigin;
+}
+
 async function resetPasswordFromModal() {
   if (!ensureCloudAuthReady()) return;
   const email = getAuthInputValue("email");
@@ -8902,7 +8911,7 @@ async function resetPasswordFromModal() {
   let error;
   try {
     ({ error } = await withCloudTimeout(supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin
+      redirectTo: getAuthRedirectOrigin()
     }), "Password reset"));
   } catch (cloudError) {
     setAuthError(cloudError?.message || "Password reset failed. Please try again.");
@@ -8982,7 +8991,7 @@ async function signUpFromModal() {
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin
+        emailRedirectTo: getAuthRedirectOrigin()
       }
     }), "Account creation"));
   } catch (cloudError) {
