@@ -1695,17 +1695,68 @@ function installGradingSystemModalSelector() {
   updateGradingSystemChooserButtons();
 }
 
+/* grading-selector-source-modal-flow-fix */
+let gradingSelectorReturnModalId = "";
+
+function pauseModalBeforeGradingSelector(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal || modal.classList.contains("hidden")) return false;
+
+  modal.classList.add("hidden");
+  modal.dataset.restoreAfterGradingSelector = "true";
+  gradingSelectorReturnModalId = modalId;
+
+  if (modalId === "course-setup-modal") {
+    document.body.classList.remove("setup-required");
+  }
+
+  return true;
+}
+
+function restoreModalAfterGradingSelector() {
+  if (!gradingSelectorReturnModalId) return;
+
+  const modal = document.getElementById(gradingSelectorReturnModalId);
+
+  if (modal?.dataset.restoreAfterGradingSelector === "true") {
+    modal.classList.remove("hidden");
+    delete modal.dataset.restoreAfterGradingSelector;
+
+    if (gradingSelectorReturnModalId === "course-setup-modal" && courseSetupInitial) {
+      document.body.classList.add("setup-required");
+    }
+  }
+
+  gradingSelectorReturnModalId = "";
+
+  if (typeof syncModalScrollLock === "function") {
+    syncModalScrollLock();
+  }
+}
+
 function openGradingSystemGuideModal(event, selectId = "pref-grading-system") {
   if (event) event.stopPropagation();
+
   activeGradingSystemSelectId = selectId || "pref-grading-system";
+
+  pauseModalBeforeGradingSelector("course-setup-modal") ||
+    pauseModalBeforeGradingSelector("auth-modal");
+
   const modal = ensureGradingSystemGuideModal();
   modal.classList.remove("hidden");
-  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
+
+  if (typeof syncModalScrollLock === "function") {
+    syncModalScrollLock();
+  }
 }
 
 function closeGradingSystemGuideModal() {
   document.getElementById("grading-system-guide-modal")?.classList.add("hidden");
-  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
+  restoreModalAfterGradingSelector();
+
+  if (typeof syncModalScrollLock === "function") {
+    syncModalScrollLock();
+  }
 }
 
 function chooseGradingSystemFromGuide(system) {
