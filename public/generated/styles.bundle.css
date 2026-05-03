@@ -11897,3 +11897,265 @@ body.theme-charcoal .account-clean-install .account-clean-install-link:hover {
     display: none;
   }
 }
+
+/* 12-responsive.css */
+
+/* China/GPA result readability: module cards */
+.module-header .final-col {
+  min-width: 280px;
+  width: 280px;
+  justify-self: stretch;
+  text-align: left;
+}
+
+.module-header .final-mark {
+  font-size: clamp(30px, 2.6vw, 40px);
+  line-height: 1;
+  margin-bottom: 8px;
+  white-space: nowrap;
+}
+
+.module-header .final-cls {
+  display: block;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
+  font-size: 12px;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+  padding: 7px 9px;
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+  text-align: left;
+}
+
+@media (max-width: 1120px) {
+  .module-header {
+    grid-template-columns:
+      20px
+      minmax(190px, 1.15fr)
+      minmax(150px, 0.7fr)
+      minmax(190px, 0.85fr)
+      minmax(260px, 1fr)
+      auto
+      20px;
+  }
+
+  .module-header .final-col {
+    min-width: 260px;
+    width: 260px;
+  }
+}
+
+@media (max-width: 860px) {
+  .module-header .final-col {
+    width: auto;
+    min-width: 0;
+  }
+
+  .module-header .final-cls {
+    max-width: 100%;
+    font-size: 12px;
+  }
+}
+
+/* Grading chooser fixes: stacking, mobile width, and prediction copy readability */
+
+/* Keep the grading selector above Edit Course Settings / other modal layers */
+#grading-system-guide-modal.dashboard-modal,
+.grading-system-guide-shell.dashboard-modal {
+  z-index: 32000;
+}
+
+/* Make the grading selector clickable instead of sitting blurred behind another modal */
+#grading-system-guide-modal .dashboard-content,
+.grading-system-guide-shell .dashboard-content {
+  pointer-events: auto;
+}
+
+/* Make the mark prediction text readable */
+#module-prediction-field {
+  align-self: stretch;
+}
+
+#module-prediction-field .checkbox-label {
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+#module-prediction-field .checkbox-label input {
+  flex: 0 0 auto;
+  margin-top: 3px;
+}
+
+#module-prediction-field .field-hint {
+  max-width: 62ch;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* Mobile grading selector layout */
+@media (max-width: 760px) {
+  #grading-system-guide-modal.dashboard-modal,
+  .grading-system-guide-shell.dashboard-modal {
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 8px;
+  }
+
+  .grading-guide-modal,
+  .grading-guide-modal--focused {
+    width: 100%;
+    max-width: none;
+    max-height: calc(100dvh - 16px);
+    border-radius: 12px;
+    padding: 14px 12px 12px;
+  }
+
+  .grading-guide-modal--focused .timeline-head,
+  .grading-guide-modal .timeline-head {
+    margin-bottom: 10px;
+    padding-right: 40px;
+  }
+
+  .grading-guide-modal--focused .timeline-page-title,
+  .grading-guide-modal .dashboard-title,
+  .grading-guide-modal .timeline-page-title {
+    font-size: clamp(25px, 8vw, 32px);
+    line-height: 1.02;
+  }
+
+  .grading-guide-intro,
+  .grading-guide-focused-section .module-library-section-copy {
+    font-size: 14px;
+    line-height: 1.42;
+  }
+
+  .grading-guide-focus-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .grading-guide-region-nav {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    padding: 8px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .grading-guide-region-btn {
+    flex: 0 0 auto;
+    min-width: max-content;
+    padding: 9px 10px;
+    font-size: 11px;
+    line-height: 1.15;
+    border-left-width: 0;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+  }
+
+  .grading-guide-region-btn.active {
+    border-left-color: transparent;
+    border-bottom-color: var(--region-accent);
+    box-shadow: inset 0 -3px 0 var(--region-accent);
+  }
+
+  .grading-guide-grid,
+  .grading-guide-list--focused {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .grading-guide-card,
+  .grading-guide-list--focused .grading-guide-row {
+    min-height: 0;
+    padding: 11px 12px;
+    border-radius: 8px;
+  }
+
+  .grading-guide-list--focused .grading-guide-row-title,
+  .grading-guide-card-title {
+    font-size: 16px;
+    line-height: 1.18;
+    margin-bottom: 5px;
+  }
+
+  .grading-guide-card-body,
+  .grading-guide-list--focused .module-library-card-meta,
+  .grading-guide-list--focused .module-library-pill {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .grading-guide-note {
+    margin-top: 10px;
+    padding: 10px 11px;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  #module-prediction-field .checkbox-label {
+    font-size: 13px;
+  }
+
+  #module-prediction-field .field-hint {
+    max-width: none;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 520px) {
+  .grading-guide-modal,
+  .grading-guide-modal--focused {
+    padding: 12px 9px 9px;
+  }
+
+  .grading-guide-region-nav {
+    margin-inline: -2px;
+  }
+
+  .grading-guide-region-btn {
+    font-size: 10px;
+    padding: 8px 9px;
+  }
+
+  .grading-guide-list--focused .module-library-card-meta {
+    gap: 4px;
+  }
+
+  .grading-guide-list--focused .module-library-pill {
+    padding: 4px 6px;
+  }
+}
+
+/* Hide settings modals while grading selector is open */
+body:has(#grading-system-guide-modal.dashboard-modal:not(.hidden)) #course-setup-modal.dashboard-modal,
+body:has(.grading-system-guide-shell.dashboard-modal:not(.hidden)) #course-setup-modal.dashboard-modal,
+body:has(#grading-system-guide-modal.dashboard-modal:not(.hidden)) #auth-modal.deadline-splash,
+body:has(.grading-system-guide-shell.dashboard-modal:not(.hidden)) #auth-modal.deadline-splash {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Safer grading selector modal handoff */
+#course-setup-modal.temporarily-hidden-for-grading-selector,
+#auth-modal.temporarily-hidden-for-grading-selector {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+#grading-system-guide-modal.dashboard-modal,
+.grading-system-guide-shell.dashboard-modal {
+  z-index: 2147483000 !important;
+}
