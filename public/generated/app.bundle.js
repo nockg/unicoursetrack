@@ -2383,7 +2383,7 @@ function getGradeScaleConfig(system = getGradingSystem()) {
       min: 0,
       max: 100,
       step: "0.1",
-      suffix: "/100",
+      suffix: "%",
       finalLabel: "Final Score",
       courseworkLabel: "Coursework %",
       examLabel: "Exam %",
@@ -2698,7 +2698,7 @@ function formatSelectedGrade(mark, options = {}) {
     const grade = classifyChinaScore(mark);
 
     return {
-      main: `${mark.toFixed(1)}/100`,
+      main: `${mark.toFixed(1)}%`,
       label: grade.label,
       secondary: "varies by uni"
     };
