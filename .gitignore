@@ -8,3 +8,5 @@ public/config.local.js
 *.log
 .vercel/
 .claude/
+test-results/
+playwright-report/

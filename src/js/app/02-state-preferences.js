@@ -1161,33 +1161,13 @@ function savePreferences() {
 }
 
 
-function openGradingSystemGuideModal(event, selectId = "pref-grading-system") {
-  if (event) event.stopPropagation();
-
-  activeGradingSystemSelectId = selectId || "pref-grading-system";
-
-  const select = document.getElementById(activeGradingSystemSelectId);
-  const currentValue = select?.value || state.profile?.gradingSystem || "uk";
-  activeGradingGuideRegion = getGradingGuideGroupForValue(currentValue);
-
-  // Desktop opens in World View by default. Mobile stays List View because tiny map pins are awkward to tap.
-  const isMobile = window.matchMedia?.("(max-width: 760px)")?.matches;
-  activeGradingGuideView = isMobile ? "list" : "world";
-
-  const modal = ensureGradingSystemGuideModal();
-  modal.classList.remove("hidden");
-
-  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
-}
 
 
 
 
 
-function closeGradingSystemGuideModal() {
-  document.getElementById("grading-system-guide-modal")?.classList.add("hidden");
-  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
-}
+
+
 
 
 /* grading-system-modal-selector */
@@ -1695,6 +1675,8 @@ function installGradingSystemModalSelector() {
   updateGradingSystemChooserButtons();
 }
 
+
+
 /* grading-selector-source-modal-flow-fix */
 let gradingSelectorReturnModalId = "";
 
@@ -1735,7 +1717,10 @@ function restoreModalAfterGradingSelector() {
 }
 
 function openGradingSystemGuideModal(event, selectId = "pref-grading-system") {
-  if (event) event.stopPropagation();
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
 
   activeGradingSystemSelectId = selectId || "pref-grading-system";
 
@@ -1758,6 +1743,7 @@ function closeGradingSystemGuideModal() {
     syncModalScrollLock();
   }
 }
+
 
 function chooseGradingSystemFromGuide(system) {
   if (!SUPPORTED_GRADING_SYSTEMS.includes(system)) return;

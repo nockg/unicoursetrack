@@ -236,3 +236,26 @@
   }
 }
 
+/* Hide settings modals while grading selector is open */
+body:has(#grading-system-guide-modal.dashboard-modal:not(.hidden)) #course-setup-modal.dashboard-modal,
+body:has(.grading-system-guide-shell.dashboard-modal:not(.hidden)) #course-setup-modal.dashboard-modal,
+body:has(#grading-system-guide-modal.dashboard-modal:not(.hidden)) #auth-modal.deadline-splash,
+body:has(.grading-system-guide-shell.dashboard-modal:not(.hidden)) #auth-modal.deadline-splash {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Safer grading selector modal handoff */
+#course-setup-modal.temporarily-hidden-for-grading-selector,
+#auth-modal.temporarily-hidden-for-grading-selector {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+#grading-system-guide-modal.dashboard-modal,
+.grading-system-guide-shell.dashboard-modal {
+  z-index: 2147483000 !important;
+}
+
