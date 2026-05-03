@@ -1614,3 +1614,15 @@ body.theme-charcoal .grading-guide-world-svg .map-outline {
     display: none;
   }
 }
+@media (max-width: 860px) {
+  #module-form-modal .setup-choice-title,
+  #edit-module-modal .setup-choice-title {
+    font-size: 19px !important;
+  }
+
+  #module-form-modal .setup-choice-detail,
+  #edit-module-modal .setup-choice-detail {
+    font-size: 18px !important;
+    line-height: 1.52 !important;
+  }
+}

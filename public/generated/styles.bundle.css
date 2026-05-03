@@ -7815,6 +7815,18 @@ body.theme-charcoal .grading-guide-world-svg .map-outline {
     display: none;
   }
 }
+@media (max-width: 860px) {
+  #module-form-modal .setup-choice-title,
+  #edit-module-modal .setup-choice-title {
+    font-size: 19px !important;
+  }
+
+  #module-form-modal .setup-choice-detail,
+  #edit-module-modal .setup-choice-detail {
+    font-size: 18px !important;
+    line-height: 1.52 !important;
+  }
+}
 
 /* 09-responsive-polish.css */
 /* Global UI readability, responsive shell behaviour, and interaction polish */
@@ -14066,5 +14078,71 @@ body.font-mono .mobile-more-copy {
 
   body:not(.auth-required):not(.auth-loading):not(.setup-required) .mobile-more-sheet {
     z-index: 11010 !important;
+  }
+}
+
+/* Module coursework prediction readability */
+#module-form-modal .field:has(input[type="checkbox"]),
+#edit-module-modal .field:has(input[type="checkbox"]) {
+  gap: 8px !important;
+}
+
+#module-form-modal .field:has(input[type="checkbox"]) label,
+#edit-module-modal .field:has(input[type="checkbox"]) label,
+#module-form-modal label:has(input[type="checkbox"]),
+#edit-module-modal label:has(input[type="checkbox"]) {
+  font-size: 16px !important;
+  line-height: 1.25 !important;
+  letter-spacing: 0.04em !important;
+  font-weight: 700 !important;
+  color: var(--ink) !important;
+}
+
+#module-form-modal .field:has(input[type="checkbox"]) input[type="checkbox"],
+#edit-module-modal .field:has(input[type="checkbox"]) input[type="checkbox"],
+#module-form-modal label:has(input[type="checkbox"]) input[type="checkbox"],
+#edit-module-modal label:has(input[type="checkbox"]) input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  margin-right: 8px !important;
+}
+
+#module-form-modal .field:has(input[type="checkbox"]) p,
+#module-form-modal .field:has(input[type="checkbox"]) .field-copy,
+#module-form-modal .field:has(input[type="checkbox"]) .field-help,
+#module-form-modal .field:has(input[type="checkbox"]) .form-help,
+#module-form-modal .field:has(input[type="checkbox"]) .setup-choice-detail,
+#edit-module-modal .field:has(input[type="checkbox"]) p,
+#edit-module-modal .field:has(input[type="checkbox"]) .field-copy,
+#edit-module-modal .field:has(input[type="checkbox"]) .field-help,
+#edit-module-modal .field:has(input[type="checkbox"]) .form-help,
+#edit-module-modal .field:has(input[type="checkbox"]) .setup-choice-detail {
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0 !important;
+  color: var(--muted) !important;
+  max-width: 64ch !important;
+}
+
+@media (max-width: 860px) {
+  #module-form-modal .field:has(input[type="checkbox"]) label,
+  #edit-module-modal .field:has(input[type="checkbox"]) label,
+  #module-form-modal label:has(input[type="checkbox"]),
+  #edit-module-modal label:has(input[type="checkbox"]) {
+    font-size: 18px !important;
+  }
+
+  #module-form-modal .field:has(input[type="checkbox"]) p,
+  #module-form-modal .field:has(input[type="checkbox"]) .field-copy,
+  #module-form-modal .field:has(input[type="checkbox"]) .field-help,
+  #module-form-modal .field:has(input[type="checkbox"]) .form-help,
+  #module-form-modal .field:has(input[type="checkbox"]) .setup-choice-detail,
+  #edit-module-modal .field:has(input[type="checkbox"]) p,
+  #edit-module-modal .field:has(input[type="checkbox"]) .field-copy,
+  #edit-module-modal .field:has(input[type="checkbox"]) .field-help,
+  #edit-module-modal .field:has(input[type="checkbox"]) .form-help,
+  #edit-module-modal .field:has(input[type="checkbox"]) .setup-choice-detail {
+    font-size: 17px !important;
+    line-height: 1.52 !important;
   }
 }
