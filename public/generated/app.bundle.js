@@ -1395,8 +1395,32 @@ function clearCustomBackground() {
   applyPreferences();
 }
 
+function setPreferencesOpen(open) {
+  const panel = document.getElementById("prefs-panel");
+  if (!panel) return;
+
+  const shouldOpen = open === undefined
+    ? panel.classList.contains("hidden")
+    : !!open;
+
+  panel.classList.toggle("hidden", !shouldOpen);
+  panel.setAttribute("aria-hidden", String(!shouldOpen));
+
+  if (shouldOpen) {
+    panel.scrollTop = 0;
+  }
+}
+
+function openPreferences() {
+  setPreferencesOpen(true);
+}
+
+function closePreferences() {
+  setPreferencesOpen(false);
+}
+
 function togglePreferences() {
-  document.getElementById("prefs-panel").classList.toggle("hidden");
+  setPreferencesOpen();
 }
 
 function openPreferredCalendar() {
@@ -10228,37 +10252,102 @@ function ensureMobileUxShell() {
     if (modules) modules.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  function isMobileSurfaceOpen(id) {
+    const el = document.getElementById(id);
+    return !!el && !el.classList.contains("hidden");
+  }
+
+  function closeMobileSurfaces(except = "") {
+    if (except !== "more") {
+      document.body.classList.remove("mobile-more-open");
+    }
+
+    if (except !== "deadlines" && isMobileSurfaceOpen("timeline-modal")) {
+      closeDeadlineTimeline?.();
+    }
+
+    if (except !== "planner" && isMobileSurfaceOpen("todo-modal")) {
+      closeTodoPlanner?.();
+    }
+
+    if (except !== "preferences") {
+      if (typeof closePreferences === "function") {
+        closePreferences();
+      } else {
+        const prefsPanel = document.getElementById("prefs-panel");
+        if (prefsPanel && !prefsPanel.classList.contains("hidden")) {
+          togglePreferences?.();
+        }
+      }
+    }
+
+    if (except !== "account" && isMobileSurfaceOpen("auth-modal")) {
+      closeAuthModal?.();
+    }
+  }
+
   tabbar.addEventListener("click", (event) => {
     const button = event.target.closest("[data-mobile-tab]");
     if (!button) return;
 
-    const tab = button.dataset.mobileTab;
-    setActiveTab(tab);
+    event.preventDefault();
 
-    if (tab !== "more") document.body.classList.remove("mobile-more-open");
+    const tab = button.dataset.mobileTab;
 
     if (tab === "home") {
+      closeMobileSurfaces();
+      setActiveTab("home");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
     if (tab === "modules") {
+      closeMobileSurfaces();
+      setActiveTab("modules");
       scrollToModules();
       return;
     }
 
     if (tab === "deadlines") {
+      const wasOpen = isMobileSurfaceOpen("timeline-modal");
+      closeMobileSurfaces(wasOpen ? "" : "deadlines");
+
+      if (wasOpen) {
+        setActiveTab(mobileLastPrimaryTab || "home");
+        return;
+      }
+
+      setActiveTab("deadlines");
       openDeadlineTimeline?.();
       return;
     }
 
     if (tab === "planner") {
-      toggleTodoPlanner?.();
+      const wasOpen = isMobileSurfaceOpen("todo-modal");
+      closeMobileSurfaces(wasOpen ? "" : "planner");
+
+      if (wasOpen) {
+        setActiveTab(mobileLastPrimaryTab || "home");
+        return;
+      }
+
+      setActiveTab("planner");
+      openTodoPlanner?.();
       return;
     }
 
     if (tab === "more") {
-      document.body.classList.toggle("mobile-more-open");
+      const wasOpen = document.body.classList.contains("mobile-more-open");
+      closeMobileSurfaces("more");
+
+      if (wasOpen) {
+        document.body.classList.remove("mobile-more-open");
+        setActiveTab(mobileLastPrimaryTab || "home");
+        return;
+      }
+
+      setActiveTab("more");
+      document.body.classList.add("mobile-more-open");
       renderMobileMoreSheet();
       return;
     }
@@ -10269,16 +10358,41 @@ function ensureMobileUxShell() {
     if (!button) return;
 
     event.preventDefault();
+    event.stopPropagation();
 
     const action = button.dataset.mobileAction;
-    document.body.classList.remove("mobile-more-open");
-    setActiveTab(mobileLastPrimaryTab || "home");
 
-    if (action === "close-more") return;
-    if (action === "add-module") addModuleToCurrentYear?.();
-    if (action === "preferences") togglePreferences?.();
-    if (action === "account") openAuthModal?.();
-    if (action === "privacy") window.open("/privacy.html", "_blank", "noopener,noreferrer");
+    if (action === "close-more") {
+      closeMore();
+      return;
+    }
+
+    document.body.classList.remove("mobile-more-open");
+    setActiveTab("more");
+
+    if (action === "add-module") {
+      closeMobileSurfaces();
+      addModuleToCurrentYear?.();
+      return;
+    }
+
+    if (action === "preferences") {
+      closeMobileSurfaces("preferences");
+      if (typeof openPreferences === "function") openPreferences();
+      else togglePreferences?.();
+      return;
+    }
+
+    if (action === "account") {
+      closeMobileSurfaces("account");
+      openAuthModal?.();
+      return;
+    }
+
+    if (action === "privacy") {
+      window.open("/privacy.html", "_blank", "noopener,noreferrer");
+      return;
+    }
   });
 
   document.addEventListener("click", (event) => {

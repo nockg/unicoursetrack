@@ -14057,3 +14057,14 @@ body.font-mono .mobile-more-copy {
     color: #ffffff !important;
   }
 }
+
+/* mobile-tabbar stays above app sheets */
+@media (max-width: 860px) {
+  body:not(.auth-required):not(.auth-loading):not(.setup-required) .mobile-tabbar {
+    z-index: 11000 !important;
+  }
+
+  body:not(.auth-required):not(.auth-loading):not(.setup-required) .mobile-more-sheet {
+    z-index: 11010 !important;
+  }
+}

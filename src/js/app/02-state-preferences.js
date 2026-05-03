@@ -992,8 +992,32 @@ function clearCustomBackground() {
   applyPreferences();
 }
 
+function setPreferencesOpen(open) {
+  const panel = document.getElementById("prefs-panel");
+  if (!panel) return;
+
+  const shouldOpen = open === undefined
+    ? panel.classList.contains("hidden")
+    : !!open;
+
+  panel.classList.toggle("hidden", !shouldOpen);
+  panel.setAttribute("aria-hidden", String(!shouldOpen));
+
+  if (shouldOpen) {
+    panel.scrollTop = 0;
+  }
+}
+
+function openPreferences() {
+  setPreferencesOpen(true);
+}
+
+function closePreferences() {
+  setPreferencesOpen(false);
+}
+
 function togglePreferences() {
-  document.getElementById("prefs-panel").classList.toggle("hidden");
+  setPreferencesOpen();
 }
 
 function openPreferredCalendar() {
