@@ -10,3 +10,4 @@ public/config.local.js
 .claude/
 test-results/
 playwright-report/
+public/config.js

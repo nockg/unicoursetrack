@@ -1699,49 +1699,19 @@ body.theme-charcoal .formula-edit-btn:hover {
     padding: 16px !important;
   }
 
-  #todo-modal .todo-toolbar,
-  #todo-modal.todo-compact-mode .todo-toolbar {
-    grid-template-columns: 1fr !important;
-  }
-
-  #todo-modal .todo-add-btn,
-  #todo-view-toggle {
-    width: 100% !important;
-  }
-
   #todo-modal .todo-list {
-    padding: 12px 14px 18px !important;
+    padding: 8px 14px 6px !important;
   }
 
-  .todo-view-row {
-    align-items: stretch !important;
-    flex-direction: column !important;
-    padding: 12px 14px !important;
-  }
-
-  .todo-summary {
-    justify-content: center !important;
-    width: 100% !important;
-  }
-
-  .todo-expanded-card,
   .todo-task-row {
-    grid-template-columns: 22px minmax(0,1fr) 48px !important;
-    gap: 8px !important;
-  }
-
-  .todo-expanded-card {
-    grid-template-columns: 22px minmax(0,1fr) !important;
-  }
-
-  .todo-expanded-head {
-    grid-template-columns: minmax(0,1fr) 48px !important;
+    grid-template-columns: 52px 1fr 48px !important;
+    min-height: 56px !important;
   }
 
   .todo-delete-btn {
-    width: 48px !important;
-    padding: 0 !important;
-    justify-self: end !important;
+    width: auto !important;
+    padding: 0 10px !important;
+    justify-self: start !important;
   }
 
   #timeline-list .timeline-item {
@@ -2756,18 +2726,8 @@ body.theme-charcoal .footer.mobile-app-footnote .mobile-app-footnote-version {
   padding: 14px 20px 20px;
 }
 
-.todo-expanded-card,
-.todo-task-row {
+.todo-item-wrapper {
   border-radius: var(--ui-radius-md);
-}
-
-.todo-inline-note {
-  border-radius: var(--ui-radius-md);
-}
-
-.todo-summary,
-.todo-badge {
-  border-radius: 999px;
 }
 
 body.theme-dark .module,
@@ -2796,20 +2756,14 @@ body.theme-charcoal .dashboard-content,
 body.theme-charcoal #todo-modal .todo-content,
 body.theme-charcoal .timeline-card,
 body.theme-charcoal .dashboard-card,
-body.theme-charcoal .term-summary-card,
-body.theme-charcoal .todo-expanded-card,
-body.theme-charcoal .todo-task-row,
-body.theme-charcoal .todo-note-details {
+body.theme-charcoal .term-summary-card {
   background: #1f2329;
   border-color: rgba(255, 255, 255, 0.11);
   color: #ece7dd;
 }
 
 body.theme-charcoal .dashboard-chart-wrap,
-body.theme-charcoal #todo-modal .timeline-head,
-body.theme-charcoal .todo-view-row,
-body.theme-charcoal .todo-summary,
-body.theme-charcoal .todo-badge {
+body.theme-charcoal #todo-modal .timeline-head {
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.11);
 }
@@ -2817,9 +2771,7 @@ body.theme-charcoal .todo-badge {
 body.theme-charcoal .dashboard-title,
 body.theme-charcoal .dashboard-score,
 body.theme-charcoal .term-summary-value,
-body.theme-charcoal .timeline-page-title,
-body.theme-charcoal .todo-expanded-title,
-body.theme-charcoal .todo-row-title {
+body.theme-charcoal .timeline-page-title {
   color: #f3eee5;
 }
 
@@ -2828,30 +2780,10 @@ body.theme-charcoal .term-summary-empty,
 body.theme-charcoal .timeline-subtitle,
 body.theme-charcoal .dashboard-card-title,
 body.theme-charcoal .term-summary-label,
-body.theme-charcoal .term-summary-meta,
-body.theme-charcoal .todo-row-meta,
-body.theme-charcoal .todo-note-details summary {
+body.theme-charcoal .term-summary-meta {
   color: rgba(236, 231, 221, 0.72);
 }
 
-body.theme-charcoal #todo-modal .todo-toolbar .input,
-body.theme-charcoal #todo-modal .todo-toolbar .nav-select,
-body.theme-charcoal .todo-inline-note {
-  background: #171a1f;
-  color: #f3eee5;
-  border-color: rgba(255, 255, 255, 0.16);
-}
-
-body.theme-charcoal #todo-modal .todo-add-btn {
-  background: var(--ui-primary-bg);
-  border-color: var(--ui-primary-bg);
-  color: var(--ui-primary-fg);
-}
-
-body.theme-charcoal #todo-modal .todo-add-btn:hover {
-  background: var(--ui-primary-bg-hover);
-  border-color: var(--ui-primary-bg-hover);
-}
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -2903,8 +2835,8 @@ body.theme-charcoal #todo-modal .todo-add-btn:hover {
   }
 
   #todo-modal .timeline-head,
-  #todo-modal .todo-view-row,
-  #todo-modal .todo-list {
+  #todo-modal .todo-list,
+  #todo-modal .todo-new-row {
     padding-left: 14px !important;
     padding-right: 14px !important;
   }

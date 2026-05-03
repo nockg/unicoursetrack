@@ -212,3 +212,4 @@ let calendarComposerPrefill = null;
 let todoPanelDrag = null;
 let todoPanelResizeObserver = null;
 let todoPanelResize = null;
+let todoOpenDetailIndex = null;

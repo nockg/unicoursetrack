@@ -398,23 +398,12 @@
           <button class="dashboard-close" type="button" aria-label="Close planner" onclick="closeTodoPlanner()">&times;</button>
         </div>
       </div>
-      <div class="todo-toolbar">
-        <div class="field">
-          <label for="todo-title-input">Task Title</label>
-          <input class="input" id="todo-title-input" placeholder="Add a task title" onkeydown="handleTodoInputKeydown(event)">
-        </div>
-        <div class="field">
-          <label for="todo-module-input">Related Module</label>
-          <select class="nav-select" id="todo-module-input"></select>
-        </div>
-        <button class="nav-btn todo-add-btn" type="button" onclick="saveTodoDraft()">Add Task</button>
-      </div>
-    </div>
-    <div class="todo-view-row">
-      <div class="todo-summary" id="todo-summary"></div>
-      <button class="mini-btn" type="button" id="todo-view-toggle" onclick="toggleTodoCompactView()">Simplify</button>
     </div>
     <div class="timeline-list todo-list" id="todo-list"></div>
+    <div class="todo-new-row" id="todo-new-row">
+      <div class="todo-new-circle" aria-hidden="true"></div>
+      <input class="todo-new-input" id="todo-new-input" type="text" placeholder="New task…" autocomplete="off" onkeydown="handleNewTodoKeydown(event)" onblur="handleNewTodoBlur(event)">
+    </div>
   </div>
 </div>
 

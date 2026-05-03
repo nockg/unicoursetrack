@@ -213,6 +213,7 @@ let calendarComposerPrefill = null;
 let todoPanelDrag = null;
 let todoPanelResizeObserver = null;
 let todoPanelResize = null;
+let todoOpenDetailIndex = null;
 
 /* 01-topic-splash-storage.js */
 function setTopicCheckbox(checkbox, mi, ti, value) {
@@ -7230,9 +7231,8 @@ function getTodoPanelState() {
       locked: false,
       top: null,
       left: null,
-      width: 560,
-      height: 520,
-      compact: false,
+      width: 520,
+      height: 480,
       hasOpenedOnce: false
     };
   }
@@ -7253,25 +7253,22 @@ function applyTodoPanelState(forceCenter = false) {
     return;
   }
   document.getElementById("todo-modal")?.classList.remove("todo-mobile");
-  const compact = !!panelState.compact;
   const items = getTodoItems();
   const maxWidth = window.innerWidth - 18;
   const maxHeight = Math.min(window.innerHeight - 18, 720);
-  const width = Math.max(420, Math.min(panelState.width || 560, maxWidth));
-
-  const compactHeight = 300 + Math.min(items.length || 1, 6) * 54;
-  const expandedHeight = 310 + Math.min(items.length || 1, 4) * 118;
-  const preferredHeight = compact ? compactHeight : Math.max(panelState.height || 0, Math.min(expandedHeight, 620));
-  const minHeight = compact ? 340 : 430;
-  const height = Math.max(minHeight, Math.min(preferredHeight, maxHeight));
-
+  const width = Math.max(380, Math.min(panelState.width || 520, maxWidth));
+  const baseHeight = 120 + Math.min(items.length || 1, 8) * 58 + 60;
+  const preferredHeight = Math.max(panelState.height || 0, Math.min(baseHeight, 580));
+  const height = Math.max(300, Math.min(preferredHeight, maxHeight));
   const savedLeft = Number.isFinite(panelState.left) ? panelState.left : null;
   const savedTop = Number.isFinite(panelState.top) ? panelState.top : null;
-  const left = forceCenter || savedLeft === null ? Math.max(8, Math.round((window.innerWidth - width) / 2)) : Math.max(8, Math.min(savedLeft, window.innerWidth - width - 8));
-  const top = forceCenter || savedTop === null ? Math.max(76, Math.round((window.innerHeight - height) / 2)) : Math.max(70, Math.min(savedTop, window.innerHeight - height - 8));
-
+  const left = forceCenter || savedLeft === null
+    ? Math.max(8, Math.round((window.innerWidth - width) / 2))
+    : Math.max(8, Math.min(savedLeft, window.innerWidth - width - 8));
+  const top = forceCenter || savedTop === null
+    ? Math.max(76, Math.round((window.innerHeight - height) / 2))
+    : Math.max(70, Math.min(savedTop, window.innerHeight - height - 8));
   panel.classList.toggle("is-locked", !!panelState.locked);
-  document.getElementById("todo-modal")?.classList.toggle("todo-compact-mode", compact);
   panel.style.top = `${top}px`;
   panel.style.left = `${left}px`;
   panel.style.right = "auto";
@@ -7296,7 +7293,7 @@ function persistTodoPanelRect() {
 function trapTodoPanelWheel(event) {
   const panel = document.querySelector("#todo-modal .todo-content");
   if (!panel || !panel.contains(event.target)) return;
-  const scrollable = event.target.closest(".todo-list, .todo-inline-note");
+  const scrollable = event.target.closest(".todo-list, .todo-detail-note");
   if (!scrollable) {
     event.preventDefault();
     return;
@@ -7361,7 +7358,7 @@ function moveTodoPanelResize(event) {
   if (!todoPanelResize) return false;
   const panel = document.querySelector("#todo-modal .todo-content");
   if (!panel) return false;
-  const minWidth = 380;
+  const minWidth = 340;
   const minHeight = 220;
   const maxWidth = window.innerWidth - 16;
   const maxHeight = window.innerHeight - 16;
@@ -7454,119 +7451,110 @@ function endTodoPanelDrag(event) {
   todoPanelDrag = null;
 }
 
-function toggleTodoCompactView() {
-  const panelState = getTodoPanelState();
-  panelState.compact = !panelState.compact;
-  const items = getTodoItems();
-  panelState.height = panelState.compact
-    ? Math.min(window.innerHeight - 18, 300 + Math.min(items.length || 1, 6) * 54)
-    : Math.min(window.innerHeight - 18, 310 + Math.min(items.length || 1, 4) * 118);
-  save();
-  renderTodoPlanner();
-  applyTodoPanelState();
-}
-
-function renderTodoModuleOptions() {
-  const select = document.getElementById("todo-module-input");
-  if (!select) return;
-  const currentValue = select.value;
-  const options = [`<option value="">General Task</option>`]
-    .concat(MODULES.map((mod, mi) => `<option value="${mi}">${escapeHtml(mod.kanji || mod.short || mod.name)}</option>`));
-  select.innerHTML = options.join("");
-  if (options.some((_, index) => String(index - 1) === currentValue) || currentValue === "") {
-    select.value = currentValue;
-  }
-}
-
-function getTodoSummaryText() {
-  const todos = getTodoItems();
-  const openCount = todos.filter((item) => !item.completed).length;
-  const doneCount = todos.length - openCount;
-  if (!todos.length) return "No tasks yet";
-  return `${openCount} open - ${doneCount} done`;
-}
-
 function renderTodoPlanner() {
   const host = document.getElementById("todo-list");
-  const summary = document.getElementById("todo-summary");
-  const toggle = document.getElementById("todo-view-toggle");
-  if (!host || !summary) return;
+  if (!host) return;
   const todos = getTodoItems();
-  const compact = !!getTodoPanelState().compact;
-  document.getElementById("todo-modal")?.classList.toggle("todo-compact-mode", compact);
-  summary.textContent = getTodoSummaryText();
-  if (toggle) toggle.textContent = compact ? "Expand" : "Simplify";
   if (!todos.length) {
-    host.innerHTML = '<div class="timeline-empty todo-empty">No tasks yet. Add one from the top of this planner.</div>';
+    host.innerHTML = '<div class="timeline-empty todo-empty">No tasks yet. Type one below.</div>';
     applyTodoPanelState();
     return;
   }
   host.innerHTML = todos.map((item, index) => {
-    const moduleLabel = escapeHtml(Number.isInteger(item.moduleIndex) && MODULES[item.moduleIndex] ? (MODULES[item.moduleIndex].kanji || MODULES[item.moduleIndex].short || MODULES[item.moduleIndex].name) : "General");
-    const title = escapeHtml(item.title || "Untitled task");
+    const escapedTitle = escapeHtml(item.title || "Untitled task");
     const doneClass = item.completed ? "is-done" : "";
-    if (compact) {
-      return `
-        <div class="todo-task-row ${doneClass}" onclick="handleTodoCardClick(${index}, event)">
-          <button class="todo-check-btn complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
-          <div class="todo-row-main">
-            <div class="todo-row-title" title="${title}">${title}</div>
-            <div class="todo-row-meta">${moduleLabel}</div>
-          </div>
-          <button class="todo-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)" title="Delete task" aria-label="Delete task">Delete</button>
+    const hasDetails = !!(item.note || Number.isInteger(item.moduleIndex));
+    const detailOpen = todoOpenDetailIndex === index;
+    const moduleOptions = [`<option value="">General</option>`]
+      .concat(MODULES.map((mod, mi) => `<option value="${mi}"${item.moduleIndex === mi ? " selected" : ""}>${escapeHtml(mod.kanji || mod.short || mod.name)}</option>`))
+      .join("");
+    const detailPanel = detailOpen ? `
+      <div class="todo-detail-panel">
+        <div class="todo-detail-module-row">
+          <label class="todo-detail-label" for="todo-module-${index}">Module</label>
+          <select class="todo-detail-module-select" id="todo-module-${index}" onchange="updateTodoModule(${index}, this.value)">${moduleOptions}</select>
         </div>
-      `;
-    }
+        <textarea class="todo-detail-note" data-todo-note-index="${index}" placeholder="Add a note…">${escapeHtml(item.note || "")}</textarea>
+        <button class="todo-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)">Delete task</button>
+      </div>` : "";
     return `
-      <div class="todo-expanded-card ${doneClass}" onclick="handleTodoCardClick(${index}, event)">
-        <button class="todo-check-btn complete-toggle" type="button" onclick="toggleTodoComplete(${index}, event)" title="Mark task complete" aria-label="Mark task complete"></button>
-        <div class="todo-expanded-main">
-          <div class="todo-expanded-head">
-            <div>
-              <div class="todo-expanded-title">${title}</div>
-              <div class="todo-badge">${moduleLabel}</div>
-            </div>
-            <button class="todo-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)" title="Delete task" aria-label="Delete task">Delete</button>
+      <div class="todo-item-wrapper ${doneClass}">
+        <div class="todo-task-row">
+          <button class="todo-check-btn" type="button" onclick="toggleTodoComplete(${index}, event)" aria-label="Mark complete"></button>
+          <input class="todo-title-input" type="text" value="${escapedTitle}" data-todo-title-index="${index}" onkeydown="handleTodoTitleKeydown(${index}, event)" onblur="handleTodoTitleBlur(${index}, event)" onclick="event.stopPropagation()" aria-label="Task title">
+          <div class="todo-task-actions">
+            <button class="todo-quick-delete-btn" type="button" onclick="deleteTodoItem(${index}, event)" aria-label="Delete task">✕</button>
+            <button class="todo-info-btn${hasDetails ? " is-filled" : ""}" type="button" onclick="toggleTodoDetail(${index}, event)" aria-label="Task details">&#x24D8;</button>
           </div>
-          <details class="todo-note-details">
-            <summary>${item.note ? "View note" : "Add note"}</summary>
-            <textarea class="timeline-notes todo-inline-note" data-todo-note-index="${index}" placeholder="Add context, next steps, or anything you need to remember...">${escapeHtml(item.note || "")}</textarea>
-          </details>
-        </div>
-      </div>
-    `;
+        </div>${detailPanel}
+      </div>`;
   }).join("");
   host.querySelectorAll("[data-todo-note-index]").forEach((textarea) => {
-    textarea.addEventListener("input", (event) => updateTodoNote(Number(event.target.dataset.todoNoteIndex), event.target.value));
+    textarea.addEventListener("input", (e) => updateTodoNote(Number(e.target.dataset.todoNoteIndex), e.target.value));
   });
   applyTodoPanelState();
 }
 
-function saveTodoDraft() {
-  const titleInput = document.getElementById("todo-title-input");
-  const moduleInput = document.getElementById("todo-module-input");
-  const title = String(titleInput?.value || "").trim();
-  const note = "";
-  if (!title) return;
-  const moduleValue = String(moduleInput?.value || "").trim();
-  const moduleIndex = moduleValue === "" ? null : Number(moduleValue);
-  getTodoItems().unshift({ title, note, moduleIndex: Number.isInteger(moduleIndex) ? moduleIndex : null, completed: false, createdAt: new Date().toISOString() });
-  if (titleInput) titleInput.value = "";
-  if (moduleInput) moduleInput.value = "";
+function handleTodoTitleKeydown(index, event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    event.target.blur();
+  } else if (event.key === "Escape") {
+    const todos = getTodoItems();
+    if (todos[index]) event.target.value = todos[index].title || "Untitled task";
+    event.target.blur();
+  }
+}
+
+function handleTodoTitleBlur(index, event) {
+  const todos = getTodoItems();
+  if (!todos[index]) return;
+  const newTitle = event.target.value.trim();
+  if (!newTitle) {
+    event.target.value = todos[index].title || "Untitled task";
+    return;
+  }
+  if (newTitle !== todos[index].title) {
+    todos[index].title = newTitle;
+    save();
+  }
+}
+
+function toggleTodoDetail(index, event) {
+  if (event) event.stopPropagation();
+  todoOpenDetailIndex = todoOpenDetailIndex === index ? null : index;
+  renderTodoPlanner();
+}
+
+function updateTodoModule(index, value) {
+  const todos = getTodoItems();
+  if (!todos[index]) return;
+  const moduleIndex = value === "" ? null : Number(value);
+  todos[index].moduleIndex = Number.isInteger(moduleIndex) ? moduleIndex : null;
   save();
   renderTodoPlanner();
 }
 
-function handleTodoInputKeydown(event) {
+function handleNewTodoKeydown(event) {
   if (event.key !== "Enter") return;
   event.preventDefault();
-  saveTodoDraft();
+  const input = event.target;
+  const title = input.value.trim();
+  if (!title) return;
+  getTodoItems().push({ title, note: "", moduleIndex: null, completed: false, createdAt: new Date().toISOString() });
+  save();
+  input.value = "";
+  renderTodoPlanner();
+  setTimeout(() => document.getElementById("todo-new-input")?.focus(), 0);
 }
 
-function handleTodoCardClick(index, event) {
-  const ignored = event?.target?.closest?.("button, textarea, input, select, option, summary, details, a, label");
-  if (ignored) return;
-  toggleTodoComplete(index, event);
+function handleNewTodoBlur(event) {
+  const title = event.target.value.trim();
+  if (!title) return;
+  getTodoItems().push({ title, note: "", moduleIndex: null, completed: false, createdAt: new Date().toISOString() });
+  save();
+  event.target.value = "";
+  renderTodoPlanner();
 }
 
 function toggleTodoComplete(index, event) {
@@ -7590,6 +7578,10 @@ function deleteTodoItem(index, event) {
   const todos = getTodoItems();
   if (!todos[index]) return;
   todos.splice(index, 1);
+  if (todoOpenDetailIndex !== null) {
+    if (todoOpenDetailIndex === index) todoOpenDetailIndex = null;
+    else if (todoOpenDetailIndex > index) todoOpenDetailIndex--;
+  }
   save();
   renderTodoPlanner();
 }
@@ -7599,7 +7591,6 @@ function openTodoPlanner() {
   if (!modal) return;
   const panelState = getTodoPanelState();
   modal.classList.remove("hidden");
-  renderTodoModuleOptions();
   setupTodoPanelResizePersistence();
   applyTodoPanelState(!panelState.hasOpenedOnce);
   panelState.hasOpenedOnce = true;
