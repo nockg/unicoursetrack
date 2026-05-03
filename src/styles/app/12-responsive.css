@@ -1,1 +1,2041 @@
+/* =========================================================
+   UniTrack mobile UX layer
+   Desktop stays as-is. Mobile gets app-style navigation,
+   card-first modules, full-screen sheets, and touch-safe controls.
+   ========================================================= */
+
+@media (max-width: 860px) {
+  :root {
+    --mobile-topbar-h: 52px;
+    --mobile-tabbar-h: 72px;
+    --mobile-safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body:not(.auth-required):not(.auth-loading):not(.setup-required) {
+    padding-top: calc(var(--mobile-topbar-h) + 42px) !important;
+    padding-bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 18px) !important;
+  }
+
+  body.countdown-header-hidden:not(.auth-required):not(.auth-loading):not(.setup-required) {
+    padding-top: var(--mobile-topbar-h) !important;
+  }
+
+  /* Existing desktop nav is replaced by mobile top/bottom bars. */
+  .nav-bar {
+    display: none !important;
+  }
+
+  .mobile-topbar,
+  .mobile-tabbar,
+  .mobile-more-sheet {
+    display: flex;
+  }
+
+  .mobile-topbar {
+    position: fixed;
+    top: 42px;
+    left: 0;
+    right: 0;
+    z-index: 2500;
+    height: var(--mobile-topbar-h);
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    padding-left: max(12px, env(safe-area-inset-left, 12px));
+    padding-right: max(12px, env(safe-area-inset-right, 12px));
+    background: color-mix(in srgb, var(--paper2) 94%, transparent 6%);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  body.countdown-header-hidden .mobile-topbar {
+    top: 0;
+  }
+
+  body.auth-required .mobile-topbar,
+  body.auth-loading .mobile-topbar,
+  body.setup-required .mobile-topbar,
+  body.auth-required .mobile-tabbar,
+  body.auth-loading .mobile-tabbar,
+  body.setup-required .mobile-tabbar,
+  body.auth-required .mobile-more-sheet,
+  body.auth-loading .mobile-more-sheet,
+  body.setup-required .mobile-more-sheet {
+    display: none !important;
+  }
+
+  .mobile-brand-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .mobile-brand-mark {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #050505;
+    border: 1px solid var(--border);
+  }
+
+  .mobile-brand-mark img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .mobile-brand-text {
+    min-width: 0;
+    display: grid;
+    gap: 1px;
+  }
+
+  .mobile-brand-title {
+    font-family: "Shippori Mincho", serif;
+    font-size: 16px;
+    line-height: 1;
+    font-weight: 800;
+    color: var(--ink);
+  }
+
+  .mobile-brand-subtitle {
+    font-family: "DM Mono", monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobile-year-select {
+    min-width: 96px;
+    max-width: 132px;
+    min-height: 36px;
+    padding: 7px 9px;
+    border-radius: 9px;
+    border: 1px solid var(--border2);
+    background: var(--paper3);
+    color: var(--ink);
+    font-family: "DM Mono", monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+  }
+
+  .mobile-tabbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2600;
+    height: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom));
+    padding: 8px 8px calc(8px + var(--mobile-safe-bottom));
+    padding-left: max(8px, env(safe-area-inset-left, 8px));
+    padding-right: max(8px, env(safe-area-inset-right, 8px));
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 6px;
+    background: color-mix(in srgb, var(--paper2) 94%, transparent 6%);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .mobile-tabbar button,
+  .mobile-more-sheet button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-tab-btn {
+    appearance: none;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    border-radius: 14px;
+    min-width: 0;
+    flex: 1 1 0;
+    min-height: 54px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 3px;
+    font-family: "DM Mono", monospace;
+    font-size: 9px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .mobile-tab-btn span:first-child {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .mobile-tab-btn:active,
+  .mobile-tab-btn.active {
+    background: color-mix(in srgb, var(--ink) 8%, transparent 92%);
+    color: var(--ink);
+    border-color: color-mix(in srgb, var(--border2) 70%, transparent 30%);
+  }
+
+  .mobile-more-sheet {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 10px);
+    z-index: 2700;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--paper3) 96%, transparent 4%);
+    box-shadow: 0 18px 48px rgba(0,0,0,0.2);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  body.mobile-more-open .mobile-more-sheet {
+    display: flex;
+  }
+
+  .mobile-more-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mobile-more-title {
+    font-family: "Shippori Mincho", serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .mobile-more-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .mobile-more-action {
+    min-height: 48px;
+    border-radius: 12px;
+    border: 1px solid var(--border2);
+    background: var(--paper2);
+    color: var(--ink);
+    font-family: "DM Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .mobile-more-action:active {
+    background: color-mix(in srgb, var(--ink) 8%, var(--paper2) 92%);
+  }
+
+  /* Compact deadline ticker on mobile. */
+  .sticky-exams {
+    top: 0 !important;
+    height: 42px !important;
+    padding: 0 8px !important;
+    z-index: 2400 !important;
+  }
+
+  body.countdown-header-hidden .sticky-exams {
+    display: none !important;
+  }
+
+  .exam-ticker {
+    min-width: 176px !important;
+    padding: 0 14px !important;
+  }
+
+  .ticker-mod {
+    font-size: 8px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .ticker-time {
+    font-size: 13px !important;
+    line-height: 1.1 !important;
+  }
+
+  .ticker-date {
+    display: none !important;
+  }
+
+  .add-exam-btn {
+    min-height: 42px !important;
+    padding: 0 14px !important;
+  }
+
+  /* Hero becomes a scan-first mobile dashboard. */
+  .hero {
+    margin-top: 0 !important;
+    padding: 22px 14px 18px !important;
+  }
+
+  .hero-inner {
+    max-width: none !important;
+  }
+
+  .eyebrow {
+    font-size: 9px !important;
+    margin-bottom: 10px !important;
+  }
+
+  h1,
+  #hero-title,
+  #hero-title.hero-title-long,
+  #hero-title.hero-title-very-long,
+  #hero-title.hero-title-extreme {
+    max-width: 100% !important;
+    font-size: clamp(26px, 9vw, 40px) !important;
+    line-height: 1.05 !important;
+    margin-bottom: 14px !important;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    margin-top: 0 !important;
+  }
+
+  .washi-card {
+    padding: 15px 16px !important;
+    border-radius: 12px !important;
+  }
+
+  .dash-actions-card {
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: none !important;
+    min-height: 0 !important;
+  }
+
+  .dash-hero-btn {
+    min-height: 72px !important;
+    padding: 14px 12px !important;
+    border-radius: 12px !important;
+  }
+
+  .dash-hero-btn .dash-launch-icon {
+    font-size: 19px !important;
+  }
+
+  .predictor-hero-number {
+    font-size: clamp(48px, 18vw, 72px) !important;
+  }
+
+  .content {
+    padding: 16px 12px calc(var(--mobile-tabbar-h) + 28px) !important;
+  }
+
+  /* Mobile modules: card-first, not compressed desktop table. */
+  .module {
+    border-radius: 14px !important;
+    margin-bottom: 12px !important;
+    overflow: hidden !important;
+  }
+
+  .module::before {
+    width: 5px !important;
+  }
+
+  .module-header {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    grid-template-areas:
+      "summary result"
+      "progress progress"
+      "marks marks"
+      "actions chevron" !important;
+    gap: 12px !important;
+    align-items: start !important;
+    padding: 16px 14px 14px 18px !important;
+  }
+
+  .module-header .mod-stripe {
+    display: none !important;
+  }
+
+  .module-summary {
+    grid-area: summary !important;
+    min-width: 0 !important;
+  }
+
+  .module-header .progress-section {
+    grid-area: progress !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 12px !important;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%) !important;
+    border-radius: 12px !important;
+    background: rgba(26,22,18,0.02) !important;
+  }
+
+  .module-header .inputs-grid {
+    grid-area: marks !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 12px !important;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%) !important;
+    border-radius: 12px !important;
+    background: rgba(26,22,18,0.018) !important;
+  }
+
+  .module-header .final-col {
+    grid-area: result !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    justify-content: flex-start !important;
+    justify-self: end !important;
+    width: auto !important;
+    min-width: 84px !important;
+    max-width: 128px !important;
+    gap: 5px !important;
+    text-align: right !important;
+  }
+
+  .module-header .final-mark {
+    width: 100% !important;
+    font-size: clamp(24px, 8vw, 34px) !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+  }
+
+  .module-header .final-cls {
+    align-self: flex-end !important;
+    max-width: 128px !important;
+    text-align: left !important;
+    font-size: 9.5px !important;
+    line-height: 1.25 !important;
+    padding: 5px 6px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .module-header .module-actions {
+    grid-area: actions !important;
+    display: flex !important;
+    justify-self: start !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+
+  .module-header .chevron {
+    grid-area: chevron !important;
+    justify-self: end !important;
+    align-self: center !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+
+  .mod-name {
+    font-size: 18px !important;
+    line-height: 1.18 !important;
+  }
+
+  .mod-kanji {
+    font-size: 9.5px !important;
+    line-height: 1.35 !important;
+    margin-bottom: 8px !important;
+  }
+
+  .module-links {
+    gap: 6px !important;
+  }
+
+  .module-links .bb-link,
+  .module-links .formula-btn {
+    min-height: 36px !important;
+    padding: 7px 10px !important;
+    border-radius: 10px !important;
+  }
+
+  .prog-done {
+    font-size: 22px !important;
+  }
+
+  .prog-track {
+    height: 5px !important;
+  }
+
+  .inputs-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 9px !important;
+  }
+
+  .inputs-grid.single-grade-input {
+    grid-template-columns: 1fr !important;
+  }
+
+  .field label {
+    font-size: 9px !important;
+  }
+
+  .input,
+  .nav-select,
+  textarea {
+    min-height: 44px !important;
+    font-size: 16px !important;
+  }
+
+  .nav-btn,
+  .bb-link,
+  .bb-edit-btn,
+  .formula-btn,
+  .formula-edit-btn,
+  .mini-btn,
+  .topic-edit-btn,
+  .topic-options-summary,
+  .topic-options-action,
+  .deadline-tab-btn,
+  .priority-choice,
+  .pref-toggle-pill,
+  .auth-gate-tab,
+  .module-delete-btn,
+  .subtopic-toggle,
+  .dashboard-close,
+  .deadline-splash-close {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+
+  .topic-row,
+  .subtopic-row {
+    min-height: 48px !important;
+  }
+
+  .module-section-head {
+    padding: 14px 14px 14px 18px !important;
+  }
+
+  .module-section-body {
+    padding: 0 14px 14px 18px !important;
+  }
+
+  .notes-area-wrap,
+  .formula-links-wrap,
+  .relevant-links-wrap {
+    padding: 14px 14px 14px 18px !important;
+  }
+
+  /* Desktop modals become mobile sheets/full-screen panels. */
+  .dashboard-modal,
+  .deadline-splash {
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    padding: 0 !important;
+  }
+
+  .dashboard-modal.hidden,
+  .deadline-splash.hidden {
+    display: none !important;
+  }
+
+  .dashboard-content,
+  .deadline-splash-card,
+  .deadline-form-content,
+  .timeline-content,
+  .todo-content,
+  .calendar-form-content,
+  .library-modal-content,
+  .module-library-content,
+  .setup-content,
+  .grading-guide-modal {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+    padding: 18px 14px calc(var(--mobile-tabbar-h) + 24px) !important;
+  }
+
+  .dashboard-close,
+  .deadline-splash-close {
+    position: sticky !important;
+    top: 0 !important;
+    margin-left: auto !important;
+    z-index: 5 !important;
+    border-radius: 999px !important;
+  }
+
+  .dashboard-grid,
+  .deadline-form-grid,
+  .deadline-form-row,
+  .calendar-form-row,
+  .setup-grid,
+  .prefs-grid,
+  .library-dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .deadline-form-actions,
+  .form-modal-footer {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 6 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    background: color-mix(in srgb, var(--paper3) 94%, transparent 6%) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .deadline-form-actions .nav-btn,
+  .form-modal-footer .nav-btn {
+    width: 100% !important;
+  }
+
+  /* Grading selector: list-first on mobile, no hover-map dependency. */
+  .grading-guide-world-card,
+  .grading-guide-world-hint {
+    display: none !important;
+  }
+
+  .grading-guide-focus-layout {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .grading-guide-region-nav {
+    display: flex !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    padding: 8px 0 10px !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .grading-guide-region-nav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .grading-guide-region-btn {
+    flex: 0 0 auto !important;
+    min-height: 42px !important;
+    min-width: max-content !important;
+    border-radius: 999px !important;
+    padding: 10px 12px !important;
+    border-left: 1px solid var(--border2) !important;
+    white-space: nowrap !important;
+  }
+
+  .grading-guide-grid,
+  .grading-guide-list--focused {
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+    padding: 0 !important;
+  }
+
+  .grading-guide-card,
+  .grading-guide-row {
+    min-height: 64px !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+  }
+
+  .grading-guide-row-title,
+  .grading-guide-card-title {
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+  }
+
+  .grading-guide-intro,
+  .grading-guide-note {
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+  }
+
+  /* Planner is a mobile tab/sheet, not a desktop floating window. */
+  #todo-modal .todo-content {
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    transform: none !important;
+    resize: none !important;
+  }
+
+  .todo-toolbar {
+    grid-template-columns: 1fr !important;
+  }
+
+  .todo-add-btn {
+    width: 100% !important;
+  }
+
+  .todo-view-row {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 4 !important;
+    background: var(--paper3) !important;
+    padding: 10px 0 !important;
+  }
+
+  /* Preferences panel becomes a proper mobile drawer. */
+  .prefs-panel {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 5000 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow-y: auto !important;
+    border-radius: 0 !important;
+    padding: 18px 14px calc(var(--mobile-tabbar-h) + 24px) !important;
+  }
+
+  .prefs-input-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .prefs-input-row .nav-btn {
+    width: 100% !important;
+  }
+}
+
+@media (min-width: 861px) {
+  .mobile-topbar,
+  .mobile-tabbar,
+  .mobile-more-sheet {
+    display: none !important;
+  }
+}
+
+body.theme-dark .mobile-topbar,
+body.theme-dark .mobile-tabbar,
+body.theme-dark .mobile-more-sheet,
+body.theme-charcoal .mobile-topbar,
+body.theme-charcoal .mobile-tabbar,
+body.theme-charcoal .mobile-more-sheet {
+  background: rgba(24,24,27,0.94);
+  border-color: rgba(255,255,255,0.1);
+}
+
+body.theme-dark .mobile-brand-title,
+body.theme-charcoal .mobile-brand-title,
+body.theme-dark .mobile-more-title,
+body.theme-charcoal .mobile-more-title {
+  color: #f1ede4;
+}
+
+body.theme-dark .mobile-year-select,
+body.theme-charcoal .mobile-year-select,
+body.theme-dark .mobile-more-action,
+body.theme-charcoal .mobile-more-action {
+  background: rgba(255,255,255,0.055);
+  border-color: rgba(255,255,255,0.12);
+  color: #f1ede4;
+}
+
+/* mobile-conflict-gap-polish-fix */
+@media (max-width: 860px) {
+  /* Remove double bottom spacing. The content owns the bottom padding; body does not need extra. */
+  body:not(.auth-required):not(.auth-loading):not(.setup-required) {
+    padding-bottom: 0 !important;
+  }
+
+  .content {
+    padding-bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 12px) !important;
+  }
+
+  footer,
+  .footer,
+  .app-footer,
+  #app-footer {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Module card: stop the result from fighting with title/buttons/delete. */
+  .module-header {
+    position: relative !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas:
+      "summary"
+      "result"
+      "progress"
+      "marks"
+      "chevron" !important;
+    gap: 10px !important;
+    padding: 16px 14px 14px 18px !important;
+  }
+
+  .module-summary {
+    grid-area: summary !important;
+    min-width: 0 !important;
+    padding-right: 48px !important;
+  }
+
+  .module-header .module-actions {
+    grid-area: unset !important;
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    z-index: 8 !important;
+    display: flex !important;
+  }
+
+  .module-delete-btn,
+  .module-delete-corner {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    border-radius: 999px !important;
+    background: color-mix(in srgb, var(--paper3) 88%, white 12%) !important;
+    box-shadow: 0 6px 16px rgba(26,22,18,0.08) !important;
+  }
+
+  .module-header .final-col {
+    grid-area: result !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    justify-self: stretch !important;
+    gap: 10px !important;
+    padding: 10px 12px !important;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%) !important;
+    border-radius: 12px !important;
+    background: rgba(26,22,18,0.018) !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+  }
+
+  .module-header .final-mark {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: clamp(27px, 9vw, 38px) !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+  }
+
+  .module-header .final-cls {
+    grid-column: 1 / -1 !important;
+    align-self: start !important;
+    justify-self: start !important;
+    max-width: 100% !important;
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+    text-align: left !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    margin: 0 !important;
+  }
+
+  .module-header .predicted-label {
+    grid-column: 1 / -1 !important;
+    margin-top: 0 !important;
+    text-align: left !important;
+  }
+
+  .module-links {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 7px !important;
+  }
+
+  .module-links .bb-link,
+  .module-links .formula-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .module-header .progress-section {
+    grid-area: progress !important;
+  }
+
+  .module-header .inputs-grid {
+    grid-area: marks !important;
+  }
+
+  .module-header .chevron {
+    grid-area: chevron !important;
+    justify-self: end !important;
+  }
+
+  /* Full-screen mobile sheets: close X should live top-right, not as a clunky sticky button. */
+  .dashboard-content,
+  .deadline-splash-card,
+  .deadline-form-content,
+  .timeline-content,
+  .todo-content,
+  .calendar-form-content,
+  .library-modal-content,
+  .module-library-content,
+  .setup-content,
+  .grading-guide-modal {
+    position: relative !important;
+    padding-top: 56px !important;
+  }
+
+  .dashboard-close,
+  .deadline-splash-close {
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    left: auto !important;
+    margin: 0 !important;
+    z-index: 30 !important;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+    border-radius: 999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* More sheet: make it feel designed, not like plain buttons. */
+  .mobile-more-sheet {
+    left: 12px !important;
+    right: 12px !important;
+    bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 12px) !important;
+    padding: 18px !important;
+    border-radius: 24px !important;
+    gap: 16px !important;
+  }
+
+  .mobile-more-close {
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    border-radius: 999px !important;
+    border: 1px solid var(--border2) !important;
+    background: color-mix(in srgb, var(--paper2) 88%, white 12%) !important;
+    color: var(--ink) !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+  }
+
+  .mobile-more-head {
+    display: grid !important;
+    gap: 4px !important;
+    padding-right: 52px !important;
+  }
+
+  .mobile-more-kicker {
+    font-family: "DM Mono", monospace !important;
+    font-size: 9px !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    color: var(--muted) !important;
+  }
+
+  .mobile-more-title {
+    font-size: 28px !important;
+    line-height: 1 !important;
+  }
+
+  .mobile-more-subtitle {
+    font-family: "Cormorant Garamond", serif !important;
+    font-size: 15px !important;
+    line-height: 1.35 !important;
+    color: var(--muted) !important;
+  }
+
+  .mobile-more-grid {
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+  }
+
+  .mobile-more-action-card {
+    min-height: 64px !important;
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 10px 12px !important;
+    border-radius: 16px !important;
+    text-align: left !important;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.28), rgba(255,255,255,0.04)),
+      color-mix(in srgb, var(--paper2) 88%, white 12%) !important;
+    border-color: color-mix(in srgb, var(--border2) 82%, transparent 18%) !important;
+  }
+
+  .mobile-more-action-icon {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 14px !important;
+    display: grid !important;
+    place-items: center !important;
+    background: color-mix(in srgb, var(--ink) 7%, transparent 93%) !important;
+    color: var(--ink) !important;
+    font-size: 18px !important;
+  }
+
+  .mobile-more-action-copy {
+    min-width: 0 !important;
+    display: grid !important;
+    gap: 3px !important;
+  }
+
+  .mobile-more-action-title {
+    font-family: "Shippori Mincho", serif !important;
+    font-size: 17px !important;
+    line-height: 1.1 !important;
+    font-weight: 700 !important;
+    color: var(--ink) !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+
+  .mobile-more-action-desc {
+    font-family: "DM Mono", monospace !important;
+    font-size: 9px !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    color: var(--muted) !important;
+  }
+
+  body.theme-dark .mobile-more-close,
+  body.theme-charcoal .mobile-more-close {
+    background: rgba(255,255,255,0.055) !important;
+    border-color: rgba(255,255,255,0.12) !important;
+    color: #f1ede4 !important;
+  }
+
+  body.theme-dark .mobile-more-action-card,
+  body.theme-charcoal .mobile-more-action-card {
+    background: rgba(255,255,255,0.055) !important;
+    border-color: rgba(255,255,255,0.12) !important;
+  }
+
+  body.theme-dark .mobile-more-action-icon,
+  body.theme-charcoal .mobile-more-action-icon {
+    background: rgba(255,255,255,0.08) !important;
+    color: #f1ede4 !important;
+  }
+
+  body.theme-dark .mobile-more-action-title,
+  body.theme-charcoal .mobile-more-action-title {
+    color: #f1ede4 !important;
+  }
+}
+
+/* mobile-polish-followup-fix */
+@media (max-width: 860px) {
+  /* Give the footer/logo breathing room above the bottom tabs without creating a huge empty canyon. */
+  .content {
+    padding-bottom: 34px !important;
+  }
+
+  #app-main {
+    padding-bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 24px) !important;
+  }
+
+  footer,
+  .footer,
+  .site-footer,
+  .app-footer,
+  .unitrack-footer,
+  .footer-credit,
+  .app-version,
+  .version-footer {
+    margin-bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 20px) !important;
+  }
+
+  /* Hide the awkward mobile module delete X from the card face. */
+  .module-header .module-actions,
+  .module-delete-corner {
+    display: none !important;
+  }
+
+  .module-header {
+    grid-template-areas:
+      "summary summary"
+      "result result"
+      "progress progress"
+      "marks marks" !important;
+    padding-right: 18px !important;
+    padding-bottom: 22px !important;
+  }
+
+  .module-header .final-col {
+    max-width: 100% !important;
+    padding-right: 42px !important;
+  }
+
+  .module-header .final-cls {
+    max-width: min(180px, calc(100vw - 96px)) !important;
+  }
+
+  .module-header .chevron {
+    right: 10px !important;
+    bottom: 10px !important;
+    opacity: 0.42 !important;
+  }
+
+  /* To-Do is a mobile page, not a floating desktop window. */
+  #todo-modal {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 5200 !important;
+    display: block !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    pointer-events: none !important;
+  }
+
+  #todo-modal.hidden {
+    display: none !important;
+  }
+
+  #todo-modal .todo-content {
+    position: fixed !important;
+    inset: 0 0 calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom)) 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom)) !important;
+    width: 100vw !important;
+    min-width: 0 !important;
+    max-width: 100vw !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    overflow: hidden !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    resize: none !important;
+  }
+
+  #todo-modal .timeline-head {
+    position: relative !important;
+    padding: 62px 18px 18px !important;
+    cursor: default !important;
+  }
+
+  #todo-modal .timeline-subtitle {
+    margin-top: 0 !important;
+  }
+
+  #todo-modal .timeline-topline {
+    display: block !important;
+  }
+
+  #todo-modal .todo-header-actions {
+    position: absolute !important;
+    top: 14px !important;
+    right: 14px !important;
+    justify-content: flex-end !important;
+  }
+
+  #todo-modal #todo-lock-btn {
+    display: none !important;
+  }
+
+  #todo-modal .todo-header-actions .dashboard-close {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 999px !important;
+    background: var(--paper2) !important;
+    color: var(--ink) !important;
+    border: 1px solid var(--border2) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+  }
+
+  #todo-modal .todo-toolbar {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    margin-top: 20px !important;
+  }
+
+  #todo-modal .todo-add-btn {
+    width: 100% !important;
+  }
+
+  #todo-modal .todo-view-row {
+    position: static !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    padding: 12px 18px !important;
+  }
+
+  #todo-modal .todo-summary,
+  #todo-modal #todo-view-toggle {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  #todo-modal .todo-list {
+    padding: 16px 18px calc(28px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Generic mobile modal close buttons: top-right, not weirdly floating in content. */
+  .dashboard-content > .dashboard-close,
+  .deadline-splash-card > .deadline-splash-close,
+  .form-modal > .dashboard-close,
+  .grading-guide-modal > .dashboard-close,
+  .setup-content > .dashboard-close {
+    position: sticky !important;
+    top: 10px !important;
+    right: 10px !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+    z-index: 20 !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 999px !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+
+  /* More sheet final polish */
+  .mobile-more-sheet {
+    padding: 20px 16px 16px !important;
+    border-radius: 24px !important;
+  }
+
+  .mobile-more-head {
+    align-items: flex-start !important;
+  }
+
+  .mobile-more-title {
+    font-size: 26px !important;
+    margin: 0 !important;
+  }
+
+  .mobile-more-kicker {
+    margin-top: 4px !important;
+  }
+
+  .mobile-more-grid {
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+  }
+
+  .mobile-more-action {
+    min-height: 66px !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    align-items: center !important;
+    align-content: center !important;
+    gap: 12px !important;
+    text-align: left !important;
+    padding: 11px 12px !important;
+  }
+
+  .mobile-more-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--ink) 7%, transparent 93%);
+    color: var(--ink);
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .mobile-more-copy {
+    font-size: 18px !important;
+    line-height: 1.08 !important;
+  }
+
+  .mobile-more-action-text {
+    min-width: 0;
+    display: grid;
+    gap: 3px;
+  }
+
+  .mobile-more-close {
+    position: relative !important;
+    top: 0 !important;
+    right: 0 !important;
+  }
+}
+
+/* Make the More sheet follow the selected font theme. */
+body.font-sans .mobile-more-title,
+body.font-sans .mobile-more-copy,
+body.font-sans .mobile-more-action {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+body.font-sans .mobile-more-kicker {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+}
+
+body.font-mono .mobile-more-title,
+body.font-mono .mobile-more-copy,
+body.font-mono .mobile-more-action,
+body.font-mono .mobile-more-kicker {
+  font-family: "DM Mono", Consolas, monospace !important;
+  letter-spacing: 0 !important;
+}
+
+body.font-mono .mobile-more-copy {
+  font-size: 15px !important;
+}
+
+/* mobile-final-polish-v2 */
+@media (max-width: 860px) {
+  /* Footer/logo breathing room */
+  #modules {
+    margin-bottom: 42px !important;
+  }
+
+  #app-main {
+    padding-bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 36px) !important;
+  }
+
+  .content {
+    padding-bottom: 24px !important;
+  }
+
+  footer,
+  .footer,
+  .site-footer,
+  .app-footer,
+  .unitrack-footer,
+  .footer-credit,
+  .app-version,
+  .version-footer {
+    margin-top: 34px !important;
+    margin-bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 28px) !important;
+  }
+
+  /* Module card: compact result, no ugly delete X, no result-card box. */
+  .module-header {
+    position: relative !important;
+    grid-template-columns: minmax(0, 1fr) minmax(92px, auto) !important;
+    grid-template-areas:
+      "summary result"
+      "progress progress"
+      "marks marks" !important;
+    gap: 12px !important;
+    padding: 16px 14px 22px 18px !important;
+    align-items: start !important;
+  }
+
+  .module-header .module-actions,
+  .module-delete-corner,
+  .module-header .module-delete-btn {
+    display: none !important;
+  }
+
+  .module-summary {
+    grid-area: summary !important;
+    min-width: 0 !important;
+    padding-right: 4px !important;
+  }
+
+  .module-header .final-col {
+    grid-area: result !important;
+    justify-self: end !important;
+    align-self: start !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    justify-content: flex-start !important;
+    width: auto !important;
+    min-width: 82px !important;
+    max-width: 116px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-align: right !important;
+    gap: 5px !important;
+  }
+
+  .module-header .final-mark {
+    width: auto !important;
+    max-width: 116px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: clamp(24px, 7.6vw, 32px) !important;
+    line-height: 0.95 !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+    color: var(--ink) !important;
+    background: transparent !important;
+  }
+
+  .module-header .final-cls {
+    align-self: flex-end !important;
+    width: fit-content !important;
+    max-width: 108px !important;
+    margin: 0 !important;
+    padding: 4px 6px !important;
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    text-align: left !important;
+  }
+
+  .module-header .progress-section {
+    grid-area: progress !important;
+  }
+
+  .module-header .inputs-grid {
+    grid-area: marks !important;
+  }
+
+  .module-header .chevron {
+    position: absolute !important;
+    right: 8px !important;
+    bottom: 8px !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    opacity: 0.34 !important;
+  }
+
+  .module-links {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    margin-top: 10px !important;
+  }
+
+  .module-links .bb-link,
+  .module-links .formula-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  /* More sheet: designed menu, X top-right, no old square cards. */
+  .mobile-more-sheet {
+    left: 12px !important;
+    right: 12px !important;
+    bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 10px) !important;
+    padding: 24px 16px 16px !important;
+    border-radius: 26px !important;
+    gap: 16px !important;
+  }
+
+  .mobile-more-head {
+    position: relative !important;
+    display: block !important;
+    padding-right: 56px !important;
+  }
+
+  .mobile-more-title {
+    font-size: 26px !important;
+    line-height: 1 !important;
+    margin: 0 0 4px !important;
+  }
+
+  .mobile-more-kicker {
+    margin: 0 !important;
+    line-height: 1.2 !important;
+  }
+
+  .mobile-more-close {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 999px !important;
+    display: grid !important;
+    place-items: center !important;
+    padding: 0 !important;
+    font-size: 22px !important;
+    line-height: 1 !important;
+    background: var(--paper2) !important;
+    color: var(--ink) !important;
+    border: 1px solid var(--border2) !important;
+  }
+
+  .mobile-more-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .mobile-more-action {
+    min-height: 68px !important;
+    display: grid !important;
+    grid-template-columns: 44px minmax(0, 1fr) !important;
+    gap: 12px !important;
+    align-items: center !important;
+    align-content: center !important;
+    padding: 12px !important;
+    text-align: left !important;
+    border-radius: 16px !important;
+  }
+
+  .mobile-more-icon {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 14px !important;
+    display: grid !important;
+    place-items: center !important;
+    background: color-mix(in srgb, var(--ink) 7%, transparent 93%) !important;
+    color: var(--ink) !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+  }
+
+  .mobile-more-action-text {
+    display: grid !important;
+    gap: 3px !important;
+    min-width: 0 !important;
+  }
+
+  .mobile-more-copy {
+    font-size: 18px !important;
+    line-height: 1.08 !important;
+  }
+
+  /* To-Do: mobile page, not floating awkwardly. */
+  #todo-modal {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 5200 !important;
+    display: block !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    pointer-events: none !important;
+  }
+
+  #todo-modal.hidden {
+    display: none !important;
+  }
+
+  #todo-modal .todo-content {
+    position: fixed !important;
+    inset: 0 0 calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom)) 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom)) !important;
+    width: 100vw !important;
+    min-width: 0 !important;
+    max-width: 100vw !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    resize: none !important;
+  }
+
+  #todo-modal .timeline-head {
+    position: relative !important;
+    padding: 62px 18px 18px !important;
+    cursor: default !important;
+  }
+
+  #todo-modal .todo-header-actions {
+    position: absolute !important;
+    top: 14px !important;
+    right: 14px !important;
+  }
+
+  #todo-modal #todo-lock-btn {
+    display: none !important;
+  }
+
+  #todo-modal .todo-header-actions .dashboard-close {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 999px !important;
+    background: var(--paper2) !important;
+    color: var(--ink) !important;
+    border: 1px solid var(--border2) !important;
+  }
+
+  #todo-modal .todo-toolbar {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    margin-top: 20px !important;
+  }
+
+  #todo-modal .todo-add-btn {
+    width: 100% !important;
+  }
+
+  #todo-modal .todo-view-row {
+    position: static !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    padding: 12px 18px !important;
+  }
+
+  #todo-modal .todo-summary,
+  #todo-modal #todo-view-toggle {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  #todo-modal .todo-list {
+    padding: 16px 18px 28px !important;
+  }
+
+  /* Upcoming deadline popup should be a centred popup, not a weird fullscreen sheet. */
+  #deadline-splash.deadline-splash {
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 18px !important;
+  }
+
+  #deadline-splash .deadline-splash-card {
+    width: min(420px, calc(100vw - 36px)) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: 70dvh !important;
+    border-radius: 22px !important;
+    padding: 26px 24px !important;
+    overflow: visible !important;
+  }
+
+  #deadline-splash .deadline-splash-close {
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    left: auto !important;
+    margin: 0 !important;
+  }
+}
+
+/* More sheet follows selected font theme. */
+body.font-sans .mobile-more-title,
+body.font-sans .mobile-more-copy,
+body.font-sans .mobile-more-action {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+body.font-sans .mobile-more-kicker {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+}
+
+body.font-mono .mobile-more-title,
+body.font-mono .mobile-more-copy,
+body.font-mono .mobile-more-action,
+body.font-mono .mobile-more-kicker {
+  font-family: "DM Mono", Consolas, monospace !important;
+  letter-spacing: 0 !important;
+}
+
+body.font-mono .mobile-more-copy {
+  font-size: 15px !important;
+}
+
+/* mobile-final-forced-polish-v4 */
+@media (max-width: 860px) {
+  /* Make sure old More options never show, even if stale DOM exists briefly. */
+  .mobile-more-action[data-mobile-action="dashboard"],
+  .mobile-more-action[data-mobile-action="library"],
+  .mobile-more-action[data-mobile-action="calendar"],
+  .mobile-more-action[data-mobile-action="youtube"] {
+    display: none !important;
+  }
+
+  /* More sheet: cleaner, lower, proper top-right X. */
+  .mobile-more-sheet {
+    left: 10px !important;
+    right: 10px !important;
+    bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 8px) !important;
+    max-height: min(72vh, 620px) !important;
+    overflow-y: auto !important;
+    padding: 18px 16px 16px !important;
+    border-radius: 24px !important;
+  }
+
+  .mobile-more-head {
+    position: relative !important;
+    min-height: 48px !important;
+    padding-right: 58px !important;
+    margin-bottom: 12px !important;
+    align-items: flex-start !important;
+  }
+
+  .mobile-more-close {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 999px !important;
+    background: var(--paper2) !important;
+    border: 1px solid var(--border2) !important;
+    color: var(--ink) !important;
+    display: grid !important;
+    place-items: center !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+  }
+
+  .mobile-more-title {
+    font-family: "Shippori Mincho", serif !important;
+    font-size: 26px !important;
+    line-height: 1.02 !important;
+    margin: 0 !important;
+    color: var(--ink) !important;
+  }
+
+  .mobile-more-head > div > .mobile-more-kicker {
+    font-family: "Cormorant Garamond", serif !important;
+    font-size: 18px !important;
+    line-height: 1.15 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    color: var(--muted) !important;
+    margin-top: 4px !important;
+  }
+
+  .mobile-more-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .mobile-more-action {
+    min-height: 72px !important;
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    align-items: center !important;
+    align-content: center !important;
+    gap: 12px !important;
+    border-radius: 16px !important;
+    text-align: left !important;
+    padding: 12px !important;
+  }
+
+  .mobile-more-icon {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 13px !important;
+    display: grid !important;
+    place-items: center !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+    background: color-mix(in srgb, var(--ink) 7%, transparent 93%) !important;
+    color: var(--ink) !important;
+  }
+
+  .mobile-more-action-text {
+    min-width: 0 !important;
+    display: grid !important;
+    gap: 2px !important;
+  }
+
+  .mobile-more-copy {
+    font-family: "Shippori Mincho", serif !important;
+    font-size: 18px !important;
+    line-height: 1.08 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    color: var(--ink) !important;
+  }
+
+  .mobile-more-action .mobile-more-kicker {
+    font-family: "DM Mono", monospace !important;
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: var(--muted) !important;
+    margin: 0 !important;
+  }
+
+  body.font-sans .mobile-more-title,
+  body.font-sans .mobile-more-copy,
+  body.font-sans .mobile-more-head > div > .mobile-more-kicker {
+    font-family: "Segoe UI", Arial, sans-serif !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.font-mono .mobile-more-title,
+  body.font-mono .mobile-more-copy,
+  body.font-mono .mobile-more-kicker {
+    font-family: "DM Mono", Consolas, monospace !important;
+    letter-spacing: 0 !important;
+  }
+
+  /* Footer/logo breathing room. */
+  #modules {
+    margin-bottom: 44px !important;
+  }
+
+  #app-main {
+    padding-bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 28px) !important;
+  }
+
+  footer,
+  .footer,
+  .site-footer,
+  .app-footer,
+  .unitrack-footer,
+  .footer-credit,
+  .app-version,
+  .version-footer {
+    margin-top: 28px !important;
+    margin-bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 22px) !important;
+    padding-bottom: 8px !important;
+  }
+
+  /* Module card: stop the result from overlapping title/meta/buttons. */
+  .module-header {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "summary"
+      "result"
+      "progress"
+      "marks" !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+    padding: 16px 14px 22px 18px !important;
+  }
+
+  .module-header .module-actions,
+  .module-delete-corner {
+    display: none !important;
+  }
+
+  .module-summary {
+    grid-area: summary !important;
+    min-width: 0 !important;
+  }
+
+  .module-header .final-col {
+    grid-area: result !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding: 12px !important;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent 18%) !important;
+    border-radius: 12px !important;
+    background: rgba(26,22,18,0.018) !important;
+    box-sizing: border-box !important;
+    text-align: left !important;
+  }
+
+  .module-header .final-mark {
+    width: auto !important;
+    min-width: 0 !important;
+    font-size: clamp(28px, 9vw, 38px) !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+  }
+
+  .module-header .final-cls {
+    width: fit-content !important;
+    max-width: 96px !important;
+    align-self: center !important;
+    justify-self: end !important;
+    font-size: 9.5px !important;
+    line-height: 1.25 !important;
+    text-align: left !important;
+    margin: 0 !important;
+    padding: 5px 6px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .module-header .progress-section {
+    grid-area: progress !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .module-header .inputs-grid {
+    grid-area: marks !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .module-header .chevron {
+    position: absolute !important;
+    right: 9px !important;
+    bottom: 9px !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    opacity: 0.38 !important;
+  }
+
+  /* Upcoming deadline popup: lower, less stuck to the top. */
+  #deadline-splash {
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 10px calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 12px) !important;
+  }
+
+  #deadline-splash .deadline-splash-card {
+    width: min(420px, calc(100vw - 20px)) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: 72vh !important;
+    margin: 0 !important;
+    border-radius: 24px !important;
+    padding: 22px 18px 18px !important;
+    overflow-y: auto !important;
+  }
+
+  #deadline-splash .deadline-splash-close {
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+  }
+}
+
+/* mobile-more-font-scale-fix */
+@media (max-width: 860px) {
+  .mobile-more-title {
+    font-size: 22px !important;
+    line-height: 1.05 !important;
+  }
+
+  .mobile-more-head > div > .mobile-more-kicker {
+    font-size: 14px !important;
+    line-height: 1.25 !important;
+    margin-top: 3px !important;
+  }
+
+  .mobile-more-copy {
+    font-size: 16px !important;
+    line-height: 1.12 !important;
+  }
+
+  .mobile-more-action .mobile-more-kicker {
+    font-size: 8.5px !important;
+    line-height: 1.2 !important;
+  }
+
+  .mobile-more-icon {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 16px !important;
+  }
+
+  .mobile-more-action {
+    min-height: 64px !important;
+    grid-template-columns: 38px minmax(0, 1fr) !important;
+  }
+}
+
+/* mobile-result-card-spacing-fix */
+@media (max-width: 860px) {
+  .module-header .final-col {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 7px !important;
+    min-height: 0 !important;
+    padding: 12px 12px 11px !important;
+  }
+
+  .module-header .final-mark {
+    width: auto !important;
+    max-width: 100% !important;
+    font-size: clamp(28px, 9vw, 38px) !important;
+    line-height: 0.98 !important;
+    margin: 0 !important;
+  }
+
+  .module-header .final-cls {
+    align-self: flex-start !important;
+    width: fit-content !important;
+    max-width: min(230px, calc(100vw - 112px)) !important;
+    margin: 0 !important;
+    padding: 5px 7px !important;
+    font-size: 9px !important;
+    line-height: 1.18 !important;
+    text-align: left !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .module-header .predicted-label {
+    margin-top: 0 !important;
+    font-size: 9px !important;
+    line-height: 1.1 !important;
+    letter-spacing: 0.12em !important;
+    opacity: 0.62 !important;
+  }
+}
 
