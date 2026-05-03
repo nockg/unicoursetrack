@@ -14084,3 +14084,133 @@ body.font-mono .mobile-more-copy {
     opacity: 0.62 !important;
   }
 }
+
+/* mobile-footer-gap-final-fix */
+@media (max-width: 860px) {
+  :root {
+    --mobile-design-gap: 12px;
+  }
+
+  /* Small clean gap between hero/dashboard area and first module. */
+  .hero {
+    margin-bottom: 0 !important;
+  }
+
+  .content {
+    padding-top: var(--mobile-design-gap) !important;
+    padding-bottom: 0 !important;
+  }
+
+  #modules {
+    margin-top: 0 !important;
+    margin-bottom: var(--mobile-design-gap) !important;
+    padding-bottom: 0 !important;
+  }
+
+  #modules > .module:first-child,
+  .module:first-child {
+    margin-top: 0 !important;
+  }
+
+  .module {
+    margin-bottom: var(--mobile-design-gap) !important;
+  }
+
+  /* Keep the arrow removed. */
+  .module-header .chevron {
+    display: none !important;
+  }
+
+  /* The UniTrack footer/logo block: small equal design gaps, not a huge empty void. */
+  .mobile-unitrack-footer,
+  footer,
+  .footer,
+  .site-footer,
+  .app-footer,
+  .unitrack-footer,
+  .footer-credit,
+  .app-version,
+  .version-footer {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin-top: var(--mobile-design-gap) !important;
+    margin-bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + var(--mobile-design-gap)) !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    text-align: center !important;
+    color: var(--ink) !important;
+  }
+
+  .mobile-unitrack-footer *,
+  footer *,
+  .footer *,
+  .site-footer *,
+  .app-footer *,
+  .unitrack-footer *,
+  .footer-credit *,
+  .app-version *,
+  .version-footer * {
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Make sure the version text is visible and not swallowed in dark mode. */
+  .mobile-unitrack-footer,
+  .mobile-unitrack-footer *,
+  .app-version,
+  .version-footer {
+    color: var(--muted) !important;
+  }
+
+  .mobile-unitrack-footer {
+    line-height: 1.15 !important;
+  }
+
+  body.theme-dark .mobile-unitrack-footer,
+  body.theme-dark .mobile-unitrack-footer *,
+  body.theme-dark .app-version,
+  body.theme-dark .version-footer,
+  body.theme-charcoal .mobile-unitrack-footer,
+  body.theme-charcoal .mobile-unitrack-footer *,
+  body.theme-charcoal .app-version,
+  body.theme-charcoal .version-footer {
+    color: rgba(244,239,231,0.58) !important;
+  }
+
+  /* Dark-mode native select dropdown/readability fix. */
+  body.theme-dark select,
+  body.theme-charcoal select,
+  body.theme-dark .nav-select,
+  body.theme-charcoal .nav-select,
+  body.theme-dark .mobile-year-select,
+  body.theme-charcoal .mobile-year-select {
+    background: #202024 !important;
+    color: #f4efe7 !important;
+    border-color: rgba(255,255,255,0.16) !important;
+  }
+
+  body.theme-dark select option,
+  body.theme-charcoal select option,
+  body.theme-dark .nav-select option,
+  body.theme-charcoal .nav-select option,
+  body.theme-dark .mobile-year-select option,
+  body.theme-charcoal .mobile-year-select option {
+    background: #202024 !important;
+    color: #f4efe7 !important;
+  }
+
+  body.theme-dark select option:checked,
+  body.theme-charcoal select option:checked,
+  body.theme-dark .nav-select option:checked,
+  body.theme-charcoal .nav-select option:checked,
+  body.theme-dark .mobile-year-select option:checked,
+  body.theme-charcoal .mobile-year-select option:checked {
+    background: #2c3138 !important;
+    color: #ffffff !important;
+  }
+}
