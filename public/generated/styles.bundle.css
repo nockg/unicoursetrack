@@ -8264,17 +8264,17 @@ body.theme-dark .deadline-choice-card:hover {
 /* No animation between Upcoming and Add New. Instant switch only. */
 #timeline-list.is-switching,
 #timeline-list.is-switching * {
-  transition: none !important;
-  animation: none !important;
+  transition: none;
+  animation: none;
 }
 
 #timeline-list.is-switching {
-  opacity: 1 !important;
-  transform: none !important;
-  height: auto !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  overflow: visible !important;
+  opacity: 1;
+  transform: none;
+  height: auto;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
 }
 
 /* Keep Add New compact and aligned with the site language. */
