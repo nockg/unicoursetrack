@@ -542,7 +542,7 @@ body.font-mono .deadline-splash-title {
 .deadline-splash {
   position: fixed;
   inset: 0;
-  z-index: 10000;
+  z-index: var(--z-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -638,6 +638,7 @@ body.font-mono .deadline-splash-title {
   align-items: center;
   justify-content: center;
   transition: color 0.16s ease, border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+  touch-action: manipulation;
 }
 
 .deadline-splash-close:hover {
@@ -645,6 +646,11 @@ body.font-mono .deadline-splash-title {
   border-color: rgba(255,255,255,0.18);
   background: rgba(255,255,255,0.05);
   transform: translateY(-1px);
+}
+
+.deadline-splash-close:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.7);
+  outline-offset: 2px;
 }
 
 /* label */
@@ -790,7 +796,7 @@ body.theme-charcoal .template-choice.primary {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: var(--z-chrome);
   background: var(--sumi);
   color: var(--paper);
   border-bottom: 1px solid rgba(245,240,232,0.16);
@@ -850,7 +856,7 @@ body.countdown-header-hidden .nav-bar {
 .ticker-time.urgent { color: var(--vermillion2); }
 .ticker-date {
   font-family: "DM Mono", monospace;
-  font-size: 9px;
+  font-size: 11px;
   color: rgba(245,240,232,0.48);
   margin-top: 2px;
 }
@@ -875,7 +881,7 @@ body.countdown-header-hidden .nav-bar {
   top: 66px;
   left: 0;
   right: 0;
-  z-index: 999;
+  z-index: var(--z-nav);
   background: var(--paper2);
   border-bottom: 1px solid var(--border);
   padding: 10px 32px;
@@ -923,6 +929,7 @@ body.countdown-header-hidden .nav-bar {
   transition: 0.2s;
   color: var(--slate);
   font-weight: 500;
+  touch-action: manipulation;
 }
 
 .danger-btn {
@@ -1034,7 +1041,7 @@ h1 {
   margin-bottom: 18px;
 
   width: min(100%, 960px);
-  max-width: calc(100vw - 64px);
+  max-width: calc(100% - 64px);
   min-width: 0;
 
   white-space: normal;
@@ -4170,7 +4177,7 @@ body.theme-dark .library-v10-crumb.active {
   top: 118px;
   right: 14px;
   left: auto;
-  z-index: 1200;
+  z-index: var(--z-modal);
   width: min(380px, calc(100vw - 28px));
   max-height: min(72vh, 680px);
   overflow: auto;
@@ -4585,6 +4592,21 @@ body.compact-ui .prog-pct {
 /* 05-themes.css */
 /* Semantic UI tokens shared across themes */
 :root {
+  /* ── Z-index layer map ──────────────────────────────────────────────────────
+     Chrome      100–199   Sticky header, desktop nav bar
+     Mobile nav  200–299   Mobile topbar, tabbar, more sheet
+     Modals      300–399   All overlay modals and panels
+     Overlays    400–499   Deadline splash, onboarding, app dialog (topmost)
+     ─────────────────────────────────────────────────────────────────────── */
+  --z-chrome:         100;
+  --z-nav:            199;
+  --z-mobile-topbar:  200;
+  --z-mobile-tabbar:  210;
+  --z-mobile-sheet:   220;
+  --z-modal:          300;
+  --z-modal-top:      390;
+  --z-overlay:        400;
+
   --ui-radius-sm: 6px;
   --ui-radius-md: 10px;
   --ui-radius-lg: 14px;
@@ -4859,7 +4881,7 @@ body.theme-dark .nav-btn:hover {
 .dashboard-modal {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: var(--z-modal);
 
   display: flex;
   align-items: center;
@@ -4937,6 +4959,11 @@ body.theme-dark .nav-btn:hover {
   border-color: color-mix(in srgb, var(--border2) 70%, var(--ink) 30%);
   background: rgba(26,22,18,0.04);
   transform: translateY(-1px);
+}
+
+.dashboard-close:focus-visible {
+  outline: 2px solid var(--vermillion);
+  outline-offset: 2px;
 }
 
 .dashboard-title {
@@ -6248,6 +6275,7 @@ body.theme-quiet .sticky-exams{ border-bottom-color: rgba(245,240,232,0.16) !imp
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   padding: 20px 28px 22px;
   scrollbar-width: thin;
 }
@@ -6662,6 +6690,7 @@ body.theme-charcoal .form-modal--calendar > .form-modal-footer .calendar-btn {
   .form-modal--calendar {
     width: calc(100vw - 10px);
     max-height: 90vh;
+    max-height: min(90dvh, 760px);
   }
 
   .form-modal--deadline .deadline-title-module-row,
@@ -6884,7 +6913,7 @@ body.theme-charcoal .grading-guide-card-body {
 
 /* grading-modal-final-language */
 .grading-system-guide-shell.dashboard-modal {
-  z-index: 11000;
+  z-index: var(--z-modal-top);
   background: rgba(0, 0, 0, 0.34);
   backdrop-filter: blur(6px);
 }
@@ -11223,6 +11252,27 @@ body.theme-charcoal .term-summary-meta {
   }
 }
 
+/* Respect reduced-motion preference (class set by JS on <html>) */
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* 10-account-panel.css */
 /* UniTrack account panel UI
    Theme-aware account layout, privacy controls, and backup actions. */
@@ -12007,7 +12057,7 @@ body.theme-charcoal .account-clean-install .account-clean-install-link:hover {
     top: 42px;
     left: 0;
     right: 0;
-    z-index: 2500;
+    z-index: var(--z-mobile-topbar);
     height: var(--mobile-topbar-h);
     align-items: center;
     justify-content: space-between;
@@ -12078,7 +12128,7 @@ body.theme-charcoal .account-clean-install .account-clean-install-link:hover {
 
   .mobile-brand-subtitle {
     font-family: "DM Mono", monospace;
-    font-size: 9px;
+    font-size: 11px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
@@ -12106,7 +12156,7 @@ body.theme-charcoal .account-clean-install .account-clean-install-link:hover {
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 2600;
+    z-index: var(--z-mobile-tabbar);
     height: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom));
     padding: 8px 8px calc(8px + var(--mobile-safe-bottom));
     padding-left: max(8px, env(safe-area-inset-left, 8px));
@@ -12139,7 +12189,7 @@ body.theme-charcoal .account-clean-install .account-clean-install-link:hover {
     align-content: center;
     gap: 3px;
     font-family: "DM Mono", monospace;
-    font-size: 9px;
+    font-size: 11px;
     letter-spacing: 0.02em;
     text-transform: uppercase;
     cursor: pointer;
@@ -12162,7 +12212,7 @@ body.theme-charcoal .account-clean-install .account-clean-install-link:hover {
     left: 10px;
     right: 10px;
     bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 10px);
-    z-index: 2700;
+    z-index: var(--z-mobile-sheet);
     display: none;
     flex-direction: column;
     gap: 10px;
@@ -12221,7 +12271,8 @@ body.theme-charcoal .account-clean-install .account-clean-install-link:hover {
     top: 0 !important;
     height: 42px !important;
     padding: 0 8px !important;
-    z-index: 2400 !important;
+    z-index: var(--z-chrome) !important;
+    -webkit-overflow-scrolling: touch;
   }
 
   body.countdown-header-hidden .sticky-exams {
@@ -12229,12 +12280,12 @@ body.theme-charcoal .account-clean-install .account-clean-install-link:hover {
   }
 
   .exam-ticker {
-    min-width: 176px !important;
+    min-width: min(176px, calc((100vw - 32px) / 2)) !important;
     padding: 0 14px !important;
   }
 
   .ticker-mod {
-    font-size: 8px !important;
+    font-size: 10px !important;
     margin-bottom: 0 !important;
   }
 
@@ -12263,7 +12314,7 @@ body.theme-charcoal .account-clean-install .account-clean-install-link:hover {
   }
 
   .eyebrow {
-    font-size: 9px !important;
+    font-size: 11px !important;
     margin-bottom: 10px !important;
   }
 
@@ -12460,7 +12511,7 @@ body.theme-charcoal .account-clean-install .account-clean-install-link:hover {
   }
 
   .field label {
-    font-size: 9px !important;
+    font-size: 11px !important;
   }
 
   .input,
@@ -12860,7 +12911,7 @@ body.theme-charcoal .mobile-more-action {
   .setup-content,
   .grading-guide-modal {
     position: relative !important;
-    padding-top: 56px !important;
+    padding-top: max(56px, calc(env(safe-area-inset-top) + 16px)) !important;
   }
 
   .dashboard-close,
@@ -12916,7 +12967,7 @@ body.theme-charcoal .mobile-more-action {
 
   .mobile-more-kicker {
     font-family: "DM Mono", monospace !important;
-    font-size: 9px !important;
+    font-size: 11px !important;
     letter-spacing: 0.12em !important;
     text-transform: uppercase !important;
     color: var(--muted) !important;
@@ -12983,7 +13034,7 @@ body.theme-charcoal .mobile-more-action {
 
   .mobile-more-action-desc {
     font-family: "DM Mono", monospace !important;
-    font-size: 9px !important;
+    font-size: 11px !important;
     line-height: 1.25 !important;
     letter-spacing: 0.04em !important;
     text-transform: uppercase !important;
@@ -13097,6 +13148,7 @@ body.theme-charcoal .mobile-more-action {
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
+    padding: 0 !important;
     margin: 0 !important;
     border-radius: 0 !important;
     border-left: 0 !important;
@@ -13704,7 +13756,7 @@ body.font-mono .mobile-more-copy {
 
   .mobile-more-action .mobile-more-kicker {
     font-family: "DM Mono", monospace !important;
-    font-size: 9px !important;
+    font-size: 11px !important;
     line-height: 1.2 !important;
     letter-spacing: 0.08em !important;
     text-transform: uppercase !important;
@@ -13882,7 +13934,7 @@ body.font-mono .mobile-more-copy {
   }
 
   .mobile-more-action .mobile-more-kicker {
-    font-size: 8.5px !important;
+    font-size: 11px !important;
     line-height: 1.2 !important;
   }
 
@@ -13924,7 +13976,7 @@ body.font-mono .mobile-more-copy {
     max-width: min(230px, calc(100vw - 112px)) !important;
     margin: 0 !important;
     padding: 5px 7px !important;
-    font-size: 9px !important;
+    font-size: 11px !important;
     line-height: 1.18 !important;
     text-align: left !important;
     white-space: normal !important;
@@ -13933,7 +13985,7 @@ body.font-mono .mobile-more-copy {
 
   .module-header .predicted-label {
     margin-top: 0 !important;
-    font-size: 9px !important;
+    font-size: 11px !important;
     line-height: 1.1 !important;
     letter-spacing: 0.12em !important;
     opacity: 0.62 !important;
@@ -14144,5 +14196,47 @@ body.font-mono .mobile-more-copy {
   #edit-module-modal .field:has(input[type="checkbox"]) .setup-choice-detail {
     font-size: 17px !important;
     line-height: 1.52 !important;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 860px) {
+  .hero-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 360px) {
+  .form-modal > .form-modal-body {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .form-modal > .form-modal-kicker,
+  .form-modal > .form-modal-title,
+  .form-modal > .form-modal-footer {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+/* touch-action: manipulation for interactive mobile controls */
+@media (max-width: 860px) {
+  /* Ensure minimum touch target size on interactive controls */
+  .mobile-tab-btn,
+  .mobile-more-close,
+  .mobile-more-action {
+    touch-action: manipulation;
+  }
+
+  .nav-btn,
+  .module-delete-btn,
+  .add-exam-btn,
+  .deadline-splash-close,
+  .dashboard-close {
+    touch-action: manipulation;
+  }
+
+  .module-delete-btn {
+    min-width: 36px;
+    min-height: 36px;
   }
 }
