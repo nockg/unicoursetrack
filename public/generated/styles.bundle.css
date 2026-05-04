@@ -6927,7 +6927,7 @@ body.theme-charcoal .grading-guide-card-body {
 
 /* grading-modal-final-language */
 .grading-system-guide-shell.dashboard-modal {
-  z-index: var(--z-modal-top);
+  z-index: var(--z-overlay);
   background: rgba(0, 0, 0, 0.34);
   backdrop-filter: blur(6px);
 }
@@ -12115,14 +12115,17 @@ body.theme-charcoal .account-clean-install .account-clean-install-link:hover {
     flex: 0 0 30px;
     border-radius: 8px;
     overflow: hidden;
-    background: #050505;
-    border: 1px solid var(--border);
+    background: var(--sumi);
+    border: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .mobile-brand-mark img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
     display: block;
   }
 
@@ -12724,7 +12727,7 @@ body.theme-charcoal .account-clean-install .account-clean-install-link:hover {
   .prefs-panel {
     position: fixed !important;
     inset: 0 !important;
-    z-index: 5000 !important;
+    z-index: var(--z-modal-top) !important;
     width: 100vw !important;
     max-width: 100vw !important;
     height: 100dvh !important;

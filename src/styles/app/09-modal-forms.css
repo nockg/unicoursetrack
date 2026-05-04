@@ -685,7 +685,7 @@ body.theme-charcoal .grading-guide-card-body {
 
 /* grading-modal-final-language */
 .grading-system-guide-shell.dashboard-modal {
-  z-index: var(--z-modal-top);
+  z-index: var(--z-overlay);
   background: rgba(0, 0, 0, 0.34);
   backdrop-filter: blur(6px);
 }
