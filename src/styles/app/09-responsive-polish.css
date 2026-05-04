@@ -447,6 +447,11 @@ body.theme-dark .deadline-choice-card:hover {
   line-height: 1.35 !important;
 }
 
+/* Buttons inside the pill container must also be pill-shaped to avoid clipping. */
+.deadline-tabs .deadline-tab-btn {
+  border-radius: 999px;
+}
+
 /* Deadline timeline hierarchy: scan-first work queue, not a decorative card stack. */
 #timeline-list .deadline-view-shell {
   gap: 12px !important;
