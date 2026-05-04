@@ -81,6 +81,11 @@
   transform: translateY(-1px);
 }
 
+.dashboard-close:focus-visible {
+  outline: 2px solid var(--vermillion);
+  outline-offset: 2px;
+}
+
 .dashboard-title {
   font-family: "Shippori Mincho", serif;
   font-size: clamp(24px, 3vw, 30px);
