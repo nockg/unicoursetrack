@@ -495,7 +495,7 @@ h1 {
   margin-bottom: 18px;
 
   width: min(100%, 960px);
-  max-width: calc(100vw - 64px);
+  max-width: calc(100% - 64px);
   min-width: 0;
 
   white-space: normal;

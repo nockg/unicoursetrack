@@ -266,7 +266,7 @@
   }
 
   .exam-ticker {
-    min-width: 176px !important;
+    min-width: min(176px, calc((100vw - 32px) / 2)) !important;
     padding: 0 14px !important;
   }
 
@@ -2181,6 +2181,25 @@ body.font-mono .mobile-more-copy {
   #edit-module-modal .field:has(input[type="checkbox"]) .setup-choice-detail {
     font-size: 17px !important;
     line-height: 1.52 !important;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 860px) {
+  .hero-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 360px) {
+  .form-modal > .form-modal-body {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .form-modal > .form-modal-kicker,
+  .form-modal > .form-modal-title,
+  .form-modal > .form-modal-footer {
+    padding-left: 14px;
+    padding-right: 14px;
   }
 }
 
