@@ -40,9 +40,7 @@ export function applyTodoPanelState(forceCenter = false) {
   const maxWidth = window.innerWidth - 18;
   const maxHeight = Math.min(window.innerHeight - 18, 720);
   const width = Math.max(380, Math.min(panelState.width || 520, maxWidth));
-  const baseHeight = 120 + Math.min(items.length || 1, 8) * 58 + 60;
-  const preferredHeight = Math.max(panelState.height || 0, Math.min(baseHeight, 580));
-  const height = Math.max(300, Math.min(preferredHeight, maxHeight));
+  const height = Math.max(300, Math.min(panelState.height || 480, maxHeight));
   const savedLeft = Number.isFinite(panelState.left) ? panelState.left : null;
   const savedTop = Number.isFinite(panelState.top) ? panelState.top : null;
   const left = forceCenter || savedLeft === null

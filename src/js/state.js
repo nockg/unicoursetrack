@@ -1047,6 +1047,9 @@ export function setPreferencesOpen(open) {
   const panel = document.getElementById('prefs-panel');
   if (!panel) return;
   const shouldOpen = open === undefined ? panel.classList.contains('hidden') : !!open;
+  if (!shouldOpen && panel.contains(document.activeElement)) {
+    (document.querySelector('.prefs-toggle-btn') || document.body).focus();
+  }
   panel.classList.toggle('hidden', !shouldOpen);
   panel.setAttribute('aria-hidden', String(!shouldOpen));
   if (shouldOpen) panel.scrollTop = 0;
