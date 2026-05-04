@@ -1605,15 +1605,30 @@ export function openGradingSystemGuideModal(event, selectId = 'pref-grading-syst
     event.stopPropagation();
   }
   activeGradingSystemSelectId = selectId || 'pref-grading-system';
+  if (isMobileViewport()) activeGradingGuideView = 'list';
+  const prefsPanel = document.getElementById('prefs-panel');
+  if (prefsPanel && !prefsPanel.classList.contains('hidden')) {
+    prefsPanel.dataset.restoreAfterGradingSelector = 'true';
+    setPreferencesOpen(false);
+  }
   pauseModalBeforeGradingSelector('course-setup-modal') || pauseModalBeforeGradingSelector('auth-modal');
   const modal = ensureGradingSystemGuideModal();
   modal.classList.remove('hidden');
   syncModalScrollLock();
+  requestAnimationFrame(() => {
+    const first = modal.querySelector('button:not([disabled]), [tabindex="0"]');
+    (first || modal).focus();
+  });
 }
 
 export function closeGradingSystemGuideModal() {
   document.getElementById('grading-system-guide-modal')?.classList.add('hidden');
   restoreModalAfterGradingSelector();
+  const prefsPanel = document.getElementById('prefs-panel');
+  if (prefsPanel?.dataset.restoreAfterGradingSelector === 'true') {
+    delete prefsPanel.dataset.restoreAfterGradingSelector;
+    setPreferencesOpen(true);
+  }
   syncModalScrollLock();
 }
 

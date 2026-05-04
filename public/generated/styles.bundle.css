@@ -5289,8 +5289,8 @@ body.theme-charcoal .dashboard-close:hover {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  display: grid;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
   padding: 10px 12px 6px;
 }
@@ -5301,6 +5301,7 @@ body.theme-charcoal .dashboard-close:hover {
 
 /* Item wrapper */
 .todo-item-wrapper {
+  flex-shrink: 0;
   border: 1px solid var(--border);
   border-radius: var(--ui-radius-base);
   overflow: hidden;
@@ -5468,10 +5469,11 @@ body.theme-charcoal .dashboard-close:hover {
 .todo-detail-note {
   width: 100%;
   min-height: 56px;
+  max-height: 160px;
   height: 56px;
   resize: none;
-  overflow: auto;
-  scrollbar-width: none;
+  overflow-y: auto;
+  scrollbar-width: thin;
   overscroll-behavior: contain;
   font-size: 13px;
   line-height: 1.45;
@@ -5482,7 +5484,8 @@ body.theme-charcoal .dashboard-close:hover {
   color: var(--sumi);
   box-sizing: border-box;
 }
-.todo-detail-note::-webkit-scrollbar { display: none; }
+.todo-detail-note::-webkit-scrollbar { width: 4px; }
+.todo-detail-note::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 .todo-delete-btn {
   min-width: 0;
   height: 30px;
