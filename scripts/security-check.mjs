@@ -4,6 +4,7 @@ import { extname, join, relative } from "node:path";
 
 const ignoredDirs = new Set([
   ".git",
+  ".claude",
   ".vercel",
   "node_modules",
   "dist",

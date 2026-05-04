@@ -3,17 +3,24 @@
   "version": "1.0.0",
   "private": true,
   "description": "UniTrack course progress tracker",
+  "type": "module",
   "scripts": {
-    "sync": "node scripts/build-assets.mjs",
-    "dev": "npm run sync && node scripts/dev-server.mjs",
-    "build": "npm run check && npm run sync && node scripts/build-dist.mjs",
-    "preview": "node scripts/dev-server.mjs",
+    "dev": "node scripts/gen-config.mjs && vite",
+    "build": "npm run check && node scripts/gen-config.mjs && vite build",
+    "preview": "vite preview",
     "check": "npm run check:security && npm run check:xss",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:e2e": "playwright test",
     "check:security": "node scripts/security-check.mjs",
     "check:xss": "node scripts/xss-check.mjs"
   },
   "devDependencies": {
-    "@playwright/test": "^1.59.1"
+    "@playwright/test": "^1.59.1",
+    "vite": "^8.0.10",
+    "vitest": "^4.1.5"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.1"
   }
 }
