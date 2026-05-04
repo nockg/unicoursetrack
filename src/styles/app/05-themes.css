@@ -15,9 +15,20 @@
   --z-modal-top:      390;
   --z-overlay:        400;
 
-  --ui-radius-sm: 6px;
-  --ui-radius-md: 10px;
-  --ui-radius-lg: 14px;
+  --ui-radius-sm:   6px;
+  --ui-radius-base: 8px;
+  --ui-radius-md:   10px;
+  --ui-radius-card: 12px;
+  --ui-radius-lg:   14px;
+
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  12px;
+  --space-lg:  16px;
+  --space-xl:  20px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+
   --ui-control-height: 40px;
   --ui-control-bg: rgba(255, 255, 255, 0.72);
   --ui-control-bg-hover: rgba(255, 255, 255, 0.9);
