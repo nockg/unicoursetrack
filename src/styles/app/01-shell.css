@@ -97,6 +97,7 @@
   align-items: center;
   justify-content: center;
   transition: color 0.16s ease, border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+  touch-action: manipulation;
 }
 
 .deadline-splash-close:hover {
@@ -309,7 +310,7 @@ body.countdown-header-hidden .nav-bar {
 .ticker-time.urgent { color: var(--vermillion2); }
 .ticker-date {
   font-family: "DM Mono", monospace;
-  font-size: 9px;
+  font-size: 11px;
   color: rgba(245,240,232,0.48);
   margin-top: 2px;
 }
@@ -382,6 +383,7 @@ body.countdown-header-hidden .nav-bar {
   transition: 0.2s;
   color: var(--slate);
   font-weight: 500;
+  touch-action: manipulation;
 }
 
 .danger-btn {

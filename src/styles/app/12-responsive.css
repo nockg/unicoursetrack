@@ -114,7 +114,7 @@
 
   .mobile-brand-subtitle {
     font-family: "DM Mono", monospace;
-    font-size: 9px;
+    font-size: 11px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
@@ -175,7 +175,7 @@
     align-content: center;
     gap: 3px;
     font-family: "DM Mono", monospace;
-    font-size: 9px;
+    font-size: 11px;
     letter-spacing: 0.02em;
     text-transform: uppercase;
     cursor: pointer;
@@ -271,7 +271,7 @@
   }
 
   .ticker-mod {
-    font-size: 8px !important;
+    font-size: 10px !important;
     margin-bottom: 0 !important;
   }
 
@@ -300,7 +300,7 @@
   }
 
   .eyebrow {
-    font-size: 9px !important;
+    font-size: 11px !important;
     margin-bottom: 10px !important;
   }
 
@@ -497,7 +497,7 @@
   }
 
   .field label {
-    font-size: 9px !important;
+    font-size: 11px !important;
   }
 
   .input,
@@ -953,7 +953,7 @@ body.theme-charcoal .mobile-more-action {
 
   .mobile-more-kicker {
     font-family: "DM Mono", monospace !important;
-    font-size: 9px !important;
+    font-size: 11px !important;
     letter-spacing: 0.12em !important;
     text-transform: uppercase !important;
     color: var(--muted) !important;
@@ -1020,7 +1020,7 @@ body.theme-charcoal .mobile-more-action {
 
   .mobile-more-action-desc {
     font-family: "DM Mono", monospace !important;
-    font-size: 9px !important;
+    font-size: 11px !important;
     line-height: 1.25 !important;
     letter-spacing: 0.04em !important;
     text-transform: uppercase !important;
@@ -1741,7 +1741,7 @@ body.font-mono .mobile-more-copy {
 
   .mobile-more-action .mobile-more-kicker {
     font-family: "DM Mono", monospace !important;
-    font-size: 9px !important;
+    font-size: 11px !important;
     line-height: 1.2 !important;
     letter-spacing: 0.08em !important;
     text-transform: uppercase !important;
@@ -1919,7 +1919,7 @@ body.font-mono .mobile-more-copy {
   }
 
   .mobile-more-action .mobile-more-kicker {
-    font-size: 8.5px !important;
+    font-size: 11px !important;
     line-height: 1.2 !important;
   }
 
@@ -1961,7 +1961,7 @@ body.font-mono .mobile-more-copy {
     max-width: min(230px, calc(100vw - 112px)) !important;
     margin: 0 !important;
     padding: 5px 7px !important;
-    font-size: 9px !important;
+    font-size: 11px !important;
     line-height: 1.18 !important;
     text-align: left !important;
     white-space: normal !important;
@@ -1970,7 +1970,7 @@ body.font-mono .mobile-more-copy {
 
   .module-header .predicted-label {
     margin-top: 0 !important;
-    font-size: 9px !important;
+    font-size: 11px !important;
     line-height: 1.1 !important;
     letter-spacing: 0.12em !important;
     opacity: 0.62 !important;
@@ -2181,6 +2181,29 @@ body.font-mono .mobile-more-copy {
   #edit-module-modal .field:has(input[type="checkbox"]) .setup-choice-detail {
     font-size: 17px !important;
     line-height: 1.52 !important;
+  }
+}
+
+/* touch-action: manipulation for interactive mobile controls */
+@media (max-width: 860px) {
+  /* Ensure minimum touch target size on interactive controls */
+  .mobile-tab-btn,
+  .mobile-more-close,
+  .mobile-more-action {
+    touch-action: manipulation;
+  }
+
+  .nav-btn,
+  .module-delete-btn,
+  .add-exam-btn,
+  .deadline-splash-close,
+  .dashboard-close {
+    touch-action: manipulation;
+  }
+
+  .module-delete-btn {
+    min-width: 36px;
+    min-height: 36px;
   }
 }
 
