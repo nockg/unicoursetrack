@@ -568,7 +568,7 @@ export function getModuleColourPalette() {
   if (store.preferences.theme === 'dark') return DARK_MODULE_COLOURS;
   if (store.preferences.theme === 'light') return LIGHT_MODULE_COLOURS;
   if (store.preferences.theme === 'quiet') return QUIET_MODULE_COLOURS;
-  return DARK_OFFWHITE_MODULE_COLOURS;
+  return DARK_MODULE_COLOURS;
 }
 
 export function getModuleColourChoice(mi) {
@@ -585,7 +585,7 @@ export function getModuleColourChoice(mi) {
 
 export function getModuleColourSet(mi) {
   const palette = getModuleColourPalette();
-  if (!isColourCustomisableTheme()) return palette[0];
+  if (!isColourCustomisableTheme()) return palette[((mi % palette.length) + palette.length) % palette.length];
   const ys = getStore();
   const chosen = ys.moduleColors?.[mi] || {};
   const family = store.preferences.theme === 'dark' ? 'dark' : 'light';
