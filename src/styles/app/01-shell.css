@@ -674,7 +674,7 @@ h1 {
 }
 #hero-title,
 .mod-name {
-  letter-spacing: 0 !important;
+  letter-spacing: 0;
   font-kerning: normal;
   text-rendering: optimizeLegibility;
 }

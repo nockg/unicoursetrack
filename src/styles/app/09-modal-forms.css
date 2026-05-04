@@ -695,7 +695,7 @@ body.theme-charcoal .grading-guide-card-body {
   max-height: 82vh;
   overflow: auto;
   padding: 20px 18px 16px;
-  animation: none !important;
+  animation: none;
 }
 
 .grading-guide-modal--focused .timeline-head {

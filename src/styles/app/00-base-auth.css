@@ -275,7 +275,7 @@ body.theme-dark #auth-gate .deadline-splash-title,
 body.theme-charcoal .auth-gate-label,
 body.theme-charcoal .auth-gate-title,
 body.theme-charcoal #auth-gate .deadline-splash-title {
-  color: #f1ede4 !important;
+  color: #f1ede4;
 }
 
 body.theme-dark .auth-gate-copy,
