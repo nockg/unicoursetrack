@@ -258,6 +258,7 @@
     height: 42px !important;
     padding: 0 8px !important;
     z-index: var(--z-chrome) !important;
+    -webkit-overflow-scrolling: touch;
   }
 
   body.countdown-header-hidden .sticky-exams {
@@ -896,7 +897,7 @@ body.theme-charcoal .mobile-more-action {
   .setup-content,
   .grading-guide-modal {
     position: relative !important;
-    padding-top: 56px !important;
+    padding-top: max(56px, calc(env(safe-area-inset-top) + 16px)) !important;
   }
 
   .dashboard-close,

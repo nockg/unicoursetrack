@@ -47,6 +47,7 @@
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   padding: 20px 28px 22px;
   scrollbar-width: thin;
 }
@@ -461,6 +462,7 @@ body.theme-charcoal .form-modal--calendar > .form-modal-footer .calendar-btn {
   .form-modal--calendar {
     width: calc(100vw - 10px);
     max-height: 90vh;
+    max-height: min(90dvh, 760px);
   }
 
   .form-modal--deadline .deadline-title-module-row,
