@@ -21,7 +21,9 @@ function getTodoPanelState() {
   if (!s.ui.todoPanel) {
     s.ui.todoPanel = { locked: false, top: null, left: null, width: 520, height: 480, hasOpenedOnce: false };
   }
-  return s.ui.todoPanel;
+  const ps = s.ui.todoPanel;
+  if (Number.isFinite(ps.height) && ps.height < 420) ps.height = 480;
+  return ps;
 }
 
 // ── Panel positioning ──────────────────────────────────────────────────────
