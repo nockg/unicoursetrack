@@ -11,3 +11,5 @@ public/config.local.js
 test-results/
 playwright-report/
 public/config.js
+.vercel
+.env*.local

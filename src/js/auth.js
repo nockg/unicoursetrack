@@ -894,7 +894,7 @@ export async function clearCloudProfile(nextState, nextPrefs) {
 }
 
 export async function saveCloudNow() {
-  if (!store.supabaseClient || !store.currentUser || !store.cloudReady) return;
+  if (!store.supabaseClient || !store.currentUser || !store.cloudReady || !store.state) return;
   try {
     await withCloudTimeout(saveTrackerProfileToApi(), 'Cloud save');
     console.log('Cloud save complete');
@@ -905,7 +905,7 @@ export async function saveCloudNow() {
 }
 
 export function saveCloudDebounced() {
-  if (!store.currentUser || !store.cloudReady) return;
+  if (!store.currentUser || !store.cloudReady || !store.state) return;
   clearTimeout(store.cloudSaveTimer);
   store.cloudSaveTimer = setTimeout(saveCloudNow, 700);
 }
