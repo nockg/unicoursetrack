@@ -87,14 +87,17 @@
     flex: 0 0 30px;
     border-radius: 8px;
     overflow: hidden;
-    background: #050505;
+    background: var(--sumi);
     border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .mobile-brand-mark img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
     display: block;
   }
 
@@ -1134,6 +1137,7 @@ body.theme-charcoal .mobile-more-action {
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
+    padding: 0 !important;
     margin: 0 !important;
     border-radius: 0 !important;
     border-left: 0 !important;

@@ -161,7 +161,7 @@ export function ensureMobileUxShell() {
   topbar.innerHTML = `
     <div class="mobile-brand-lockup">
       <div class="mobile-brand-mark">
-        <img src="/sntutors-logo.png" alt="" onerror="this.style.display='none'">
+        <img src="/unitrack-logo-white.svg" alt="">
       </div>
       <div class="mobile-brand-text">
         <div class="mobile-brand-title">UniTrack</div>
