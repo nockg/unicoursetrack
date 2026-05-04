@@ -1362,8 +1362,8 @@ h1 {
 }
 .mod-kanji {
   font-family: "Noto Serif JP", serif;
-  font-weight: 200;
-  font-size: 11px;
+  font-weight: 300;
+  font-size: 12px;
   color: var(--muted);
   letter-spacing: 0.14em;
   margin-bottom: 6px;
@@ -4318,7 +4318,7 @@ body.theme-dark .prefs-inline-field { background: rgba(255,255,255,0.04); border
 }
 .account-meta-label {
   font-family: "DM Mono", monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
@@ -5292,7 +5292,7 @@ body.theme-charcoal .dashboard-close:hover {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 10px 12px 6px;
+  padding: 10px 12px;
 }
 #todo-modal .todo-list,
 #todo-modal .todo-detail-note {
@@ -6058,7 +6058,7 @@ body.theme-charcoal .onboarding-step-tab.active {
   border: 2px solid var(--gold2);
   background: var(--paper3);
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 .timeline-dot.complete-toggle:hover { background: rgba(212,160,23,0.16); }
 .deadline-tabs {
@@ -6124,7 +6124,7 @@ body.theme-dark .deadline-tab-btn.active { background: rgba(245,240,232,0.9); co
   border-radius: var(--ui-radius-card);
   cursor: pointer;
   overflow: hidden;
-  padding: 20px 22px 18px;
+  padding: 18px 22px;
   margin: 0;
   background: rgba(255,255,255,0.18);
 }
@@ -6150,7 +6150,7 @@ body.theme-dark .deadline-tab-btn.active { background: rgba(245,240,232,0.9); co
 .deadline-card-countdown.urgent { color: var(--vermillion); }
 .deadline-meta-line {
   font-family: "DM Mono", monospace;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: .04em;
   text-transform: none;
   color: var(--muted);
@@ -7004,7 +7004,6 @@ body.theme-charcoal .grading-guide-card-body {
   background: color-mix(in srgb, var(--paper2) 84%, white 16%);
   border-color: color-mix(in srgb, var(--region-accent, var(--gold2)) 58%, var(--border2) 42%);
   border-left-color: var(--region-accent);
-  box-shadow: inset 3px 0 0 var(--region-accent);
 }
 
 .grading-guide-focused-section {

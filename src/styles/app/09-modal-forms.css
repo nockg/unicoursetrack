@@ -762,7 +762,6 @@ body.theme-charcoal .grading-guide-card-body {
   background: color-mix(in srgb, var(--paper2) 84%, white 16%);
   border-color: color-mix(in srgb, var(--region-accent, var(--gold2)) 58%, var(--border2) 42%);
   border-left-color: var(--region-accent);
-  box-shadow: inset 3px 0 0 var(--region-accent);
 }
 
 .grading-guide-focused-section {

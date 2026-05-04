@@ -332,7 +332,7 @@ body.theme-charcoal .onboarding-step-tab.active {
   border: 2px solid var(--gold2);
   background: var(--paper3);
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 .timeline-dot.complete-toggle:hover { background: rgba(212,160,23,0.16); }
 .deadline-tabs {
@@ -398,7 +398,7 @@ body.theme-dark .deadline-tab-btn.active { background: rgba(245,240,232,0.9); co
   border-radius: var(--ui-radius-card);
   cursor: pointer;
   overflow: hidden;
-  padding: 20px 22px 18px;
+  padding: 18px 22px;
   margin: 0;
   background: rgba(255,255,255,0.18);
 }
@@ -424,7 +424,7 @@ body.theme-dark .deadline-tab-btn.active { background: rgba(245,240,232,0.9); co
 .deadline-card-countdown.urgent { color: var(--vermillion); }
 .deadline-meta-line {
   font-family: "DM Mono", monospace;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: .04em;
   text-transform: none;
   color: var(--muted);
