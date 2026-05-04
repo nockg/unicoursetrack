@@ -683,7 +683,7 @@ body.theme-charcoal .grading-guide-card-body {
 
 /* grading-modal-final-language */
 .grading-system-guide-shell.dashboard-modal {
-  z-index: 11000;
+  z-index: var(--z-modal-top);
   background: rgba(0, 0, 0, 0.34);
   backdrop-filter: blur(6px);
 }

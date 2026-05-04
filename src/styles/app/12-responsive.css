@@ -43,7 +43,7 @@
     top: 42px;
     left: 0;
     right: 0;
-    z-index: 2500;
+    z-index: var(--z-mobile-topbar);
     height: var(--mobile-topbar-h);
     align-items: center;
     justify-content: space-between;
@@ -142,7 +142,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 2600;
+    z-index: var(--z-mobile-tabbar);
     height: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom));
     padding: 8px 8px calc(8px + var(--mobile-safe-bottom));
     padding-left: max(8px, env(safe-area-inset-left, 8px));
@@ -198,7 +198,7 @@
     left: 10px;
     right: 10px;
     bottom: calc(var(--mobile-tabbar-h) + var(--mobile-safe-bottom) + 10px);
-    z-index: 2700;
+    z-index: var(--z-mobile-sheet);
     display: none;
     flex-direction: column;
     gap: 10px;
@@ -257,7 +257,7 @@
     top: 0 !important;
     height: 42px !important;
     padding: 0 8px !important;
-    z-index: 2400 !important;
+    z-index: var(--z-chrome) !important;
   }
 
   body.countdown-header-hidden .sticky-exams {

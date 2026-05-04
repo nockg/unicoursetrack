@@ -1,5 +1,20 @@
 /* Semantic UI tokens shared across themes */
 :root {
+  /* ── Z-index layer map ──────────────────────────────────────────────────────
+     Chrome      100–199   Sticky header, desktop nav bar
+     Mobile nav  200–299   Mobile topbar, tabbar, more sheet
+     Modals      300–399   All overlay modals and panels
+     Overlays    400–499   Deadline splash, onboarding, app dialog (topmost)
+     ─────────────────────────────────────────────────────────────────────── */
+  --z-chrome:         100;
+  --z-nav:            199;
+  --z-mobile-topbar:  200;
+  --z-mobile-tabbar:  210;
+  --z-mobile-sheet:   220;
+  --z-modal:          300;
+  --z-modal-top:      390;
+  --z-overlay:        400;
+
   --ui-radius-sm: 6px;
   --ui-radius-md: 10px;
   --ui-radius-lg: 14px;

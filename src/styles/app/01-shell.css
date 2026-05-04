@@ -1,7 +1,7 @@
 .deadline-splash {
   position: fixed;
   inset: 0;
-  z-index: 10000;
+  z-index: var(--z-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -249,7 +249,7 @@ body.theme-charcoal .template-choice.primary {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: var(--z-chrome);
   background: var(--sumi);
   color: var(--paper);
   border-bottom: 1px solid rgba(245,240,232,0.16);
@@ -334,7 +334,7 @@ body.countdown-header-hidden .nav-bar {
   top: 66px;
   left: 0;
   right: 0;
-  z-index: 999;
+  z-index: var(--z-nav);
   background: var(--paper2);
   border-bottom: 1px solid var(--border);
   padding: 10px 32px;
