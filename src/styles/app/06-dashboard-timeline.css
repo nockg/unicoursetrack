@@ -215,7 +215,7 @@
 body.theme-dark .dashboard-content,
 body.theme-charcoal .dashboard-content {
   background: #1b1c1f;
-  border-color: rgba(255,255,255,0.1);
+  border-color: var(--border);
   box-shadow: 0 18px 44px rgba(0,0,0,0.36);
 }
 
@@ -250,26 +250,26 @@ body.theme-dark .term-summary-card,
 body.theme-charcoal .dashboard-card,
 body.theme-charcoal .term-summary-card {
   background: #232428;
-  border-color: rgba(255,255,255,0.1);
+  border-color: var(--border);
 }
 
 body.theme-dark .dashboard-chart-wrap,
 body.theme-charcoal .dashboard-chart-wrap {
   background: #202126;
-  border-color: rgba(255,255,255,0.1);
+  border-color: var(--border);
 }
 
 body.theme-dark .dashboard-close,
 body.theme-charcoal .dashboard-close {
   color: rgba(241,237,228,0.78);
-  border-color: rgba(255,255,255,0.1);
+  border-color: var(--border);
 }
 
 body.theme-dark .dashboard-close:hover,
 body.theme-charcoal .dashboard-close:hover {
   color: #ffffff;
   background: rgba(255,255,255,0.05);
-  border-color: rgba(255,255,255,0.18);
+  border-color: var(--border2);
 }
 
 .timeline-head {

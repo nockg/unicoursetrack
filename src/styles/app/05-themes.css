@@ -155,8 +155,8 @@ body.theme-charcoal {
   --slate: #d8d3ca;
   --muted: #a6a198;
   --faint: #75716a;
-  --border: rgba(255, 255, 255, 0.1);
-  --border2: rgba(255, 255, 255, 0.18);
+  --border: rgba(255,255,255,0.1);
+  --border2: rgba(255,255,255,0.18);
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.34);
   --shadow2: 0 4px 12px rgba(0, 0, 0, 0.25);
   --ui-control-bg: rgba(255, 255, 255, 0.055);
@@ -247,7 +247,7 @@ body.theme-dark .setup-choice-detail {
 }
 body.theme-dark .setup-choice {
   background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.1);
+  border-color: var(--border);
 }
 body.theme-dark .setup-choice:hover {
   border-color: rgba(255,255,255,0.2);
