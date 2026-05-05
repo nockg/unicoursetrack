@@ -104,89 +104,98 @@
 /* ── Year Settings Modal ──────────────────────────────────────────────── */
 
 .year-settings-content {
-  width: min(440px, calc(100vw - 32px));
+  width: min(420px, calc(100vw - 32px));
 }
 
 .year-settings-grid {
   display: grid;
-  gap: 20px;
+  gap: 0;
 }
 
 .year-settings-section {
-  display: grid;
-  gap: 8px;
+  padding: 18px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 40%, transparent 60%);
+}
+
+.year-settings-section:first-child {
+  padding-top: 0;
+}
+
+.year-settings-section:last-of-type {
+  border-bottom: none;
 }
 
 .year-settings-label {
-  font-size: 12px;
+  display: block;
+  font-size: 11.5px;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--slate) 60%, var(--ink) 40%);
+  color: color-mix(in srgb, var(--slate) 55%, var(--ink) 45%);
+  margin-bottom: 8px;
 }
 
 .year-settings-section .input,
 .year-settings-section .nav-select {
   width: 100%;
+  box-sizing: border-box;
 }
 
 .year-grading-status {
-  font-size: 13px;
-  color: color-mix(in srgb, var(--slate) 70%, var(--ink) 30%);
+  font-size: 12.5px;
+  color: color-mix(in srgb, var(--slate) 65%, var(--ink) 35%);
   line-height: 1.4;
+  margin-bottom: 12px;
 }
 
 .year-grading-toggle {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 9px;
   cursor: pointer;
-  font-size: 13.5px;
+  font-size: 13px;
+  line-height: 1.4;
   color: var(--ink);
-  margin-top: 2px;
 }
 
 .year-grading-toggle input[type="checkbox"] {
   margin: 0;
+  margin-top: 2px;
   width: 15px;
   height: 15px;
   accent-color: var(--ink);
   flex-shrink: 0;
 }
 
-.year-grading-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-top: 6px;
-  padding: 10px 12px;
-  border-radius: var(--ui-radius-md, 8px);
-  background: color-mix(in srgb, var(--paper2) 80%, var(--slate) 4%);
-  border: 1px solid color-mix(in srgb, var(--border) 50%, transparent 50%);
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: color-mix(in srgb, var(--slate) 60%, var(--ink) 40%);
+#year-grading-override-field {
+  padding-top: 0;
+  border-bottom: none;
 }
 
-.year-grading-notice-icon {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--border) 70%, var(--ink) 10%);
-  color: color-mix(in srgb, var(--ink) 60%, var(--slate) 40%);
-  font-size: 11px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 1px;
+#year-grading-override-field .year-settings-label {
+  margin-bottom: 6px;
+}
+
+#year-grading-override-field .nav-select {
+  margin-bottom: 14px;
+}
+
+.year-grading-notice {
+  padding: 11px 14px;
+  border-radius: var(--ui-radius-md, 8px);
+  background: color-mix(in srgb, var(--paper2) 82%, var(--slate) 3%);
+  border: 1px solid color-mix(in srgb, var(--border) 45%, transparent 55%);
+  font-size: 12px;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--slate) 50%, var(--ink) 50%);
 }
 
 .year-settings-actions {
   display: flex;
   justify-content: flex-end;
-  padding-top: 4px;
+  padding-top: 18px;
+  border-top: 1px solid color-mix(in srgb, var(--border) 40%, transparent 60%);
+  margin-top: 18px;
 }
 
 .onboarding-content {
