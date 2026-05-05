@@ -993,6 +993,79 @@ export async function editCustomGradeMapping() {
   window.updateGlobal?.();
 }
 
+// ── Per-year grading overrides ────────────────────────────────────────────
+
+/**
+ * Set or clear a year-level grading system override.
+ * Pass null/undefined to clear the override (year falls back to course default).
+ */
+export function setYearGradingSystem(yearId, value) {
+  const year = store.state.years?.[yearId];
+  if (!year) return;
+  if (value === null || value === undefined) {
+    delete year.gradingSystem;
+    delete year.customGradeMapping;
+  } else {
+    const gradingSystem = SUPPORTED_GRADING_SYSTEMS.includes(value) ? value : null;
+    if (!gradingSystem) return;
+    year.gradingSystem = gradingSystem;
+    if (gradingSystem === 'custom' && !Array.isArray(year.customGradeMapping)) {
+      year.customGradeMapping = deepClone(window.US_GRADE_OPTIONS || []);
+    }
+  }
+  save();
+  refreshActiveYear();
+  window.buildModules?.();
+  window.updateGlobal?.();
+  if (!document.getElementById('dashboard-modal').classList.contains('hidden')) {
+    window.renderDashboardChart?.();
+  }
+}
+
+/**
+ * Edit the custom grade mapping for a specific year.
+ * If yearId matches current year, the UI will update immediately.
+ */
+export async function editYearCustomGradeMapping(yearId) {
+  const year = store.state.years?.[yearId];
+  if (!year) return;
+  const currentMapping = Array.isArray(year.customGradeMapping) && year.customGradeMapping.length
+    ? year.customGradeMapping
+    : (Array.isArray(store.state.profile?.customGradeMapping) ? store.state.profile.customGradeMapping : []);
+  const current = window.serializeGradeMapping?.(currentMapping) || '';
+  const result = await window.appPrompt?.({
+    label: 'Grade Mapping',
+    title: `Edit Custom Grade Mapping – ${year.label || yearId}`,
+    message: 'Use comma-separated grade=point pairs. Example: A+=4.30, A=4.00, B=3.00, F=0.00',
+    inputLabel: 'Mapping',
+    defaultValue: current,
+    placeholder: 'A=4.00, B=3.00, C=2.00, D=1.00, F=0.00',
+    confirmText: 'Save Mapping',
+  });
+  if (!result) return;
+  const parsed = window.parseCustomGradeMapping?.(result.value) || [];
+  if (!parsed.length) {
+    await window.showAppNotice?.('Mapping not saved', 'Enter at least one grade=point pair, such as A=4.00.');
+    return;
+  }
+  year.customGradeMapping = parsed;
+  year.gradingSystem = 'custom';
+  save();
+  if (yearId === store.state.ui.currentYearId) {
+    refreshActiveYear();
+    window.buildModules?.();
+    window.updateGlobal?.();
+  }
+}
+
+/**
+ * Check whether a year has an explicit grading system override.
+ */
+export function hasYearGradingOverride(yearId) {
+  const year = store.state.years?.[yearId];
+  return !!(year && year.gradingSystem && SUPPORTED_GRADING_SYSTEMS.includes(year.gradingSystem));
+}
+
 export function toggleCountdownHeaderPreference() {
   store.preferences.showCountdownHeader = store.preferences.showCountdownHeader === false;
   savePreferences();
