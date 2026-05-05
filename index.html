@@ -750,6 +750,42 @@
           </button>
         </div>
       </div>
+      <div class="setup-year-settings hidden" id="setup-year-settings">
+        <div class="timeline-subtitle">Year Settings</div>
+        <div class="setup-fields">
+          <div class="field">
+            <label for="year-settings-select">Year</label>
+            <select class="nav-select" id="year-settings-select"></select>
+          </div>
+          <div class="field">
+            <label for="year-settings-name">Year name</label>
+            <input class="input" id="year-settings-name" placeholder="Year 2">
+          </div>
+          <div class="field year-grading-field">
+            <div class="year-grading-status" id="year-grading-status">Using course default</div>
+            <label class="checkbox-label" for="year-grading-override-toggle">
+              <input type="checkbox" id="year-grading-override-toggle">
+              Use a different grading system for this year
+            </label>
+          </div>
+          <div class="field hidden" id="year-grading-override-field">
+            <label for="year-grading-system-select">This year uses</label>
+            <select class="nav-select" id="year-grading-system-select">
+              <option value="uk">UK Honours / Percentage</option>
+              <option value="us4">US 4.00 GPA</option>
+              <option value="us43">US 4.30 GPA / A+ Scale</option>
+              <option value="au7">Australia 7.00 GPA</option>
+              <option value="au4">Australia 4.00 GPA</option>
+              <option value="my4">Malaysia 4.00 GPA</option>
+              <option value="cn4">China Mainland 100-point + GPA Estimate</option>
+              <option value="nz9">New Zealand 9.00 GPA</option>
+              <option value="de5">Germany 1.0–5.0 Grade</option>
+              <option value="custom">Custom Grade Mapping</option>
+            </select>
+            <div class="year-grading-warning">Changing this year's grading system will not alter saved marks, but grade labels, input scales, classifications, and predictions for this year will be recalculated using the selected system.</div>
+          </div>
+        </div>
+      </div>
       <div class="setup-actions">
         <button class="nav-btn" id="course-setup-cancel" type="button" onclick="closeCourseSetupModal()">Cancel</button>
         <button class="nav-btn" type="button" onclick="saveCourseSetup()">Save Setup</button>

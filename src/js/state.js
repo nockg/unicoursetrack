@@ -763,6 +763,7 @@ export function openCourseSetupModal(isInitialSetup = false) {
   }
   document.body.classList.toggle('setup-required', isInitialSetup);
   document.getElementById('course-setup-modal').classList.remove('hidden');
+  populateYearSettings();
   syncModalScrollLock();
   if (!isEditingExisting && isInitialSetup) {
     document.getElementById('setup-name-input').focus();
@@ -852,6 +853,158 @@ export function updateSetupCreditLabel() {
 }
 
 document.getElementById('setup-grading-system-input')?.addEventListener('change', updateSetupCreditLabel);
+
+// ── Year Settings UI (inside Course Setup modal) ─────────────────────────
+
+const GRADING_SYSTEM_LABELS = {
+  uk: 'UK Honours / Percentage',
+  us4: 'US 4.00 GPA',
+  us43: 'US 4.30 GPA / A+ Scale',
+  au7: 'Australia 7.00 GPA',
+  au4: 'Australia 4.00 GPA',
+  my4: 'Malaysia 4.00 GPA',
+  cn4: 'China Mainland 100-point + GPA Estimate',
+  nz9: 'New Zealand 9.00 GPA',
+  de5: 'Germany 1.0–5.0 Grade',
+  custom: 'Custom Grade Mapping',
+};
+
+function getGradingSystemLabel(system) {
+  return GRADING_SYSTEM_LABELS[system] || system || 'UK Honours / Percentage';
+}
+
+export function populateYearSettings() {
+  const container = document.getElementById('setup-year-settings');
+  const yearSelect = document.getElementById('year-settings-select');
+  if (!container || !yearSelect) return;
+
+  // Only show year settings when editing (not during initial setup)
+  if (courseSetupInitial) {
+    container.classList.add('hidden');
+    return;
+  }
+  container.classList.remove('hidden');
+
+  // Populate year dropdown
+  const years = Object.values(store.state.years)
+    .sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true }));
+  yearSelect.innerHTML = years.map((y) =>
+    `<option value="${y.id}"${y.id === store.state.ui.currentYearId ? ' selected' : ''}>${y.label}</option>`
+  ).join('');
+
+  updateYearSettingsForSelected();
+}
+
+function updateYearSettingsForSelected() {
+  const yearSelect = document.getElementById('year-settings-select');
+  const nameInput = document.getElementById('year-settings-name');
+  const overrideToggle = document.getElementById('year-grading-override-toggle');
+  const overrideField = document.getElementById('year-grading-override-field');
+  const systemSelect = document.getElementById('year-grading-system-select');
+  const statusEl = document.getElementById('year-grading-status');
+  if (!yearSelect || !nameInput || !overrideToggle || !overrideField || !systemSelect || !statusEl) return;
+
+  const yearId = yearSelect.value;
+  const year = store.state.years?.[yearId];
+  if (!year) return;
+
+  nameInput.value = year.label || '';
+
+  const hasOverride = !!(year.gradingSystem && SUPPORTED_GRADING_SYSTEMS.includes(year.gradingSystem));
+  overrideToggle.checked = hasOverride;
+  overrideField.classList.toggle('hidden', !hasOverride);
+
+  if (hasOverride) {
+    systemSelect.value = year.gradingSystem;
+    statusEl.textContent = `Using year override: ${getGradingSystemLabel(year.gradingSystem)}`;
+  } else {
+    const courseDefault = store.state.profile?.gradingSystem || 'uk';
+    statusEl.textContent = `Using course default: ${getGradingSystemLabel(courseDefault)}`;
+    systemSelect.value = courseDefault;
+  }
+}
+
+function onYearSettingsSelectChange() {
+  updateYearSettingsForSelected();
+}
+
+function onYearGradingOverrideToggle() {
+  const overrideToggle = document.getElementById('year-grading-override-toggle');
+  const overrideField = document.getElementById('year-grading-override-field');
+  const yearSelect = document.getElementById('year-settings-select');
+  const systemSelect = document.getElementById('year-grading-system-select');
+  if (!overrideToggle || !overrideField || !yearSelect) return;
+
+  const yearId = yearSelect.value;
+  const year = store.state.years?.[yearId];
+  if (!year) return;
+
+  if (overrideToggle.checked) {
+    overrideField.classList.remove('hidden');
+    const courseDefault = store.state.profile?.gradingSystem || 'uk';
+    if (!year.gradingSystem) systemSelect.value = courseDefault;
+  } else {
+    overrideField.classList.add('hidden');
+    // Clear the year override
+    delete year.gradingSystem;
+    delete year.customGradeMapping;
+    save();
+    if (yearId === store.state.ui.currentYearId) {
+      refreshActiveYear();
+      window.buildModules?.();
+      window.updateGlobal?.();
+    }
+    updateYearSettingsForSelected();
+  }
+}
+
+function onYearGradingSystemChange() {
+  const yearSelect = document.getElementById('year-settings-select');
+  const systemSelect = document.getElementById('year-grading-system-select');
+  if (!yearSelect || !systemSelect) return;
+
+  const yearId = yearSelect.value;
+  const year = store.state.years?.[yearId];
+  if (!year) return;
+
+  const value = SUPPORTED_GRADING_SYSTEMS.includes(systemSelect.value) ? systemSelect.value : 'uk';
+  year.gradingSystem = value;
+  if (value === 'custom' && !Array.isArray(year.customGradeMapping)) {
+    year.customGradeMapping = deepClone(window.US_GRADE_OPTIONS || []);
+  }
+  save();
+  if (yearId === store.state.ui.currentYearId) {
+    refreshActiveYear();
+    window.buildModules?.();
+    window.updateGlobal?.();
+  }
+  updateYearSettingsForSelected();
+}
+
+function onYearNameChange() {
+  const yearSelect = document.getElementById('year-settings-select');
+  const nameInput = document.getElementById('year-settings-name');
+  if (!yearSelect || !nameInput) return;
+
+  const yearId = yearSelect.value;
+  const year = store.state.years?.[yearId];
+  if (!year) return;
+
+  const newLabel = nameInput.value.trim();
+  if (newLabel && newLabel !== year.label) {
+    year.label = newLabel;
+    save();
+    window.renderYearSelector?.();
+    // Update the year dropdown option text
+    const option = yearSelect.querySelector(`option[value="${yearId}"]`);
+    if (option) option.textContent = newLabel;
+  }
+}
+
+document.getElementById('year-settings-select')?.addEventListener('change', onYearSettingsSelectChange);
+document.getElementById('year-grading-override-toggle')?.addEventListener('change', onYearGradingOverrideToggle);
+document.getElementById('year-grading-system-select')?.addEventListener('change', onYearGradingSystemChange);
+document.getElementById('year-settings-name')?.addEventListener('change', onYearNameChange);
 
 if (store.currentUser && store.pendingFirstRunSetup) {
   setupCourseIfNeeded();
