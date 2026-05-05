@@ -5827,6 +5827,54 @@ body.suppress-topic-refresh #modules {
   margin-top: 8px;
 }
 
+/* ── Year Settings Modal ──────────────────────────────────────────────── */
+
+.year-settings-content {
+  width: min(420px, calc(100vw - 32px));
+}
+
+.year-settings-body {
+  display: grid;
+  gap: 18px;
+}
+
+.year-settings-body .field .input,
+.year-settings-body .field .nav-select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.year-grading-group {
+  gap: 8px;
+}
+
+.year-grading-group .field-hint {
+  margin-top: 0;
+  margin-bottom: 4px;
+}
+
+.year-grading-group .checkbox-label {
+  margin-top: 2px;
+}
+
+.year-grading-notice {
+  padding: 10px 14px;
+  border-radius: var(--ui-radius-card, 10px);
+  background: color-mix(in srgb, var(--paper2) 80%, var(--slate) 3%);
+  border: 1px solid color-mix(in srgb, var(--border) 45%, transparent 55%);
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.year-settings-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid color-mix(in srgb, var(--border) 36%, transparent 64%);
+}
+
 .onboarding-content {
   width: min(760px, calc(100vw - 32px));
 }
