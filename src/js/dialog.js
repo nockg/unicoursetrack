@@ -40,6 +40,7 @@ function closeVisibleEscapeModal() {
     '#calendar-modal',
     '#deadline-form-modal',
     '#module-library-modal',
+    '#year-settings-modal',
   ];
 
   for (const selector of modalSelectors) {
