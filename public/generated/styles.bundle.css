@@ -5830,27 +5830,12 @@ body.suppress-topic-refresh #modules {
 /* ── Year Settings Modal ──────────────────────────────────────────────── */
 
 .year-settings-content {
-  width: min(460px, calc(100vw - 32px));
-  padding: 32px 34px 28px;
-}
-
-.year-settings-content .timeline-subtitle {
-  margin-bottom: 2px;
-}
-
-.year-settings-content .dashboard-title {
-  margin-bottom: 28px;
+  width: min(460px, calc(100vw - 42px));
 }
 
 .year-settings-body {
   display: grid;
-  gap: 24px;
-}
-
-.year-settings-body .field {
-  display: grid;
-  gap: 7px;
-  min-width: 0;
+  gap: 22px;
 }
 
 .year-settings-body .input,
@@ -5884,14 +5869,6 @@ body.suppress-topic-refresh #modules {
   line-height: 1.55;
   color: var(--muted);
   margin-top: 4px;
-}
-
-.year-settings-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 28px;
-  padding-top: 18px;
-  border-top: 1px solid color-mix(in srgb, var(--border) 36%, transparent 64%);
 }
 
 .onboarding-content {
