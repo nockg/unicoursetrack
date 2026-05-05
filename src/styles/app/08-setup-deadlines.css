@@ -101,6 +101,66 @@
   margin-top: 8px;
 }
 
+/* ── Year Settings (inside Course Setup modal) ─────────────────────────── */
+
+.setup-year-settings {
+  border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent 40%);
+  padding-top: 18px;
+  margin-top: 4px;
+}
+
+.setup-year-settings .timeline-subtitle {
+  margin-bottom: 12px;
+}
+
+.setup-year-settings .setup-fields {
+  grid-template-columns: 1fr 1fr;
+}
+
+.setup-year-settings .setup-fields .field:first-child,
+.setup-year-settings .setup-fields .field:nth-child(2) {
+  grid-column: auto;
+}
+
+.year-grading-field {
+  grid-column: 1 / -1;
+}
+
+.year-grading-status {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 15px;
+  color: color-mix(in srgb, var(--slate) 74%, var(--ink) 26%);
+  margin-bottom: 6px;
+}
+
+.year-grading-field .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.year-grading-field .checkbox-label input[type="checkbox"] {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--ink);
+}
+
+#year-grading-override-field {
+  grid-column: 1 / -1;
+}
+
+.year-grading-warning {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--slate) 80%, var(--ink) 20%);
+  font-style: italic;
+}
+
 .onboarding-content {
   width: min(760px, calc(100vw - 32px));
 }
