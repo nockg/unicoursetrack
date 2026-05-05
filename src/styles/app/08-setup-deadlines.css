@@ -107,95 +107,46 @@
   width: min(420px, calc(100vw - 32px));
 }
 
-.year-settings-grid {
+.year-settings-body {
   display: grid;
-  gap: 0;
+  gap: 18px;
 }
 
-.year-settings-section {
-  padding: 18px 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 40%, transparent 60%);
-}
-
-.year-settings-section:first-child {
-  padding-top: 0;
-}
-
-.year-settings-section:last-of-type {
-  border-bottom: none;
-}
-
-.year-settings-label {
-  display: block;
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--slate) 55%, var(--ink) 45%);
-  margin-bottom: 8px;
-}
-
-.year-settings-section .input,
-.year-settings-section .nav-select {
+.year-settings-body .field .input,
+.year-settings-body .field .nav-select {
   width: 100%;
   box-sizing: border-box;
 }
 
-.year-grading-status {
-  font-size: 12.5px;
-  color: color-mix(in srgb, var(--slate) 65%, var(--ink) 35%);
-  line-height: 1.4;
-  margin-bottom: 12px;
+.year-grading-group {
+  gap: 8px;
 }
 
-.year-grading-toggle {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  cursor: pointer;
-  font-size: 13px;
-  line-height: 1.4;
-  color: var(--ink);
+.year-grading-group .field-hint {
+  margin-top: 0;
+  margin-bottom: 4px;
 }
 
-.year-grading-toggle input[type="checkbox"] {
-  margin: 0;
+.year-grading-group .checkbox-label {
   margin-top: 2px;
-  width: 15px;
-  height: 15px;
-  accent-color: var(--ink);
-  flex-shrink: 0;
-}
-
-#year-grading-override-field {
-  padding-top: 0;
-  border-bottom: none;
-}
-
-#year-grading-override-field .year-settings-label {
-  margin-bottom: 6px;
-}
-
-#year-grading-override-field .nav-select {
-  margin-bottom: 14px;
 }
 
 .year-grading-notice {
-  padding: 11px 14px;
-  border-radius: var(--ui-radius-md, 8px);
-  background: color-mix(in srgb, var(--paper2) 82%, var(--slate) 3%);
+  padding: 10px 14px;
+  border-radius: var(--ui-radius-card, 10px);
+  background: color-mix(in srgb, var(--paper2) 80%, var(--slate) 3%);
   border: 1px solid color-mix(in srgb, var(--border) 45%, transparent 55%);
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.55;
-  color: color-mix(in srgb, var(--slate) 50%, var(--ink) 50%);
+  color: var(--muted);
 }
 
-.year-settings-actions {
+.year-settings-footer {
   display: flex;
   justify-content: flex-end;
-  padding-top: 18px;
-  border-top: 1px solid color-mix(in srgb, var(--border) 40%, transparent 60%);
-  margin-top: 18px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid color-mix(in srgb, var(--border) 36%, transparent 64%);
 }
 
 .onboarding-content {

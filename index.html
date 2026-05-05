@@ -759,25 +759,25 @@
 </div>
 
 <div id="year-settings-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-labelledby="year-settings-title">
-  <div class="dashboard-content year-settings-content">
+  <div class="dashboard-content year-settings-content form-modal">
     <button class="dashboard-close" type="button" aria-label="Close year settings" onclick="closeYearSettingsModal()">&times;</button>
     <div class="timeline-subtitle">Year Settings</div>
     <div class="dashboard-title" id="year-settings-title">Year Settings</div>
-    <div class="year-settings-grid">
-      <div class="year-settings-section">
-        <label class="year-settings-label" for="year-settings-name">Year name</label>
+    <div class="year-settings-body">
+      <div class="field">
+        <label for="year-settings-name">Year name</label>
         <input class="input" id="year-settings-name" placeholder="Year 2">
       </div>
-      <div class="year-settings-section year-grading-section">
-        <label class="year-settings-label">Grading system</label>
-        <div class="year-grading-status" id="year-grading-status">Using course default</div>
-        <label class="year-grading-toggle" for="year-grading-override-toggle">
+      <div class="field year-grading-group">
+        <label>Grading system</label>
+        <div class="field-hint" id="year-grading-status">Using course default</div>
+        <label class="checkbox-label" for="year-grading-override-toggle">
           <input type="checkbox" id="year-grading-override-toggle">
-          <span>Use a different grading system for this year</span>
+          Use a different grading system for this year
         </label>
       </div>
-      <div class="year-settings-section hidden" id="year-grading-override-field">
-        <label class="year-settings-label" for="year-grading-system-select">This year uses</label>
+      <div class="field hidden" id="year-grading-override-field">
+        <label for="year-grading-system-select">This year uses</label>
         <select class="nav-select" id="year-grading-system-select">
           <option value="uk">UK Honours / Percentage</option>
           <option value="us4">US 4.00 GPA</option>
@@ -792,9 +792,9 @@
         </select>
         <div class="year-grading-notice">Changing this year's grading system will not alter saved marks, but grade labels, input scales, classifications, and predictions for this year will be recalculated.</div>
       </div>
-      <div class="year-settings-actions">
-        <button class="nav-btn" type="button" onclick="closeYearSettingsModal()">Done</button>
-      </div>
+    </div>
+    <div class="year-settings-footer">
+      <button class="nav-btn" type="button" onclick="closeYearSettingsModal()">Done</button>
     </div>
   </div>
 </div>
