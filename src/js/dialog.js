@@ -326,11 +326,13 @@ export function renderYearSelector() {
         ${terms}
       </optgroup>`;
     });
-  const actionOptions = `<optgroup label="────────��────">
+  const actionOptions = `<optgroup label="Actions">
     <option value="__new__">+ New Year</option>
-    <option value="__settings__">⚙ Year Settings</option>
     <option value="__archive__">${currentYear.store.archived ? 'Unarchive Current Year' : 'Archive Current Year'}</option>
     <option value="__delete__">Delete Current Year</option>
+  </optgroup>
+  <optgroup label="Settings">
+    <option value="__settings__">⚙ Year Settings</option>
   </optgroup>`;
   select.innerHTML = yearOptions.join('') + actionOptions;
   const activeTerm = getActiveTermFilter();

@@ -764,19 +764,20 @@
     <div class="timeline-subtitle">Year Settings</div>
     <div class="dashboard-title" id="year-settings-title">Year Settings</div>
     <div class="year-settings-grid">
-      <div class="field">
-        <label for="year-settings-name">Year name</label>
+      <div class="year-settings-section">
+        <label class="year-settings-label" for="year-settings-name">Year name</label>
         <input class="input" id="year-settings-name" placeholder="Year 2">
       </div>
-      <div class="field year-grading-field">
+      <div class="year-settings-section year-grading-section">
+        <label class="year-settings-label">Grading system</label>
         <div class="year-grading-status" id="year-grading-status">Using course default</div>
-        <label class="checkbox-label" for="year-grading-override-toggle">
+        <label class="year-grading-toggle" for="year-grading-override-toggle">
           <input type="checkbox" id="year-grading-override-toggle">
-          Use a different grading system for this year
+          <span>Use a different grading system for this year</span>
         </label>
       </div>
-      <div class="field hidden" id="year-grading-override-field">
-        <label for="year-grading-system-select">This year uses</label>
+      <div class="year-settings-section hidden" id="year-grading-override-field">
+        <label class="year-settings-label" for="year-grading-system-select">This year uses</label>
         <select class="nav-select" id="year-grading-system-select">
           <option value="uk">UK Honours / Percentage</option>
           <option value="us4">US 4.00 GPA</option>
@@ -789,7 +790,10 @@
           <option value="de5">Germany 1.0–5.0 Grade</option>
           <option value="custom">Custom Grade Mapping</option>
         </select>
-        <div class="year-grading-warning">Changing this year's grading system will not alter saved marks, but grade labels, input scales, classifications, and predictions for this year will be recalculated using the selected system.</div>
+        <div class="year-grading-notice">
+          <span class="year-grading-notice-icon">i</span>
+          <span>Changing this year's grading system will not alter saved marks, but grade labels, input scales, classifications, and predictions for this year will be recalculated.</span>
+        </div>
       </div>
       <div class="year-settings-actions">
         <button class="nav-btn" type="button" onclick="closeYearSettingsModal()">Done</button>

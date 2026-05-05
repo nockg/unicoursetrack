@@ -101,65 +101,92 @@
   margin-top: 8px;
 }
 
-/* ── Year Settings Modal ───────────────────────────────────────��────────── */
+/* ── Year Settings Modal ──────────────────────────────────────────────── */
 
 .year-settings-content {
-  width: min(480px, calc(100vw - 32px));
+  width: min(440px, calc(100vw - 32px));
 }
 
 .year-settings-grid {
   display: grid;
-  gap: 16px;
+  gap: 20px;
 }
 
-.year-grading-field {
+.year-settings-section {
   display: grid;
-  gap: 6px;
-}
-
-.year-grading-status {
-  font-family: "Cormorant Garamond", serif;
-  font-size: 15px;
-  color: color-mix(in srgb, var(--slate) 74%, var(--ink) 26%);
-}
-
-.year-grading-field .checkbox-label {
-  display: flex;
-  align-items: center;
   gap: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  color: var(--ink);
 }
 
-.year-grading-field .checkbox-label input[type="checkbox"] {
-  margin: 0;
-  width: 16px;
-  height: 16px;
-  accent-color: var(--ink);
+.year-settings-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--slate) 60%, var(--ink) 40%);
 }
 
-#year-grading-override-field .nav-select {
+.year-settings-section .input,
+.year-settings-section .nav-select {
   width: 100%;
 }
 
-.year-grading-warning {
-  margin-top: 8px;
+.year-grading-status {
   font-size: 13px;
-  line-height: 1.45;
-  color: color-mix(in srgb, var(--slate) 80%, var(--ink) 20%);
-  font-style: italic;
+  color: color-mix(in srgb, var(--slate) 70%, var(--ink) 30%);
+  line-height: 1.4;
+}
+
+.year-grading-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13.5px;
+  color: var(--ink);
+  margin-top: 2px;
+}
+
+.year-grading-toggle input[type="checkbox"] {
+  margin: 0;
+  width: 15px;
+  height: 15px;
+  accent-color: var(--ink);
+  flex-shrink: 0;
+}
+
+.year-grading-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: var(--ui-radius-md, 8px);
+  background: color-mix(in srgb, var(--paper2) 80%, var(--slate) 4%);
+  border: 1px solid color-mix(in srgb, var(--border) 50%, transparent 50%);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--slate) 60%, var(--ink) 40%);
+}
+
+.year-grading-notice-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--border) 70%, var(--ink) 10%);
+  color: color-mix(in srgb, var(--ink) 60%, var(--slate) 40%);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
 }
 
 .year-settings-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 4px;
-}
-
-/* Year Settings dropdown option — subtle visual separation */
-#year-select option[value="__settings__"] {
-  color: color-mix(in srgb, var(--ink) 72%, var(--slate) 28%);
+  padding-top: 4px;
 }
 
 .onboarding-content {
