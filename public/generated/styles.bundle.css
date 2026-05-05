@@ -5830,9 +5830,16 @@ body.suppress-topic-refresh #modules {
 /* ── Year Settings Modal ──────────────────────────────────────────────── */
 
 .year-settings-content {
-  width: min(420px, calc(100vw - 32px));
-  max-height: calc(100vh - 48px);
-  overflow-y: auto;
+  width: min(460px, calc(100vw - 32px));
+  padding: 32px 34px 28px;
+}
+
+.year-settings-content .timeline-subtitle {
+  margin-bottom: 2px;
+}
+
+.year-settings-content .dashboard-title {
+  margin-bottom: 28px;
 }
 
 .year-settings-body {
@@ -5840,8 +5847,14 @@ body.suppress-topic-refresh #modules {
   gap: 24px;
 }
 
-.year-settings-body .field .input,
-.year-settings-body .field .nav-select {
+.year-settings-body .field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.year-settings-body .input,
+.year-settings-body .nav-select {
   width: 100%;
   box-sizing: border-box;
 }
@@ -5870,6 +5883,7 @@ body.suppress-topic-refresh #modules {
   font-size: 11px;
   line-height: 1.55;
   color: var(--muted);
+  margin-top: 4px;
 }
 
 .year-settings-footer {
