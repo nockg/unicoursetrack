@@ -23,6 +23,13 @@ let draggedTopic = null;
 
 export function handleYearDropdown(value) {
   if (value === '__new__') return window.createNewYear?.();
+  if (value === '__settings__') {
+    window.openYearSettingsModal?.();
+    const select = document.getElementById('year-select');
+    const activeTerm = getActiveTermFilter();
+    if (select) select.value = activeTerm === 'all' ? `year:${store.state.ui.currentYearId}` : `term:${store.state.ui.currentYearId}:${activeTerm}`;
+    return;
+  }
   if (value === '__archive__') return archiveCurrentYear();
   if (value === '__delete__') return window.deleteCurrentYear?.();
   const parts = String(value || '').split(':');

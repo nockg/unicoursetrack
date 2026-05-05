@@ -125,12 +125,40 @@ export const GRADE_POINT_OPTIONS = {
 
 // ── Grade system accessor ──────────────────────────────────────────────────
 
-export function getGradingSystem() {
+/**
+ * Effective grading system resolver.
+ * Resolution chain:
+ *   1. If yearId provided → look up that year object.
+ *   2. If no yearId → use current active year (store.state.ui.currentYearId).
+ *   3. If year.gradingSystem is set and valid → use it.
+ *   4. Otherwise fall back to store.state.profile.gradingSystem.
+ *   5. If that is missing/invalid → fall back to 'uk'.
+ */
+export function getGradingSystem(yearId) {
+  const resolvedYearId = yearId !== undefined ? yearId : store.state?.ui?.currentYearId;
+  if (resolvedYearId && store.state?.years?.[resolvedYearId]) {
+    const year = store.state.years[resolvedYearId];
+    if (year.gradingSystem && SUPPORTED_GRADING_SYSTEMS.includes(year.gradingSystem)) {
+      return year.gradingSystem;
+    }
+  }
   const system = store.state?.profile?.gradingSystem || 'uk';
   return SUPPORTED_GRADING_SYSTEMS.includes(system) ? system : 'uk';
 }
 
-export function getCustomGradeOptions() {
+/**
+ * Effective custom grade options resolver.
+ * - If effective system is not 'custom' → returns [] (callers use built-in tables).
+ * - If 'custom': year.customGradeMapping → profile.customGradeMapping → [].
+ */
+export function getCustomGradeOptions(yearId) {
+  const resolvedYearId = yearId !== undefined ? yearId : store.state?.ui?.currentYearId;
+  if (resolvedYearId && store.state?.years?.[resolvedYearId]) {
+    const year = store.state.years[resolvedYearId];
+    if (Array.isArray(year.customGradeMapping) && year.customGradeMapping.length) {
+      return year.customGradeMapping;
+    }
+  }
   const mapping = store.state?.profile?.customGradeMapping;
   return Array.isArray(mapping) ? mapping : [];
 }

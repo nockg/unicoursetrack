@@ -268,4 +268,5 @@ export const BLOCKING_MODAL_SELECTORS = [
   '#module-library-modal',
   '#course-setup-modal',
   '#onboarding-modal',
+  '#year-settings-modal',
 ];

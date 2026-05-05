@@ -101,6 +101,50 @@
   margin-top: 8px;
 }
 
+/* ── Year Settings Modal ──────────────────────────────────────────────── */
+
+.year-settings-content {
+  width: min(460px, calc(100vw - 42px));
+}
+
+.year-settings-body {
+  display: grid;
+  gap: 22px;
+}
+
+.year-settings-body .input,
+.year-settings-body .nav-select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.year-grading-group {
+  gap: 8px;
+}
+
+.year-grading-group .field-hint {
+  margin-top: 0;
+  margin-bottom: 6px;
+}
+
+.year-grading-group .checkbox-label {
+  margin-top: 4px;
+  font-weight: 400;
+  font-size: 12.5px;
+  letter-spacing: 0;
+}
+
+.year-grading-notice {
+  padding: 11px 14px;
+  border-radius: var(--ui-radius-card, 10px);
+  background: color-mix(in srgb, var(--paper3, #fff) 94%, var(--slate) 6%);
+  border: 1px solid color-mix(in srgb, var(--border) 50%, transparent 50%);
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
 .onboarding-content {
   width: min(760px, calc(100vw - 32px));
 }

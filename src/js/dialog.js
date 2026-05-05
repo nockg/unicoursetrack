@@ -40,6 +40,7 @@ function closeVisibleEscapeModal() {
     '#calendar-modal',
     '#deadline-form-modal',
     '#module-library-modal',
+    '#year-settings-modal',
   ];
 
   for (const selector of modalSelectors) {
@@ -326,12 +327,15 @@ export function renderYearSelector() {
         ${terms}
       </optgroup>`;
     });
-  const actionOptions = [
-    '<option value="__new__">+ New Year</option>',
-    `<option value="__archive__">${currentYear.store.archived ? 'Unarchive Current Year' : 'Archive Current Year'}</option>`,
-    '<option value="__delete__">Delete Current Year</option>',
-  ];
-  select.innerHTML = yearOptions.join('') + actionOptions.join('');
+  const actionOptions = `<optgroup label="Actions">
+    <option value="__new__">+ New Year</option>
+    <option value="__archive__">${currentYear.store.archived ? 'Unarchive Current Year' : 'Archive Current Year'}</option>
+    <option value="__delete__">Delete Current Year</option>
+  </optgroup>
+  <optgroup label="Settings">
+    <option value="__settings__">⚙ Year Settings</option>
+  </optgroup>`;
+  select.innerHTML = yearOptions.join('') + actionOptions;
   const activeTerm = getActiveTermFilter();
   select.value = activeTerm === 'all' ? `year:${store.state.ui.currentYearId}` : `term:${store.state.ui.currentYearId}:${activeTerm}`;
   const profile = store.state?.profile || {};

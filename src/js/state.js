@@ -853,6 +853,144 @@ export function updateSetupCreditLabel() {
 
 document.getElementById('setup-grading-system-input')?.addEventListener('change', updateSetupCreditLabel);
 
+// ── Year Settings Modal ───────────────────────────────────────────────────
+
+const GRADING_SYSTEM_LABELS = {
+  uk: 'UK Honours / Percentage',
+  us4: 'US 4.00 GPA',
+  us43: 'US 4.30 GPA / A+ Scale',
+  au7: 'Australia 7.00 GPA',
+  au4: 'Australia 4.00 GPA',
+  my4: 'Malaysia 4.00 GPA',
+  cn4: 'China Mainland 100-point + GPA Estimate',
+  nz9: 'New Zealand 9.00 GPA',
+  de5: 'Germany 1.0–5.0 Grade',
+  custom: 'Custom Grade Mapping',
+};
+
+function getGradingSystemLabel(system) {
+  return GRADING_SYSTEM_LABELS[system] || system || 'UK Honours / Percentage';
+}
+
+export function openYearSettingsModal() {
+  const modal = document.getElementById('year-settings-modal');
+  if (!modal) return;
+
+  const year = getCurrentYear();
+  if (!year) return;
+
+  const nameInput = document.getElementById('year-settings-name');
+  if (nameInput) nameInput.value = year.label || '';
+
+  updateYearSettingsDisplay();
+  modal.classList.remove('hidden');
+  syncModalScrollLock();
+  // Reset year dropdown to current active year
+  window.renderYearSelector?.();
+}
+
+export function closeYearSettingsModal() {
+  const modal = document.getElementById('year-settings-modal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  syncModalScrollLock();
+}
+
+function updateYearSettingsDisplay() {
+  const nameInput = document.getElementById('year-settings-name');
+  const overrideToggle = document.getElementById('year-grading-override-toggle');
+  const overrideField = document.getElementById('year-grading-override-field');
+  const systemSelect = document.getElementById('year-grading-system-select');
+  const statusEl = document.getElementById('year-grading-status');
+  const titleEl = document.getElementById('year-settings-title');
+  if (!nameInput || !overrideToggle || !overrideField || !systemSelect || !statusEl) return;
+
+  const year = getCurrentYear();
+  if (!year) return;
+
+  if (titleEl) titleEl.textContent = `Year Settings – ${year.label}`;
+  nameInput.value = year.label || '';
+
+  const hasOverride = !!(year.gradingSystem && SUPPORTED_GRADING_SYSTEMS.includes(year.gradingSystem));
+  overrideToggle.checked = hasOverride;
+  overrideField.classList.toggle('hidden', !hasOverride);
+
+  if (hasOverride) {
+    systemSelect.value = year.gradingSystem;
+    statusEl.textContent = `Using year override: ${getGradingSystemLabel(year.gradingSystem)}`;
+  } else {
+    const courseDefault = store.state.profile?.gradingSystem || 'uk';
+    statusEl.textContent = `Using course default: ${getGradingSystemLabel(courseDefault)}`;
+    systemSelect.value = courseDefault;
+  }
+}
+
+function onYearGradingOverrideToggle() {
+  const overrideToggle = document.getElementById('year-grading-override-toggle');
+  const overrideField = document.getElementById('year-grading-override-field');
+  if (!overrideToggle || !overrideField) return;
+
+  const year = getCurrentYear();
+  if (!year) return;
+
+  if (overrideToggle.checked) {
+    overrideField.classList.remove('hidden');
+    const systemSelect = document.getElementById('year-grading-system-select');
+    const courseDefault = store.state.profile?.gradingSystem || 'uk';
+    if (systemSelect && !year.gradingSystem) systemSelect.value = courseDefault;
+  } else {
+    overrideField.classList.add('hidden');
+    // Clear the year override
+    delete year.gradingSystem;
+    delete year.customGradeMapping;
+    save();
+    refreshActiveYear();
+    window.buildModules?.();
+    window.updateGlobal?.();
+    updateYearSettingsDisplay();
+  }
+}
+
+function onYearGradingSystemChange() {
+  const systemSelect = document.getElementById('year-grading-system-select');
+  if (!systemSelect) return;
+
+  const year = getCurrentYear();
+  if (!year) return;
+
+  const value = SUPPORTED_GRADING_SYSTEMS.includes(systemSelect.value) ? systemSelect.value : 'uk';
+  year.gradingSystem = value;
+  if (value === 'custom' && !Array.isArray(year.customGradeMapping)) {
+    year.customGradeMapping = deepClone(window.US_GRADE_OPTIONS || []);
+  }
+  save();
+  refreshActiveYear();
+  window.buildModules?.();
+  window.updateGlobal?.();
+  updateYearSettingsDisplay();
+}
+
+function onYearNameChange() {
+  const nameInput = document.getElementById('year-settings-name');
+  if (!nameInput) return;
+
+  const year = getCurrentYear();
+  if (!year) return;
+
+  const newLabel = nameInput.value.trim();
+  if (newLabel && newLabel !== year.label) {
+    year.label = newLabel;
+    save();
+    window.renderYearSelector?.();
+    const titleEl = document.getElementById('year-settings-title');
+    if (titleEl) titleEl.textContent = `Year Settings – ${newLabel}`;
+  }
+}
+
+document.getElementById('year-grading-override-toggle')?.addEventListener('change', onYearGradingOverrideToggle);
+document.getElementById('year-grading-system-select')?.addEventListener('change', onYearGradingSystemChange);
+document.getElementById('year-settings-name')?.addEventListener('change', onYearNameChange);
+
 if (store.currentUser && store.pendingFirstRunSetup) {
   setupCourseIfNeeded();
 }
@@ -991,6 +1129,79 @@ export async function editCustomGradeMapping() {
   applyPreferences();
   window.buildModules?.();
   window.updateGlobal?.();
+}
+
+// ── Per-year grading overrides ────────────────────────────────────────────
+
+/**
+ * Set or clear a year-level grading system override.
+ * Pass null/undefined to clear the override (year falls back to course default).
+ */
+export function setYearGradingSystem(yearId, value) {
+  const year = store.state.years?.[yearId];
+  if (!year) return;
+  if (value === null || value === undefined) {
+    delete year.gradingSystem;
+    delete year.customGradeMapping;
+  } else {
+    const gradingSystem = SUPPORTED_GRADING_SYSTEMS.includes(value) ? value : null;
+    if (!gradingSystem) return;
+    year.gradingSystem = gradingSystem;
+    if (gradingSystem === 'custom' && !Array.isArray(year.customGradeMapping)) {
+      year.customGradeMapping = deepClone(window.US_GRADE_OPTIONS || []);
+    }
+  }
+  save();
+  refreshActiveYear();
+  window.buildModules?.();
+  window.updateGlobal?.();
+  if (!document.getElementById('dashboard-modal').classList.contains('hidden')) {
+    window.renderDashboardChart?.();
+  }
+}
+
+/**
+ * Edit the custom grade mapping for a specific year.
+ * If yearId matches current year, the UI will update immediately.
+ */
+export async function editYearCustomGradeMapping(yearId) {
+  const year = store.state.years?.[yearId];
+  if (!year) return;
+  const currentMapping = Array.isArray(year.customGradeMapping) && year.customGradeMapping.length
+    ? year.customGradeMapping
+    : (Array.isArray(store.state.profile?.customGradeMapping) ? store.state.profile.customGradeMapping : []);
+  const current = window.serializeGradeMapping?.(currentMapping) || '';
+  const result = await window.appPrompt?.({
+    label: 'Grade Mapping',
+    title: `Edit Custom Grade Mapping – ${year.label || yearId}`,
+    message: 'Use comma-separated grade=point pairs. Example: A+=4.30, A=4.00, B=3.00, F=0.00',
+    inputLabel: 'Mapping',
+    defaultValue: current,
+    placeholder: 'A=4.00, B=3.00, C=2.00, D=1.00, F=0.00',
+    confirmText: 'Save Mapping',
+  });
+  if (!result) return;
+  const parsed = window.parseCustomGradeMapping?.(result.value) || [];
+  if (!parsed.length) {
+    await window.showAppNotice?.('Mapping not saved', 'Enter at least one grade=point pair, such as A=4.00.');
+    return;
+  }
+  year.customGradeMapping = parsed;
+  year.gradingSystem = 'custom';
+  save();
+  if (yearId === store.state.ui.currentYearId) {
+    refreshActiveYear();
+    window.buildModules?.();
+    window.updateGlobal?.();
+  }
+}
+
+/**
+ * Check whether a year has an explicit grading system override.
+ */
+export function hasYearGradingOverride(yearId) {
+  const year = store.state.years?.[yearId];
+  return !!(year && year.gradingSystem && SUPPORTED_GRADING_SYSTEMS.includes(year.gradingSystem));
 }
 
 export function toggleCountdownHeaderPreference() {
