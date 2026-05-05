@@ -298,6 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('module-library-modal')?.addEventListener('click', (e) => { if (e.target.id === 'module-library-modal') closeModuleLibrary(); });
   document.getElementById('module-library-modal')?.addEventListener('keydown', handleModuleLibraryKeydown);
   document.getElementById('course-setup-modal')?.addEventListener('click', (e) => { if (e.target.id === 'course-setup-modal') window.closeCourseSetupModal?.(); });
+  document.getElementById('year-settings-modal')?.addEventListener('click', (e) => { if (e.target.id === 'year-settings-modal') window.closeYearSettingsModal?.(); });
   document.getElementById('onboarding-modal')?.addEventListener('click', () => {});
   document.getElementById('auth-modal')?.addEventListener('click', (e) => {
     if (!store.currentUser || window.isRecoveryFlow?.()) return;

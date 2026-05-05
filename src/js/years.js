@@ -23,6 +23,7 @@ let draggedTopic = null;
 
 export function handleYearDropdown(value) {
   if (value === '__new__') return window.createNewYear?.();
+  if (value === '__settings__') return window.openYearSettingsModal?.();
   if (value === '__archive__') return archiveCurrentYear();
   if (value === '__delete__') return window.deleteCurrentYear?.();
   const parts = String(value || '').split(':');
