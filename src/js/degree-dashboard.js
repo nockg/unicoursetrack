@@ -8,7 +8,7 @@ import { store } from './store.js';
 import { escapeHtml } from './utils.js';
 import { getGradingSystem, classify, getCreditUnitLabel } from './grading.js';
 import {
-  save, getEffectiveUniversity, getEffectiveCourse,
+  save, createYearStore, getEffectiveUniversity, getEffectiveCourse,
   getEffectiveAcademicYearLabel, refreshActiveYear,
 } from './state.js';
 import {
@@ -412,22 +412,21 @@ function renderAdaptiveInsightCards(model) {
         if (creditedModules.length >= 2 && yearTotalCredits > 0) {
           const topModules = [...creditedModules]
             .sort((a, b) => Number(b.credits || 0) - Number(a.credits || 0))
-            .slice(0, 3);
-          const rows = topModules.map((m) => {
+            .slice(0, 4);
+          const chips = topModules.map((m) => {
+            const code = m.kanji || m.short || m.name || 'Module';
             const modShare = Number(m.credits || 0) / yearTotalCredits;
             const modPer1 = (modShare * effectiveShare).toFixed(2);
-            return `<li><span class="degree-insight-module-name">${escapeHtml(m.name || m.code || 'Unnamed module')}</span>`
-              + ` <span class="degree-insight-module-impact">+1 pt → +${escapeHtml(modPer1)}</span></li>`;
+            return `<span class="degree-insight-chip" title="${escapeHtml(m.name || code)}">${escapeHtml(code)}&thinsp;<em>+${escapeHtml(modPer1)}</em></span>`;
           }).join('');
-          modulesHtml = `<ul class="degree-insight-modules">${rows}</ul>`;
+          modulesHtml = `<p class="degree-insight-chips-label">Per module (+1 pt each):</p><div class="degree-insight-module-chips">${chips}</div>`;
         }
       }
 
       cards.push('<article class="degree-insight-card degree-insight-card--accent">'
         + '<p class="degree-insight-label">Where Improvement Matters Most</p>'
         + `<h3>${escapeHtml(impactYear.year?.label || impactYear.id)} carries ${escapeHtml(formatWeight(weight))}% of your degree result.</h3>`
-        + `<p>Every +1 pt improvement${isCurrentYear ? ' this year' : ' here'} moves your projected result by +${escapeHtml(per1)}`
-        + ` · a +5 pt gain adds about +${escapeHtml(per5)}.</p>`
+        + `<p>Every +1 pt${isCurrentYear ? ' this year' : ' here'}: +${escapeHtml(per1)} on your degree · +5 pt gain ≈ +${escapeHtml(per5)}.</p>`
         + modulesHtml
         + '</article>');
     }
@@ -495,6 +494,8 @@ function renderYearJourneyCard(summary, model, index) {
   let resultLine = '';
   if (!summary.counts) {
     // excluded — no result line
+  } else if (summary.blocked && summary.year?.isForecast) {
+    resultLine = 'Set expected grade in policy setup';
   } else if (summary.blocked) {
     resultLine = 'Needs conversion';
   } else if (value === null || value === undefined) {
@@ -511,6 +512,9 @@ function renderYearJourneyCard(summary, model, index) {
   if (!summary.counts) {
     tagClass += ' degree-year-node-tag--excluded';
     tagText = summary.excludedReason || 'Excluded';
+  } else if (summary.year?.isForecast) {
+    tagClass += ' degree-year-node-tag--forecast';
+    tagText = 'Forecast';
   } else if (summary.blocked) {
     tagClass += ' degree-year-node-tag--issue';
     tagText = 'Issue';
@@ -717,6 +721,7 @@ function renderPolicySetupOverlay(model) {
     + '<div class="degree-setup-year-list">'
     + yearRows
     + '</div>'
+    + '<button class="degree-add-forecast-btn" type="button" onclick="addForecastYear()">+ Add forecast year</button>'
     + '</section>'
     + '<section class="degree-setup-step degree-setup-step--wide">'
     + '<span>Step 4</span>'
@@ -790,6 +795,47 @@ function renderConversionSetupRow(yearId, model) {
     + `<textarea id="degree-policy-note-${escapeHtml(yearId)}" onchange="refreshDegreePolicyDraft()" placeholder="Converted using receiving university guidance">${escapeHtml(rule.conversionNote || '')}</textarea>`
     + '</label>'
     + '</article>';
+}
+
+export async function addForecastYear() {
+  const label = await window.appPrompt('Enter a label for the forecast year (e.g. "Year 3"):', 'Year 3');
+  if (!label || !label.trim()) return;
+
+  const id = `forecast-${Date.now()}`;
+
+  // Add the year to the store
+  if (!store.state.years) store.state.years = {};
+  store.state.years[id] = {
+    id,
+    label: label.trim(),
+    isForecast: true,
+    store: createYearStore([]),
+  };
+
+  // Write a manualConversion rule into the live policy so buildDashboardModel
+  // immediately shows it as "enter expected grade" rather than "Needs conversion".
+  const livePolicy = getDegreePolicy();
+  if (!livePolicy.yearRules) livePolicy.yearRules = {};
+  livePolicy.yearRules[id] = {
+    ...getDefaultYearRule(),
+    status: 'manualConversion',
+    weight: 0,
+    conversionNote: 'Hypothetical / forecast grade',
+  };
+
+  // Mirror into the open draft (if policy overlay is open)
+  if (policyDraft) {
+    if (!policyDraft.yearRules) policyDraft.yearRules = {};
+    policyDraft.yearRules[id] = {
+      ...getDefaultYearRule(),
+      status: 'manualConversion',
+      weight: 0,
+      conversionNote: 'Hypothetical / forecast grade',
+    };
+  }
+
+  save();
+  renderDegreeDashboard();
 }
 
 export function openDegreePolicySetup() {
