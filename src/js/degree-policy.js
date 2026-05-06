@@ -7,6 +7,7 @@
 import { store } from './store.js';
 import { save } from './state.js';
 import { getGradingSystem, parseGradeValue, getCustomGradeOptions, classify, formatSelectedGrade } from './grading.js';
+import { isModulePredictionMode } from './marks.js';
 
 // ── Labels and constants ───────────────────────────────────────────────────
 
@@ -157,18 +158,27 @@ function parseGradeValueForYear(raw, yearId) {
 // ── Per-year aggregate computation ─────────────────────────────────────────
 
 function getYearModuleFinal(mod, mi, ys, yearId) {
-  const system  = getGradingSystem(yearId);
-  const cwPct   = Number(mod.cw)   || 0;
-  const exPct   = Number(mod.exam) || 0;
-  const total   = cwPct + exPct;
+  const system = getGradingSystem(yearId);
 
-  // Non-UK with no prediction weights: use direct final grade entry
-  if (system !== 'uk' && total <= 0) {
+  // For UK: always derive from CW + exam component marks.
+  // For non-UK without prediction mode: use the direct final grade select.
+  // For non-UK WITH prediction mode (mod.usesCwExamPrediction): derive from CW + exam marks.
+  // This mirrors exactly the logic in rendering.js (usesFinalGradeOnly / isPredictionMode).
+  const usesFinalGradeOnly = system !== 'uk' && !isModulePredictionMode(mod, system);
+  if (usesFinalGradeOnly) {
     return parseGradeValueForYear(ys.finalGrades?.[mi], yearId);
   }
 
-  // UK (always derived) or prediction mode (cw+exam weights set)
-  if (total <= 0) return parseGradeValueForYear(ys.finalGrades?.[mi], yearId);
+  // UK or non-UK prediction mode — derive from component marks
+  const cwPct = Number(mod.cw)   || 0;
+  const exPct = Number(mod.exam) || 0;
+  const total = cwPct + exPct;
+
+  if (total <= 0) {
+    // No component weights set — fall back to finalGrades (shouldn't normally happen for UK,
+    // but handles edge cases gracefully)
+    return parseGradeValueForYear(ys.finalGrades?.[mi], yearId);
+  }
 
   const cwVal = parseGradeValueForYear(ys.coursework?.[mi], yearId);
   const exVal = parseGradeValueForYear(ys.exams?.[mi], yearId);
