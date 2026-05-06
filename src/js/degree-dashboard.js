@@ -160,18 +160,32 @@ function buildYearSummary(yearId, year, policy, outputSystem) {
 // Sections -----------------------------------------------------------------
 
 function renderHeader(model = null) {
-  const anchorYearId = model?.outputYear?.id || model?.yearIds?.[0] || store.state.ui?.currentYearId;
-  const course = getEffectiveCourse(anchorYearId) || 'My Degree';
-  const university = getEffectiveUniversity(anchorYearId);
+  // Try multiple year IDs to find a non-empty course/university
+  const tryIds = [
+    model?.outputYear?.id,
+    ...(model?.yearIds || []),
+    store.state.ui?.currentYearId,
+  ].filter(Boolean);
+  let course = '';
+  let university = '';
+  for (const id of tryIds) {
+    if (!course) course = getEffectiveCourse(id);
+    if (!university) university = getEffectiveUniversity(id);
+    if (course && university) break;
+  }
+  course = course || 'My Degree';
   const yearCount = model?.summaries?.length || 0;
+  const metaParts = [
+    university,
+    yearCount ? `${yearCount} academic year${yearCount !== 1 ? 's' : ''} tracked` : '',
+  ].filter(Boolean);
 
   return '<header class="degree-page-header">'
     + '<button class="degree-back-btn" type="button" onclick="showTrackerView()">← Back to Tracker</button>'
     + '<div class="degree-header-titles">'
     + '<p class="degree-eyebrow">Degree Overview</p>'
     + `<h1 class="degree-page-title">${escapeHtml(course)}</h1>`
-    + (university ? `<p class="degree-page-sub">${escapeHtml(university)}</p>` : '')
-    + (yearCount ? `<p class="degree-page-meta">${yearCount} academic year${yearCount !== 1 ? 's' : ''} tracked</p>` : '')
+    + (metaParts.length ? `<p class="degree-page-meta">${escapeHtml(metaParts.join(' · '))}</p>` : '')
     + '</div>'
     + '</header>';
 }
@@ -184,6 +198,7 @@ function renderForecastHero(model) {
     const tag = getClassificationTag(model.prediction.value, model.outputSystem);
     const outputYearLabel = model.outputYear?.label || 'graduating year';
 
+    const creditLabel = getCreditUnitLabel({ system: model.outputSystem }).toLowerCase();
     return '<article class="degree-result-hero degree-surface">'
       + '<div class="degree-hero-bg" aria-hidden="true"></div>'
       + '<div class="degree-result-copy">'
@@ -194,8 +209,8 @@ function renderForecastHero(model) {
       + '</div>'
       + '<div class="degree-hero-context">'
       + `<span>Output: ${escapeHtml(outputYearLabel)}</span>`
-      + `<span>${escapeHtml(model.gradedCredits)} counted ${escapeHtml(getCreditUnitLabel({ system: model.outputSystem }).toLowerCase())} graded</span>`
-      + `<span>${escapeHtml(model.missingCredits)} missing</span>`
+      + `<span>${escapeHtml(String(model.gradedCredits))} ${escapeHtml(creditLabel)} graded</span>`
+      + (model.missingCredits > 0 ? `<span class="degree-hero-context--warn">${escapeHtml(String(model.missingCredits))} missing</span>` : '')
       + '</div>'
       + '</article>';
   }
@@ -215,24 +230,23 @@ function renderForecastHero(model) {
 
 function renderPolicySummaryCard(model) {
   const preset = DEGREE_PRESETS.find((item) => item.id === model.policy.presetId);
-  const policyLabel = preset?.label || 'Manual custom weights';
-  const outputYearLabel = model.outputYear?.label || 'Choose output year';
-  const actionLabel = model.configured
-    ? 'Edit policy'
-    : (model.blockers.length ? 'Fix policy issue' : 'Set up policy');
-  const actionClass = model.configured && !model.blockers.length
-    ? 'degree-subtle-pill'
-    : 'degree-primary-btn degree-primary-btn--compact';
+  const policyLabel = preset?.label || 'Custom weights';
+  const outputYearLabel = model.outputYear?.label || '—';
+  const hasBlocker = model.blockers.length > 0;
+  const actionLabel = hasBlocker ? 'Fix issue' : (model.configured ? 'Edit' : 'Set up');
+  const actionClass = hasBlocker
+    ? 'degree-policy-fix-btn'
+    : 'degree-policy-edit-btn';
 
-  return '<aside class="degree-policy-summary degree-surface" aria-label="Degree Policy">'
-    + '<div class="degree-policy-summary-head">'
-    + '<p>Degree Policy</p>'
+  return '<aside class="degree-policy-card" aria-label="Degree Policy">'
+    + '<div class="degree-policy-card-head">'
+    + '<p class="degree-policy-card-title">Degree Policy</p>'
     + `<button class="${actionClass}" type="button" onclick="openDegreePolicySetup()">${escapeHtml(actionLabel)}</button>`
     + '</div>'
     + '<dl class="degree-policy-list">'
     + `<div><dt>Template</dt><dd>${escapeHtml(policyLabel)}</dd></div>`
     + `<div><dt>Mode</dt><dd>${escapeHtml(DEGREE_MODES[model.policy.mode] || 'Year-weighted')}</dd></div>`
-    + `<div><dt>Output</dt><dd>${escapeHtml(outputYearLabel)}</dd></div>`
+    + `<div><dt>Output year</dt><dd>${escapeHtml(outputYearLabel)}</dd></div>`
     + `<div><dt>System</dt><dd>${escapeHtml(getSystemLabel(model.outputSystem))}</dd></div>`
     + '</dl>'
     + renderCalculationSummary(model)
@@ -300,7 +314,7 @@ function renderInsightsSection(model) {
   return '<section class="degree-panel degree-insights-section" aria-labelledby="degree-insights-title">'
     + '<div class="degree-section-heading">'
     + '<p class="degree-section-kicker">Degree Insights</p>'
-    + '<h2 id="degree-insights-title">What is shaping the forecast?</h2>'
+    + '<h2 id="degree-insights-title">Breakdown of Your Degree Classification</h2>'
     + '</div>'
     + '<div class="degree-insights-grid">'
     + renderYearComparison(model)
@@ -312,16 +326,21 @@ function renderInsightsSection(model) {
 
 function renderYearComparison(model) {
   const rows = model.summaries.map((summary) => {
+    const isExcluded = !summary.counts;
     const value = summary.degreeValue ?? summary.aggregate?.value;
-    const percentage = getBarPercent(value, summary.nativeSystem);
-    const result = value === null || value === undefined
-      ? 'Not enough marks'
-      : `${formatDegreeResult(value, summary.hasConversion ? model.outputSystem : summary.nativeSystem)} · ${getClassificationTag(value, summary.hasConversion ? model.outputSystem : summary.nativeSystem)}`;
+    const hasValue = value !== null && value !== undefined && Number.isFinite(Number(value));
+    const percentage = (hasValue && !isExcluded) ? getBarPercent(value, summary.nativeSystem) : 0;
 
-    return '<div class="degree-bar-row">'
-      + `<div><strong>${escapeHtml(summary.year?.label || summary.id)}</strong><span>${escapeHtml(result)}</span></div>`
+    let resultText;
+    if (isExcluded) resultText = summary.excludedReason || 'Excluded';
+    else if (summary.blocked) resultText = 'Needs conversion';
+    else if (!hasValue) resultText = 'No marks yet';
+    else resultText = `${formatDegreeResult(value, summary.hasConversion ? model.outputSystem : summary.nativeSystem)} · ${getClassificationTag(value, summary.hasConversion ? model.outputSystem : summary.nativeSystem)}`;
+
+    return `<div class="degree-bar-row${isExcluded ? ' degree-bar-row--excluded' : ''}">`
+      + `<div><strong>${escapeHtml(summary.year?.label || summary.id)}</strong><span>${escapeHtml(resultText)}</span></div>`
       + '<div class="degree-bar-track" aria-hidden="true">'
-      + `<i style="width:${escapeHtml(percentage)}%"></i>`
+      + (percentage > 0 ? `<i style="width:${escapeHtml(String(percentage))}%"></i>` : '')
       + '</div>'
       + '</div>';
   }).join('');
@@ -361,27 +380,52 @@ function renderAdaptiveInsightCards(model) {
     const sorted = [...valuedCountedYears].sort((a, b) => compareDegreeValues(a.degreeValue, b.degreeValue, model.outputSystem));
     const strongest = sorted[0];
     const lowest = sorted[sorted.length - 1];
-    cards.push(renderMiniInsight('Strongest counted year', strongest, model.outputSystem));
-    cards.push(renderMiniInsight('Lowest counted year', lowest, model.outputSystem));
+    cards.push(renderMiniInsight('Strongest year', strongest, model.outputSystem));
+    cards.push(renderMiniInsight('Lowest year', lowest, model.outputSystem));
   }
 
   if (model.policy.mode === 'weightedYears' && model.counted.length) {
-    const biggest = [...model.counted].sort((a, b) => Number(b.rule.weight || 0) - Number(a.rule.weight || 0))[0];
-    if (biggest && Number(biggest.rule.weight || 0) > 0) {
-      const impact = (Number(biggest.rule.weight || 0) / 100) * 5;
+    // Prefer the current active year if it counts; otherwise use the highest-weight counted year
+    const currentYearId = store.state.ui?.currentYearId;
+    const currentSummary = model.counted.find((s) => s.id === currentYearId && Number(s.rule.weight || 0) > 0);
+    const impactYear = currentSummary
+      || [...model.counted].sort((a, b) => Number(b.rule.weight || 0) - Number(a.rule.weight || 0))[0];
+
+    if (impactYear && Number(impactYear.rule.weight || 0) > 0) {
+      const weight = Number(impactYear.rule.weight || 0);
+      const totalWeight = model.counted.reduce((sum, s) => sum + Number(s.rule.weight || 0), 0);
+      const effectiveShare = totalWeight > 0 ? weight / totalWeight : weight / 100;
+      const degreeImpact = (effectiveShare * 5).toFixed(1);
+      const isCurrentYear = impactYear.id === currentYearId;
       cards.push('<article class="degree-insight-card degree-insight-card--accent">'
-        + '<p class="degree-insight-label">Biggest impact</p>'
-        + `<h3>${escapeHtml(biggest.year?.label || biggest.id)} carries ${escapeHtml(formatWeight(biggest.rule.weight))}% of your degree result.</h3>`
-        + `<p>A +5 point improvement here would move the forecast by about +${escapeHtml(impact.toFixed(1))} points.</p>`
+        + '<p class="degree-insight-label">Where Improvement Matters Most</p>'
+        + `<h3>${escapeHtml(impactYear.year?.label || impactYear.id)} carries ${escapeHtml(formatWeight(weight))}% of your degree result.</h3>`
+        + `<p>A +5 point improvement${isCurrentYear ? ' this year' : ' here'} would raise your projected degree by about +${escapeHtml(degreeImpact)} points.</p>`
         + '</article>');
+    }
+  } else if (model.policy.mode === 'creditWeightedAllIncluded' && model.counted.length) {
+    const currentYearId = store.state.ui?.currentYearId;
+    const currentSummary = model.counted.find((s) => s.id === currentYearId);
+    if (currentSummary) {
+      const currentCredits = currentSummary.aggregate?.attempted || 0;
+      const totalCredits = model.counted.reduce((sum, s) => sum + (s.aggregate?.attempted || 0), 0);
+      if (totalCredits > 0 && currentCredits > 0) {
+        const sharePct = ((currentCredits / totalCredits) * 100).toFixed(0);
+        const degreeImpact = ((currentCredits / totalCredits) * 5).toFixed(1);
+        cards.push('<article class="degree-insight-card degree-insight-card--accent">'
+          + '<p class="degree-insight-label">Where Improvement Matters Most</p>'
+          + `<h3>${escapeHtml(currentSummary.year?.label || currentYearId)} contributes ${escapeHtml(sharePct)}% of counted credits.</h3>`
+          + `<p>A +5 point improvement this year would raise your projected degree by about +${escapeHtml(degreeImpact)} points.</p>`
+          + '</article>');
+      }
     }
   }
 
   if (model.missingCredits > 0) {
     cards.push('<article class="degree-insight-card degree-insight-card--warning">'
       + '<p class="degree-insight-label">Missing data</p>'
-      + `<h3>${escapeHtml(model.missingCredits)} counted credits still need marks.</h3>`
-      + '<p>Those credits could change the forecast once actual results are entered.</p>'
+      + `<h3>${escapeHtml(String(model.missingCredits))} counted credits still need marks.</h3>`
+      + '<p>Those credits could shift the forecast once results are entered.</p>'
       + '</article>');
   }
 
@@ -403,7 +447,7 @@ function renderYearJourneySection(model) {
     + '<div class="degree-journey-bg" aria-hidden="true"></div>'
     + '<div class="degree-section-heading">'
     + '<p class="degree-section-kicker">Year Journey</p>'
-    + '<h2 id="degree-journey-title">Which years count?</h2>'
+    + '<h2 id="degree-journey-title">Your degree progression</h2>'
     + '</div>'
     + '<div class="degree-year-timeline">'
     + cards
@@ -414,42 +458,78 @@ function renderYearJourneySection(model) {
 function renderYearJourneyCard(summary, model, index) {
   const value = summary.degreeValue ?? summary.aggregate?.value;
   const displaySystem = summary.hasConversion ? model.outputSystem : summary.nativeSystem;
-  const result = getYearCardResult(summary, value, displaySystem, model.outputSystem);
-  const statusText = getYearStatusText(summary);
-  const countsText = summary.counts ? `Counts · Weight ${formatWeight(summary.rule.weight)}%` : `${summary.excludedReason} · Weight 0%`;
   const connector = index === 0 ? '' : '<span class="degree-timeline-connector" aria-hidden="true"></span>';
+
+  // Result line — only show for counted, non-blocked years with data
+  let resultLine = '';
+  if (!summary.counts) {
+    // excluded — no result line
+  } else if (summary.blocked) {
+    resultLine = 'Needs conversion';
+  } else if (value === null || value === undefined) {
+    resultLine = 'No marks yet';
+  } else if (summary.hasConversion) {
+    resultLine = `${formatDegreeResult(summary.aggregate.value, summary.nativeSystem)} → ${formatDegreeResult(summary.rule.convertedValue, model.outputSystem)}`;
+  } else {
+    resultLine = `${formatDegreeResult(value, displaySystem)} · ${getClassificationTag(value, displaySystem)}`;
+  }
+
+  // State tag (single, non-redundant)
+  let tagClass = 'degree-year-node-tag';
+  let tagText = '';
+  if (!summary.counts) {
+    tagClass += ' degree-year-node-tag--excluded';
+    tagText = summary.excludedReason || 'Excluded';
+  } else if (summary.blocked) {
+    tagClass += ' degree-year-node-tag--issue';
+    tagText = 'Issue';
+  } else if (summary.hasConversion) {
+    tagClass += ' degree-year-node-tag--converted';
+    tagText = 'Converted';
+  } else if (summary.incomplete) {
+    tagClass += ' degree-year-node-tag--incomplete';
+    tagText = 'Incomplete';
+  } else {
+    tagClass += ' degree-year-node-tag--counted';
+    tagText = 'Counted';
+  }
+
+  const weightLine = summary.counts
+    ? `${formatWeight(summary.rule.weight)}% weight`
+    : '0% weight';
 
   return connector + `<button class="degree-year-node degree-year-node--${escapeHtml(summary.status)}" type="button" onclick="openDegreeYearDetails('${escapeHtml(summary.id)}')" aria-label="Open details for ${escapeHtml(summary.year?.label || summary.id)}">`
     + '<span class="degree-year-node-dot" aria-hidden="true"></span>'
-    + `<strong>${escapeHtml(summary.year?.label || summary.id)}</strong>`
-    + `<span class="degree-year-result">${escapeHtml(result)}</span>`
-    + `<span>${escapeHtml(countsText)}</span>`
-    + `<em>${escapeHtml(statusText)}</em>`
+    + `<strong class="degree-year-node-label">${escapeHtml(summary.year?.label || summary.id)}</strong>`
+    + (resultLine ? `<span class="degree-year-result">${escapeHtml(resultLine)}</span>` : '')
+    + '<div class="degree-year-node-footer">'
+    + `<em class="${escapeHtml(tagClass)}">${escapeHtml(tagText)}</em>`
+    + `<span class="degree-year-node-weight">${escapeHtml(weightLine)}</span>`
+    + '</div>'
     + '</button>';
 }
 
 function renderCompatibilityNotes(model) {
-  const notes = [];
   const excluded = model.summaries.filter((summary) => !summary.counts);
   const converted = model.summaries.filter((summary) => summary.hasConversion);
+  const hasIssues = model.blockers.length > 0 || model.warnings.length > 0;
 
-  if (!model.blockers.length && !model.warnings.length) {
-    notes.push('All counted years compatible.');
-  }
+  // If nothing noteworthy, omit the section entirely
+  if (!hasIssues && !excluded.length && !converted.length) return '';
+
+  const notes = [];
+  if (!hasIssues) notes.push('All counted years compatible.');
   if (excluded.length) {
-    notes.push(`${excluded.map((summary) => summary.year?.label || summary.id).join(', ')} excluded.`);
+    notes.push(`${excluded.map((s) => s.year?.label || s.id).join(', ')} excluded.`);
   }
   if (converted.length) {
-    notes.push(`${converted.map((summary) => summary.year?.label || summary.id).join(', ')} uses manual conversion.`);
+    notes.push(`${converted.map((s) => s.year?.label || s.id).join(', ')} uses manual conversion.`);
   }
   if (model.blockers.length) notes.push(...model.blockers);
-  if (!notes.length) notes.push('No compatibility notes yet.');
+  if (model.warnings.length) notes.push(...model.warnings);
 
-  return '<section class="degree-panel degree-compatibility-section" aria-labelledby="degree-compatibility-title">'
-    + '<div class="degree-section-heading">'
-    + '<p class="degree-section-kicker">Compatibility Notes</p>'
-    + '<h2 id="degree-compatibility-title">Calculation compatibility</h2>'
-    + '</div>'
+  return '<section class="degree-compatibility-section" aria-label="Compatibility Notes">'
+    + '<p class="degree-compatibility-heading">Compatibility Notes</p>'
     + '<div class="degree-compatibility-note">'
     + notes.map((note) => `<span>${escapeHtml(note)}</span>`).join('')
     + '</div>'
