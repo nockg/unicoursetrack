@@ -37,6 +37,22 @@
   min-width: 32px;
 }
 
+@media (max-width: 700px) {
+  .modules-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .modules-sort-controls {
+    width: 100%;
+  }
+
+  .modules-sort-select {
+    flex: 1;
+  }
+}
+
 .module {
   background: var(--paper3);
   border: 1px solid var(--border);

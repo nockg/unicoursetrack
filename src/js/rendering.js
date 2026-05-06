@@ -111,7 +111,7 @@ export function buildModules() {
   dirBtn.textContent = sortDir === 'asc' ? '↑' : '↓';
   dirBtn.title = sortDir === 'asc' ? 'Low to high — click for high to low' : 'High to low — click for low to high';
   dirBtn.setAttribute('aria-label', sortDir === 'asc' ? 'Sort ascending' : 'Sort descending');
-  dirBtn.hidden = sortBy === 'custom';
+  dirBtn.hidden = sortBy === 'custom' || sortBy === 'missing';
   dirBtn.addEventListener('click', () => setModuleSort(sortBy, sortDir === 'asc' ? 'desc' : 'asc'));
 
   sortControls.appendChild(sortSelect);
