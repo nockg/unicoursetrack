@@ -352,7 +352,7 @@ export function renderYearSelector() {
     : `${university} - ${currentYear.label}${termSuffix} - ${academicYearLabel}`;
   const title = document.getElementById('hero-title');
   if (title) {
-    const titleText = activeTerm === 'all' ? `Year ${yearNumber} ${course}` : `${getTermLabel(activeTerm)} ${course}`;
+    const titleText = activeTerm === 'all' ? `${currentYear.label} - ${course}` : `${getTermLabel(activeTerm)} - ${course}`;
     title.textContent = titleText;
 
     title.classList.remove('hero-title-long', 'hero-title-very-long', 'hero-title-extreme');
