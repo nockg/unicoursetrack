@@ -19,6 +19,8 @@ import {
 // ── View switching ─────────────────────────────────────────────────────────
 
 export function showDegreeView() {
+  const isAlreadyActive = !document.getElementById('degree-view').classList.contains('hidden');
+  if (isAlreadyActive) { showTrackerView(); return; }
   document.getElementById('app-main').classList.add('hidden');
   document.getElementById('degree-view').classList.remove('hidden');
   document.querySelector('.nav-btn.degree-overview-btn')?.classList.add('active');
@@ -70,18 +72,17 @@ export function renderDegreeDashboard() {
 // ── Header ─────────────────────────────────────────────────────────────────
 
 function renderHeader(years) {
-  const profile  = store.state.profile || {};
-  const uni      = profile.university  || '';
-  const course   = profile.course      || '';
+  const profile   = store.state.profile || {};
+  const uni       = profile.university  || '';
+  const course    = profile.course      || '';
   const yearCount = Object.keys(years).length;
-  return `
-    <div class="degree-page-header">
-      <div class="degree-page-eyebrow">Degree Overview</div>
-      <h1 class="degree-page-title">${escapeHtml(course || 'My Degree')}</h1>
-      ${uni ? `<div class="degree-page-sub">${escapeHtml(uni)}</div>` : ''}
-      <div class="degree-page-meta">${yearCount} academic year${yearCount !== 1 ? 's' : ''} tracked</div>
-    </div>
-  `;
+  return '<div class="degree-page-header">'
+    + '<button class="degree-back-btn" onclick="showTrackerView()" type="button">← Back to Tracker</button>'
+    + '<div class="degree-page-eyebrow">Degree Overview</div>'
+    + '<h1 class="degree-page-title">' + escapeHtml(course || 'My Degree') + '</h1>'
+    + (uni ? '<div class="degree-page-sub">' + escapeHtml(uni) + '</div>' : '')
+    + '<div class="degree-page-meta">' + yearCount + ' academic year' + (yearCount !== 1 ? 's' : '') + ' tracked</div>'
+    + '</div>';
 }
 
 // ── Enable / disable toggle ────────────────────────────────────────────────

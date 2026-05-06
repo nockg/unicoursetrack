@@ -14390,9 +14390,30 @@ body.font-mono .mobile-more-copy {
 }
 
 .degree-view-page {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 32px 24px 40px;
+  padding: 32px 40px 60px;
+}
+
+/* ── Back button ─────────────────────────────────────────────────────────── */
+
+.degree-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  margin-bottom: 16px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: var(--ui-radius-base);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.14s, border-color 0.14s, background 0.14s;
+}
+.degree-back-btn:hover {
+  color: var(--ink);
+  border-color: var(--border2);
+  background: var(--paper2);
 }
 
 /* ── Page header ─────────────────────────────────────────────────────────── */
@@ -15006,7 +15027,7 @@ body.theme-dark .degree-rule-conversion-block {
 
 @media (max-width: 700px) {
   .degree-view-page {
-    padding: 20px 14px 40px;
+    padding: 16px 14px 40px;
   }
 
   .degree-top-cards {
