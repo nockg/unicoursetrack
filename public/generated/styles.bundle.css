@@ -1045,8 +1045,20 @@ h1 {
   min-width: 0;
 
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
   word-break: normal;
+}
+
+.hero-title-year {
+  white-space: nowrap;
+}
+
+.hero-title-separator {
+  margin: 0 0.25em;
+}
+
+.hero-title-course {
+  overflow-wrap: break-word;
 }
 
 #hero-title.hero-title-long {
@@ -10024,11 +10036,24 @@ body.theme-dark :focus-visible {
     min-width: 0;
     white-space: normal;
     overflow: visible;
-    overflow-wrap: anywhere;
-    word-break: break-word;
+    overflow-wrap: normal;
+    word-break: normal;
     font-size: clamp(30px, 8.5vw, 40px);
     line-height: 1.08;
     margin-bottom: 18px;
+  }
+
+  .hero-title-year {
+    display: block;
+  }
+
+  .hero-title-separator {
+    display: none;
+  }
+
+  .hero-title-course {
+    display: block;
+    overflow-wrap: break-word;
   }
 
   #hero-title.hero-title-long {

@@ -352,14 +352,23 @@ export function renderYearSelector() {
     : `${university} - ${currentYear.label}${termSuffix} - ${academicYearLabel}`;
   const title = document.getElementById('hero-title');
   if (title) {
-    const titleText = activeTerm === 'all' ? `${currentYear.label} - ${course}` : `${getTermLabel(activeTerm)} - ${course}`;
-    title.textContent = titleText;
-
+    const yearLabel = activeTerm === 'all' ? currentYear.label : getTermLabel(activeTerm);
+    const combinedLength = yearLabel.length + course.length;
     title.classList.remove('hero-title-long', 'hero-title-very-long', 'hero-title-extreme');
+    if (combinedLength > 80) title.classList.add('hero-title-extreme');
+    else if (combinedLength > 55) title.classList.add('hero-title-very-long');
+    else if (combinedLength > 34) title.classList.add('hero-title-long');
 
-    if (titleText.length > 80) title.classList.add('hero-title-extreme');
-    else if (titleText.length > 55) title.classList.add('hero-title-very-long');
-    else if (titleText.length > 34) title.classList.add('hero-title-long');
+    const spanYear = document.createElement('span');
+    spanYear.className = 'hero-title-year';
+    spanYear.textContent = yearLabel;
+    const spanSep = document.createElement('span');
+    spanSep.className = 'hero-title-separator';
+    spanSep.textContent = ' — ';
+    const spanCourse = document.createElement('span');
+    spanCourse.className = 'hero-title-course';
+    spanCourse.textContent = course;
+    title.replaceChildren(spanYear, spanSep, spanCourse);
   }
 
   const footer = document.getElementById('footer-label');
