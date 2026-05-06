@@ -12,18 +12,29 @@
 }
 
 .modules-toolbar-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
   white-space: nowrap;
+}
+
+.modules-sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .modules-sort-select {
   font-size: 12px;
   padding-top: 5px;
   padding-bottom: 5px;
+}
+
+.modules-dir-btn {
+  font-size: 14px;
+  padding: 4px 8px;
+  min-width: 32px;
 }
 
 .module {
