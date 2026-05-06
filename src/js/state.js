@@ -1152,7 +1152,7 @@ export function applyPreferences() {
   }
   if (themeSelect) themeSelect.value = prefs.theme;
   if (densitySelect) densitySelect.value = prefs.density;
-  if (fontSelect) fontSelect.value = prefs.font || 'japanese';
+  if (fontSelect) fontSelect.value = prefs.font || 'mono';
   if (calendarSelect) calendarSelect.value = prefs.calendarProvider || 'google';
   if (gradingSelect) gradingSelect.value = window.getGradingSystem?.() || 'uk';
   document.getElementById('custom-grade-map-field')?.classList.toggle(
