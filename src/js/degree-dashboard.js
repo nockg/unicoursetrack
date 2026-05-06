@@ -685,9 +685,11 @@ function renderPolicySetupOverlay(model) {
   const presetOptions = DEGREE_PRESETS.map((preset) => (
     `<option value="${escapeHtml(preset.id)}"${preset.id === policyDraft.presetId ? ' selected' : ''}>${escapeHtml(preset.group)} - ${escapeHtml(preset.label)}</option>`
   )).join('');
-  const outputYearOptions = model.yearIds.map((yearId) => (
-    `<option value="${escapeHtml(yearId)}"${yearId === policyDraft.outputYearId ? ' selected' : ''}>${escapeHtml(model.years[yearId]?.label || yearId)}</option>`
-  )).join('');
+  const autoOutputSelected = !policyDraft.outputYearId ? ' selected' : '';
+  const outputYearOptions = `<option value=""${autoOutputSelected}>Auto (most recent year)</option>`
+    + model.yearIds.map((yearId) => (
+      `<option value="${escapeHtml(yearId)}"${yearId === policyDraft.outputYearId ? ' selected' : ''}>${escapeHtml(model.years[yearId]?.label || yearId)}</option>`
+    )).join('');
   const totalWeight = getDraftTotalWeight();
 
   return '<div class="degree-policy-overlay" role="dialog" aria-modal="true" aria-labelledby="degree-policy-setup-title">'
@@ -705,7 +707,8 @@ function renderPolicySetupOverlay(model) {
     + '</section>'
     + '<section class="degree-setup-step">'
     + '<span>Step 2</span>'
-    + '<h3>Choose graduating / output year</h3>'
+    + '<h3>Result grading system</h3>'
+    + '<p class="degree-setup-step-hint">Sets which grading format the projected result uses. You don\'t need to have created your final year yet — Auto works fine.</p>'
     + `<select id="degree-policy-output-year" onchange="refreshDegreePolicyDraft()">${outputYearOptions}</select>`
     + '</section>'
     + '<section class="degree-setup-step degree-setup-step--wide">'
