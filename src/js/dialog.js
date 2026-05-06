@@ -11,6 +11,7 @@ import {
   createInitialState, parseTopicSelectionKey, clearTopicSelection, getSelectedTopicKeys,
   clearLocalTrackerStorage, undoLastAction, redoLastAction, handleSelectedTopicDeleteFromKeyboard,
   getModuleSectionStateKey, setModuleSectionOpen, createYearStore, topicSelectionKey,
+  getEffectiveUniversity, getEffectiveCourse, getEffectiveAcademicYearLabel,
 } from './state.js';
 import { getGradingSystem, getActiveTermFilter, getCurrentTermOptions, normalizeTermValue, getTermLabel, isKnownTermValue, ensureStoreTermOptions } from './grading.js';
 import { getCourseworkComponents } from './marks.js';
@@ -340,17 +341,15 @@ export function renderYearSelector() {
   select.value = activeTerm === 'all' ? `year:${store.state.ui.currentYearId}` : `term:${store.state.ui.currentYearId}:${activeTerm}`;
   const profile = store.state?.profile || {};
   const yearNumber = parseInt(currentYear.label.match(/\d+/)?.[0] || '1', 10);
-  const profileStartYear = parseInt(profile.startYear, 10);
-  const startYear = (Number.isFinite(profileStartYear) ? profileStartYear : new Date().getFullYear()) + (yearNumber - 1);
-  const endYear = startYear + 1;
   const userName = (profile.name || '').trim();
-  const university = profile.university || 'University';
-  const course = profile.course || 'Course';
+  const university = getEffectiveUniversity() || 'University';
+  const course = getEffectiveCourse() || 'Course';
+  const academicYearLabel = getEffectiveAcademicYearLabel();
   const eyebrow = document.getElementById('hero-eyebrow');
   const termSuffix = activeTerm === 'all' ? '' : ` - ${getTermLabel(activeTerm)}`;
   if (eyebrow) eyebrow.textContent = userName
-    ? `${userName} - ${university} - ${currentYear.label}${termSuffix} - ${startYear}-${String(endYear).slice(2)}`
-    : `${university} - ${currentYear.label}${termSuffix} - ${startYear}-${String(endYear).slice(2)}`;
+    ? `${userName} - ${university} - ${currentYear.label}${termSuffix} - ${academicYearLabel}`
+    : `${university} - ${currentYear.label}${termSuffix} - ${academicYearLabel}`;
   const title = document.getElementById('hero-title');
   if (title) {
     const titleText = activeTerm === 'all' ? `Year ${yearNumber} ${course}` : `${getTermLabel(activeTerm)} ${course}`;

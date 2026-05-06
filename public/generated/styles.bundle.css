@@ -5844,20 +5844,28 @@ body.suppress-topic-refresh #modules {
   box-sizing: border-box;
 }
 
+.year-institution-group,
 .year-grading-group {
   gap: 8px;
 }
 
+.year-institution-group .field-hint,
 .year-grading-group .field-hint {
   margin-top: 0;
   margin-bottom: 6px;
 }
 
+.year-institution-group .checkbox-label,
 .year-grading-group .checkbox-label {
   margin-top: 4px;
   font-weight: 400;
   font-size: 12.5px;
   letter-spacing: 0;
+}
+
+.year-institution-override-field {
+  display: grid;
+  gap: 14px;
 }
 
 .year-grading-notice {

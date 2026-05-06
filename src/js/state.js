@@ -872,6 +872,27 @@ function getGradingSystemLabel(system) {
   return GRADING_SYSTEM_LABELS[system] || system || 'UK Honours / Percentage';
 }
 
+export function getEffectiveUniversity(yearId) {
+  const year = yearId ? store.state.years?.[yearId] : getCurrentYear();
+  return (year?.university || '').trim() || (store.state.profile?.university || '');
+}
+
+export function getEffectiveCourse(yearId) {
+  const year = yearId ? store.state.years?.[yearId] : getCurrentYear();
+  return (year?.course || '').trim() || (store.state.profile?.course || '');
+}
+
+export function getEffectiveAcademicYearLabel(yearId) {
+  const year = yearId ? store.state.years?.[yearId] : getCurrentYear();
+  if (year?.academicYearLabel) return year.academicYearLabel;
+  if (!year) return '';
+  const profile = store.state.profile || {};
+  const yearNumber = parseInt(year.label?.match(/\d+/)?.[0] || '1', 10);
+  const profileStartYear = parseInt(profile.startYear, 10);
+  const startYear = (Number.isFinite(profileStartYear) ? profileStartYear : new Date().getFullYear()) + (yearNumber - 1);
+  return `${startYear}-${String(startYear + 1).slice(2)}`;
+}
+
 export function openYearSettingsModal() {
   const modal = document.getElementById('year-settings-modal');
   if (!modal) return;
@@ -922,6 +943,34 @@ function updateYearSettingsDisplay() {
     const courseDefault = store.state.profile?.gradingSystem || 'uk';
     statusEl.textContent = `Using course default: ${getGradingSystemLabel(courseDefault)}`;
     systemSelect.value = courseDefault;
+  }
+
+  // Institution override
+  const instToggle = document.getElementById('year-institution-override-toggle');
+  const instField = document.getElementById('year-institution-override-field');
+  const instStatus = document.getElementById('year-institution-status');
+  const instInput = document.getElementById('year-institution-input');
+  const courseInput = document.getElementById('year-course-input');
+  const labelInput = document.getElementById('year-academic-label-input');
+  if (!instToggle || !instField || !instStatus) return;
+
+  const hasInstOverride = !!(year.university || year.course || year.academicYearLabel);
+  instToggle.checked = hasInstOverride;
+  instField.classList.toggle('hidden', !hasInstOverride);
+
+  const profile = store.state.profile || {};
+  const defaultUni = profile.university || '';
+  const defaultCourse = profile.course || '';
+  if (hasInstOverride) {
+    if (instInput) instInput.value = year.university || '';
+    if (courseInput) courseInput.value = year.course || '';
+    if (labelInput) labelInput.value = year.academicYearLabel || '';
+    instStatus.textContent = `Using year override: ${year.university || defaultUni}`;
+  } else {
+    if (instInput) instInput.value = '';
+    if (courseInput) courseInput.value = '';
+    if (labelInput) labelInput.value = '';
+    instStatus.textContent = `Using course default: ${defaultUni || 'Not set'}`;
   }
 }
 
@@ -987,9 +1036,56 @@ function onYearNameChange() {
   }
 }
 
+function onYearInstitutionOverrideToggle() {
+  const instToggle = document.getElementById('year-institution-override-toggle');
+  const instField = document.getElementById('year-institution-override-field');
+  if (!instToggle || !instField) return;
+
+  const year = getCurrentYear();
+  if (!year) return;
+
+  if (instToggle.checked) {
+    instField.classList.remove('hidden');
+    const profile = store.state.profile || {};
+    const instInput = document.getElementById('year-institution-input');
+    const courseInput = document.getElementById('year-course-input');
+    if (instInput && !year.university) instInput.value = profile.university || '';
+    if (courseInput && !year.course) courseInput.value = profile.course || '';
+  } else {
+    instField.classList.add('hidden');
+    delete year.university;
+    delete year.course;
+    delete year.academicYearLabel;
+    save();
+    window.renderYearSelector?.();
+    updateYearSettingsDisplay();
+  }
+}
+
+function onYearInstitutionFieldChange() {
+  const year = getCurrentYear();
+  if (!year) return;
+  const instInput = document.getElementById('year-institution-input');
+  const courseInput = document.getElementById('year-course-input');
+  const labelInput = document.getElementById('year-academic-label-input');
+  const uni = (instInput?.value || '').trim();
+  const course = (courseInput?.value || '').trim();
+  const label = (labelInput?.value || '').trim();
+  if (uni) year.university = uni; else delete year.university;
+  if (course) year.course = course; else delete year.course;
+  if (label) year.academicYearLabel = label; else delete year.academicYearLabel;
+  save();
+  window.renderYearSelector?.();
+  updateYearSettingsDisplay();
+}
+
 document.getElementById('year-grading-override-toggle')?.addEventListener('change', onYearGradingOverrideToggle);
 document.getElementById('year-grading-system-select')?.addEventListener('change', onYearGradingSystemChange);
 document.getElementById('year-settings-name')?.addEventListener('change', onYearNameChange);
+document.getElementById('year-institution-override-toggle')?.addEventListener('change', onYearInstitutionOverrideToggle);
+document.getElementById('year-institution-input')?.addEventListener('change', onYearInstitutionFieldChange);
+document.getElementById('year-course-input')?.addEventListener('change', onYearInstitutionFieldChange);
+document.getElementById('year-academic-label-input')?.addEventListener('change', onYearInstitutionFieldChange);
 
 if (store.currentUser && store.pendingFirstRunSetup) {
   setupCourseIfNeeded();
