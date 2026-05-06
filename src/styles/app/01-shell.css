@@ -504,8 +504,19 @@ h1 {
   min-width: 0;
 
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
   word-break: normal;
+}
+
+.hero-title-year {
+  display: block;
+}
+
+
+.hero-title-course {
+  display: inline-block;
+  overflow-wrap: break-word;
+  vertical-align: baseline;
 }
 
 #hero-title.hero-title-long {

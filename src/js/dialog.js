@@ -11,6 +11,7 @@ import {
   createInitialState, parseTopicSelectionKey, clearTopicSelection, getSelectedTopicKeys,
   clearLocalTrackerStorage, undoLastAction, redoLastAction, handleSelectedTopicDeleteFromKeyboard,
   getModuleSectionStateKey, setModuleSectionOpen, createYearStore, topicSelectionKey,
+  getEffectiveUniversity, getEffectiveCourse, getEffectiveAcademicYearLabel,
 } from './state.js';
 import { getGradingSystem, getActiveTermFilter, getCurrentTermOptions, normalizeTermValue, getTermLabel, isKnownTermValue, ensureStoreTermOptions } from './grading.js';
 import { getCourseworkComponents } from './marks.js';
@@ -340,27 +341,31 @@ export function renderYearSelector() {
   select.value = activeTerm === 'all' ? `year:${store.state.ui.currentYearId}` : `term:${store.state.ui.currentYearId}:${activeTerm}`;
   const profile = store.state?.profile || {};
   const yearNumber = parseInt(currentYear.label.match(/\d+/)?.[0] || '1', 10);
-  const profileStartYear = parseInt(profile.startYear, 10);
-  const startYear = (Number.isFinite(profileStartYear) ? profileStartYear : new Date().getFullYear()) + (yearNumber - 1);
-  const endYear = startYear + 1;
   const userName = (profile.name || '').trim();
-  const university = profile.university || 'University';
-  const course = profile.course || 'Course';
+  const university = getEffectiveUniversity() || 'University';
+  const course = getEffectiveCourse() || 'Course';
+  const academicYearLabel = getEffectiveAcademicYearLabel();
   const eyebrow = document.getElementById('hero-eyebrow');
   const termSuffix = activeTerm === 'all' ? '' : ` - ${getTermLabel(activeTerm)}`;
   if (eyebrow) eyebrow.textContent = userName
-    ? `${userName} - ${university} - ${currentYear.label}${termSuffix} - ${startYear}-${String(endYear).slice(2)}`
-    : `${university} - ${currentYear.label}${termSuffix} - ${startYear}-${String(endYear).slice(2)}`;
+    ? `${userName} - ${university} - ${currentYear.label}${termSuffix} - ${academicYearLabel}`
+    : `${university} - ${currentYear.label}${termSuffix} - ${academicYearLabel}`;
   const title = document.getElementById('hero-title');
   if (title) {
-    const titleText = activeTerm === 'all' ? `Year ${yearNumber} ${course}` : `${getTermLabel(activeTerm)} ${course}`;
-    title.textContent = titleText;
-
+    const yearLabel = activeTerm === 'all' ? currentYear.label : getTermLabel(activeTerm);
+    const combinedLength = yearLabel.length + course.length;
     title.classList.remove('hero-title-long', 'hero-title-very-long', 'hero-title-extreme');
+    if (combinedLength > 80) title.classList.add('hero-title-extreme');
+    else if (combinedLength > 55) title.classList.add('hero-title-very-long');
+    else if (combinedLength > 34) title.classList.add('hero-title-long');
 
-    if (titleText.length > 80) title.classList.add('hero-title-extreme');
-    else if (titleText.length > 55) title.classList.add('hero-title-very-long');
-    else if (titleText.length > 34) title.classList.add('hero-title-long');
+    const spanYear = document.createElement('span');
+    spanYear.className = 'hero-title-year';
+    spanYear.textContent = yearLabel;
+    const spanCourse = document.createElement('span');
+    spanCourse.className = 'hero-title-course';
+    spanCourse.textContent = course;
+    title.replaceChildren(spanYear, spanCourse);
   }
 
   const footer = document.getElementById('footer-label');

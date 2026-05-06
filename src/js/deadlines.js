@@ -56,7 +56,7 @@ function renderDeadlineModuleOptions(value = '') {
 
 // ── Priority UI ────────────────────────────────────────────────────────────
 
-function setDeadlinePriority(priority = 'default') {
+export function setDeadlinePriority(priority = 'default') {
   const selected = DEADLINE_PRIORITY_COLOURS[priority] ? priority : 'default';
   document.querySelectorAll('#deadline-priority-row .priority-choice').forEach((button) => {
     button.classList.toggle('active', button.dataset.priority === selected);
@@ -217,6 +217,7 @@ export function openDeadlineForm(index = null, type = 'date') {
     locationInput.value = deadline.location || '';
     noteInput.value = deadline.note || '';
     setDeadlinePriority(deadline.priority || 'default');
+    setCalendarComposerPriority(deadline.priority || 'default');
     if (title) title.textContent = formType === 'event' ? 'Edit Calendar Event' : 'Edit Date';
     if (saveBtn) saveBtn.textContent = 'Save Changes';
   } else {
@@ -230,6 +231,7 @@ export function openDeadlineForm(index = null, type = 'date') {
     locationInput.value = '';
     noteInput.value = '';
     setDeadlinePriority('default');
+    setCalendarComposerPriority('default');
     if (title) title.textContent = formType === 'event' ? 'Plan Calendar Event' : 'Track a Date';
     if (saveBtn) saveBtn.textContent = formType === 'event' ? 'Save Event' : 'Save Date';
   }
@@ -313,7 +315,7 @@ function buildDeadlineFromForm() {
     date: toDeadlineStorageString(parsed),
     endDate: toDeadlineStorageString(parsedEnd),
     moduleIndex: Number.isInteger(moduleIndex) ? moduleIndex : null,
-    priority: getSelectedDeadlinePriority(),
+    priority: getSelectedCalendarComposerPriority(),
     allDay, availability: availabilityInput.value || 'BUSY',
     location: locationInput.value.trim(),
     note: noteInput.value || '', completed: false,

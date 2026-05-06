@@ -43,7 +43,7 @@ export const LEGACY_EXAM_KEYS = ['uos_exams_v2', 'uos_exams_v1'];
 export const DEFAULT_PREFERENCES = {
   theme: 'light',
   density: 'comfortable',
-  font: 'japanese',
+  font: 'mono',
   hero: 'bg8',
   bodyBackground: '',
   calendarProvider: 'google',

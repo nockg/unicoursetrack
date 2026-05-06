@@ -2099,11 +2099,15 @@ body.theme-dark :focus-visible {
     min-width: 0;
     white-space: normal;
     overflow: visible;
-    overflow-wrap: anywhere;
-    word-break: break-word;
+    overflow-wrap: normal;
+    word-break: normal;
     font-size: clamp(30px, 8.5vw, 40px);
     line-height: 1.08;
     margin-bottom: 18px;
+  }
+
+  .hero-title-course {
+    overflow-wrap: break-word;
   }
 
   #hero-title.hero-title-long {

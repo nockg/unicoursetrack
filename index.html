@@ -768,6 +768,28 @@
         <label for="year-settings-name">Year name</label>
         <input class="input" id="year-settings-name" placeholder="Year 2">
       </div>
+      <div class="field year-institution-group">
+        <label>Academic identity</label>
+        <div class="field-hint" id="year-institution-status">Using course default</div>
+        <label class="checkbox-label" for="year-institution-override-toggle">
+          <input type="checkbox" id="year-institution-override-toggle">
+          Use different institution details for this year
+        </label>
+      </div>
+      <div class="field hidden year-institution-override-field" id="year-institution-override-field">
+        <div class="field">
+          <label for="year-institution-input">Institution name</label>
+          <input class="input" id="year-institution-input" placeholder="e.g. University of Sheffield">
+        </div>
+        <div class="field">
+          <label for="year-course-input">Course / programme name</label>
+          <input class="input" id="year-course-input" placeholder="e.g. Aerospace Engineering">
+        </div>
+        <div class="field">
+          <label for="year-academic-label-input">Academic year label</label>
+          <input class="input" id="year-academic-label-input" placeholder="e.g. 2024/25">
+        </div>
+      </div>
       <div class="field year-grading-group">
         <label>Grading system</label>
         <div class="field-hint" id="year-grading-status">Using course default</div>

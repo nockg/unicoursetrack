@@ -11,7 +11,7 @@ import {
   isModuleVisibleInActiveTerm, parseGradeValue, formatGradeOptionLabel,
   getTermLabel, getModuleTerm, getActiveTermFilter,
 } from './grading.js';
-import { getModuleTotal, isModulePredictionMode, getCourseworkComponents } from './marks.js';
+import { getModuleTotal, getModulePct, getModuleFinal, isModulePredictionMode, getCourseworkComponents } from './marks.js';
 import { updateModule, updateGlobal, updateDashboard, renderDashboardChart } from './dashboard.js';
 import {
   openModules, setTopicCheckbox, setSubtopicCheckbox, stopTopicDrag,
@@ -24,14 +24,104 @@ import {
 } from './years.js';
 import { updateBlackboardButton, updateFormulaButton, renderRelevantLinks } from './library.js';
 
+const SORT_OPTIONS = [
+  ['custom', 'Custom order'],
+  ['name', 'Module name'],
+  ['code', 'Module code'],
+  ['term', 'Term'],
+  ['credits', 'Credits'],
+  ['progress', 'Progress'],
+  ['predicted', 'Predicted mark'],
+  ['missing', 'Missing marks first'],
+];
+
+export function setModuleSort(sortBy, sortDir) {
+  const ys = getStore();
+  if (!ys.moduleSort) ys.moduleSort = {};
+  ys.moduleSort.sortBy = SORT_OPTIONS.some(([v]) => v === sortBy) ? sortBy : 'custom';
+  if (sortDir !== undefined) ys.moduleSort.sortDir = sortDir === 'desc' ? 'desc' : 'asc';
+  if (ys.moduleSort.sortBy === 'missing') ys.moduleSort.sortDir = 'asc';
+  save();
+  buildModules();
+}
+
 export function buildModules() {
   const container = document.getElementById('modules');
   container.innerHTML = '';
   const ys = getStore();
+  const sortBy = ys.moduleSort?.sortBy || 'custom';
+  const sortDir = ys.moduleSort?.sortDir || 'asc';
+  const dirMult = sortDir === 'desc' ? -1 : 1;
   let renderedModules = 0;
 
-  store.MODULES.forEach((mod, mi) => {
-    if (!isModuleVisibleInActiveTerm(mi)) return;
+  // Build sorted display list — originalIndex is always preserved for data access
+  const displayList = store.MODULES
+    .map((module, originalIndex) => ({ module, originalIndex }))
+    .filter(({ originalIndex }) => isModuleVisibleInActiveTerm(originalIndex));
+
+  if (sortBy !== 'custom') {
+    displayList.sort(({ module: a, originalIndex: ai }, { module: b, originalIndex: bi }) => {
+      switch (sortBy) {
+        case 'name':     return dirMult * a.name.localeCompare(b.name);
+        case 'code':     return dirMult * (a.kanji || '').localeCompare(b.kanji || '');
+        case 'term':     return dirMult * (getModuleTerm(ai) || '').localeCompare(getModuleTerm(bi) || '');
+        case 'credits':  return dirMult * ((Number(a.credits) || 0) - (Number(b.credits) || 0));
+        case 'progress': return dirMult * (getModulePct(ai) - getModulePct(bi));
+        case 'predicted': {
+          const fa = getModuleFinal(ai), fb = getModuleFinal(bi);
+          if (fa === null && fb === null) return 0;
+          if (fa === null) return 1;
+          if (fb === null) return -1;
+          return dirMult * (Number(fa) - Number(fb));
+        }
+        case 'missing': {
+          const fa = getModuleFinal(ai), fb = getModuleFinal(bi);
+          return (fa === null ? 0 : 1) - (fb === null ? 0 : 1);
+        }
+        default: return 0;
+      }
+    });
+  }
+
+  // Sort toolbar
+  const toolbar = document.createElement('div');
+  toolbar.className = 'modules-toolbar';
+
+  const toolbarLabel = document.createElement('span');
+  toolbarLabel.className = 'modules-toolbar-label';
+  toolbarLabel.textContent = 'Modules';
+
+  const sortControls = document.createElement('div');
+  sortControls.className = 'modules-sort-controls';
+
+  const sortSelect = document.createElement('select');
+  sortSelect.className = 'nav-select modules-sort-select';
+  sortSelect.setAttribute('aria-label', 'Sort modules');
+  SORT_OPTIONS.forEach(([value, label]) => {
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = label;
+    if (value === sortBy) opt.selected = true;
+    sortSelect.appendChild(opt);
+  });
+  sortSelect.addEventListener('change', () => setModuleSort(sortSelect.value, sortDir));
+
+  const dirBtn = document.createElement('button');
+  dirBtn.className = 'nav-btn modules-dir-btn';
+  dirBtn.type = 'button';
+  dirBtn.textContent = sortDir === 'asc' ? '↑' : '↓';
+  dirBtn.title = sortDir === 'asc' ? 'Low to high — click for high to low' : 'High to low — click for low to high';
+  dirBtn.setAttribute('aria-label', sortDir === 'asc' ? 'Sort ascending' : 'Sort descending');
+  dirBtn.hidden = sortBy === 'custom' || sortBy === 'missing';
+  dirBtn.addEventListener('click', () => setModuleSort(sortBy, sortDir === 'asc' ? 'desc' : 'asc'));
+
+  sortControls.appendChild(sortSelect);
+  sortControls.appendChild(dirBtn);
+  toolbar.appendChild(toolbarLabel);
+  toolbar.appendChild(sortControls);
+  container.appendChild(toolbar);
+
+  displayList.forEach(({ module: mod, originalIndex: mi }) => {
     renderedModules += 1;
     const moduleColours = getModuleColourSet(mi);
     const gradeScale = getGradeScaleConfig();

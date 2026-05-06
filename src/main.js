@@ -138,11 +138,13 @@ window.closeDeadlineTimeline = deadlines.closeDeadlineTimeline;
 window.setupDeadlineBarScrolling = deadlines.setupDeadlineBarScrolling;
 window.setDeadlineFormType = deadlines.setDeadlineFormType;
 window.updateDeadlineFormMode = deadlines.updateDeadlineFormMode;
+window.setDeadlinePriority = deadlines.setDeadlinePriority;
 window.setCalendarComposerPriority = deadlines.setCalendarComposerPriority;
 window.openDeadlineInCalendarByIndex = deadlines.openDeadlineInCalendarByIndex;
 
 // ── rendering.js ──────────────────────────────────────────────────────────────
 window.buildModules = rendering.buildModules;
+window.setModuleSort = rendering.setModuleSort;
 
 // ── years.js ──────────────────────────────────────────────────────────────────
 window.handleYearDropdown = years.handleYearDropdown;
