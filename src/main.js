@@ -329,6 +329,7 @@ window.setYearRuleWeight          = degreeDashboard.setYearRuleWeight;
 window.setYearRuleReason          = degreeDashboard.setYearRuleReason;
 window.setYearConvertedValue      = degreeDashboard.setYearConvertedValue;
 window.setYearConversionNote      = degreeDashboard.setYearConversionNote;
+window.toggleYearCard             = degreeDashboard.toggleYearCard;
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 bootApp();

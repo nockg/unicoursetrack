@@ -47,19 +47,25 @@ export function renderDegreeDashboard() {
   const validation   = validateDegreePolicy();
   const prediction   = calculateDegreePrediction();
 
-  let bodyHtml;
+  let html;
+
   if (!yearIds.length) {
-    bodyHtml = renderOnboardingState('no-years');
-  } else if (!policy.enabled) {
-    bodyHtml = renderOnboardingState('not-enabled');
+    html = renderHeader()
+      + '<div class="degree-onboarding">'
+      + '<div class="degree-onboarding-icon">📚</div>'
+      + '<div class="degree-onboarding-title">No academic years yet</div>'
+      + '<p class="degree-onboarding-body">Add years and modules in the tracker, then come back here to set up your degree prediction.</p>'
+      + '</div>';
   } else {
-    const mainHtml    = renderTopCards(prediction, validation, outputSystem, years, yearIds)
+    const attentionItems = collectAttentionItems(years, yearIds, validation, outputSystem);
+    const mainHtml = renderHeroSection(prediction, validation, outputSystem, years, yearIds, policy)
       + renderChartSection(years, yearIds, outputSystem)
       + renderYearCardsSection(years, yearIds, policy, outputSystem);
-    const sidebarHtml = renderNeedsAttentionCard(years, yearIds, validation, outputSystem)
-      + renderPolicySummaryCard(policy, outputSystem);
+    const sidebarHtml = (attentionItems.length ? renderNeedsAttentionCard(attentionItems) : '')
+      + renderPolicySidebarCard(policy, outputSystem);
 
-    bodyHtml = renderSectionTabs()
+    html = renderHeader()
+      + renderSectionTabs()
       + '<div class="degree-body"><div class="degree-main">'
       + mainHtml
       + '</div><aside class="degree-sidebar">'
@@ -69,10 +75,9 @@ export function renderDegreeDashboard() {
       + '<p class="degree-disclaimer">Degree calculation presets are starting points only. Your university, faculty, or programme may use different rules. Always check your official academic regulations.</p>';
   }
 
-  const html = renderHeader(years, policy) + bodyHtml;
   root.innerHTML = html;
 
-  if (policy.enabled && yearIds.length) {
+  if (yearIds.length) {
     renderYearPredictionChart(years, yearIds, outputSystem);
     renderCreditCompletionChart(years, yearIds);
   }
@@ -80,27 +85,17 @@ export function renderDegreeDashboard() {
 
 // ── Header ─────────────────────────────────────────────────────────────────
 
-function renderHeader(years, policy) {
+function renderHeader() {
   const profile   = store.state.profile || {};
   const uni       = profile.university  || '';
   const course    = profile.course      || '';
-  const yearCount = Object.keys(years).length;
+  const yearCount = Object.keys(store.state.years || {}).length;
   return '<div class="degree-page-header">'
     + '<button class="degree-back-btn" onclick="showTrackerView()" type="button">← Back to Tracker</button>'
-    + '<div class="degree-header-row">'
-    + '<div class="degree-header-titles">'
     + '<div class="degree-page-eyebrow">Degree Overview</div>'
     + '<h1 class="degree-page-title">' + escapeHtml(course || 'My Degree') + '</h1>'
     + (uni ? '<div class="degree-page-sub">' + escapeHtml(uni) + '</div>' : '')
     + '<div class="degree-page-meta">' + yearCount + ' academic year' + (yearCount !== 1 ? 's' : '') + ' tracked</div>'
-    + '</div>'
-    + '<label class="degree-enable-compact">'
-    + '<input type="checkbox" class="degree-enable-check"'
-    + (policy.enabled ? ' checked' : '')
-    + ' onchange="toggleDegreePolicy(this.checked)">'
-    + '<span>Enable degree prediction</span>'
-    + '</label>'
-    + '</div>'
     + '</div>';
 }
 
@@ -115,99 +110,91 @@ function renderSectionTabs() {
     + '</nav>';
 }
 
-// ── Onboarding / disabled state ────────────────────────────────────────────
+// ── Hero section ───────────────────────────────────────────────────────────
 
-function renderOnboardingState(reason) {
-  if (reason === 'no-years') {
-    return '<div class="degree-onboarding">'
-      + '<div class="degree-onboarding-icon">📚</div>'
-      + '<div class="degree-onboarding-title">No academic years yet</div>'
-      + '<p class="degree-onboarding-body">Add years and modules in the tracker, then come back here to set up your degree prediction.</p>'
+function renderHeroSection(prediction, validation, outputSystem, years, yearIds, policy) {
+  let heroCard;
+  if (prediction) {
+    const grade = formatSelectedGrade(prediction.value, { courseDisplay: true }, outputSystem);
+    const cls   = classify(prediction.value, outputSystem);
+    const clsCss = cls.cls ? ' degree-hero-cls-' + cls.cls : '';
+    heroCard = '<div class="degree-hero-card">'
+      + '<div class="degree-hero-eyebrow">Projected Degree Result</div>'
+      + '<div class="degree-hero-result' + clsCss + '">' + escapeHtml(grade.main) + '</div>'
+      + (grade.label ? '<div class="degree-hero-label">' + escapeHtml(grade.label) + '</div>' : '')
+      + '<div class="degree-hero-meta">'
+      + '<span class="degree-hero-system">' + escapeHtml(GRADING_SYSTEM_LABELS[outputSystem] || outputSystem) + '</span>'
+      + '<span class="degree-hero-sep">·</span>'
+      + '<span class="degree-hero-confidence">' + escapeHtml(CONFIDENCE_LABELS[prediction.confidence] || '') + '</span>'
+      + '</div>'
+      + '<div class="degree-hero-explanation">' + escapeHtml(buildCalculationExplanation(policy, years, yearIds)) + '</div>'
+      + '</div>';
+  } else {
+    const blockerText = validation.blockers.length ? validation.blockers[0] : 'Prediction unavailable';
+    const extraCount  = validation.blockers.length - 1;
+    heroCard = '<div class="degree-hero-card degree-hero-unavailable">'
+      + '<div class="degree-hero-eyebrow">Projected Degree Result</div>'
+      + '<div class="degree-hero-result">—</div>'
+      + '<div class="degree-hero-reason">' + escapeHtml(blockerText) + '</div>'
+      + (extraCount > 0
+          ? '<div class="degree-hero-extra-blockers">+' + extraCount + ' more issue' + (extraCount > 1 ? 's' : '') + ' — see sidebar</div>'
+          : '')
+      + '<button class="degree-setup-policy-btn" onclick="toggleDegreePolicyEditor(true)" type="button">Set up degree policy</button>'
       + '</div>';
   }
-  return '<div class="degree-onboarding">'
-    + '<div class="degree-onboarding-icon">🎓</div>'
-    + '<div class="degree-onboarding-title">Enable degree prediction to get started</div>'
-    + '<p class="degree-onboarding-body">UniTrack can estimate your final degree result by combining your year predictions using your institution\'s weighting rules.</p>'
-    + '<label class="degree-onboarding-toggle">'
-    + '<input type="checkbox" class="degree-enable-check" onchange="toggleDegreePolicy(this.checked)">'
-    + '<span>Enable degree prediction</span>'
-    + '</label>'
+
+  const metaRow = buildCompactMetaRow(years, yearIds);
+
+  return '<div id="section-overview" class="degree-section">'
+    + heroCard
+    + metaRow
     + '</div>';
 }
 
-// ── Top summary cards ──────────────────────────────────────────────────────
+function buildCalculationExplanation(policy, years, yearIds) {
+  if (policy.mode === 'creditWeightedAllIncluded') {
+    return 'Credit-weighted average across all graded modules in included years.';
+  }
+  const parts = yearIds.map((id) => {
+    const year = years[id];
+    const rule = getYearRule(id);
+    if (rule.status === 'excluded') return year.label + ' excluded';
+    const w = Number(rule.weight) || 0;
+    return year.label + ' × ' + w + '%';
+  });
+  return 'Based on: ' + parts.join(', ') + '.';
+}
 
-function renderTopCards(prediction, validation, outputSystem, years, yearIds) {
+function buildCompactMetaRow(years, yearIds) {
   const unitLabel = getCreditUnitLabel();
-
-  let totalActual = 0, totalMissing = 0, totalModules = 0, totalGraded = 0;
+  let totalCounted = 0, totalMissing = 0, totalModules = 0, totalGraded = 0;
   yearIds.forEach((id) => {
     const rule = getYearRule(id);
     if (rule.status === 'excluded') return;
     const agg = computeYearAggregate(id);
     if (!agg) return;
-    totalActual   += agg.gradedCredits;
-    totalMissing  += agg.missing;
-    totalModules  += agg.moduleCount;
-    totalGraded   += agg.gradedCount;
+    totalCounted += agg.gradedCredits;
+    totalMissing += agg.missing;
+    totalModules += agg.moduleCount;
+    totalGraded  += agg.gradedCount;
   });
 
-  let predictedCard;
-  if (prediction) {
-    const grade = formatSelectedGrade(prediction.value, { courseDisplay: true }, outputSystem);
-    const cls   = classify(prediction.value, outputSystem);
-    predictedCard = '<div class="degree-top-card">'
-      + '<div class="degree-card-label">Projected Degree Result</div>'
-      + '<div class="degree-card-value degree-result-value">' + escapeHtml(grade.main) + '</div>'
-      + (grade.label ? '<div class="degree-card-cls">' + escapeHtml(grade.label) + '</div>' : '')
-      + '<div class="degree-card-meta">' + escapeHtml(CONFIDENCE_LABELS[prediction.confidence] || '') + '</div>'
-      + '<div class="degree-card-system">' + escapeHtml(GRADING_SYSTEM_LABELS[outputSystem] || outputSystem) + '</div>'
-      + '</div>';
-  } else {
-    predictedCard = '<div class="degree-top-card degree-result-unavailable">'
-      + '<div class="degree-card-label">Projected Degree Result</div>'
-      + '<div class="degree-card-value">—</div>'
-      + '<div class="degree-unavailable-reason">'
-      + escapeHtml(validation.blockers.length ? validation.blockers[0] : 'Prediction unavailable')
-      + '</div>'
-      + (validation.blockers.length > 1
-          ? '<div class="degree-card-meta">+'
-            + (validation.blockers.length - 1)
-            + ' more issue'
-            + (validation.blockers.length > 2 ? 's' : '')
-            + ' — see sidebar</div>'
-          : '')
-      + '</div>';
+  let html = '<div class="degree-meta-row">'
+    + '<span class="degree-meta-item">' + totalGraded + ' / ' + totalModules + ' modules graded</span>'
+    + '<span class="degree-meta-sep">·</span>'
+    + '<span class="degree-meta-item">' + totalCounted + ' ' + escapeHtml(unitLabel) + ' counted</span>';
+  if (totalMissing > 0) {
+    html += '<span class="degree-meta-sep">·</span>'
+      + '<span class="degree-meta-item degree-meta-warn">' + totalMissing + ' ' + escapeHtml(unitLabel) + ' missing marks</span>';
   }
-
-  return '<div id="section-overview" class="degree-section">'
-    + '<div class="degree-top-cards">'
-    + predictedCard
-    + '<div class="degree-top-card">'
-    + '<div class="degree-card-label">Credits Counted</div>'
-    + '<div class="degree-card-value">' + totalActual.toFixed(0) + '</div>'
-    + '<div class="degree-card-meta">' + escapeHtml(unitLabel) + ' with actual marks</div>'
-    + '</div>'
-    + '<div class="degree-top-card">'
-    + '<div class="degree-card-label">Missing Marks</div>'
-    + '<div class="degree-card-value' + (totalMissing > 0 ? ' degree-card-warn' : '') + '">' + totalMissing.toFixed(0) + '</div>'
-    + '<div class="degree-card-meta">' + escapeHtml(unitLabel) + ' without marks yet</div>'
-    + '</div>'
-    + '<div class="degree-top-card">'
-    + '<div class="degree-card-label">Modules</div>'
-    + '<div class="degree-card-value">' + totalGraded + ' / ' + totalModules + '</div>'
-    + '<div class="degree-card-meta">with grades entered</div>'
-    + '</div>'
-    + '</div>'
-    + '</div>';
+  html += '</div>';
+  return html;
 }
 
 // ── Needs Attention (sidebar card) ─────────────────────────────────────────
 
-function renderNeedsAttentionCard(years, yearIds, validation, outputSystem) {
+function collectAttentionItems(years, yearIds, validation, outputSystem) {
   const items = [];
-
   validation.blockers.forEach((b) => items.push({ tone: 'error',   text: b }));
   validation.warnings.forEach((w) => items.push({ tone: 'warning', text: w }));
 
@@ -222,14 +209,12 @@ function renderNeedsAttentionCard(years, yearIds, validation, outputSystem) {
       const m = agg.moduleCount - agg.gradedCount;
       items.push({ tone: 'info', text: year.label + ' has ' + agg.missing + ' ' + unitLabel + ' without marks (' + m + ' module' + (m !== 1 ? 's' : '') + ').' });
     }
-
     if (rule.status === 'included') {
       const yearSystem = getGradingSystem(id);
       if (yearSystem !== outputSystem) {
         items.push({ tone: 'error', text: year.label + ' uses ' + (GRADING_SYSTEM_LABELS[yearSystem] || yearSystem) + ' — needs manual conversion.' });
       }
     }
-
     if (rule.status !== 'excluded' && agg.value !== null) {
       const yearSystem = getGradingSystem(id);
       const grade = formatSelectedGrade(agg.value, { courseDisplay: true }, yearSystem);
@@ -239,28 +224,33 @@ function renderNeedsAttentionCard(years, yearIds, validation, outputSystem) {
       }
     }
   });
+  return items;
+}
 
-  const listHtml = items.length
-    ? '<div class="degree-attention-list">'
-      + items.map((it) => '<div class="degree-attention-item degree-attention-' + escapeHtml(it.tone) + '">'
-        + '<span class="degree-attention-dot"></span>'
-        + '<span>' + escapeHtml(it.text) + '</span>'
-        + '</div>').join('')
-      + '</div>'
-    : '<div class="degree-attention-empty">All good — no issues detected.</div>';
-
+function renderNeedsAttentionCard(items) {
+  const listHtml = '<div class="degree-attention-list">'
+    + items.map((it) => '<div class="degree-attention-item degree-attention-' + escapeHtml(it.tone) + '">'
+      + '<span class="degree-attention-dot"></span>'
+      + '<span>' + escapeHtml(it.text) + '</span>'
+      + '</div>').join('')
+    + '</div>';
   return '<div class="degree-sidebar-card degree-attention-card">'
     + '<div class="degree-sidebar-card-title">Needs Attention</div>'
     + listHtml
     + '</div>';
 }
 
-// ── Policy summary card (sidebar) ──────────────────────────────────────────
+// ── Policy sidebar card ────────────────────────────────────────────────────
 
-function renderPolicySummaryCard(policy, outputSystem) {
+function renderPolicySidebarCard(policy, outputSystem) {
   const preset    = DEGREE_PRESETS.find((p) => p.id === policy.presetId);
   const outYear   = getDegreeOutputYear();
   const modeLabel = DEGREE_MODES[policy.mode] || policy.mode;
+
+  const hasWeights     = Object.values(policy.yearRules || {}).some((r) => r.weight > 0);
+  const isCreditMode   = policy.mode === 'creditWeightedAllIncluded';
+  const isConfigured   = outYear && (isCreditMode || hasWeights);
+  const btnLabel       = isConfigured ? 'Edit degree policy' : 'Set up degree policy';
 
   return '<div class="degree-sidebar-card degree-policy-summary-card">'
     + '<div class="degree-sidebar-card-title">Degree Policy</div>'
@@ -270,7 +260,7 @@ function renderPolicySummaryCard(policy, outputSystem) {
     + '<div class="degree-policy-summary-row"><span class="degree-policy-summary-key">Output system</span><span class="degree-policy-summary-val">' + escapeHtml(GRADING_SYSTEM_LABELS[outputSystem] || outputSystem) + '</span></div>'
     + (outYear ? '<div class="degree-policy-summary-row"><span class="degree-policy-summary-key">Graduating year</span><span class="degree-policy-summary-val">' + escapeHtml(outYear.label) + '</span></div>' : '')
     + '</div>'
-    + '<button class="degree-edit-policy-btn" onclick="toggleDegreePolicyEditor(true)" type="button">Edit degree policy</button>'
+    + '<button class="degree-edit-policy-btn" onclick="toggleDegreePolicyEditor(true)" type="button">' + escapeHtml(btnLabel) + '</button>'
     + '</div>';
 }
 
@@ -475,7 +465,7 @@ function renderCreditCompletionChart(years, yearIds) {
   });
 }
 
-// ── Per-year cards ─────────────────────────────────────────────────────────
+// ── Per-year cards (collapsible) ───────────────────────────────────────────
 
 function renderYearCardsSection(years, yearIds, policy, outputSystem) {
   if (!yearIds.length) return '';
@@ -499,7 +489,7 @@ function renderYearCard(yearId, year, policy, outputSystem) {
   const statusLabel = {
     included:         'Counts toward degree',
     excluded:         'Does not count',
-    manualConversion: 'Counts using converted value',
+    manualConversion: 'Counts (converted)',
   }[rule.status] || rule.status;
 
   const statusTone = {
@@ -508,14 +498,46 @@ function renderYearCard(yearId, year, policy, outputSystem) {
     manualConversion: 'amber',
   }[rule.status] || 'grey';
 
+  // Score for collapsed summary
+  let scoreHtml = '';
+  if (rule.status === 'manualConversion') {
+    const convVal = (rule.convertedValue !== null && rule.convertedValue !== '')
+      ? Number(rule.convertedValue) : null;
+    if (convVal !== null) {
+      const convGrade = formatSelectedGrade(convVal, { courseDisplay: true }, outputSystem);
+      scoreHtml = '<span class="degree-year-card-score degree-year-card-score-converted">' + escapeHtml(convGrade.main) + '</span>';
+    } else {
+      scoreHtml = '<span class="degree-year-card-score degree-year-card-score-missing">—</span>';
+    }
+  } else if (agg && agg.value !== null) {
+    const grade = formatSelectedGrade(agg.value, { courseDisplay: true }, yearSystem);
+    const cls   = classify(agg.value, yearSystem);
+    const scoreCls = cls.cls ? ' degree-year-card-score-' + cls.cls : '';
+    scoreHtml = '<span class="degree-year-card-score' + scoreCls + '">' + escapeHtml(grade.main) + '</span>';
+  } else {
+    scoreHtml = '<span class="degree-year-card-score degree-year-card-score-missing">No marks</span>';
+  }
+
+  // Collapsed summary row
+  const summaryHtml = '<div class="degree-year-card-summary" onclick="toggleYearCard(\'' + escapeHtml(yearId) + '\')">'
+    + '<div class="degree-year-card-summary-left">'
+    + '<span class="degree-year-card-name">' + escapeHtml(year.label) + '</span>'
+    + '<span class="degree-year-status degree-year-status-' + escapeHtml(statusTone) + '">' + escapeHtml(statusLabel) + '</span>'
+    + '</div>'
+    + '<div class="degree-year-card-summary-right">'
+    + scoreHtml
+    + '<svg class="degree-year-chevron" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 6 8 10 12 6"/></svg>'
+    + '</div>'
+    + '</div>';
+
+  // Expanded details
   let predictionBlock = '';
   if (rule.status === 'manualConversion') {
     const origAgg = (agg?.value !== null && agg?.value !== undefined)
       ? formatSelectedGrade(agg.value, {}, yearSystem)
       : null;
     const convVal = (rule.convertedValue !== null && rule.convertedValue !== '')
-      ? Number(rule.convertedValue)
-      : null;
+      ? Number(rule.convertedValue) : null;
     predictionBlock = '<div class="degree-year-pred">'
       + (origAgg
           ? '<div class="degree-year-pred-row"><span class="degree-year-pred-label">Original result</span><span class="degree-year-pred-value">'
@@ -553,11 +575,7 @@ function renderYearCard(yearId, year, policy, outputSystem) {
         ? '<span class="degree-year-compat degree-year-compat-green">Compatible</span>'
         : '<span class="degree-year-compat degree-year-compat-red">System mismatch</span>';
 
-  return '<div class="degree-year-card">'
-    + '<div class="degree-year-card-head">'
-    + '<div class="degree-year-card-name">' + escapeHtml(year.label) + '</div>'
-    + '<span class="degree-year-status degree-year-status-' + escapeHtml(statusTone) + '">' + escapeHtml(statusLabel) + '</span>'
-    + '</div>'
+  const detailsHtml = '<div class="degree-year-card-details">'
     + '<div class="degree-year-card-meta">'
     + (uni    ? '<div>' + escapeHtml(uni)    + '</div>' : '')
     + (course ? '<div>' + escapeHtml(course) + '</div>' : '')
@@ -575,6 +593,16 @@ function renderYearCard(yearId, year, policy, outputSystem) {
     + compat
     + '</div>'
     + '</div>';
+
+  return '<div class="degree-year-card" data-year-id="' + escapeHtml(yearId) + '">'
+    + summaryHtml
+    + detailsHtml
+    + '</div>';
+}
+
+export function toggleYearCard(yearId) {
+  const card = document.querySelector('.degree-year-card[data-year-id="' + yearId + '"]');
+  if (card) card.classList.toggle('is-expanded');
 }
 
 // ── Policy editor (collapsible, full-width below two-col body) ─────────────

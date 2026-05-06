@@ -40,22 +40,6 @@
 
 /* ── Page header ─────────────────────────────────────────────────────────── */
 
-.degree-page-header {
-  margin-bottom: 24px;
-}
-
-.degree-header-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.degree-header-titles {
-  flex: 1;
-  min-width: 0;
-}
-
 .degree-page-eyebrow {
   font-size: 12px;
   font-weight: 600;
@@ -84,36 +68,10 @@
   color: var(--faint, #999);
 }
 
-/* ── Compact enable toggle (in header) ───────────────────────────────────── */
+/* ── Page header (simplified — no enable toggle) ─────────────────────────── */
 
-.degree-enable-compact {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border: 1px solid var(--border2);
-  border-radius: var(--ui-radius-base);
-  background: var(--paper2);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink);
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  margin-top: 6px;
-  transition: border-color 0.14s, background 0.14s;
-}
-.degree-enable-compact:hover {
-  border-color: var(--sumi);
-  background: var(--paper3, var(--paper2));
-}
-
-.degree-enable-check {
-  width: 15px;
-  height: 15px;
-  cursor: pointer;
-  accent-color: var(--sumi);
-  flex-shrink: 0;
+.degree-page-header {
+  margin-bottom: 28px;
 }
 
 /* ── Section tabs ────────────────────────────────────────────────────────── */
@@ -144,6 +102,157 @@
   color: var(--ink);
   border-color: var(--sumi);
   background: var(--paper3, var(--paper2));
+}
+
+/* ── Hero card ───────────────────────────────────────────────────────────── */
+
+.degree-hero-card {
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius-card);
+  padding: 28px 28px 22px;
+  margin-bottom: 10px;
+}
+
+.degree-hero-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.degree-hero-result {
+  font-size: 3.6rem;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.degree-hero-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.degree-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.degree-hero-sep {
+  color: var(--faint, #bbb);
+}
+
+.degree-hero-system {
+  color: var(--muted);
+}
+
+.degree-hero-confidence {
+  color: var(--muted);
+}
+
+.degree-hero-explanation {
+  font-size: 12px;
+  color: var(--faint, #999);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* Hero — unavailable state */
+
+.degree-hero-unavailable .degree-hero-result {
+  color: var(--muted);
+  font-size: 3rem;
+}
+
+.degree-hero-reason {
+  font-size: 13px;
+  color: var(--vermillion2, #c0392b);
+  font-weight: 500;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  line-height: 1.45;
+}
+
+.degree-hero-extra-blockers {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.degree-setup-policy-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  margin-top: 6px;
+  background: var(--sumi);
+  color: var(--paper);
+  border: none;
+  border-radius: var(--ui-radius-base);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.14s;
+}
+.degree-setup-policy-btn:hover { opacity: 0.85; }
+
+/* Hero — classification colour accents */
+.degree-hero-cls-first  { color: var(--sumi, #1a1a1a); }
+.degree-hero-cls-upper  { color: #2d5a27; }
+.degree-hero-cls-lower  { color: #6b5b00; }
+.degree-hero-cls-third  { color: #8b3200; }
+.degree-hero-cls-fail   { color: var(--vermillion2, #c0392b); }
+.degree-hero-cls-a-plus, .degree-hero-cls-a, .degree-hero-cls-a-minus { color: #2d5a27; }
+.degree-hero-cls-b-plus, .degree-hero-cls-b, .degree-hero-cls-b-minus { color: #1a3a6b; }
+.degree-hero-cls-c-plus, .degree-hero-cls-c, .degree-hero-cls-c-minus { color: #6b4d00; }
+.degree-hero-cls-pass   { color: var(--ink); }
+
+body.theme-dark .degree-hero-cls-upper  { color: #9bd49a; }
+body.theme-dark .degree-hero-cls-lower  { color: #e6c97a; }
+body.theme-dark .degree-hero-cls-third  { color: #f0a07b; }
+body.theme-dark .degree-hero-cls-fail   { color: #f07b6f; }
+body.theme-dark .degree-hero-cls-a-plus,
+body.theme-dark .degree-hero-cls-a,
+body.theme-dark .degree-hero-cls-a-minus { color: #9bd49a; }
+body.theme-dark .degree-hero-cls-b-plus,
+body.theme-dark .degree-hero-cls-b,
+body.theme-dark .degree-hero-cls-b-minus { color: #7eb8f7; }
+body.theme-dark .degree-hero-cls-c-plus,
+body.theme-dark .degree-hero-cls-c,
+body.theme-dark .degree-hero-cls-c-minus { color: #e6c97a; }
+
+/* ── Compact meta row ────────────────────────────────────────────────────── */
+
+.degree-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 24px;
+  padding: 0 2px;
+}
+
+.degree-meta-sep {
+  color: var(--faint, #bbb);
+}
+
+.degree-meta-item {
+  white-space: nowrap;
+}
+
+.degree-meta-warn {
+  color: var(--vermillion2, #c0392b);
+  font-weight: 500;
 }
 
 /* ── Onboarding / disabled state ─────────────────────────────────────────── */
@@ -244,7 +353,7 @@
   margin-bottom: 14px;
 }
 
-/* ── Top summary cards ───────────────────────────────────────────────────── */
+/* ── Top summary cards (legacy — kept for backward compat) ───────────────── */
 
 .degree-top-cards {
   display: grid;
@@ -261,61 +370,6 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-}
-
-.degree-card-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 2px;
-}
-
-.degree-card-value {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: var(--ink);
-  line-height: 1;
-}
-
-.degree-result-value {
-  font-size: 2.6rem;
-}
-
-.degree-card-warn {
-  color: var(--vermillion2, #c0392b);
-}
-
-.degree-card-cls {
-  font-size: 14px;
-  color: var(--muted);
-  font-weight: 500;
-}
-
-.degree-card-meta {
-  font-size: 12px;
-  color: var(--faint, #999);
-  margin-top: 4px;
-}
-
-.degree-card-system {
-  font-size: 11px;
-  color: var(--faint, #aaa);
-  margin-top: 2px;
-}
-
-.degree-result-unavailable .degree-card-value {
-  color: var(--muted);
-  font-size: 2.8rem;
-}
-
-.degree-unavailable-reason {
-  font-size: 13px;
-  color: var(--vermillion2, #c0392b);
-  font-weight: 500;
-  margin-top: 4px;
-  line-height: 1.4;
 }
 
 /* ── Needs Attention ─────────────────────────────────────────────────────── */
@@ -482,32 +536,117 @@ body.theme-dark .degree-attention-info    { background: rgba(255,255,255,0.04); 
 /* ── Year breakdown cards ────────────────────────────────────────────────── */
 
 .degree-year-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .degree-year-card {
   background: var(--paper2);
   border: 1px solid var(--border);
   border-radius: var(--ui-radius-card);
-  padding: 16px 16px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  overflow: hidden;
 }
 
-.degree-year-card-head {
+/* Collapsed summary row */
+.degree-year-card-summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s;
+}
+.degree-year-card-summary:hover {
+  background: var(--paper3, rgba(0,0,0,0.025));
+}
+
+body.theme-dark .degree-year-card-summary:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.degree-year-card-summary-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.degree-year-card-summary-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .degree-year-card-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* Score in collapsed summary */
+.degree-year-card-score {
   font-size: 15px;
   font-weight: 700;
   color: var(--ink);
+}
+.degree-year-card-score-missing  { color: var(--faint, #aaa); font-weight: 400; font-size: 13px; }
+.degree-year-card-score-converted { color: #2980b9; }
+.degree-year-card-score-first  { color: var(--sumi, #1a1a1a); }
+.degree-year-card-score-upper  { color: #2d5a27; }
+.degree-year-card-score-lower  { color: #6b5b00; }
+.degree-year-card-score-third  { color: #8b3200; }
+.degree-year-card-score-fail   { color: var(--vermillion2, #c0392b); }
+.degree-year-card-score-a-plus,
+.degree-year-card-score-a,
+.degree-year-card-score-a-minus { color: #2d5a27; }
+.degree-year-card-score-b-plus,
+.degree-year-card-score-b,
+.degree-year-card-score-b-minus { color: #1a3a6b; }
+.degree-year-card-score-c-plus,
+.degree-year-card-score-c,
+.degree-year-card-score-c-minus { color: #6b4d00; }
+
+body.theme-dark .degree-year-card-score-upper  { color: #9bd49a; }
+body.theme-dark .degree-year-card-score-lower  { color: #e6c97a; }
+body.theme-dark .degree-year-card-score-third  { color: #f0a07b; }
+body.theme-dark .degree-year-card-score-fail   { color: #f07b6f; }
+body.theme-dark .degree-year-card-score-a-plus,
+body.theme-dark .degree-year-card-score-a,
+body.theme-dark .degree-year-card-score-a-minus { color: #9bd49a; }
+body.theme-dark .degree-year-card-score-b-plus,
+body.theme-dark .degree-year-card-score-b,
+body.theme-dark .degree-year-card-score-b-minus { color: #7eb8f7; }
+body.theme-dark .degree-year-card-score-c-plus,
+body.theme-dark .degree-year-card-score-c,
+body.theme-dark .degree-year-card-score-c-minus { color: #e6c97a; }
+body.theme-dark .degree-year-card-score-converted { color: #4d93cf; }
+
+/* Chevron */
+.degree-year-chevron {
+  color: var(--muted);
+  transition: transform 0.18s ease;
+  flex-shrink: 0;
+}
+.degree-year-card.is-expanded .degree-year-chevron {
+  transform: rotate(180deg);
+}
+
+/* Expanded details (hidden by default) */
+.degree-year-card-details {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 16px 14px;
+  border-top: 1px solid var(--border);
+}
+.degree-year-card.is-expanded .degree-year-card-details {
+  display: flex;
 }
 
 .degree-year-status {
@@ -883,10 +1022,6 @@ body.theme-dark .degree-rule-ok-inline { color: #9bd49a; }
   .degree-sidebar {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
-
-  .degree-top-cards {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 @media (max-width: 700px) {
@@ -894,14 +1029,12 @@ body.theme-dark .degree-rule-ok-inline { color: #9bd49a; }
     padding: 18px 16px 40px;
   }
 
-  .degree-header-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+  .degree-hero-card {
+    padding: 20px 18px 16px;
   }
 
-  .degree-enable-compact {
-    margin-top: 0;
+  .degree-hero-result {
+    font-size: 2.8rem;
   }
 
   .degree-charts-grid {
@@ -925,11 +1058,11 @@ body.theme-dark .degree-rule-ok-inline { color: #9bd49a; }
 }
 
 @media (max-width: 480px) {
-  .degree-top-cards {
+  .degree-sidebar {
     grid-template-columns: 1fr;
   }
 
-  .degree-sidebar {
-    grid-template-columns: 1fr;
+  .degree-hero-result {
+    font-size: 2.4rem;
   }
 }

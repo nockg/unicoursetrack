@@ -73,7 +73,7 @@ export const DEGREE_PRESETS = [
 
 export function getDefaultDegreePolicy() {
   return {
-    enabled: false,
+    enabled: true,
     presetId: 'manual',
     mode: 'weightedYears',
     outputSystemMode: 'graduatingYear',
@@ -231,9 +231,6 @@ export function validateDegreePolicy() {
   const warnings     = [];
   const blockers     = [];
 
-  if (!policy.enabled) {
-    return { canCompute: false, warnings: [], blockers: ['Degree policy not enabled.'], totalWeight: 0 };
-  }
   if (!getDegreeOutputYear()) blockers.push('No graduating / output year selected.');
 
   const includedIds = yearIds.filter((id) => {
