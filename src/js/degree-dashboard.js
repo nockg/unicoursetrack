@@ -67,11 +67,7 @@ export function renderDegreeDashboard() {
 
   root.innerHTML = renderHeader(model)
     + '<main class="degree-command-centre" aria-label="Degree Overview">'
-    + '<section class="degree-forecast-section" aria-labelledby="degree-forecast-title">'
-    + '<div class="degree-section-heading">'
-    + '<p class="degree-section-kicker">Degree Forecast</p>'
-    + '<h2 id="degree-forecast-title">Your projected degree result</h2>'
-    + '</div>'
+    + '<section class="degree-forecast-section">'
     + '<div class="degree-forecast-grid">'
     + renderForecastHero(model)
     + renderPolicySummaryCard(model)
@@ -128,7 +124,7 @@ function buildDashboardModel() {
 function buildYearSummary(yearId, year, policy, outputSystem) {
   const rule = getYearRule(yearId);
   const aggregate = computeYearAggregate(yearId);
-  const nativeSystem = year?.gradingSystem || getGradingSystem();
+  const nativeSystem = getGradingSystem(yearId);
   const degreeValue = getYearDegreeValue(yearId);
   const counts = rule.status !== 'excluded';
   const needsConversion = counts && nativeSystem !== outputSystem;
@@ -165,17 +161,18 @@ function buildYearSummary(yearId, year, policy, outputSystem) {
 
 function renderHeader(model = null) {
   const anchorYearId = model?.outputYear?.id || model?.yearIds?.[0] || store.state.ui?.currentYearId;
-  const course = getEffectiveCourse(anchorYearId) || 'Degree Overview';
+  const course = getEffectiveCourse(anchorYearId) || 'My Degree';
   const university = getEffectiveUniversity(anchorYearId);
-  const years = model?.summaries?.length ? `${model.summaries.length} academic years` : 'Academic record';
+  const yearCount = model?.summaries?.length || 0;
 
   return '<header class="degree-page-header">'
-    + '<div>'
+    + '<button class="degree-back-btn" type="button" onclick="showTrackerView()">← Back to Tracker</button>'
+    + '<div class="degree-header-titles">'
     + '<p class="degree-eyebrow">Degree Overview</p>'
-    + `<h1>${escapeHtml(course)}</h1>`
-    + `<p>${escapeHtml(university ? `${university} · ${years}` : years)}. Forecast your degree result, see which years count, and inspect details only when needed.</p>`
+    + `<h1 class="degree-page-title">${escapeHtml(course)}</h1>`
+    + (university ? `<p class="degree-page-sub">${escapeHtml(university)}</p>` : '')
+    + (yearCount ? `<p class="degree-page-meta">${yearCount} academic year${yearCount !== 1 ? 's' : ''} tracked</p>` : '')
     + '</div>'
-    + '<button class="degree-quiet-btn" type="button" onclick="showTrackerView()">Back to Tracker</button>'
     + '</header>';
 }
 
@@ -280,9 +277,9 @@ function renderStatusStrip(model) {
   }
 
   const excludedCount = model.summaries.filter((year) => !year.counts).length;
-  const excludedText = excludedCount ? ` · ${excludedCount} excluded` : '';
+  const excludedText = excludedCount ? ` · ${excludedCount} year${excludedCount !== 1 ? 's' : ''} excluded` : '';
   return '<div class="degree-attention-strip degree-attention-strip--quiet">'
-    + `<span>All counted years compatible · ${escapeHtml(model.missingCredits)} missing ${escapeHtml(getCreditUnitLabel({ system: model.outputSystem }).toLowerCase())}${escapeHtml(excludedText)}</span>`
+    + `<span>All counted years compatible${escapeHtml(excludedText)}</span>`
     + '</div>';
 }
 
@@ -474,7 +471,7 @@ function renderYearDetailsPanel(model) {
     ['Course / programme', getEffectiveCourse(summary.id)],
     ['Academic year', getEffectiveAcademicYearLabel(summary.id)],
     ['Grading system', getSystemLabel(summary.nativeSystem)],
-  ];
+  ].filter(([, val]) => val);
   const degreeDetails = [
     ['Degree status', getYearStatusText(summary)],
     ['Degree weight', summary.counts ? `${formatWeight(summary.rule.weight)}%` : '0%'],

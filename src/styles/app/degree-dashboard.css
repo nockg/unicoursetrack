@@ -2,20 +2,14 @@
 
 #degree-view {
   --accent: var(--indigo, #1a2c4a);
-  --degree-sage: var(--pine, #2d5a27);
   min-height: 100vh;
   overflow-x: hidden;
-  background:
-    radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--indigo, #1a2c4a) 8%, transparent), transparent 32rem),
-    var(--paper, #f8f5ef);
+  background: var(--paper, #f5f0e8);
   padding-bottom: 80px;
   font-family: "Cormorant Garamond", serif;
 }
 
-body.font-mono #degree-view,
-body.font-mono #degree-view * {
-  font-family: "Cormorant Garamond", serif;
-}
+/* font-mono preference is respected — no override */
 
 #degree-view button,
 #degree-view select,
@@ -44,29 +38,58 @@ body.font-mono #degree-view * {
   gap: 24px;
 }
 
+/* ── Page header ─────────────────────────────────────────────────────────── */
+
 .degree-page-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  align-items: flex-start;
   margin-bottom: 24px;
 }
 
-.degree-page-header h1 {
-  margin: 0;
-  color: var(--ink, #1f1c18);
-  font-family: "Shippori Mincho", serif;
-  font-size: clamp(2.15rem, 4.2vw, 4.6rem);
-  letter-spacing: -0.025em;
-  line-height: 1;
+.degree-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  margin-bottom: 16px;
+  background: transparent;
+  border: 1px solid var(--border2, rgba(26,22,18,0.22));
+  border-radius: var(--ui-radius-base, 8px);
+  color: var(--muted, #7a6e5e);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.14s, border-color 0.14s, background 0.14s;
+  font-family: inherit;
+}
+.degree-back-btn:hover {
+  color: var(--ink, #0e0c0a);
+  background: var(--paper2, #ede8dc);
 }
 
-.degree-page-header p {
-  max-width: 680px;
-  margin: 10px 0 0;
-  color: var(--muted, #635f58);
-  font-size: 1rem;
-  line-height: 1.55;
+.degree-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.degree-page-title {
+  margin: 0;
+  color: var(--ink, #0e0c0a);
+  font-family: "Shippori Mincho", serif;
+  font-size: 1.9rem;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.degree-page-sub {
+  margin: 4px 0 0;
+  color: var(--muted, #7a6e5e);
+  font-size: 0.95rem;
+}
+
+.degree-page-meta {
+  margin: 2px 0 0;
+  color: var(--faint, #c8bfae);
+  font-size: 0.82rem;
 }
 
 .degree-eyebrow,
@@ -85,21 +108,19 @@ body.font-mono #degree-view * {
 
 .degree-section-heading h2 {
   margin: 0;
-  color: var(--ink, #1f1c18);
+  color: var(--ink, #0e0c0a);
   font-family: "Shippori Mincho", serif;
-  font-size: clamp(1.45rem, 2.3vw, 2.25rem);
-  letter-spacing: -0.02em;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
 }
 
 .degree-surface,
 .degree-panel,
 .degree-empty-state {
-  border: 1px solid color-mix(in srgb, var(--border, #ded4c6) 86%, transparent);
-  border-radius: var(--ui-radius-card, 24px);
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--paper, #f8f5ef) 94%, white), color-mix(in srgb, var(--paper2, #eee6da) 88%, transparent)),
-    var(--paper, #f8f5ef);
-  box-shadow: 0 20px 60px rgba(30, 24, 18, 0.08);
+  border: 1px solid var(--border, rgba(26,22,18,0.12));
+  border-radius: var(--ui-radius-card, 12px);
+  background: var(--paper2, #ede8dc);
+  box-shadow: var(--shadow2, 0 2px 8px rgba(14,12,10,0.08));
 }
 
 .degree-forecast-section {
@@ -116,12 +137,11 @@ body.font-mono #degree-view * {
 
 .degree-result-hero {
   position: relative;
-  min-height: 340px;
   overflow: hidden;
-  padding: clamp(26px, 4vw, 44px);
+  padding: 28px 28px 22px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: 0;
   isolation: isolate;
 }
 
@@ -130,11 +150,8 @@ body.font-mono #degree-view * {
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(circle at 88% 20%, color-mix(in srgb, var(--indigo, #1a2c4a) 10%, transparent), transparent 20rem),
-    radial-gradient(circle at 16% 88%, color-mix(in srgb, var(--degree-sage) 8%, transparent), transparent 18rem),
-    linear-gradient(135deg, transparent 0 58%, color-mix(in srgb, var(--ink, #211d18) 4%, transparent) 58% 59%, transparent 59%),
-    repeating-linear-gradient(90deg, color-mix(in srgb, var(--ink, #211d18) 3%, transparent) 0 1px, transparent 1px 54px);
-  opacity: 0.82;
+    radial-gradient(circle at 88% 15%, rgba(26,44,74,0.06), transparent 60%),
+    radial-gradient(circle at 12% 85%, rgba(45,90,39,0.05), transparent 50%);
 }
 
 .degree-result-copy {
@@ -150,61 +167,63 @@ body.font-mono #degree-view * {
 }
 
 .degree-result-mark {
-  color: var(--ink, #1f1c18);
+  color: var(--ink, #0e0c0a);
   font-family: "Shippori Mincho", serif;
-  font-size: clamp(4rem, 11vw, 9rem);
+  font-size: clamp(2.8rem, 6vw, 5rem);
   font-weight: 900;
-  letter-spacing: -0.08em;
-  line-height: 0.86;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  margin-bottom: 10px;
 }
 
 .degree-result-tag {
   display: inline-flex;
   align-items: center;
-  margin-top: 18px;
-  padding: 10px 16px;
+  margin-top: 0;
+  padding: 6px 13px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--ink, #211d18) 92%, transparent);
-  color: var(--paper, #f8f5ef);
+  background: var(--ink, #0e0c0a);
+  color: var(--paper, #f5f0e8);
   font-family: "Shippori Mincho", serif;
-  font-size: clamp(1.05rem, 2.5vw, 1.7rem);
-  font-weight: 850;
-  letter-spacing: -0.025em;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .degree-result-tag--setup {
-  background: color-mix(in srgb, var(--indigo, #1a2c4a) 12%, transparent);
-  color: var(--ink, #1f1c18);
+  background: rgba(26,44,74,0.10);
+  color: var(--ink, #0e0c0a);
 }
 
 .degree-result-system {
-  margin: 14px 0 0;
-  color: var(--muted, #635f58);
-  font-size: 1.05rem;
-  font-weight: 700;
+  margin: 8px 0 0;
+  color: var(--muted, #7a6e5e);
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .degree-hero-context {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 24px;
+  gap: 8px;
+  margin-top: 18px;
 }
 
 .degree-hero-context span {
-  padding: 8px 12px;
-  border: 1px solid color-mix(in srgb, var(--border, #ded4c6) 88%, transparent);
+  padding: 5px 10px;
+  border: 1px solid var(--border, rgba(26,22,18,0.12));
   border-radius: 999px;
-  background: color-mix(in srgb, var(--paper, #f8f5ef) 76%, transparent);
-  color: var(--ink, #1f1c18);
-  font-size: 0.92rem;
-  font-weight: 760;
+  background: rgba(245,240,232,0.7);
+  color: var(--ink, #0e0c0a);
+  font-size: 0.82rem;
+  font-weight: 600;
 }
 
 .degree-result-hero--unavailable .degree-result-mark {
-  max-width: 760px;
-  font-size: clamp(2.4rem, 6vw, 5.5rem);
-  line-height: 0.96;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .degree-policy-summary {
@@ -352,10 +371,10 @@ body.font-mono #degree-view * {
 
 .degree-insight-card {
   min-width: 0;
-  padding: 18px;
-  border: 1px solid var(--border, #ded4c6);
-  border-radius: 20px;
-  background: color-mix(in srgb, var(--paper, #f8f5ef) 78%, var(--paper2, #eee6da));
+  padding: 16px;
+  border: 1px solid var(--border, rgba(26,22,18,0.12));
+  border-radius: var(--ui-radius-card, 12px);
+  background: var(--paper, #f5f0e8);
 }
 
 .degree-insight-card--wide {
@@ -363,11 +382,12 @@ body.font-mono #degree-view * {
 }
 
 .degree-insight-card--accent {
-  background: color-mix(in srgb, var(--indigo, #1a2c4a) 8%, var(--paper, #f8f5ef));
+  background: var(--paper2, #ede8dc);
 }
 
 .degree-insight-card--warning {
-  background: color-mix(in srgb, #d79a42 12%, var(--paper, #f8f5ef));
+  background: var(--paper2, #ede8dc);
+  border-color: rgba(215, 154, 66, 0.35);
 }
 
 .degree-insight-card h3 {
@@ -424,10 +444,10 @@ body.font-mono #degree-view * {
 }
 
 .degree-bar-track {
-  height: 12px;
+  height: 10px;
   overflow: hidden;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--border, #ded4c6) 62%, transparent);
+  background: var(--paper2, #ede8dc);
 }
 
 .degree-bar-track i {
@@ -435,7 +455,7 @@ body.font-mono #degree-view * {
   height: 100%;
   min-width: 4px;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--indigo, #1a2c4a), color-mix(in srgb, var(--degree-sage) 74%, var(--indigo, #1a2c4a)));
+  background: var(--indigo, #1a2c4a);
 }
 
 .degree-journey-section {
@@ -447,10 +467,8 @@ body.font-mono #degree-view * {
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(circle at 9% 34%, color-mix(in srgb, var(--indigo, #1a2c4a) 8%, transparent), transparent 10rem),
-    radial-gradient(circle at 84% 68%, color-mix(in srgb, var(--ink, #211d18) 7%, transparent), transparent 12rem),
-    linear-gradient(90deg, transparent 0 7%, color-mix(in srgb, var(--ink, #211d18) 7%, transparent) 7% calc(7% + 1px), transparent calc(7% + 1px));
-  opacity: 0.85;
+    radial-gradient(circle at 10% 50%, rgba(26, 44, 74, 0.04), transparent 40%),
+    radial-gradient(circle at 85% 50%, rgba(26, 22, 18, 0.03), transparent 35%);
 }
 
 .degree-year-timeline {
@@ -475,19 +493,19 @@ body.font-mono #degree-view * {
   min-width: min(230px, 100%);
   display: grid;
   gap: 8px;
-  padding: 18px 18px 18px 46px;
-  border: 1px solid var(--border, #ded4c6);
-  border-radius: 22px;
-  background: color-mix(in srgb, var(--paper, #f8f5ef) 86%, white);
+  padding: 16px 16px 16px 44px;
+  border: 1px solid var(--border, rgba(26,22,18,0.12));
+  border-radius: var(--ui-radius-card, 12px);
+  background: var(--paper, #f5f0e8);
   text-align: left;
-  box-shadow: 0 14px 34px rgba(30, 24, 18, 0.07);
+  box-shadow: var(--shadow2, 0 2px 8px rgba(14,12,10,0.08));
   transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
 .degree-year-node:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--accent, #9c6a3c) 50%, var(--border, #ded4c6));
-  box-shadow: 0 18px 44px rgba(30, 24, 18, 0.1);
+  transform: translateY(-1px);
+  border-color: var(--border2, rgba(26,22,18,0.22));
+  box-shadow: var(--shadow, 0 4px 24px rgba(14,12,10,0.14));
 }
 
 .degree-year-node-dot {
@@ -591,10 +609,10 @@ body.font-mono #degree-view * {
 }
 
 .degree-primary-btn {
-  border: 1px solid color-mix(in srgb, var(--ink, #211d18) 86%, transparent);
-  background: var(--ink, #211d18);
-  color: var(--paper, #f8f5ef);
-  padding: 11px 16px;
+  border: 1px solid var(--ink, #0e0c0a);
+  background: var(--ink, #0e0c0a);
+  color: var(--paper, #f5f0e8);
+  padding: 10px 16px;
   font-weight: 850;
 }
 
@@ -605,8 +623,8 @@ body.font-mono #degree-view * {
 
 .degree-quiet-btn,
 .degree-subtle-pill {
-  border: 1px solid var(--border, #ded4c6);
-  background: color-mix(in srgb, var(--paper, #f8f5ef) 76%, transparent);
+  border: 1px solid var(--border, rgba(26,22,18,0.12));
+  background: transparent;
   color: var(--ink, #1f1c18);
   padding: 9px 13px;
   font-weight: 800;
@@ -645,11 +663,11 @@ body.font-mono #degree-view * {
 .degree-empty-mark {
   display: grid;
   place-items: center;
-  width: 72px;
-  height: 72px;
-  border-radius: 24px;
-  background: var(--ink, #211d18);
-  color: var(--paper, #f8f5ef);
+  width: 64px;
+  height: 64px;
+  border-radius: var(--ui-radius-card, 12px);
+  background: var(--ink, #0e0c0a);
+  color: var(--paper, #f5f0e8);
   font-weight: 900;
   letter-spacing: -0.04em;
 }
@@ -679,16 +697,14 @@ body.font-mono #degree-view * {
   position: fixed;
   left: 50%;
   top: 50%;
-  width: min(880px, calc(100vw - 40px));
+  width: min(860px, calc(100vw - 40px));
   max-height: min(820px, calc(100vh - 40px));
   overflow-y: auto;
-  padding: clamp(22px, 3vw, 34px);
-  border: 1px solid var(--border, #ded4c6);
-  border-radius: 30px;
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--paper3, #faf7f2) 82%, white), var(--paper, #f8f5ef)),
-    var(--paper, #f8f5ef);
-  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.22);
+  padding: clamp(20px, 3vw, 28px);
+  border: 1px solid var(--border2, rgba(26,22,18,0.22));
+  border-radius: 16px;
+  background: var(--paper3, #faf7f2);
+  box-shadow: var(--shadow, 0 4px 24px rgba(14,12,10,0.14));
   transform: translate(-50%, -50%);
 }
 
@@ -712,9 +728,9 @@ body.font-mono #degree-view * {
   margin: 0;
   color: var(--ink, #1f1c18);
   font-family: "Shippori Mincho", serif;
-  font-size: clamp(2rem, 4vw, 3.4rem);
-  letter-spacing: -0.025em;
-  line-height: 1;
+  font-size: 1.6rem;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 .degree-year-panel-hero {
@@ -728,25 +744,25 @@ body.font-mono #degree-view * {
 .degree-year-panel-hero p {
   margin: 10px 0 0;
   color: var(--muted, #635f58);
-  font-size: 1.1rem;
-  line-height: 1.45;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .degree-year-panel-result {
   display: grid;
   align-content: center;
   gap: 8px;
-  padding: 18px;
-  border: 1px solid color-mix(in srgb, var(--indigo, #1a2c4a) 16%, var(--border, #ded4c6));
-  border-radius: 22px;
-  background: color-mix(in srgb, var(--indigo, #1a2c4a) 7%, var(--paper, #f8f5ef));
+  padding: 16px;
+  border: 1px solid var(--border, rgba(26,22,18,0.12));
+  border-radius: var(--ui-radius-card, 12px);
+  background: var(--paper2, #ede8dc);
 }
 
 .degree-year-panel-result strong {
   color: var(--ink, #1f1c18);
   font-family: "Shippori Mincho", serif;
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 0.95;
+  font-size: 2rem;
+  line-height: 1;
 }
 
 .degree-year-panel-result span {
@@ -762,10 +778,10 @@ body.font-mono #degree-view * {
 }
 
 .degree-detail-group {
-  padding: 16px;
-  border: 1px solid var(--border, #ded4c6);
-  border-radius: 20px;
-  background: color-mix(in srgb, var(--paper, #f8f5ef) 74%, white);
+  padding: 14px;
+  border: 1px solid var(--border, rgba(26,22,18,0.12));
+  border-radius: var(--ui-radius-card, 12px);
+  background: var(--paper, #f5f0e8);
 }
 
 .degree-detail-group h3 {
@@ -792,11 +808,11 @@ body.font-mono #degree-view * {
   max-width: 1180px;
   min-height: calc(100vh - 48px);
   margin: 0 auto;
-  padding: clamp(20px, 4vw, 42px);
-  border: 1px solid var(--border, #ded4c6);
-  border-radius: 30px;
-  background: var(--paper, #f8f5ef);
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.24);
+  padding: clamp(20px, 4vw, 36px);
+  border: 1px solid var(--border2, rgba(26,22,18,0.22));
+  border-radius: var(--ui-radius-card, 12px);
+  background: var(--paper, #f5f0e8);
+  box-shadow: var(--shadow, 0 4px 24px rgba(14,12,10,0.14));
 }
 
 .degree-back-link {
@@ -816,9 +832,9 @@ body.font-mono #degree-view * {
   max-width: 760px;
   margin: 0;
   color: var(--ink, #1f1c18);
-  font-size: clamp(2rem, 5vw, 4rem);
-  line-height: 0.95;
-  letter-spacing: -0.055em;
+  font-size: 1.55rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
 .degree-setup-grid {
@@ -828,10 +844,10 @@ body.font-mono #degree-view * {
 }
 
 .degree-setup-step {
-  padding: 20px;
-  border: 1px solid var(--border, #ded4c6);
-  border-radius: 22px;
-  background: color-mix(in srgb, var(--paper2, #eee6da) 52%, var(--paper, #f8f5ef));
+  padding: 18px;
+  border: 1px solid var(--border, rgba(26,22,18,0.12));
+  border-radius: var(--ui-radius-card, 12px);
+  background: var(--paper2, #ede8dc);
 }
 
 .degree-setup-step--wide {
@@ -858,13 +874,13 @@ body.font-mono #degree-view * {
 .degree-setup-step input,
 .degree-setup-step textarea {
   width: 100%;
-  border: 1px solid var(--border, #ded4c6);
-  border-radius: 14px;
-  background: var(--paper, #f8f5ef);
+  border: 1px solid var(--border, rgba(26,22,18,0.12));
+  border-radius: var(--ui-radius-base, 8px);
+  background: var(--paper3, #faf7f2);
   color: var(--ink, #1f1c18);
-  padding: 11px 12px;
+  padding: 10px 12px;
   font: inherit;
-  font-size: 0.96rem;
+  font-size: 0.95rem;
 }
 
 .degree-setup-step textarea {
@@ -883,9 +899,9 @@ body.font-mono #degree-view * {
 .degree-weight-row,
 .degree-weight-total,
 .degree-conversion-card {
-  border: 1px solid var(--border, #ded4c6);
-  border-radius: 18px;
-  background: color-mix(in srgb, var(--paper, #f8f5ef) 78%, white);
+  border: 1px solid var(--border, rgba(26,22,18,0.12));
+  border-radius: var(--ui-radius-base, 8px);
+  background: var(--paper, #f5f0e8);
 }
 
 .degree-setup-year {
@@ -1003,21 +1019,21 @@ body.font-mono #degree-view * {
     padding-inline: 12px;
   }
 
-  .degree-page-header h1 {
-    font-size: 2.35rem;
+  .degree-page-title {
+    font-size: 1.6rem;
   }
 
   .degree-result-hero {
     min-height: 0;
-    padding: 24px;
+    padding: 20px;
   }
 
   .degree-result-mark {
-    font-size: clamp(3.4rem, 21vw, 5.4rem);
+    font-size: clamp(2.4rem, 14vw, 3.6rem);
   }
 
   .degree-result-tag {
-    font-size: 1.05rem;
+    font-size: 1rem;
   }
 
   .degree-hero-context,
@@ -1064,7 +1080,7 @@ body.font-mono #degree-view * {
     inset: auto 0 0 0;
     width: auto;
     max-height: 86vh;
-    border-radius: 28px 28px 0 0;
+    border-radius: 16px 16px 0 0;
     transform: none;
   }
 
