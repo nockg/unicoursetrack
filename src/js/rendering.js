@@ -40,6 +40,7 @@ export function setModuleSort(sortBy, sortDir) {
   if (!ys.moduleSort) ys.moduleSort = {};
   ys.moduleSort.sortBy = SORT_OPTIONS.some(([v]) => v === sortBy) ? sortBy : 'custom';
   if (sortDir !== undefined) ys.moduleSort.sortDir = sortDir === 'desc' ? 'desc' : 'asc';
+  if (ys.moduleSort.sortBy === 'missing') ys.moduleSort.sortDir = 'asc';
   save();
   buildModules();
 }
@@ -75,7 +76,7 @@ export function buildModules() {
         }
         case 'missing': {
           const fa = getModuleFinal(ai), fb = getModuleFinal(bi);
-          return dirMult * ((fa === null ? 0 : 1) - (fb === null ? 0 : 1));
+          return (fa === null ? 0 : 1) - (fb === null ? 0 : 1);
         }
         default: return 0;
       }
