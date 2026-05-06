@@ -1264,6 +1264,29 @@ h1 {
   margin: 0 auto;
   padding: 32px 20px 80px;
 }
+.modules-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.modules-toolbar-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.modules-sort-select {
+  font-size: 12px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
 .module {
   background: var(--paper3);
   border: 1px solid var(--border);

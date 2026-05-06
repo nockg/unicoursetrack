@@ -144,6 +144,7 @@ window.openDeadlineInCalendarByIndex = deadlines.openDeadlineInCalendarByIndex;
 
 // ── rendering.js ──────────────────────────────────────────────────────────────
 window.buildModules = rendering.buildModules;
+window.setModuleSort = rendering.setModuleSort;
 
 // ── years.js ──────────────────────────────────────────────────────────────────
 window.handleYearDropdown = years.handleYearDropdown;
