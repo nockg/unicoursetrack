@@ -7,9 +7,12 @@
 }
 
 .degree-view-page {
-  max-width: min(1280px, calc(100vw - 48px));
-  margin: 0 auto;
-  padding: 32px 0 60px;
+  max-width: 1320px;
+  margin-inline: auto;
+}
+
+#degree-dashboard-root {
+  padding: 28px 40px 60px;
 }
 
 /* ── Back button ─────────────────────────────────────────────────────────── */
@@ -117,27 +120,30 @@
 
 .degree-tabs {
   display: flex;
-  gap: 4px;
-  margin-bottom: 20px;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
 }
 
 .degree-tab {
-  padding: 7px 14px;
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 16px;
+  border-radius: 999px;
   font-size: 13px;
   font-weight: 500;
   color: var(--muted);
   text-decoration: none;
-  border-radius: var(--ui-radius-base) var(--ui-radius-base) 0 0;
-  border: 1px solid transparent;
-  border-bottom: none;
-  transition: color 0.14s, background 0.14s;
-  margin-bottom: -1px;
+  border: 1px solid var(--border2);
+  background: var(--paper2);
+  transition: color 0.14s, background 0.14s, border-color 0.14s;
+  cursor: pointer;
+  white-space: nowrap;
 }
 .degree-tab:hover {
   color: var(--ink);
-  background: var(--paper2);
+  border-color: var(--sumi);
+  background: var(--paper3, var(--paper2));
 }
 
 /* ── Onboarding / disabled state ─────────────────────────────────────────── */
@@ -190,8 +196,8 @@
 
 .degree-body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
-  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 20px;
   align-items: start;
 }
 
@@ -200,9 +206,9 @@
 }
 
 .degree-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  gap: 14px;
+  align-content: start;
 }
 
 /* ── Sidebar cards ───────────────────────────────────────────────────────── */
@@ -271,6 +277,10 @@
   font-weight: 700;
   color: var(--ink);
   line-height: 1;
+}
+
+.degree-result-value {
+  font-size: 2.6rem;
 }
 
 .degree-card-warn {
@@ -865,18 +875,13 @@ body.theme-dark .degree-rule-ok-inline { color: #9bd49a; }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   .degree-body {
     grid-template-columns: 1fr;
   }
 
   .degree-sidebar {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .degree-sidebar-card {
-    flex: 1 1 280px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
 
   .degree-top-cards {
@@ -885,9 +890,8 @@ body.theme-dark .degree-rule-ok-inline { color: #9bd49a; }
 }
 
 @media (max-width: 700px) {
-  .degree-view-page {
-    max-width: 100%;
-    padding: 16px 14px 40px;
+  #degree-dashboard-root {
+    padding: 18px 16px 40px;
   }
 
   .degree-header-row {
@@ -922,10 +926,10 @@ body.theme-dark .degree-rule-ok-inline { color: #9bd49a; }
 
 @media (max-width: 480px) {
   .degree-top-cards {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 
   .degree-sidebar {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 }
