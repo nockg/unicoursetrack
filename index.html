@@ -149,7 +149,7 @@
   </button>
   <button class="nav-btn" onclick="openDeadlineTimeline()">Deadlines</button>
   <button class="nav-btn" onclick="toggleTodoPlanner()">To-Do List</button>
-  <button class="nav-btn dashboard-nav-btn" onclick="openDashboard()">Dashboard</button>
+  <button class="nav-btn dashboard-nav-btn" onclick="openDashboard()">Degree Overview</button>
   <button class="nav-btn" onclick="addModuleToCurrentYear()">Add Module</button>
   <button class="nav-btn prefs-toggle-btn" onclick="togglePreferences()">Preferences</button>
   <button class="nav-btn" id="auth-btn" onclick="openAuthModal()">Account</button>
@@ -322,7 +322,7 @@
 
       <div class="dash-actions-card">
         <button class="washi-card dash-launch dash-hero-btn" type="button" onclick="openDashboard()">
-          <span class="dash-launch-icon">Dashboard</span>
+          <span class="dash-launch-icon">Degree Overview</span>
         </button>
         <button class="washi-card dash-launch dash-hero-btn dash-library-launch" type="button" onclick="openModuleLibrary(null, 'both', event)">
           <span class="dash-launch-icon">All Modules Library</span>
@@ -340,33 +340,22 @@
   </div>
 </div>
 
-<div id="dashboard-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-label="Dashboard">
-  <div class="dashboard-content">
-    <button class="dashboard-close" type="button" aria-label="Close dashboard" onclick="closeDashboard()">&times;</button>
-    <div class="dashboard-title">Dashboard</div>
-    <div class="dashboard-grid">
-      <div class="dashboard-card">
-        <div class="dashboard-card-title">Year Predictor</div>
-        <div class="dashboard-score predictor-big" id="dash-predictor">-</div>
-        <div class="dashboard-subtitle" id="dash-status">Enter marks below</div>
-        <div id="dash-badge"></div>
-      </div>
-      <div class="dashboard-card">
-        <div class="dashboard-card-title">Overall Stats</div>
-        <div class="dashboard-score" id="dash-completion">0%</div>
-        <div class="dashboard-subtitle" id="dash-credits">0 / 120 credits</div>
-      </div>
-      <div class="dashboard-card dashboard-wide">
-        <div class="dashboard-card-title">Semester Breakdown</div>
-        <div class="term-summary-grid" id="dash-term-summary"></div>
-      </div>
-      <div class="dashboard-card dashboard-wide">
-        <div class="dashboard-card-title">Module Progress</div>
-        <div class="dashboard-chart-wrap">
-          <canvas id="dashboard-chart"></canvas>
-        </div>
-      </div>
-    </div>
+<div id="dashboard-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-label="Degree Overview">
+  <div class="dashboard-content degree-overview-content">
+    <button class="dashboard-close" type="button" aria-label="Close degree overview" onclick="closeDashboard()">&times;</button>
+    <div id="degree-overview-root"></div>
+  </div>
+</div>
+
+<div id="degree-policy-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-label="Degree Policy Setup">
+  <div class="dashboard-content degree-policy-content">
+    <div id="degree-policy-root"></div>
+  </div>
+</div>
+
+<div id="degree-year-modal" class="dashboard-modal hidden" role="dialog" aria-modal="true" aria-label="Year Details">
+  <div class="dashboard-content degree-year-content">
+    <div id="degree-year-root"></div>
   </div>
 </div>
 

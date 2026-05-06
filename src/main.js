@@ -11,6 +11,7 @@ import * as dashboard from './js/dashboard.js';
 import * as grading from './js/grading.js';
 import * as library from './js/library.js';
 import * as account from './js/account.js';
+import * as degree from './js/degree.js';
 
 // ── state.js ──────────────────────────────────────────────────────────────────
 window.getStore = state.getStore;
@@ -229,6 +230,18 @@ window.closeDashboard = dashboard.closeDashboard;
 window.updatePredictor = dashboard.updatePredictor;
 window.renderDashboardTermSummary = dashboard.renderDashboardTermSummary;
 window.renderDashboardChart = dashboard.renderDashboardChart;
+
+// Degree overview
+window.renderDegreeOverview = degree.renderDegreeOverview;
+window.openDegreePolicySetup = degree.openDegreePolicySetup;
+window.closeDegreePolicySetup = degree.closeDegreePolicySetup;
+window.refreshDegreePolicyDraft = degree.refreshDegreePolicyDraft;
+window.applyDegreePolicyTemplate = degree.applyDegreePolicyTemplate;
+window.saveDegreePolicySetup = degree.saveDegreePolicySetup;
+window.openDegreeYearDetails = degree.openDegreeYearDetails;
+window.closeDegreeYearDetails = degree.closeDegreeYearDetails;
+window.openDegreeYearInTracker = degree.openDegreeYearInTracker;
+window.toggleDegreeStatusDetails = degree.toggleDegreeStatusDetails;
 
 // ── grading.js ────────────────────────────────────────────────────────────────
 window.ensureStoreTermOptions = grading.ensureStoreTermOptions;
