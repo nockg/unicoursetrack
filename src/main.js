@@ -317,17 +317,18 @@ window.getRegisteredLibraryFolders = library.getRegisteredLibraryFolders;
 window.renderAccountPanel = account.renderAccountPanel;
 
 // ── degree-dashboard.js ───────────────────────────────────────────────────────
-window.showDegreeView          = degreeDashboard.showDegreeView;
-window.showTrackerView         = degreeDashboard.showTrackerView;
-window.renderDegreeDashboard   = degreeDashboard.renderDegreeDashboard;
-window.toggleDegreePolicy      = degreeDashboard.toggleDegreePolicy;
-window.setDegreePolicyPreset   = degreeDashboard.setDegreePolicyPreset;
-window.setDegreeOutputYear     = degreeDashboard.setDegreeOutputYear;
-window.setYearRuleStatus       = degreeDashboard.setYearRuleStatus;
-window.setYearRuleWeight       = degreeDashboard.setYearRuleWeight;
-window.setYearRuleReason       = degreeDashboard.setYearRuleReason;
-window.setYearConvertedValue   = degreeDashboard.setYearConvertedValue;
-window.setYearConversionNote   = degreeDashboard.setYearConversionNote;
+window.showDegreeView             = degreeDashboard.showDegreeView;
+window.showTrackerView            = degreeDashboard.showTrackerView;
+window.renderDegreeDashboard      = degreeDashboard.renderDegreeDashboard;
+window.toggleDegreePolicy         = degreeDashboard.toggleDegreePolicy;
+window.toggleDegreePolicyEditor   = degreeDashboard.toggleDegreePolicyEditor;
+window.setDegreePolicyPreset      = degreeDashboard.setDegreePolicyPreset;
+window.setDegreeOutputYear        = degreeDashboard.setDegreeOutputYear;
+window.setYearRuleStatus          = degreeDashboard.setYearRuleStatus;
+window.setYearRuleWeight          = degreeDashboard.setYearRuleWeight;
+window.setYearRuleReason          = degreeDashboard.setYearRuleReason;
+window.setYearConvertedValue      = degreeDashboard.setYearConvertedValue;
+window.setYearConversionNote      = degreeDashboard.setYearConversionNote;
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 bootApp();

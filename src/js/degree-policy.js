@@ -6,7 +6,7 @@
  */
 import { store } from './store.js';
 import { save } from './state.js';
-import { getGradingSystem, classify, formatSelectedGrade } from './grading.js';
+import { getGradingSystem, parseGradeValue, getCustomGradeOptions, classify, formatSelectedGrade } from './grading.js';
 
 // ── Labels and constants ───────────────────────────────────────────────────
 
@@ -44,21 +44,29 @@ export const CONFIDENCE_DETAILS = {
   low:    'Large amount of missing data or manual conversion.',
 };
 
+// 'weightedYears'           — sum(yearValue × yearWeight) / sum(weights)
+// 'creditWeightedAllIncluded' — credit-weighted average across all graded modules
+//                               in included years (true WAM / cumulative GPA)
+export const DEGREE_MODES = {
+  weightedYears:            'Year-weighted',
+  creditWeightedAllIncluded: 'Credit-weighted across all included modules',
+};
+
 export const DEGREE_PRESETS = [
-  { id: 'manual',              label: 'Manual — custom weights',                             group: 'Generic'    },
-  { id: 'equal',               label: 'Equal year weighting',                                group: 'Generic'    },
-  { id: 'foundation_excluded', label: 'Foundation year (Year 1) excluded, equal rest',       group: 'Generic'    },
-  { id: 'placement_excluded',  label: 'Placement / study-abroad year excluded',              group: 'Generic'    },
-  { id: 'uk_0_40_60',          label: 'Year 1: 0%, Year 2: 40%, Year 3: 60%',               group: 'UK'         },
-  { id: 'uk_0_33_67',          label: 'Year 1: 0%, Year 2: 33.3%, Year 3: 66.7%',           group: 'UK'         },
-  { id: 'uk_honours_only',     label: 'Honours years only (final 2 years, equal weight)',   group: 'UK'         },
-  { id: 'us_cumulative_gpa',   label: 'Cumulative GPA by credits (all years equal)',         group: 'US'         },
-  { id: 'au_wam',              label: 'WAM / credit-weighted average (all years equal)',     group: 'Australia'  },
-  { id: 'au_gpa',              label: 'GPA credit-weighted average (all years equal)',       group: 'Australia'  },
-  { id: 'my_cgpa',             label: 'GPA / CGPA credit-weighted average (all years)',      group: 'Malaysia'   },
-  { id: 'cn_100pt',            label: '100-point credit-weighted average (all years)',       group: 'China'      },
-  { id: 'nz_gpa',              label: 'GPA credit/points-weighted average (all years)',      group: 'New Zealand'},
-  { id: 'de_weighted',         label: 'Weighted final grade — lower is better (all years)', group: 'Germany'    },
+  { id: 'manual',              label: 'Manual — custom weights',                             group: 'Generic',     mode: 'weightedYears'            },
+  { id: 'equal',               label: 'Equal year weighting',                                group: 'Generic',     mode: 'weightedYears'            },
+  { id: 'foundation_excluded', label: 'Foundation year (Year 1) excluded, equal rest',       group: 'Generic',     mode: 'weightedYears'            },
+  { id: 'placement_excluded',  label: 'Placement / study-abroad year excluded',              group: 'Generic',     mode: 'weightedYears'            },
+  { id: 'uk_0_40_60',          label: 'Year 1: 0%, Year 2: 40%, Year 3: 60%',               group: 'UK',          mode: 'weightedYears'            },
+  { id: 'uk_0_33_67',          label: 'Year 1: 0%, Year 2: 33.3%, Year 3: 66.7%',           group: 'UK',          mode: 'weightedYears'            },
+  { id: 'uk_honours_only',     label: 'Honours years only (final 2 years, equal weight)',   group: 'UK',          mode: 'weightedYears'            },
+  { id: 'us_cumulative_gpa',   label: 'Cumulative GPA by credits (all years)',               group: 'US',          mode: 'creditWeightedAllIncluded'},
+  { id: 'au_wam',              label: 'WAM — credit-weighted average (all years)',           group: 'Australia',   mode: 'creditWeightedAllIncluded'},
+  { id: 'au_gpa',              label: 'GPA credit-weighted average (all years)',             group: 'Australia',   mode: 'creditWeightedAllIncluded'},
+  { id: 'my_cgpa',             label: 'GPA / CGPA credit-weighted average (all years)',      group: 'Malaysia',    mode: 'creditWeightedAllIncluded'},
+  { id: 'cn_100pt',            label: '100-point credit-weighted average (all years)',       group: 'China',       mode: 'creditWeightedAllIncluded'},
+  { id: 'nz_gpa',              label: 'GPA credit/points-weighted average (all years)',      group: 'New Zealand', mode: 'creditWeightedAllIncluded'},
+  { id: 'de_weighted',         label: 'Weighted final grade — lower is better (all years)', group: 'Germany',     mode: 'creditWeightedAllIncluded'},
 ];
 
 // ── Default data model ─────────────────────────────────────────────────────
@@ -67,6 +75,7 @@ export function getDefaultDegreePolicy() {
   return {
     enabled: false,
     presetId: 'manual',
+    mode: 'weightedYears',
     outputSystemMode: 'graduatingYear',
     outputYearId: null,
     outputGradingSystem: null,
@@ -90,12 +99,15 @@ export function getDegreePolicy() {
   if (!store.state.degreePolicy) {
     store.state.degreePolicy = getDefaultDegreePolicy();
   }
+  // Back-fill mode for policies saved before this field existed
+  if (!store.state.degreePolicy.mode) {
+    store.state.degreePolicy.mode = 'weightedYears';
+  }
   return store.state.degreePolicy;
 }
 
 export function saveDegreePolicy(patch = {}) {
-  const policy = getDegreePolicy();
-  Object.assign(policy, patch);
+  Object.assign(getDegreePolicy(), patch);
   save();
 }
 
@@ -108,11 +120,9 @@ export function getYearRule(yearId) {
 }
 
 export function getDegreeOutputYear() {
-  const policy = getDegreePolicy();
-  const years = store.state.years || {};
-  if (policy.outputYearId && years[policy.outputYearId]) {
-    return years[policy.outputYearId];
-  }
+  const policy  = getDegreePolicy();
+  const years   = store.state.years || {};
+  if (policy.outputYearId && years[policy.outputYearId]) return years[policy.outputYearId];
   const ids = Object.keys(years);
   return ids.length ? years[ids[ids.length - 1]] : null;
 }
@@ -126,25 +136,42 @@ export function getDegreeOutputSystem() {
   return policy.outputGradingSystem || getGradingSystem();
 }
 
-// ── Per-year aggregate computation ─────────────────────────────────────────
+// ── Grade parsing (year-aware, handles custom mappings per year) ────────────
 
-function getYearModuleFinal(mod, mi, ys, system) {
-  const cwPct  = Number(mod.cw)   || 0;
-  const exPct  = Number(mod.exam) || 0;
-  const total  = cwPct + exPct;
+function parseGradeValueForYear(raw, yearId) {
+  if (raw === undefined || raw === null || raw === '') return null;
+  const system = getGradingSystem(yearId);
 
-  const parseFg = (raw) => (raw !== undefined && raw !== '' && raw !== null) ? Number(raw) || null : null;
-
-  // Non-UK, non-prediction-mode: direct final grade takes priority
-  if (system !== 'uk' && total <= 0) {
-    return parseFg(ys.finalGrades?.[mi]);
+  if (system === 'custom') {
+    const opts = getCustomGradeOptions(yearId);
+    const code = String(raw).trim().toUpperCase();
+    const found = opts.find((o) => (o.code || o.label || '').toUpperCase() === code);
+    if (found) return Number(found.value) ?? null;
+    const n = parseFloat(raw);
+    return isNaN(n) ? null : n;
   }
 
-  // Non-UK prediction mode or UK: derive from CW + exam inputs
-  if (total <= 0) return parseFg(ys.finalGrades?.[mi]);
+  return parseGradeValue(raw, system);
+}
 
-  const cwVal = parseFg(ys.coursework?.[mi]);
-  const exVal = parseFg(ys.exams?.[mi]);
+// ── Per-year aggregate computation ─────────────────────────────────────────
+
+function getYearModuleFinal(mod, mi, ys, yearId) {
+  const system  = getGradingSystem(yearId);
+  const cwPct   = Number(mod.cw)   || 0;
+  const exPct   = Number(mod.exam) || 0;
+  const total   = cwPct + exPct;
+
+  // Non-UK with no prediction weights: use direct final grade entry
+  if (system !== 'uk' && total <= 0) {
+    return parseGradeValueForYear(ys.finalGrades?.[mi], yearId);
+  }
+
+  // UK (always derived) or prediction mode (cw+exam weights set)
+  if (total <= 0) return parseGradeValueForYear(ys.finalGrades?.[mi], yearId);
+
+  const cwVal = parseGradeValueForYear(ys.coursework?.[mi], yearId);
+  const exVal = parseGradeValueForYear(ys.exams?.[mi], yearId);
 
   if (cwPct > 0 && exPct === 0) return cwVal;
   if (exPct > 0 && cwPct === 0) return exVal;
@@ -164,7 +191,7 @@ export function computeYearAggregate(yearId) {
   modules.forEach((mod, mi) => {
     const c     = Number(mod.credits) || 0;
     attempted  += c;
-    const final = getYearModuleFinal(mod, mi, ys, system);
+    const final = getYearModuleFinal(mod, mi, ys, yearId);
     if (final !== null && !isNaN(final)) {
       weighted      += final * c;
       gradedCredits += c;
@@ -197,12 +224,12 @@ export function getYearDegreeValue(yearId) {
 // ── Validation ─────────────────────────────────────────────────────────────
 
 export function validateDegreePolicy() {
-  const policy      = getDegreePolicy();
-  const years       = store.state.years || {};
-  const yearIds     = Object.keys(years);
+  const policy       = getDegreePolicy();
+  const years        = store.state.years || {};
+  const yearIds      = Object.keys(years);
   const outputSystem = getDegreeOutputSystem();
-  const warnings    = [];
-  const blockers    = [];
+  const warnings     = [];
+  const blockers     = [];
 
   if (!policy.enabled) {
     return { canCompute: false, warnings: [], blockers: ['Degree policy not enabled.'], totalWeight: 0 };
@@ -216,7 +243,9 @@ export function validateDegreePolicy() {
 
   if (!includedIds.length) blockers.push('No years are included in the degree prediction.');
 
+  const isCreditWeighted = policy.mode === 'creditWeightedAllIncluded';
   let totalWeight = 0;
+
   includedIds.forEach((id) => {
     const rule       = getYearRule(id);
     const yearSystem = getGradingSystem(id);
@@ -239,14 +268,15 @@ export function validateDegreePolicy() {
     }
   });
 
-  if (includedIds.length > 0 && totalWeight === 0) {
-    blockers.push('Year weights total 0%. Set weights for included years.');
-  }
-
-  if (totalWeight > 0 && Math.abs(totalWeight - 100) > 0.5) {
-    warnings.push(
-      `Year weights total ${totalWeight.toFixed(1)}% (not 100%). UniTrack will normalise them for this estimate.`,
-    );
+  if (!isCreditWeighted) {
+    if (includedIds.length > 0 && totalWeight === 0) {
+      blockers.push('Year weights total 0%. Set weights for included years.');
+    }
+    if (totalWeight > 0 && Math.abs(totalWeight - 100) > 0.5) {
+      warnings.push(
+        `Year weights total ${totalWeight.toFixed(1)}% (not 100%). UniTrack will normalise them for this estimate.`,
+      );
+    }
   }
 
   return { canCompute: blockers.length === 0, warnings, blockers, totalWeight };
@@ -257,13 +287,72 @@ export function validateDegreePolicy() {
 export function calculateDegreePrediction() {
   if (!validateDegreePolicy().canCompute) return null;
 
+  const policy       = getDegreePolicy();
   const years        = store.state.years || {};
   const yearIds      = Object.keys(years);
   const outputSystem = getDegreeOutputSystem();
 
-  let weightedSum = 0, totalWeight = 0;
   let actualCredits = 0, missingCredits = 0;
   let hasManualConversion = false, hasMissing = false;
+
+  // ── Credit-weighted mode ──────────────────────────────────────────────────
+  if (policy.mode === 'creditWeightedAllIncluded') {
+    let weighted = 0, totalCredits = 0;
+
+    yearIds.forEach((id) => {
+      const rule = getYearRule(id);
+      if (rule.status === 'excluded') return;
+
+      if (rule.status === 'manualConversion') {
+        // Manual conversion years contribute via their converted value × year credits
+        const v = getYearDegreeValue(id);
+        if (v === null) return;
+        const agg = computeYearAggregate(id);
+        const credits = agg?.attempted || 0;
+        if (credits > 0) {
+          weighted     += v * credits;
+          totalCredits += credits;
+          hasManualConversion = true;
+          actualCredits += agg?.gradedCredits || 0;
+          missingCredits += agg?.missing || 0;
+          if ((agg?.missing || 0) > 0) hasMissing = true;
+        }
+        return;
+      }
+
+      // Included years: sum module-level grades directly
+      const year    = store.state.years[id];
+      const ys      = year.store;
+      const modules = ys.modules || [];
+
+      modules.forEach((mod, mi) => {
+        const c     = Number(mod.credits) || 0;
+        missingCredits += c; // tentatively count as missing
+        const final = getYearModuleFinal(mod, mi, ys, id);
+        if (final !== null && !isNaN(final)) {
+          weighted       += final * c;
+          totalCredits   += c;
+          actualCredits  += c;
+          missingCredits -= c; // not missing
+        } else {
+          hasMissing = true;
+        }
+      });
+    });
+
+    if (totalCredits === 0) return null;
+
+    const value      = weighted / totalCredits;
+    const confidence = hasManualConversion          ? 'medium'
+      : hasMissing && missingCredits > actualCredits ? 'low'
+      : hasMissing                                   ? 'medium'
+      :                                                'high';
+
+    return { value, outputSystem, confidence, totalWeight: 100, actualCredits, missingCredits, hasManualConversion, mode: 'creditWeightedAllIncluded' };
+  }
+
+  // ── Year-weighted mode ────────────────────────────────────────────────────
+  let weightedSum = 0, totalWeight = 0;
 
   yearIds.forEach((id) => {
     const rule = getYearRule(id);
@@ -272,8 +361,8 @@ export function calculateDegreePrediction() {
     if (val === null) return;
 
     const w = Number(rule.weight) || 0;
-    weightedSum   += val * w;
-    totalWeight   += w;
+    weightedSum  += val * w;
+    totalWeight  += w;
     if (rule.status === 'manualConversion') hasManualConversion = true;
 
     const agg = computeYearAggregate(id);
@@ -292,26 +381,31 @@ export function calculateDegreePrediction() {
     : hasMissing                                   ? 'medium'
     :                                                'high';
 
-  return { value, outputSystem, confidence, totalWeight, actualCredits, missingCredits, hasManualConversion };
+  return { value, outputSystem, confidence, totalWeight, actualCredits, missingCredits, hasManualConversion, mode: 'weightedYears' };
 }
 
 // ── Preset application ──────────────────────────────────────────────────────
 
 export function applyPreset(presetId) {
   const policy  = getDegreePolicy();
+  const preset  = DEGREE_PRESETS.find((p) => p.id === presetId);
   const years   = store.state.years || {};
   const yearIds = Object.keys(years);
   const n       = yearIds.length;
   if (!n) return;
 
   policy.presetId  = presetId;
+  policy.mode      = preset?.mode || 'weightedYears';
   policy.yearRules = {};
 
   const setRule = (id, status, weight, reason = '') => {
     policy.yearRules[id] = { ...getDefaultYearRule(), status, weight, reason };
   };
 
-  const eqW = (count) => parseFloat((100 / count).toFixed(2));
+  const eqW  = (count) => parseFloat((100 / count).toFixed(2));
+  const isCW = policy.mode === 'creditWeightedAllIncluded';
+  // For credit-weighted presets, year weights are unused in the calculation,
+  // but we still set equal weights so the UI shows something reasonable.
 
   switch (presetId) {
     case 'manual':
@@ -373,6 +467,7 @@ export function applyPreset(presetId) {
     case 'cn_100pt':
     case 'nz_gpa':
     case 'de_weighted':
+      // Credit-weighted: all years included (year weights shown but not used in calc)
       yearIds.forEach((id) => setRule(id, 'included', eqW(n)));
       break;
 

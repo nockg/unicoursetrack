@@ -363,8 +363,7 @@ export function classifyGermanGrade(mark) {
   return { label: 'Fail', badge: 'Fail', cls: '', heroCls: '' };
 }
 
-export function classify(mark) {
-  const system = getGradingSystem();
+export function classify(mark, system = getGradingSystem()) {
   if (system === 'de5') return classifyGermanGrade(mark);
   if (system === 'cn4') return classifyChinaScore(mark);
   if (system === 'au7') return classifyAuGpa(mark);
@@ -440,9 +439,8 @@ export function formatGradeInputValue(value) {
   return getGradingSystem() === 'uk' ? value.toFixed(1) : value.toFixed(2);
 }
 
-export function formatSelectedGrade(mark, options = {}) {
+export function formatSelectedGrade(mark, options = {}, system = getGradingSystem()) {
   if (mark === null || mark === undefined) return { main: '-', label: '', secondary: '' };
-  const system = getGradingSystem();
   if (['us4', 'us43', 'my4'].includes(system)) {
     const exact = options.courseDisplay ? getGradeOption(system, options.rawValue) : null;
     const grade = exact || (system === 'my4' ? classifyMalaysianGpa(mark) : classifyFourPointGpa(mark));
@@ -479,7 +477,7 @@ export function formatSelectedGrade(mark, options = {}) {
     return { main: `${mark.toFixed(2)} grade`, label: grade.label, secondary: 'Lower is better' };
   }
   const percent = `${mark.toFixed(1)}%`;
-  const cls = classify(mark);
+  const cls = classify(mark, system);
   return { main: percent, label: cls?.label || '', secondary: '' };
 }
 
