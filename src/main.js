@@ -138,6 +138,7 @@ window.closeDeadlineTimeline = deadlines.closeDeadlineTimeline;
 window.setupDeadlineBarScrolling = deadlines.setupDeadlineBarScrolling;
 window.setDeadlineFormType = deadlines.setDeadlineFormType;
 window.updateDeadlineFormMode = deadlines.updateDeadlineFormMode;
+window.setDeadlinePriority = deadlines.setDeadlinePriority;
 window.setCalendarComposerPriority = deadlines.setCalendarComposerPriority;
 window.openDeadlineInCalendarByIndex = deadlines.openDeadlineInCalendarByIndex;
 

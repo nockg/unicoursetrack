@@ -56,7 +56,7 @@ function renderDeadlineModuleOptions(value = '') {
 
 // ── Priority UI ────────────────────────────────────────────────────────────
 
-function setDeadlinePriority(priority = 'default') {
+export function setDeadlinePriority(priority = 'default') {
   const selected = DEADLINE_PRIORITY_COLOURS[priority] ? priority : 'default';
   document.querySelectorAll('#deadline-priority-row .priority-choice').forEach((button) => {
     button.classList.toggle('active', button.dataset.priority === selected);
