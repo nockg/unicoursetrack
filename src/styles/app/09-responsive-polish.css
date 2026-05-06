@@ -2106,13 +2106,7 @@ body.theme-dark :focus-visible {
     margin-bottom: 18px;
   }
 
-  .hero-title-year {
-    display: block;
-  }
-
-
   .hero-title-course {
-    display: block;
     overflow-wrap: break-word;
   }
 

@@ -509,7 +509,7 @@ h1 {
 }
 
 .hero-title-year {
-  white-space: nowrap;
+  display: block;
 }
 
 
