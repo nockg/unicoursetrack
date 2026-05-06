@@ -11,6 +11,7 @@ import * as dashboard from './js/dashboard.js';
 import * as grading from './js/grading.js';
 import * as library from './js/library.js';
 import * as account from './js/account.js';
+import * as degreeDashboard from './js/degree-dashboard.js';
 
 // ── state.js ──────────────────────────────────────────────────────────────────
 window.getStore = state.getStore;
@@ -314,6 +315,19 @@ window.getRegisteredLibraryFolders = library.getRegisteredLibraryFolders;
 
 // ── account.js ────────────────────────────────────────────────────────────────
 window.renderAccountPanel = account.renderAccountPanel;
+
+// ── degree-dashboard.js ───────────────────────────────────────────────────────
+window.showDegreeView          = degreeDashboard.showDegreeView;
+window.showTrackerView         = degreeDashboard.showTrackerView;
+window.renderDegreeDashboard   = degreeDashboard.renderDegreeDashboard;
+window.toggleDegreePolicy      = degreeDashboard.toggleDegreePolicy;
+window.setDegreePolicyPreset   = degreeDashboard.setDegreePolicyPreset;
+window.setDegreeOutputYear     = degreeDashboard.setDegreeOutputYear;
+window.setYearRuleStatus       = degreeDashboard.setYearRuleStatus;
+window.setYearRuleWeight       = degreeDashboard.setYearRuleWeight;
+window.setYearRuleReason       = degreeDashboard.setYearRuleReason;
+window.setYearConvertedValue   = degreeDashboard.setYearConvertedValue;
+window.setYearConversionNote   = degreeDashboard.setYearConversionNote;
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 bootApp();

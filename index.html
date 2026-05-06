@@ -150,6 +150,7 @@
   <button class="nav-btn" onclick="openDeadlineTimeline()">Deadlines</button>
   <button class="nav-btn" onclick="toggleTodoPlanner()">To-Do List</button>
   <button class="nav-btn dashboard-nav-btn" onclick="openDashboard()">Dashboard</button>
+  <button class="nav-btn degree-overview-btn" onclick="showDegreeView()">Degree Overview</button>
   <button class="nav-btn" onclick="addModuleToCurrentYear()">Add Module</button>
   <button class="nav-btn prefs-toggle-btn" onclick="togglePreferences()">Preferences</button>
   <button class="nav-btn" id="auth-btn" onclick="openAuthModal()">Account</button>
@@ -853,6 +854,12 @@
   </div>
 </div>
 </main>
+
+<div id="degree-view" class="hidden" role="main" aria-label="Degree Overview">
+  <div class="degree-view-page">
+    <div id="degree-dashboard-root"></div>
+  </div>
+</div>
 
 <script src="/config.js"></script>
 <script type="module" src="/src/main.js"></script>

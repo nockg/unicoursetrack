@@ -18,7 +18,8 @@ const cssFiles = [
   '09-responsive-polish.css',
   '10-account-panel.css'
 ,
-  '12-responsive.css'].filter((file) => existsSync(join(root, 'src/styles/app', file)));
+  '12-responsive.css',
+  'degree-dashboard.css'].filter((file) => existsSync(join(root, 'src/styles/app', file)));
 
 const jsFiles = [
   '00-config-auth-state.js',
