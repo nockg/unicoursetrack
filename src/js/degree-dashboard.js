@@ -55,7 +55,7 @@ export function renderDegreeDashboard() {
   const model = buildDashboardModel();
 
   if (!model.yearIds.length) {
-    root.innerHTML = renderHeader()
+    root.innerHTML = renderHeader(model)
       + '<section class="degree-empty-state">'
       + '<div class="degree-empty-mark" aria-hidden="true">UT</div>'
       + '<h2>No academic years yet</h2>'
@@ -65,8 +65,8 @@ export function renderDegreeDashboard() {
     return;
   }
 
-  root.innerHTML = renderHeader()
-    + '<main class="degree-command-centre" aria-label="Degree Overview command centre">'
+  root.innerHTML = renderHeader(model)
+    + '<main class="degree-command-centre" aria-label="Degree Overview">'
     + '<section class="degree-forecast-section" aria-labelledby="degree-forecast-title">'
     + '<div class="degree-section-heading">'
     + '<p class="degree-section-kicker">Degree Forecast</p>'
@@ -163,12 +163,17 @@ function buildYearSummary(yearId, year, policy, outputSystem) {
 
 // Sections -----------------------------------------------------------------
 
-function renderHeader() {
+function renderHeader(model = null) {
+  const anchorYearId = model?.outputYear?.id || model?.yearIds?.[0] || store.state.ui?.currentYearId;
+  const course = getEffectiveCourse(anchorYearId) || 'Degree Overview';
+  const university = getEffectiveUniversity(anchorYearId);
+  const years = model?.summaries?.length ? `${model.summaries.length} academic years` : 'Academic record';
+
   return '<header class="degree-page-header">'
     + '<div>'
     + '<p class="degree-eyebrow">Degree Overview</p>'
-    + '<h1>Degree command centre</h1>'
-    + '<p>See the forecast, what counts, and where to inspect the detail without turning the page into a data report.</p>'
+    + `<h1>${escapeHtml(course)}</h1>`
+    + `<p>${escapeHtml(university ? `${university} · ${years}` : years)}. Forecast your degree result, see which years count, and inspect details only when needed.</p>`
     + '</div>'
     + '<button class="degree-quiet-btn" type="button" onclick="showTrackerView()">Back to Tracker</button>'
     + '</header>';
@@ -178,8 +183,8 @@ function renderForecastHero(model) {
   const outputLabel = getSystemLabel(model.outputSystem);
 
   if (model.prediction) {
-    const grade = formatDegreeResult(model.prediction.mark, model.outputSystem);
-    const tag = getClassificationTag(model.prediction.mark, model.outputSystem);
+    const grade = formatDegreeResult(model.prediction.value, model.outputSystem);
+    const tag = getClassificationTag(model.prediction.value, model.outputSystem);
     const outputYearLabel = model.outputYear?.label || 'graduating year';
 
     return '<article class="degree-result-hero degree-surface">'
@@ -464,14 +469,18 @@ function renderYearDetailsPanel(model) {
 
   const value = summary.degreeValue ?? summary.aggregate?.value;
   const displaySystem = summary.hasConversion ? model.outputSystem : summary.nativeSystem;
-  const details = [
+  const identityDetails = [
     ['Institution', getEffectiveUniversity(summary.id)],
     ['Course / programme', getEffectiveCourse(summary.id)],
     ['Academic year', getEffectiveAcademicYearLabel(summary.id)],
     ['Grading system', getSystemLabel(summary.nativeSystem)],
+  ];
+  const degreeDetails = [
     ['Degree status', getYearStatusText(summary)],
     ['Degree weight', summary.counts ? `${formatWeight(summary.rule.weight)}%` : '0%'],
     ['Compatibility', summary.blocked ? 'Needs manual conversion' : 'Compatible'],
+  ];
+  const academicDetails = [
     ['Year prediction', value === null || value === undefined ? 'Not enough marks' : formatDegreeResult(value, displaySystem)],
     ['Classification / tag', value === null || value === undefined ? 'Pending' : getClassificationTag(value, displaySystem)],
     ['Credits graded', `${summary.aggregate.gradedCredits || 0}`],
@@ -480,31 +489,51 @@ function renderYearDetailsPanel(model) {
   ];
 
   if (summary.hasConversion || summary.needsConversion) {
-    details.push(['Original result', summary.aggregate.value === null || summary.aggregate.value === undefined ? 'Not enough marks' : formatDegreeResult(summary.aggregate.value, summary.nativeSystem)]);
-    details.push(['Converted value used', Number.isFinite(Number(summary.rule.convertedValue)) ? formatDegreeResult(Number(summary.rule.convertedValue), model.outputSystem) : 'Not set']);
-    details.push(['Conversion note', summary.rule.conversionNote || 'No conversion note yet']);
+    degreeDetails.push(['Original result', summary.aggregate.value === null || summary.aggregate.value === undefined ? 'Not enough marks' : formatDegreeResult(summary.aggregate.value, summary.nativeSystem)]);
+    degreeDetails.push(['Converted value used', Number.isFinite(Number(summary.rule.convertedValue)) ? formatDegreeResult(Number(summary.rule.convertedValue), model.outputSystem) : 'Not set']);
+    degreeDetails.push(['Conversion note', summary.rule.conversionNote || 'No conversion note yet']);
   }
 
   if (!summary.counts) {
-    details.push(['Reason for exclusion', summary.excludedReason]);
+    degreeDetails.push(['Reason for exclusion', summary.excludedReason]);
   }
 
   return '<div class="degree-modal-backdrop" role="presentation" onclick="closeDegreeYearDetails()">'
-    + '<aside class="degree-year-panel" role="dialog" aria-modal="true" aria-labelledby="degree-year-panel-title" onclick="event.stopPropagation()">'
+    + '<section class="degree-year-panel" role="dialog" aria-modal="true" aria-labelledby="degree-year-panel-title" onclick="event.stopPropagation()">'
     + '<div class="degree-panel-topline">'
     + `<p>${escapeHtml(getYearStatusText(summary))}</p>`
-    + '<button type="button" class="degree-icon-btn" onclick="closeDegreeYearDetails()" aria-label="Close year details">x</button>'
+    + '<button type="button" class="degree-icon-btn" onclick="closeDegreeYearDetails()" aria-label="Close year details">&times;</button>'
     + '</div>'
+    + '<div class="degree-year-panel-hero">'
+    + '<div>'
     + `<h2 id="degree-year-panel-title">${escapeHtml(summary.year?.label || summary.id)}</h2>`
-    + '<dl class="degree-details-list">'
-    + details.map(([label, valueText]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(valueText)}</dd></div>`).join('')
-    + '</dl>'
+    + `<p>${escapeHtml(getEffectiveCourse(summary.id) || 'Course')} · ${escapeHtml(getEffectiveUniversity(summary.id) || 'Institution')}</p>`
+    + '</div>'
+    + '<div class="degree-year-panel-result">'
+    + `<strong>${escapeHtml(value === null || value === undefined ? 'Pending' : formatDegreeResult(value, displaySystem))}</strong>`
+    + `<span>${escapeHtml(value === null || value === undefined ? getYearStatusText(summary) : getClassificationTag(value, displaySystem))}</span>`
+    + '</div>'
+    + '</div>'
+    + '<div class="degree-detail-groups">'
+    + renderDetailGroup('Year identity', identityDetails)
+    + renderDetailGroup('Degree calculation', degreeDetails)
+    + renderDetailGroup('Academic result', academicDetails)
+    + '</div>'
     + '<div class="degree-panel-actions">'
     + `<button class="degree-primary-btn" type="button" onclick="openDegreeYearInTracker('${escapeHtml(summary.id)}')">Open in Tracker</button>`
     + '<button class="degree-quiet-btn" type="button" onclick="closeDegreeYearDetails()">Close</button>'
     + '</div>'
-    + '</aside>'
+    + '</section>'
     + '</div>';
+}
+
+function renderDetailGroup(title, items) {
+  return '<article class="degree-detail-group">'
+    + `<h3>${escapeHtml(title)}</h3>`
+    + '<dl class="degree-details-list">'
+    + items.map(([label, valueText]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(valueText || 'Not set')}</dd></div>`).join('')
+    + '</dl>'
+    + '</article>';
 }
 
 export function openDegreeYearDetails(yearId) {
