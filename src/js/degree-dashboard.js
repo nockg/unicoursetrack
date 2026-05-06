@@ -1,720 +1,768 @@
 /**
- * Degree Overview page — rendering and view-switching.
+ * Degree Overview page rendering and view-switching.
  *
- * Owns the #degree-view DOM section. degree-policy.js owns all calculation.
+ * The dashboard is intentionally student-facing: show the result first, keep
+ * context compact, and move policy/detail work into focused overlays.
  */
 import { store } from './store.js';
 import { escapeHtml } from './utils.js';
-import { getGradingSystem, classify, formatSelectedGrade, getCreditUnitLabel } from './grading.js';
-import { save, getEffectiveUniversity, getEffectiveCourse, getEffectiveAcademicYearLabel } from './state.js';
+import { getGradingSystem, classify, getCreditUnitLabel } from './grading.js';
+import {
+  save, getEffectiveUniversity, getEffectiveCourse,
+  getEffectiveAcademicYearLabel, refreshActiveYear,
+} from './state.js';
 import {
   getDegreePolicy, saveDegreePolicy, getYearRule, applyPreset,
   getDegreeOutputYear, getDegreeOutputSystem,
   computeYearAggregate, getYearDegreeValue,
   validateDegreePolicy, calculateDegreePrediction,
   GRADING_SYSTEM_LABELS, DEGREE_MODES, EXCLUDED_REASONS,
-  CONFIDENCE_LABELS, CONFIDENCE_DETAILS,
   DEGREE_PRESETS, getDefaultYearRule,
 } from './degree-policy.js';
 
-// ── View switching ─────────────────────────────────────────────────────────
+let activeYearDetailsId = null;
+let policyDraft = null;
+let statusDetailsOpen = false;
+
+// View switching -----------------------------------------------------------
 
 export function showDegreeView() {
-  const isAlreadyActive = !document.getElementById('degree-view').classList.contains('hidden');
+  const degreeView = document.getElementById('degree-view');
+  const appMain = document.getElementById('app-main');
+  if (!degreeView || !appMain) return;
+
+  const isAlreadyActive = !degreeView.classList.contains('hidden');
   if (isAlreadyActive) { showTrackerView(); return; }
-  document.getElementById('app-main').classList.add('hidden');
-  document.getElementById('degree-view').classList.remove('hidden');
+
+  appMain.classList.add('hidden');
+  degreeView.classList.remove('hidden');
   document.querySelector('.nav-btn.degree-overview-btn')?.classList.add('active');
   renderDegreeDashboard();
 }
 
 export function showTrackerView() {
-  document.getElementById('degree-view').classList.add('hidden');
-  document.getElementById('app-main').classList.remove('hidden');
+  document.getElementById('degree-view')?.classList.add('hidden');
+  document.getElementById('app-main')?.classList.remove('hidden');
   document.querySelector('.nav-btn.degree-overview-btn')?.classList.remove('active');
 }
 
-// ── Main render ────────────────────────────────────────────────────────────
+// Main render --------------------------------------------------------------
 
 export function renderDegreeDashboard() {
   const root = document.getElementById('degree-dashboard-root');
   if (!root) return;
 
-  const policy       = getDegreePolicy();
-  const years        = store.state.years || {};
-  const yearIds      = Object.keys(years);
-  const outputSystem = getDegreeOutputSystem();
-  const validation   = validateDegreePolicy();
-  const prediction   = calculateDegreePrediction();
+  const model = buildDashboardModel();
 
-  let html;
-
-  if (!yearIds.length) {
-    html = renderHeader()
-      + '<div class="degree-onboarding">'
-      + '<div class="degree-onboarding-icon">📚</div>'
-      + '<div class="degree-onboarding-title">No academic years yet</div>'
-      + '<p class="degree-onboarding-body">Add years and modules in the tracker, then come back here to set up your degree prediction.</p>'
-      + '</div>';
-  } else {
-    const attentionItems = collectAttentionItems(years, yearIds, validation, outputSystem);
-    const mainHtml = renderHeroSection(prediction, validation, outputSystem, years, yearIds, policy)
-      + renderChartSection(years, yearIds, outputSystem)
-      + renderYearCardsSection(years, yearIds, policy, outputSystem);
-    const sidebarHtml = (attentionItems.length ? renderNeedsAttentionCard(attentionItems) : '')
-      + renderPolicySidebarCard(policy, outputSystem);
-
-    html = renderHeader()
-      + renderSectionTabs()
-      + '<div class="degree-body"><div class="degree-main">'
-      + mainHtml
-      + '</div><aside class="degree-sidebar">'
-      + sidebarHtml
-      + '</aside></div>'
-      + renderPolicyEditor(years, yearIds, policy, outputSystem)
-      + '<p class="degree-disclaimer">Degree calculation presets are starting points only. Your university, faculty, or programme may use different rules. Always check your official academic regulations.</p>';
+  if (!model.yearIds.length) {
+    root.innerHTML = renderHeader()
+      + '<section class="degree-empty-state">'
+      + '<div class="degree-empty-mark" aria-hidden="true">UT</div>'
+      + '<h2>No academic years yet</h2>'
+      + '<p>Add years and modules in the tracker, then come back here to set up your degree forecast.</p>'
+      + '<button class="degree-primary-btn" type="button" onclick="showTrackerView()">Open Tracker</button>'
+      + '</section>';
+    return;
   }
 
-  root.innerHTML = html;
-
-  if (yearIds.length) {
-    renderYearPredictionChart(years, yearIds, outputSystem);
-    renderCreditCompletionChart(years, yearIds);
-  }
+  root.innerHTML = renderHeader()
+    + '<main class="degree-command-centre" aria-label="Degree Overview command centre">'
+    + '<section class="degree-forecast-section" aria-labelledby="degree-forecast-title">'
+    + '<div class="degree-section-heading">'
+    + '<p class="degree-section-kicker">Degree Forecast</p>'
+    + '<h2 id="degree-forecast-title">Your projected degree result</h2>'
+    + '</div>'
+    + '<div class="degree-forecast-grid">'
+    + renderForecastHero(model)
+    + renderPolicySummaryCard(model)
+    + '</div>'
+    + renderStatusStrip(model)
+    + '</section>'
+    + renderInsightsSection(model)
+    + renderYearJourneySection(model)
+    + renderCompatibilityNotes(model)
+    + '<p class="degree-disclaimer">Degree forecasts are planning aids only. Your university, faculty, or programme may use different rules, so always check your official academic regulations.</p>'
+    + '</main>'
+    + renderYearDetailsPanel(model)
+    + renderPolicySetupOverlay(model);
 }
 
-// ── Header ─────────────────────────────────────────────────────────────────
+function buildDashboardModel() {
+  const years = store.state.years || {};
+  const yearIds = getSortedYearIds(years);
+  const policy = getDegreePolicy();
+  const outputYear = getDegreeOutputYear();
+  const outputSystem = getDegreeOutputSystem();
+  const validation = validateDegreePolicy();
+  const prediction = calculateDegreePrediction();
+  const summaries = yearIds.map((yearId) => buildYearSummary(yearId, years[yearId], policy, outputSystem));
+  const counted = summaries.filter((year) => year.counts);
+  const blockers = validation.blockers || [];
+  const warnings = validation.warnings || [];
+  const missingCredits = prediction
+    ? prediction.missingCredits
+    : counted.reduce((sum, year) => sum + (year.aggregate?.missing || 0), 0);
+  const gradedCredits = prediction
+    ? prediction.actualCredits
+    : counted.reduce((sum, year) => sum + (year.aggregate?.gradedCredits || 0), 0);
+  const configured = isPolicyConfigured(policy, summaries, outputYear);
+
+  return {
+    years,
+    yearIds,
+    summaries,
+    counted,
+    policy,
+    outputYear,
+    outputSystem,
+    validation,
+    prediction,
+    blockers,
+    warnings,
+    missingCredits,
+    gradedCredits,
+    configured,
+  };
+}
+
+function buildYearSummary(yearId, year, policy, outputSystem) {
+  const rule = getYearRule(yearId);
+  const aggregate = computeYearAggregate(yearId);
+  const nativeSystem = year?.gradingSystem || getGradingSystem();
+  const degreeValue = getYearDegreeValue(yearId);
+  const counts = rule.status !== 'excluded';
+  const needsConversion = counts && nativeSystem !== outputSystem;
+  const hasConversion = rule.status === 'manualConversion' && Number.isFinite(Number(rule.convertedValue));
+  const blocked = needsConversion && !hasConversion;
+  const incomplete = counts && !blocked && (aggregate.missing || 0) > 0;
+  const excludedReason = EXCLUDED_REASONS.find((item) => item.value === rule.reason)?.label || rule.reason || 'Excluded';
+
+  let status = 'compatible';
+  if (!counts) status = 'excluded';
+  else if (blocked) status = 'blocked';
+  else if (hasConversion) status = 'converted';
+  else if (incomplete) status = 'incomplete';
+
+  return {
+    id: yearId,
+    year,
+    rule,
+    aggregate,
+    nativeSystem,
+    outputSystem,
+    degreeValue,
+    counts,
+    needsConversion,
+    hasConversion,
+    blocked,
+    incomplete,
+    excludedReason,
+    status,
+  };
+}
+
+// Sections -----------------------------------------------------------------
 
 function renderHeader() {
-  const profile   = store.state.profile || {};
-  const uni       = profile.university  || '';
-  const course    = profile.course      || '';
-  const yearCount = Object.keys(store.state.years || {}).length;
-  return '<div class="degree-page-header">'
-    + '<button class="degree-back-btn" onclick="showTrackerView()" type="button">← Back to Tracker</button>'
-    + '<div class="degree-page-eyebrow">Degree Overview</div>'
-    + '<h1 class="degree-page-title">' + escapeHtml(course || 'My Degree') + '</h1>'
-    + (uni ? '<div class="degree-page-sub">' + escapeHtml(uni) + '</div>' : '')
-    + '<div class="degree-page-meta">' + yearCount + ' academic year' + (yearCount !== 1 ? 's' : '') + ' tracked</div>'
-    + '</div>';
+  return '<header class="degree-page-header">'
+    + '<div>'
+    + '<p class="degree-eyebrow">Degree Overview</p>'
+    + '<h1>Degree command centre</h1>'
+    + '<p>See the forecast, what counts, and where to inspect the detail without turning the page into a data report.</p>'
+    + '</div>'
+    + '<button class="degree-quiet-btn" type="button" onclick="showTrackerView()">Back to Tracker</button>'
+    + '</header>';
 }
 
-// ── Section tabs ───────────────────────────────────────────────────────────
+function renderForecastHero(model) {
+  const outputLabel = getSystemLabel(model.outputSystem);
 
-function renderSectionTabs() {
-  return '<nav class="degree-tabs" aria-label="Degree sections">'
-    + '<a href="#section-overview" class="degree-tab">Overview</a>'
-    + '<a href="#section-charts"   class="degree-tab">Charts</a>'
-    + '<a href="#section-years"    class="degree-tab">Years</a>'
-    + '<a href="#section-policy"   class="degree-tab" onclick="toggleDegreePolicyEditor(true)">Policy</a>'
-    + '</nav>';
-}
+  if (model.prediction) {
+    const grade = formatDegreeResult(model.prediction.mark, model.outputSystem);
+    const tag = getClassificationTag(model.prediction.mark, model.outputSystem);
+    const outputYearLabel = model.outputYear?.label || 'graduating year';
 
-// ── Hero section ───────────────────────────────────────────────────────────
-
-function renderHeroSection(prediction, validation, outputSystem, years, yearIds, policy) {
-  let heroCard;
-  if (prediction) {
-    const grade = formatSelectedGrade(prediction.value, { courseDisplay: true }, outputSystem);
-    const cls   = classify(prediction.value, outputSystem);
-    const clsCss = cls.cls ? ' degree-hero-cls-' + cls.cls : '';
-    heroCard = '<div class="degree-hero-card">'
-      + '<div class="degree-hero-eyebrow">Projected Degree Result</div>'
-      + '<div class="degree-hero-result' + clsCss + '">' + escapeHtml(grade.main) + '</div>'
-      + (grade.label ? '<div class="degree-hero-label">' + escapeHtml(grade.label) + '</div>' : '')
-      + '<div class="degree-hero-meta">'
-      + '<span class="degree-hero-system">' + escapeHtml(GRADING_SYSTEM_LABELS[outputSystem] || outputSystem) + '</span>'
-      + '<span class="degree-hero-sep">·</span>'
-      + '<span class="degree-hero-confidence">' + escapeHtml(CONFIDENCE_LABELS[prediction.confidence] || '') + '</span>'
+    return '<article class="degree-result-hero degree-surface">'
+      + '<div class="degree-hero-bg" aria-hidden="true"></div>'
+      + '<div class="degree-result-copy">'
+      + '<p class="degree-hero-label">Projected degree result</p>'
+      + `<div class="degree-result-mark">${escapeHtml(grade)}</div>`
+      + `<div class="degree-result-tag">${escapeHtml(tag)}</div>`
+      + `<p class="degree-result-system">${escapeHtml(outputLabel)}</p>`
       + '</div>'
-      + '<div class="degree-hero-explanation">' + escapeHtml(buildCalculationExplanation(policy, years, yearIds)) + '</div>'
-      + '</div>';
-  } else {
-    const blockerText = validation.blockers.length ? validation.blockers[0] : 'Prediction unavailable';
-    const extraCount  = validation.blockers.length - 1;
-    heroCard = '<div class="degree-hero-card degree-hero-unavailable">'
-      + '<div class="degree-hero-eyebrow">Projected Degree Result</div>'
-      + '<div class="degree-hero-result">—</div>'
-      + '<div class="degree-hero-reason">' + escapeHtml(blockerText) + '</div>'
-      + (extraCount > 0
-          ? '<div class="degree-hero-extra-blockers">+' + extraCount + ' more issue' + (extraCount > 1 ? 's' : '') + ' — see sidebar</div>'
-          : '')
-      + '<button class="degree-setup-policy-btn" onclick="toggleDegreePolicyEditor(true)" type="button">Set up degree policy</button>'
-      + '</div>';
+      + '<div class="degree-hero-context">'
+      + `<span>Output: ${escapeHtml(outputYearLabel)}</span>`
+      + `<span>${escapeHtml(model.gradedCredits)} counted ${escapeHtml(getCreditUnitLabel({ system: model.outputSystem }).toLowerCase())} graded</span>`
+      + `<span>${escapeHtml(model.missingCredits)} missing</span>`
+      + '</div>'
+      + '</article>';
   }
 
-  const metaRow = buildCompactMetaRow(years, yearIds);
-
-  return '<div id="section-overview" class="degree-section">'
-    + heroCard
-    + metaRow
-    + '</div>';
-}
-
-function buildCalculationExplanation(policy, years, yearIds) {
-  if (policy.mode === 'creditWeightedAllIncluded') {
-    return 'Credit-weighted average across all graded modules in included years.';
-  }
-  const parts = yearIds.map((id) => {
-    const year = years[id];
-    const rule = getYearRule(id);
-    if (rule.status === 'excluded') return year.label + ' excluded';
-    const w = Number(rule.weight) || 0;
-    return year.label + ' × ' + w + '%';
-  });
-  return 'Based on: ' + parts.join(', ') + '.';
-}
-
-function buildCompactMetaRow(years, yearIds) {
-  const unitLabel = getCreditUnitLabel();
-  let totalCounted = 0, totalMissing = 0, totalModules = 0, totalGraded = 0;
-  yearIds.forEach((id) => {
-    const rule = getYearRule(id);
-    if (rule.status === 'excluded') return;
-    const agg = computeYearAggregate(id);
-    if (!agg) return;
-    totalCounted += agg.gradedCredits;
-    totalMissing += agg.missing;
-    totalModules += agg.moduleCount;
-    totalGraded  += agg.gradedCount;
-  });
-
-  let html = '<div class="degree-meta-row">'
-    + '<span class="degree-meta-item">' + totalGraded + ' / ' + totalModules + ' modules graded</span>'
-    + '<span class="degree-meta-sep">·</span>'
-    + '<span class="degree-meta-item">' + totalCounted + ' ' + escapeHtml(unitLabel) + ' counted</span>';
-  if (totalMissing > 0) {
-    html += '<span class="degree-meta-sep">·</span>'
-      + '<span class="degree-meta-item degree-meta-warn">' + totalMissing + ' ' + escapeHtml(unitLabel) + ' missing marks</span>';
-  }
-  html += '</div>';
-  return html;
-}
-
-// ── Needs Attention (sidebar card) ─────────────────────────────────────────
-
-function collectAttentionItems(years, yearIds, validation, outputSystem) {
-  const items = [];
-  validation.blockers.forEach((b) => items.push({ tone: 'error',   text: b }));
-  validation.warnings.forEach((w) => items.push({ tone: 'warning', text: w }));
-
-  yearIds.forEach((id) => {
-    const year = years[id];
-    const rule = getYearRule(id);
-    const agg  = computeYearAggregate(id);
-    if (!agg) return;
-
-    if (rule.status !== 'excluded' && agg.missing > 0) {
-      const unitLabel = getCreditUnitLabel();
-      const m = agg.moduleCount - agg.gradedCount;
-      items.push({ tone: 'info', text: year.label + ' has ' + agg.missing + ' ' + unitLabel + ' without marks (' + m + ' module' + (m !== 1 ? 's' : '') + ').' });
-    }
-    if (rule.status === 'included') {
-      const yearSystem = getGradingSystem(id);
-      if (yearSystem !== outputSystem) {
-        items.push({ tone: 'error', text: year.label + ' uses ' + (GRADING_SYSTEM_LABELS[yearSystem] || yearSystem) + ' — needs manual conversion.' });
-      }
-    }
-    if (rule.status !== 'excluded' && agg.value !== null) {
-      const yearSystem = getGradingSystem(id);
-      const grade = formatSelectedGrade(agg.value, { courseDisplay: true }, yearSystem);
-      const cls   = classify(agg.value, yearSystem);
-      if (cls.cls === 'third' || cls.cls === 'fail') {
-        items.push({ tone: 'warning', text: year.label + ' prediction is ' + grade.main + (grade.label ? ' (' + grade.label + ')' : '') + ' — may need attention.' });
-      }
-    }
-  });
-  return items;
-}
-
-function renderNeedsAttentionCard(items) {
-  const listHtml = '<div class="degree-attention-list">'
-    + items.map((it) => '<div class="degree-attention-item degree-attention-' + escapeHtml(it.tone) + '">'
-      + '<span class="degree-attention-dot"></span>'
-      + '<span>' + escapeHtml(it.text) + '</span>'
-      + '</div>').join('')
-    + '</div>';
-  return '<div class="degree-sidebar-card degree-attention-card">'
-    + '<div class="degree-sidebar-card-title">Needs Attention</div>'
-    + listHtml
-    + '</div>';
-}
-
-// ── Policy sidebar card ────────────────────────────────────────────────────
-
-function renderPolicySidebarCard(policy, outputSystem) {
-  const preset    = DEGREE_PRESETS.find((p) => p.id === policy.presetId);
-  const outYear   = getDegreeOutputYear();
-  const modeLabel = DEGREE_MODES[policy.mode] || policy.mode;
-
-  const hasWeights     = Object.values(policy.yearRules || {}).some((r) => r.weight > 0);
-  const isCreditMode   = policy.mode === 'creditWeightedAllIncluded';
-  const isConfigured   = outYear && (isCreditMode || hasWeights);
-  const btnLabel       = isConfigured ? 'Edit degree policy' : 'Set up degree policy';
-
-  return '<div class="degree-sidebar-card degree-policy-summary-card">'
-    + '<div class="degree-sidebar-card-title">Degree Policy</div>'
-    + '<div class="degree-policy-summary-rows">'
-    + '<div class="degree-policy-summary-row"><span class="degree-policy-summary-key">Template</span><span class="degree-policy-summary-val">' + escapeHtml(preset ? preset.label : 'Manual') + '</span></div>'
-    + '<div class="degree-policy-summary-row"><span class="degree-policy-summary-key">Mode</span><span class="degree-policy-summary-val">' + escapeHtml(modeLabel) + '</span></div>'
-    + '<div class="degree-policy-summary-row"><span class="degree-policy-summary-key">Output system</span><span class="degree-policy-summary-val">' + escapeHtml(GRADING_SYSTEM_LABELS[outputSystem] || outputSystem) + '</span></div>'
-    + (outYear ? '<div class="degree-policy-summary-row"><span class="degree-policy-summary-key">Graduating year</span><span class="degree-policy-summary-val">' + escapeHtml(outYear.label) + '</span></div>' : '')
+  const unavailable = getUnavailableState(model);
+  return '<article class="degree-result-hero degree-result-hero--unavailable degree-surface">'
+    + '<div class="degree-hero-bg" aria-hidden="true"></div>'
+    + '<div class="degree-result-copy">'
+    + '<p class="degree-hero-label">Degree Forecast unavailable</p>'
+    + `<div class="degree-result-mark">${escapeHtml(unavailable.title)}</div>`
+    + `<div class="degree-result-tag degree-result-tag--setup">${escapeHtml(unavailable.subtitle)}</div>`
+    + `<p class="degree-result-system">${escapeHtml(unavailable.body)}</p>`
     + '</div>'
-    + '<button class="degree-edit-policy-btn" onclick="toggleDegreePolicyEditor(true)" type="button">' + escapeHtml(btnLabel) + '</button>'
-    + '</div>';
+    + `<button class="${unavailable.actionClass}" type="button" onclick="openDegreePolicySetup()">${escapeHtml(unavailable.action)}</button>`
+    + '</article>';
 }
 
-// ── Charts ─────────────────────────────────────────────────────────────────
+function renderPolicySummaryCard(model) {
+  const preset = DEGREE_PRESETS.find((item) => item.id === model.policy.presetId);
+  const policyLabel = preset?.label || 'Manual custom weights';
+  const outputYearLabel = model.outputYear?.label || 'Choose output year';
+  const actionLabel = model.configured
+    ? 'Edit policy'
+    : (model.blockers.length ? 'Fix policy issue' : 'Set up policy');
+  const actionClass = model.configured && !model.blockers.length
+    ? 'degree-subtle-pill'
+    : 'degree-primary-btn degree-primary-btn--compact';
 
-function renderChartSection(years, yearIds, outputSystem) {
-  if (!yearIds.length) return '';
-  return '<div id="section-charts" class="degree-section">'
-    + '<div class="degree-section-title">Overview Charts</div>'
-    + '<div class="degree-charts-grid">'
-    + '<div class="degree-chart-card"><div class="degree-chart-label">Year Prediction Comparison</div><canvas id="degree-chart-prediction" class="degree-canvas"></canvas></div>'
-    + '<div class="degree-chart-card"><div class="degree-chart-label">Credit Completion by Year</div><canvas id="degree-chart-credits" class="degree-canvas"></canvas></div>'
+  return '<aside class="degree-policy-summary degree-surface" aria-label="Degree Policy">'
+    + '<div class="degree-policy-summary-head">'
+    + '<p>Degree Policy</p>'
+    + `<button class="${actionClass}" type="button" onclick="openDegreePolicySetup()">${escapeHtml(actionLabel)}</button>`
     + '</div>'
-    + renderCompatibilityRow(years, yearIds, outputSystem)
+    + '<dl class="degree-policy-list">'
+    + `<div><dt>Template</dt><dd>${escapeHtml(policyLabel)}</dd></div>`
+    + `<div><dt>Mode</dt><dd>${escapeHtml(DEGREE_MODES[model.policy.mode] || 'Year-weighted')}</dd></div>`
+    + `<div><dt>Output</dt><dd>${escapeHtml(outputYearLabel)}</dd></div>`
+    + `<div><dt>System</dt><dd>${escapeHtml(getSystemLabel(model.outputSystem))}</dd></div>`
+    + '</dl>'
+    + renderCalculationSummary(model)
+    + '</aside>';
+}
+
+function renderCalculationSummary(model) {
+  if (!model.counted.length) {
+    return '<p class="degree-policy-note">Choose which years count to unlock the degree-wide forecast.</p>';
+  }
+
+  const countedYears = model.counted.map((year) => year.year?.label || year.id).join(', ');
+  const mode = model.policy.mode === 'creditWeightedAllIncluded'
+    ? 'credit-weighted modules'
+    : 'year weights';
+
+  return '<details class="degree-calculation-details">'
+    + '<summary>How this is calculated</summary>'
+    + `<p>Using ${escapeHtml(mode)} across ${escapeHtml(countedYears)}. Excluded years stay visible in the journey but do not affect the degree result.</p>`
+    + '</details>';
+}
+
+function renderStatusStrip(model) {
+  const issueCount = model.blockers.length + model.warnings.length + (model.missingCredits > 0 ? 1 : 0);
+
+  if (model.blockers.length) {
+    const first = model.blockers[0];
+    return '<div class="degree-attention-strip degree-attention-strip--blocker">'
+      + '<strong>Degree-wide prediction unavailable</strong>'
+      + `<span>${escapeHtml(first)}</span>`
+      + `<button type="button" onclick="openDegreePolicySetup()">Fix policy issue</button>`
+      + '</div>';
+  }
+
+  if (issueCount > 0) {
+    return '<div class="degree-attention-strip degree-attention-strip--warning">'
+      + `<strong>${escapeHtml(issueCount)} ${issueCount === 1 ? 'issue needs' : 'issues need'} attention</strong>`
+      + `<span>${escapeHtml(getCompactIssueText(model))}</span>`
+      + `<button type="button" onclick="toggleDegreeStatusDetails()">${statusDetailsOpen ? 'Hide details' : 'View details'}</button>`
+      + (statusDetailsOpen ? renderStatusDetails(model) : '')
+      + '</div>';
+  }
+
+  const excludedCount = model.summaries.filter((year) => !year.counts).length;
+  const excludedText = excludedCount ? ` · ${excludedCount} excluded` : '';
+  return '<div class="degree-attention-strip degree-attention-strip--quiet">'
+    + `<span>All counted years compatible · ${escapeHtml(model.missingCredits)} missing ${escapeHtml(getCreditUnitLabel({ system: model.outputSystem }).toLowerCase())}${escapeHtml(excludedText)}</span>`
     + '</div>';
 }
 
-function renderCompatibilityRow(years, yearIds, outputSystem) {
-  const pills = yearIds.map((id) => {
-    const year   = years[id];
-    const rule   = getYearRule(id);
-    const system = getGradingSystem(id);
-    let   tone, hint;
+function renderStatusDetails(model) {
+  const items = [
+    ...model.warnings,
+    ...(model.missingCredits > 0 ? [`${model.missingCredits} counted credits are still missing marks.`] : []),
+  ];
+  if (!items.length) return '';
+  return '<ul class="degree-status-details">'
+    + items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')
+    + '</ul>';
+}
 
-    if (rule.status === 'excluded') {
-      tone = 'grey';  hint = 'Excluded from degree';
-    } else if (rule.status === 'manualConversion') {
-      const v = rule.convertedValue;
-      tone = (v !== null && v !== undefined && v !== '') ? 'amber' : 'red';
-      hint = tone === 'red' ? 'Converted value missing' : 'Using manual conversion';
-    } else if (system !== outputSystem) {
-      tone = 'red';   hint = 'System mismatch — needs conversion';
-    } else {
-      tone = 'green'; hint = 'Compatible';
-    }
+function renderInsightsSection(model) {
+  const insightCards = renderAdaptiveInsightCards(model);
 
-    return '<div class="degree-compat-pill degree-compat-' + escapeHtml(tone) + '" title="' + escapeHtml(hint) + '">'
-      + '<span class="degree-compat-dot"></span>'
-      + '<span class="degree-compat-name">' + escapeHtml(year.label) + '</span>'
-      + '<span class="degree-compat-hint">' + escapeHtml(hint) + '</span>'
+  return '<section class="degree-panel degree-insights-section" aria-labelledby="degree-insights-title">'
+    + '<div class="degree-section-heading">'
+    + '<p class="degree-section-kicker">Degree Insights</p>'
+    + '<h2 id="degree-insights-title">What is shaping the forecast?</h2>'
+    + '</div>'
+    + '<div class="degree-insights-grid">'
+    + renderYearComparison(model)
+    + (model.configured && model.counted.length ? renderContributionChart(model) : '')
+    + insightCards
+    + '</div>'
+    + '</section>';
+}
+
+function renderYearComparison(model) {
+  const rows = model.summaries.map((summary) => {
+    const value = summary.degreeValue ?? summary.aggregate?.value;
+    const percentage = getBarPercent(value, summary.nativeSystem);
+    const result = value === null || value === undefined
+      ? 'Not enough marks'
+      : `${formatDegreeResult(value, summary.hasConversion ? model.outputSystem : summary.nativeSystem)} · ${getClassificationTag(value, summary.hasConversion ? model.outputSystem : summary.nativeSystem)}`;
+
+    return '<div class="degree-bar-row">'
+      + `<div><strong>${escapeHtml(summary.year?.label || summary.id)}</strong><span>${escapeHtml(result)}</span></div>`
+      + '<div class="degree-bar-track" aria-hidden="true">'
+      + `<i style="width:${escapeHtml(percentage)}%"></i>`
+      + '</div>'
       + '</div>';
   }).join('');
 
-  return '<div class="degree-compat-row">'
-    + '<div class="degree-chart-label">Compatibility Status</div>'
-    + '<div class="degree-compat-pills">' + pills + '</div>'
-    + '</div>';
-}
-
-function renderYearPredictionChart(years, yearIds, outputSystem) {
-  const canvas = document.getElementById('degree-chart-prediction');
-  if (!canvas) return;
-  const ctx    = canvas.getContext('2d');
-  const dark   = document.body.classList.contains('theme-dark');
-  const dpr    = window.devicePixelRatio || 1;
-  const w      = canvas.parentElement.clientWidth - 2;
-  const h      = Math.max(80 + yearIds.length * 44, 280);
-  canvas.width  = w * dpr;
-  canvas.height = h * dpr;
-  canvas.style.width  = w + 'px';
-  canvas.style.height = h + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, w, h);
-
-  const ink        = dark ? '#ececec' : '#1a1a1a';
-  const muted      = dark ? '#a3a3a3' : '#888888';
-  const barBg      = dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
-  const barFill    = dark ? '#d4a017' : '#b8860b';
-  const manualFill = dark ? '#4d93cf' : '#2980b9';
-  const padL = 100, padR = 48, padT = 12, barH = 24, rowH = 44;
-
-  yearIds.forEach((id, i) => {
-    const year     = years[id];
-    const rule     = getYearRule(id);
-    const agg      = computeYearAggregate(id);
-    const system   = getGradingSystem(id);
-    const isManual = rule.status === 'manualConversion';
-    const val      = isManual ? (rule.convertedValue !== null ? Number(rule.convertedValue) : null) : agg?.value ?? null;
-
-    const y = padT + i * rowH + (rowH - barH) / 2;
-
-    const scales   = { us4: 4, us43: 4.3, au7: 7, au4: 4, my4: 4, cn4: 100, nz9: 9, de5: 5, uk: 100 };
-    const maxVal   = scales[system] || 100;
-    const inverted = system === 'de5';
-    const chartW   = w - padL - padR;
-
-    ctx.font         = '12px system-ui, sans-serif';
-    ctx.fillStyle    = ink;
-    ctx.textAlign    = 'right';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(year.label, padL - 8, y + barH / 2);
-
-    ctx.fillStyle = barBg;
-    ctx.beginPath();
-    ctx.roundRect(padL, y, chartW, barH, 4);
-    ctx.fill();
-
-    if (rule.status === 'excluded') {
-      ctx.font      = '11px system-ui, sans-serif';
-      ctx.fillStyle = muted;
-      ctx.textAlign = 'left';
-      ctx.fillText('Excluded', padL + 8, y + barH / 2);
-    } else if (val !== null) {
-      const ratio = inverted ? 1 - (val - 1) / (maxVal - 1) : val / maxVal;
-      const fillW = Math.max(0, Math.min(chartW, chartW * ratio));
-      ctx.fillStyle = isManual ? manualFill : barFill;
-      ctx.beginPath();
-      ctx.roundRect(padL, y, fillW, barH, 4);
-      ctx.fill();
-
-      const grade = formatSelectedGrade(val, {}, system);
-      ctx.font      = '11px system-ui, sans-serif';
-      ctx.fillStyle = fillW > 40 ? '#fff' : ink;
-      ctx.textAlign = fillW > 40 ? 'right' : 'left';
-      ctx.fillText(grade.main, fillW > 40 ? padL + fillW - 6 : padL + fillW + 6, y + barH / 2);
-    } else {
-      ctx.font      = '11px system-ui, sans-serif';
-      ctx.fillStyle = muted;
-      ctx.textAlign = 'left';
-      ctx.fillText('No marks yet', padL + 8, y + barH / 2);
-    }
-  });
-}
-
-function renderCreditCompletionChart(years, yearIds) {
-  const canvas = document.getElementById('degree-chart-credits');
-  if (!canvas) return;
-  const ctx    = canvas.getContext('2d');
-  const dark   = document.body.classList.contains('theme-dark');
-  const dpr    = window.devicePixelRatio || 1;
-  const w      = canvas.parentElement.clientWidth - 2;
-  const h      = Math.max(80 + yearIds.length * 44, 280);
-  canvas.width  = w * dpr;
-  canvas.height = h * dpr;
-  canvas.style.width  = w + 'px';
-  canvas.style.height = h + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, w, h);
-
-  const ink      = dark ? '#ececec' : '#1a1a1a';
-  const muted    = dark ? '#a3a3a3' : '#888888';
-  const fillOk   = dark ? '#4a8c42' : '#2d5a27';
-  const fillMiss = '#c0392b';
-  const fillBg   = dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
-  const padL = 100, padR = 48, padT = 12, barH = 24, rowH = 44;
-
-  const maxCredits = Math.max(...yearIds.map((id) => computeYearAggregate(id)?.attempted || 0), 1);
-
-  yearIds.forEach((id, i) => {
-    const year   = years[id];
-    const agg    = computeYearAggregate(id);
-    const y      = padT + i * rowH + (rowH - barH) / 2;
-    const chartW = w - padL - padR;
-
-    ctx.font         = '12px system-ui, sans-serif';
-    ctx.fillStyle    = ink;
-    ctx.textAlign    = 'right';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(year.label, padL - 8, y + barH / 2);
-
-    ctx.fillStyle = fillBg;
-    ctx.beginPath();
-    ctx.roundRect(padL, y, chartW, barH, 4);
-    ctx.fill();
-
-    if (!agg || agg.attempted === 0) {
-      ctx.font      = '11px system-ui, sans-serif';
-      ctx.fillStyle = muted;
-      ctx.textAlign = 'left';
-      ctx.fillText('No modules', padL + 8, y + barH / 2);
-      return;
-    }
-
-    const total    = agg.attempted;
-    const graded   = agg.gradedCredits;
-    const missing  = agg.missing;
-    const scaleW   = chartW * (total / maxCredits);
-    const gradedW  = scaleW * (graded / total);
-    const missingW = scaleW * (missing / total);
-
-    if (gradedW > 0) {
-      ctx.fillStyle = fillOk;
-      ctx.beginPath();
-      ctx.roundRect(padL, y, gradedW, barH, 4);
-      ctx.fill();
-    }
-    if (missingW > 0) {
-      ctx.fillStyle = fillMiss;
-      ctx.beginPath();
-      ctx.roundRect(padL + gradedW, y, missingW, barH, [0, 4, 4, 0]);
-      ctx.fill();
-    }
-
-    const unitLabel = getCreditUnitLabel();
-    const label     = missing > 0
-      ? graded + ' graded · ' + missing + ' missing'
-      : graded + ' ' + unitLabel + ' graded';
-    ctx.font      = '11px system-ui, sans-serif';
-    ctx.fillStyle = gradedW > 60 ? '#fff' : ink;
-    ctx.textAlign = gradedW > 60 ? 'right' : 'left';
-    ctx.fillText(label, gradedW > 60 ? padL + gradedW - 6 : padL + gradedW + 6, y + barH / 2);
-  });
-}
-
-// ── Per-year cards (collapsible) ───────────────────────────────────────────
-
-function renderYearCardsSection(years, yearIds, policy, outputSystem) {
-  if (!yearIds.length) return '';
-  return '<div id="section-years" class="degree-section">'
-    + '<div class="degree-section-title">Year Breakdown</div>'
-    + '<div class="degree-year-cards">'
-    + yearIds.map((id) => renderYearCard(id, years[id], policy, outputSystem)).join('')
+  return '<article class="degree-insight-card degree-insight-card--wide">'
+    + '<h3>Year prediction comparison</h3>'
+    + '<div class="degree-bar-list">'
+    + rows
     + '</div>'
-    + '</div>';
+    + '</article>';
 }
 
-function renderYearCard(yearId, year, policy, outputSystem) {
-  const rule       = getYearRule(yearId);
-  const agg        = computeYearAggregate(yearId);
-  const yearSystem = getGradingSystem(yearId);
-  const uni        = getEffectiveUniversity(yearId);
-  const course     = getEffectiveCourse(yearId);
-  const acLabel    = getEffectiveAcademicYearLabel(yearId);
-  const unitLabel  = getCreditUnitLabel();
-
-  const statusLabel = {
-    included:         'Counts toward degree',
-    excluded:         'Does not count',
-    manualConversion: 'Counts (converted)',
-  }[rule.status] || rule.status;
-
-  const statusTone = {
-    included:         'green',
-    excluded:         'grey',
-    manualConversion: 'amber',
-  }[rule.status] || 'grey';
-
-  // Score for collapsed summary
-  let scoreHtml = '';
-  if (rule.status === 'manualConversion') {
-    const convVal = (rule.convertedValue !== null && rule.convertedValue !== '')
-      ? Number(rule.convertedValue) : null;
-    if (convVal !== null) {
-      const convGrade = formatSelectedGrade(convVal, { courseDisplay: true }, outputSystem);
-      scoreHtml = '<span class="degree-year-card-score degree-year-card-score-converted">' + escapeHtml(convGrade.main) + '</span>';
-    } else {
-      scoreHtml = '<span class="degree-year-card-score degree-year-card-score-missing">—</span>';
-    }
-  } else if (agg && agg.value !== null) {
-    const grade = formatSelectedGrade(agg.value, { courseDisplay: true }, yearSystem);
-    const cls   = classify(agg.value, yearSystem);
-    const scoreCls = cls.cls ? ' degree-year-card-score-' + cls.cls : '';
-    scoreHtml = '<span class="degree-year-card-score' + scoreCls + '">' + escapeHtml(grade.main) + '</span>';
-  } else {
-    scoreHtml = '<span class="degree-year-card-score degree-year-card-score-missing">No marks</span>';
-  }
-
-  // Collapsed summary row
-  const summaryHtml = '<div class="degree-year-card-summary" onclick="toggleYearCard(\'' + escapeHtml(yearId) + '\')">'
-    + '<div class="degree-year-card-summary-left">'
-    + '<span class="degree-year-card-name">' + escapeHtml(year.label) + '</span>'
-    + '<span class="degree-year-status degree-year-status-' + escapeHtml(statusTone) + '">' + escapeHtml(statusLabel) + '</span>'
-    + '</div>'
-    + '<div class="degree-year-card-summary-right">'
-    + scoreHtml
-    + '<svg class="degree-year-chevron" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 6 8 10 12 6"/></svg>'
-    + '</div>'
-    + '</div>';
-
-  // Expanded details
-  let predictionBlock = '';
-  if (rule.status === 'manualConversion') {
-    const origAgg = (agg?.value !== null && agg?.value !== undefined)
-      ? formatSelectedGrade(agg.value, {}, yearSystem)
-      : null;
-    const convVal = (rule.convertedValue !== null && rule.convertedValue !== '')
-      ? Number(rule.convertedValue) : null;
-    predictionBlock = '<div class="degree-year-pred">'
-      + (origAgg
-          ? '<div class="degree-year-pred-row"><span class="degree-year-pred-label">Original result</span><span class="degree-year-pred-value">'
-            + escapeHtml(origAgg.main)
-            + (origAgg.label ? ' <span class="degree-year-pred-cls">(' + escapeHtml(origAgg.label) + ')</span>' : '')
-            + '</span></div>'
-          : '')
-      + (convVal !== null
-          ? '<div class="degree-year-pred-row"><span class="degree-year-pred-label">Used as</span><span class="degree-year-pred-value">'
-            + escapeHtml(formatSelectedGrade(convVal, { courseDisplay: true }, outputSystem).main)
-            + ' ' + escapeHtml(GRADING_SYSTEM_LABELS[outputSystem] || outputSystem)
-            + '</span></div>'
-          : '<div class="degree-year-pred-row degree-year-pred-missing"><span class="degree-year-pred-label">Converted value</span><span class="degree-year-pred-value">Not entered</span></div>')
-      + (rule.conversionNote ? '<div class="degree-year-pred-note">' + escapeHtml(rule.conversionNote) + '</div>' : '')
+function renderContributionChart(model) {
+  const rows = model.counted.map((summary) => {
+    const contribution = getContributionShare(summary, model);
+    return '<div class="degree-bar-row degree-bar-row--contribution">'
+      + `<div><strong>${escapeHtml(summary.year?.label || summary.id)}</strong><span>${escapeHtml(contribution.label)}</span></div>`
+      + '<div class="degree-bar-track" aria-hidden="true">'
+      + `<i style="width:${escapeHtml(contribution.percent)}%"></i>`
+      + '</div>'
       + '</div>';
-  } else if (agg && agg.value !== null) {
-    const grade = formatSelectedGrade(agg.value, {}, yearSystem);
-    predictionBlock = '<div class="degree-year-pred">'
-      + '<div class="degree-year-pred-row"><span class="degree-year-pred-label">Prediction</span><span class="degree-year-pred-value">'
-      + escapeHtml(grade.main)
-      + (grade.label ? ' <span class="degree-year-pred-cls">' + escapeHtml(grade.label) + '</span>' : '')
-      + '</span></div>'
-      + '</div>';
-  } else if (agg && agg.moduleCount > 0) {
-    predictionBlock = '<div class="degree-year-pred degree-year-pred-none">No marks entered yet</div>';
-  } else {
-    predictionBlock = '<div class="degree-year-pred degree-year-pred-none">No modules added</div>';
-  }
-
-  const compat = rule.status === 'excluded'
-    ? ''
-    : rule.status === 'manualConversion'
-      ? '<span class="degree-year-compat degree-year-compat-amber">Converted value</span>'
-      : yearSystem === outputSystem
-        ? '<span class="degree-year-compat degree-year-compat-green">Compatible</span>'
-        : '<span class="degree-year-compat degree-year-compat-red">System mismatch</span>';
-
-  const detailsHtml = '<div class="degree-year-card-details">'
-    + '<div class="degree-year-card-meta">'
-    + (uni    ? '<div>' + escapeHtml(uni)    + '</div>' : '')
-    + (course ? '<div>' + escapeHtml(course) + '</div>' : '')
-    + (acLabel ? '<div class="degree-year-card-academic">' + escapeHtml(acLabel) + '</div>' : '')
-    + '<div class="degree-year-card-system">' + escapeHtml(GRADING_SYSTEM_LABELS[yearSystem] || yearSystem) + '</div>'
-    + '</div>'
-    + predictionBlock
-    + (agg
-        ? '<div class="degree-year-card-credits"><span>' + agg.gradedCredits + ' / ' + agg.attempted + ' ' + escapeHtml(unitLabel) + '</span><span>' + agg.gradedCount + ' / ' + agg.moduleCount + ' modules graded</span></div>'
-        : '')
-    + '<div class="degree-year-card-foot">'
-    + '<span class="degree-year-weight">'
-    + (rule.status !== 'excluded' ? 'Degree weight: ' + (Number(rule.weight) || 0) + '%' : 'Weight: 0% (excluded)')
-    + '</span>'
-    + compat
-    + '</div>'
-    + '</div>';
-
-  return '<div class="degree-year-card" data-year-id="' + escapeHtml(yearId) + '">'
-    + summaryHtml
-    + detailsHtml
-    + '</div>';
-}
-
-export function toggleYearCard(yearId) {
-  const card = document.querySelector('.degree-year-card[data-year-id="' + yearId + '"]');
-  if (card) card.classList.toggle('is-expanded');
-}
-
-// ── Policy editor (collapsible, full-width below two-col body) ─────────────
-
-function renderPolicyEditor(years, yearIds, policy, outputSystem) {
-  const groups = [...new Set(DEGREE_PRESETS.map((p) => p.group))];
-
-  const presetOptions = groups.map((g) => {
-    return '<optgroup label="' + escapeHtml(g) + '">'
-      + DEGREE_PRESETS.filter((p) => p.group === g)
-          .map((p) => '<option value="' + escapeHtml(p.id) + '"' + (policy.presetId === p.id ? ' selected' : '') + '>'
-            + escapeHtml(p.label) + '</option>').join('')
-      + '</optgroup>';
   }).join('');
 
-  const yearOptions = yearIds.map((id) => {
-    const year = years[id];
-    const sel  = (policy.outputYearId === id) || (!policy.outputYearId && id === yearIds[yearIds.length - 1]);
-    return '<option value="' + escapeHtml(id) + '"' + (sel ? ' selected' : '') + '>' + escapeHtml(year.label) + '</option>';
-  }).join('');
-
-  const outYear   = getDegreeOutputYear();
-  const outSystem = outYear ? getGradingSystem(outYear.id) : null;
-
-  const yearRulesHtml = yearIds.map((id) => renderYearRuleRow(id, years[id], policy, outputSystem)).join('');
-
-  return '<div id="section-policy" class="degree-section degree-policy-editor" style="display:none">'
-    + '<div class="degree-section-title degree-policy-editor-title">'
-    + 'Degree Policy'
-    + '<button class="degree-policy-close-btn" onclick="toggleDegreePolicyEditor(false)" type="button">Close ✕</button>'
+  return '<article class="degree-insight-card">'
+    + '<h3>Degree contribution by year</h3>'
+    + '<div class="degree-bar-list">'
+    + rows
     + '</div>'
-    + '<p class="degree-policy-notice">These are starting points — always verify against your official programme regulations.</p>'
-    + '<div class="degree-policy-grid">'
-    + '<div class="degree-policy-field"><label class="degree-policy-label">Common template</label>'
-    + '<select class="degree-policy-select" onchange="setDegreePolicyPreset(this.value)">' + presetOptions + '</select></div>'
-    + '<div class="degree-policy-field"><label class="degree-policy-label">Graduating / output year</label>'
-    + '<select class="degree-policy-select" onchange="setDegreeOutputYear(this.value)">' + yearOptions + '</select>'
-    + (outSystem ? '<div class="degree-policy-hint">Output system: ' + escapeHtml(GRADING_SYSTEM_LABELS[outSystem] || outSystem) + '</div>' : '')
-    + '</div>'
-    + '</div>'
-    + '<div class="degree-year-rules">'
-    + '<div class="degree-year-rules-title">Year rules and weights</div>'
-    + '<div class="degree-year-rules-grid">'
-    + '<div class="degree-year-rules-header">'
-    + '<span>Year</span><span>Status</span><span>Weight %</span><span>Notes / Conversion</span>'
-    + '</div>'
-    + yearRulesHtml
-    + '</div>'
-    + '</div>'
-    + '</div>';
+    + '</article>';
 }
 
-// ── Year rule row (compact grid) ───────────────────────────────────────────
+function renderAdaptiveInsightCards(model) {
+  const cards = [];
+  const valuedCountedYears = model.counted.filter((summary) => Number.isFinite(Number(summary.degreeValue)));
 
-function renderYearRuleRow(yearId, year, policy, outputSystem) {
-  const rule       = getYearRule(yearId);
-  const yearSystem = getGradingSystem(yearId);
-  const compatible = yearSystem === outputSystem;
-
-  const statusSelect = '<select class="degree-rule-select" onchange="setYearRuleStatus(\'' + escapeHtml(yearId) + '\', this.value)">'
-    + '<option value="included"'         + (rule.status === 'included'         ? ' selected' : '') + '>Counts</option>'
-    + '<option value="excluded"'         + (rule.status === 'excluded'         ? ' selected' : '') + '>Excluded</option>'
-    + '<option value="manualConversion"' + (rule.status === 'manualConversion' ? ' selected' : '') + '>Converted</option>'
-    + '</select>';
-
-  const weightCell = rule.status !== 'excluded'
-    ? '<input type="number" class="degree-rule-weight-input" min="0" max="100" step="0.1"'
-      + ' value="' + (Number(rule.weight) || 0) + '"'
-      + ' oninput="setYearRuleWeight(\'' + escapeHtml(yearId) + '\', this.value)">'
-    : '<span class="degree-rule-excluded-w">—</span>';
-
-  let notesCell;
-  if (rule.status === 'excluded') {
-    notesCell = '<select class="degree-rule-select" onchange="setYearRuleReason(\'' + escapeHtml(yearId) + '\', this.value)">'
-      + EXCLUDED_REASONS.map((r) => '<option value="' + escapeHtml(r.value) + '"' + (rule.reason === r.value ? ' selected' : '') + '>' + escapeHtml(r.label) + '</option>').join('')
-      + '</select>';
-  } else if (rule.status === 'manualConversion') {
-    notesCell = '<div class="degree-rule-conv-inline">'
-      + '<input type="number" class="degree-rule-input" step="0.01" placeholder="Converted value (e.g. 68)"'
-      + ' value="' + (rule.convertedValue !== null && rule.convertedValue !== '' ? escapeHtml(String(rule.convertedValue)) : '') + '"'
-      + ' oninput="setYearConvertedValue(\'' + escapeHtml(yearId) + '\', this.value)">'
-      + '<input type="text" class="degree-rule-input" maxlength="200" placeholder="Conversion note"'
-      + ' value="' + escapeHtml(rule.conversionNote || '') + '"'
-      + ' oninput="setYearConversionNote(\'' + escapeHtml(yearId) + '\', this.value)">'
-      + '</div>';
-  } else if (!compatible) {
-    notesCell = '<span class="degree-rule-warn-inline">System mismatch — set to "Converted"</span>';
-  } else {
-    notesCell = '<span class="degree-rule-ok-inline">Compatible</span>';
+  if (valuedCountedYears.length >= 2) {
+    const sorted = [...valuedCountedYears].sort((a, b) => compareDegreeValues(a.degreeValue, b.degreeValue, model.outputSystem));
+    const strongest = sorted[0];
+    const lowest = sorted[sorted.length - 1];
+    cards.push(renderMiniInsight('Strongest counted year', strongest, model.outputSystem));
+    cards.push(renderMiniInsight('Lowest counted year', lowest, model.outputSystem));
   }
 
-  return '<div class="degree-year-rule-row">'
-    + '<span class="degree-rule-year-name">' + escapeHtml(year.label)
-    + '<br><span class="degree-rule-year-sys">' + escapeHtml(GRADING_SYSTEM_LABELS[yearSystem] || yearSystem) + '</span></span>'
-    + '<span>' + statusSelect + '</span>'
-    + '<span class="degree-rule-weight-cell">' + weightCell + '</span>'
-    + '<span class="degree-rule-notes-cell">' + notesCell + '</span>'
+  if (model.policy.mode === 'weightedYears' && model.counted.length) {
+    const biggest = [...model.counted].sort((a, b) => Number(b.rule.weight || 0) - Number(a.rule.weight || 0))[0];
+    if (biggest && Number(biggest.rule.weight || 0) > 0) {
+      const impact = (Number(biggest.rule.weight || 0) / 100) * 5;
+      cards.push('<article class="degree-insight-card degree-insight-card--accent">'
+        + '<p class="degree-insight-label">Biggest impact</p>'
+        + `<h3>${escapeHtml(biggest.year?.label || biggest.id)} carries ${escapeHtml(formatWeight(biggest.rule.weight))}% of your degree result.</h3>`
+        + `<p>A +5 point improvement here would move the forecast by about +${escapeHtml(impact.toFixed(1))} points.</p>`
+        + '</article>');
+    }
+  }
+
+  if (model.missingCredits > 0) {
+    cards.push('<article class="degree-insight-card degree-insight-card--warning">'
+      + '<p class="degree-insight-label">Missing data</p>'
+      + `<h3>${escapeHtml(model.missingCredits)} counted credits still need marks.</h3>`
+      + '<p>Those credits could change the forecast once actual results are entered.</p>'
+      + '</article>');
+  }
+
+  return cards.join('');
+}
+
+function renderMiniInsight(title, summary, outputSystem) {
+  const value = summary.degreeValue;
+  return '<article class="degree-insight-card">'
+    + `<p class="degree-insight-label">${escapeHtml(title)}</p>`
+    + `<h3>${escapeHtml(summary.year?.label || summary.id)}</h3>`
+    + `<p>${escapeHtml(formatDegreeResult(value, outputSystem))} · ${escapeHtml(getClassificationTag(value, outputSystem))}</p>`
+    + '</article>';
+}
+
+function renderYearJourneySection(model) {
+  const cards = model.summaries.map((summary, index) => renderYearJourneyCard(summary, model, index)).join('');
+  return '<section class="degree-panel degree-journey-section" aria-labelledby="degree-journey-title">'
+    + '<div class="degree-journey-bg" aria-hidden="true"></div>'
+    + '<div class="degree-section-heading">'
+    + '<p class="degree-section-kicker">Year Journey</p>'
+    + '<h2 id="degree-journey-title">Which years count?</h2>'
+    + '</div>'
+    + '<div class="degree-year-timeline">'
+    + cards
+    + '</div>'
+    + '</section>';
+}
+
+function renderYearJourneyCard(summary, model, index) {
+  const value = summary.degreeValue ?? summary.aggregate?.value;
+  const displaySystem = summary.hasConversion ? model.outputSystem : summary.nativeSystem;
+  const result = getYearCardResult(summary, value, displaySystem, model.outputSystem);
+  const statusText = getYearStatusText(summary);
+  const countsText = summary.counts ? `Counts · Weight ${formatWeight(summary.rule.weight)}%` : `${summary.excludedReason} · Weight 0%`;
+  const connector = index === 0 ? '' : '<span class="degree-timeline-connector" aria-hidden="true"></span>';
+
+  return connector + `<button class="degree-year-node degree-year-node--${escapeHtml(summary.status)}" type="button" onclick="openDegreeYearDetails('${escapeHtml(summary.id)}')" aria-label="Open details for ${escapeHtml(summary.year?.label || summary.id)}">`
+    + '<span class="degree-year-node-dot" aria-hidden="true"></span>'
+    + `<strong>${escapeHtml(summary.year?.label || summary.id)}</strong>`
+    + `<span class="degree-year-result">${escapeHtml(result)}</span>`
+    + `<span>${escapeHtml(countsText)}</span>`
+    + `<em>${escapeHtml(statusText)}</em>`
+    + '</button>';
+}
+
+function renderCompatibilityNotes(model) {
+  const notes = [];
+  const excluded = model.summaries.filter((summary) => !summary.counts);
+  const converted = model.summaries.filter((summary) => summary.hasConversion);
+
+  if (!model.blockers.length && !model.warnings.length) {
+    notes.push('All counted years compatible.');
+  }
+  if (excluded.length) {
+    notes.push(`${excluded.map((summary) => summary.year?.label || summary.id).join(', ')} excluded.`);
+  }
+  if (converted.length) {
+    notes.push(`${converted.map((summary) => summary.year?.label || summary.id).join(', ')} uses manual conversion.`);
+  }
+  if (model.blockers.length) notes.push(...model.blockers);
+  if (!notes.length) notes.push('No compatibility notes yet.');
+
+  return '<section class="degree-panel degree-compatibility-section" aria-labelledby="degree-compatibility-title">'
+    + '<div class="degree-section-heading">'
+    + '<p class="degree-section-kicker">Compatibility Notes</p>'
+    + '<h2 id="degree-compatibility-title">Calculation compatibility</h2>'
+    + '</div>'
+    + '<div class="degree-compatibility-note">'
+    + notes.map((note) => `<span>${escapeHtml(note)}</span>`).join('')
+    + '</div>'
+    + '</section>';
+}
+
+// Year details -------------------------------------------------------------
+
+function renderYearDetailsPanel(model) {
+  if (!activeYearDetailsId) return '';
+
+  const summary = model.summaries.find((item) => item.id === activeYearDetailsId);
+  if (!summary) return '';
+
+  const value = summary.degreeValue ?? summary.aggregate?.value;
+  const displaySystem = summary.hasConversion ? model.outputSystem : summary.nativeSystem;
+  const details = [
+    ['Institution', getEffectiveUniversity(summary.id)],
+    ['Course / programme', getEffectiveCourse(summary.id)],
+    ['Academic year', getEffectiveAcademicYearLabel(summary.id)],
+    ['Grading system', getSystemLabel(summary.nativeSystem)],
+    ['Degree status', getYearStatusText(summary)],
+    ['Degree weight', summary.counts ? `${formatWeight(summary.rule.weight)}%` : '0%'],
+    ['Compatibility', summary.blocked ? 'Needs manual conversion' : 'Compatible'],
+    ['Year prediction', value === null || value === undefined ? 'Not enough marks' : formatDegreeResult(value, displaySystem)],
+    ['Classification / tag', value === null || value === undefined ? 'Pending' : getClassificationTag(value, displaySystem)],
+    ['Credits graded', `${summary.aggregate.gradedCredits || 0}`],
+    ['Missing credits', `${summary.aggregate.missing || 0}`],
+    ['Modules graded', `${summary.aggregate.gradedCount || 0} of ${summary.aggregate.moduleCount || 0}`],
+  ];
+
+  if (summary.hasConversion || summary.needsConversion) {
+    details.push(['Original result', summary.aggregate.value === null || summary.aggregate.value === undefined ? 'Not enough marks' : formatDegreeResult(summary.aggregate.value, summary.nativeSystem)]);
+    details.push(['Converted value used', Number.isFinite(Number(summary.rule.convertedValue)) ? formatDegreeResult(Number(summary.rule.convertedValue), model.outputSystem) : 'Not set']);
+    details.push(['Conversion note', summary.rule.conversionNote || 'No conversion note yet']);
+  }
+
+  if (!summary.counts) {
+    details.push(['Reason for exclusion', summary.excludedReason]);
+  }
+
+  return '<div class="degree-modal-backdrop" role="presentation" onclick="closeDegreeYearDetails()">'
+    + '<aside class="degree-year-panel" role="dialog" aria-modal="true" aria-labelledby="degree-year-panel-title" onclick="event.stopPropagation()">'
+    + '<div class="degree-panel-topline">'
+    + `<p>${escapeHtml(getYearStatusText(summary))}</p>`
+    + '<button type="button" class="degree-icon-btn" onclick="closeDegreeYearDetails()" aria-label="Close year details">x</button>'
+    + '</div>'
+    + `<h2 id="degree-year-panel-title">${escapeHtml(summary.year?.label || summary.id)}</h2>`
+    + '<dl class="degree-details-list">'
+    + details.map(([label, valueText]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(valueText)}</dd></div>`).join('')
+    + '</dl>'
+    + '<div class="degree-panel-actions">'
+    + `<button class="degree-primary-btn" type="button" onclick="openDegreeYearInTracker('${escapeHtml(summary.id)}')">Open in Tracker</button>`
+    + '<button class="degree-quiet-btn" type="button" onclick="closeDegreeYearDetails()">Close</button>'
+    + '</div>'
+    + '</aside>'
     + '</div>';
 }
 
-// ── Public handlers (exposed via window.*) ─────────────────────────────────
-
-export function toggleDegreePolicy(enabled) {
-  saveDegreePolicy({ enabled });
+export function openDegreeYearDetails(yearId) {
+  activeYearDetailsId = yearId;
   renderDegreeDashboard();
 }
 
-export function toggleDegreePolicyEditor(open) {
-  const el = document.getElementById('section-policy');
-  if (!el) return;
-  el.style.display = open ? '' : 'none';
-  if (open) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+export function closeDegreeYearDetails() {
+  activeYearDetailsId = null;
+  renderDegreeDashboard();
+}
+
+export function openDegreeYearInTracker(yearId) {
+  if (store.state.years?.[yearId]) {
+    store.state.ui.currentYearId = yearId;
+    store.state.ui.currentTermFilter = 'all';
+    save();
+    refreshActiveYear();
+    window.renderYearSelector?.();
+    window.buildModules?.();
+    window.updateGlobal?.();
+  }
+  activeYearDetailsId = null;
+  showTrackerView();
+}
+
+// Policy setup overlay -----------------------------------------------------
+
+function renderPolicySetupOverlay(model) {
+  if (!policyDraft) return '';
+
+  const yearRows = model.yearIds.map((yearId) => renderPolicyYearSetupRow(yearId)).join('');
+  const countedRows = model.yearIds
+    .filter((yearId) => (policyDraft.yearRules?.[yearId]?.status || 'included') !== 'excluded')
+    .map((yearId) => renderWeightSetupRow(yearId))
+    .join('');
+  const conversionRows = model.yearIds
+    .map((yearId) => renderConversionSetupRow(yearId, model))
+    .filter(Boolean)
+    .join('');
+  const presetOptions = DEGREE_PRESETS.map((preset) => (
+    `<option value="${escapeHtml(preset.id)}"${preset.id === policyDraft.presetId ? ' selected' : ''}>${escapeHtml(preset.group)} - ${escapeHtml(preset.label)}</option>`
+  )).join('');
+  const outputYearOptions = model.yearIds.map((yearId) => (
+    `<option value="${escapeHtml(yearId)}"${yearId === policyDraft.outputYearId ? ' selected' : ''}>${escapeHtml(model.years[yearId]?.label || yearId)}</option>`
+  )).join('');
+  const totalWeight = getDraftTotalWeight();
+
+  return '<div class="degree-policy-overlay" role="dialog" aria-modal="true" aria-labelledby="degree-policy-setup-title">'
+    + '<div class="degree-policy-setup">'
+    + '<button class="degree-back-link" type="button" onclick="closeDegreePolicySetup()"><span aria-hidden="true">&larr;</span> Back to Degree Overview</button>'
+    + '<div class="degree-policy-setup-head">'
+    + '<p class="degree-eyebrow">Degree Policy Setup</p>'
+    + '<h2 id="degree-policy-setup-title">Tell UniTrack how your degree result should be calculated.</h2>'
+    + '</div>'
+    + '<div class="degree-setup-grid">'
+    + '<section class="degree-setup-step">'
+    + '<span>Step 1</span>'
+    + '<h3>Choose a common template</h3>'
+    + `<select id="degree-policy-preset" onchange="applyDegreePolicyTemplate(this.value)">${presetOptions}</select>`
+    + '</section>'
+    + '<section class="degree-setup-step">'
+    + '<span>Step 2</span>'
+    + '<h3>Choose graduating / output year</h3>'
+    + `<select id="degree-policy-output-year" onchange="refreshDegreePolicyDraft()">${outputYearOptions}</select>`
+    + '</section>'
+    + '<section class="degree-setup-step degree-setup-step--wide">'
+    + '<span>Step 3</span>'
+    + '<h3>Choose which years count</h3>'
+    + '<div class="degree-setup-year-list">'
+    + yearRows
+    + '</div>'
+    + '</section>'
+    + '<section class="degree-setup-step degree-setup-step--wide">'
+    + '<span>Step 4</span>'
+    + '<h3>Set weights</h3>'
+    + '<div class="degree-weight-list">'
+    + countedRows
+    + `<div class="degree-weight-total"><strong>Total</strong><strong>${escapeHtml(formatWeight(totalWeight))}%</strong></div>`
+    + '</div>'
+    + '</section>'
+    + (conversionRows ? '<section class="degree-setup-step degree-setup-step--wide degree-setup-step--conversion">'
+      + '<span>Step 5</span>'
+      + '<h3>Manual conversions if needed</h3>'
+      + '<div class="degree-conversion-list">'
+      + conversionRows
+      + '</div>'
+      + '</section>' : '')
+    + '</div>'
+    + '<div class="degree-policy-setup-actions">'
+    + '<button class="degree-quiet-btn" type="button" onclick="closeDegreePolicySetup()">Cancel</button>'
+    + '<button class="degree-primary-btn" type="button" onclick="saveDegreePolicySetup()">Save policy</button>'
+    + '</div>'
+    + '</div>'
+    + '</div>';
+}
+
+function renderPolicyYearSetupRow(yearId) {
+  const years = store.state.years || {};
+  const year = years[yearId] || {};
+  const rule = getDraftRule(yearId);
+  const reasonOptions = EXCLUDED_REASONS.map((reason) => (
+    `<option value="${escapeHtml(reason.value)}"${reason.value === rule.reason ? ' selected' : ''}>${escapeHtml(reason.label)}</option>`
+  )).join('');
+
+  return '<article class="degree-setup-year">'
+    + `<div><strong>${escapeHtml(year.label || yearId)}</strong><span>${escapeHtml(getSystemLabel(year.gradingSystem || getGradingSystem()))}</span></div>`
+    + `<select id="degree-policy-status-${escapeHtml(yearId)}" onchange="refreshDegreePolicyDraft()">`
+    + `<option value="included"${rule.status === 'included' ? ' selected' : ''}>Counts toward degree</option>`
+    + `<option value="excluded"${rule.status === 'excluded' ? ' selected' : ''}>Does not count</option>`
+    + `<option value="manualConversion"${rule.status === 'manualConversion' ? ' selected' : ''}>Converted manually</option>`
+    + '</select>'
+    + `<select id="degree-policy-reason-${escapeHtml(yearId)}" onchange="refreshDegreePolicyDraft()">${reasonOptions}</select>`
+    + '</article>';
+}
+
+function renderWeightSetupRow(yearId) {
+  const years = store.state.years || {};
+  const rule = getDraftRule(yearId);
+  return '<label class="degree-weight-row">'
+    + `<span>${escapeHtml(years[yearId]?.label || yearId)}</span>`
+    + `<input id="degree-policy-weight-${escapeHtml(yearId)}" type="number" min="0" max="100" step="0.1" value="${escapeHtml(rule.weight || 0)}" onchange="refreshDegreePolicyDraft()">`
+    + '</label>';
+}
+
+function renderConversionSetupRow(yearId, model) {
+  const years = store.state.years || {};
+  const year = years[yearId] || {};
+  const rule = getDraftRule(yearId);
+  const counts = rule.status !== 'excluded';
+  const needsConversion = counts && (year.gradingSystem || getGradingSystem()) !== model.outputSystem;
+  if (!needsConversion && rule.status !== 'manualConversion') return '';
+  const aggregate = computeYearAggregate(yearId);
+
+  return '<article class="degree-conversion-card">'
+    + `<h4>${escapeHtml(year.label || yearId)} uses ${escapeHtml(getSystemLabel(year.gradingSystem || getGradingSystem()))}.</h4>`
+    + `<p>Original result: ${escapeHtml(aggregate.value === null || aggregate.value === undefined ? 'Not enough marks' : formatDegreeResult(aggregate.value, year.gradingSystem || getGradingSystem()))}</p>`
+    + '<label>Converted value'
+    + `<input id="degree-policy-converted-${escapeHtml(yearId)}" type="number" step="0.1" value="${escapeHtml(rule.convertedValue ?? '')}" onchange="refreshDegreePolicyDraft()" placeholder="e.g. 68">`
+    + '</label>'
+    + '<label>Note'
+    + `<textarea id="degree-policy-note-${escapeHtml(yearId)}" onchange="refreshDegreePolicyDraft()" placeholder="Converted using receiving university guidance">${escapeHtml(rule.conversionNote || '')}</textarea>`
+    + '</label>'
+    + '</article>';
+}
+
+export function openDegreePolicySetup() {
+  policyDraft = clonePolicy(getDegreePolicy());
+  ensureDraftRules();
+  renderDegreeDashboard();
+}
+
+export function closeDegreePolicySetup() {
+  policyDraft = null;
+  renderDegreeDashboard();
+}
+
+export function refreshDegreePolicyDraft() {
+  if (!policyDraft) return;
+  syncPolicyDraftFromDom();
+  renderDegreeDashboard();
+}
+
+export function applyDegreePolicyTemplate(presetId) {
+  if (!policyDraft) return;
+  syncPolicyDraftFromDom();
+  applyPresetToDraft(presetId);
+  renderDegreeDashboard();
+}
+
+export function saveDegreePolicySetup() {
+  if (!policyDraft) return;
+  syncPolicyDraftFromDom();
+  store.state.degreePolicy = clonePolicy(policyDraft);
+  save();
+  policyDraft = null;
+  renderDegreeDashboard();
+}
+
+function syncPolicyDraftFromDom() {
+  const preset = document.getElementById('degree-policy-preset');
+  const outputYear = document.getElementById('degree-policy-output-year');
+  if (preset) policyDraft.presetId = preset.value;
+  if (outputYear) policyDraft.outputYearId = outputYear.value;
+
+  const presetMeta = DEGREE_PRESETS.find((item) => item.id === policyDraft.presetId);
+  if (presetMeta) policyDraft.mode = presetMeta.mode;
+
+  ensureDraftRules();
+  Object.keys(store.state.years || {}).forEach((yearId) => {
+    const status = document.getElementById(`degree-policy-status-${yearId}`);
+    const reason = document.getElementById(`degree-policy-reason-${yearId}`);
+    const weight = document.getElementById(`degree-policy-weight-${yearId}`);
+    const converted = document.getElementById(`degree-policy-converted-${yearId}`);
+    const note = document.getElementById(`degree-policy-note-${yearId}`);
+    const rule = getDraftRule(yearId);
+
+    if (status) rule.status = status.value;
+    if (reason) rule.reason = reason.value;
+    if (weight) rule.weight = clampNumber(weight.value, 0, 100);
+    if (converted) rule.convertedValue = converted.value === '' ? null : Number(converted.value);
+    if (note) rule.conversionNote = note.value;
+  });
+}
+
+function applyPresetToDraft(presetId) {
+  const years = store.state.years || {};
+  const yearIds = getSortedYearIds(years);
+  const preset = DEGREE_PRESETS.find((item) => item.id === presetId) || DEGREE_PRESETS[0];
+  policyDraft.presetId = preset.id;
+  policyDraft.mode = preset.mode;
+  policyDraft.yearRules = {};
+
+  yearIds.forEach((yearId, index) => {
+    policyDraft.yearRules[yearId] = getDefaultYearRule();
+    const rule = policyDraft.yearRules[yearId];
+    if (preset.id === 'foundation_excluded' && index === 0) {
+      rule.status = 'excluded';
+      rule.reason = 'foundation';
+    } else if (preset.id === 'placement_excluded' && /placement|abroad|exchange/i.test(years[yearId]?.label || '')) {
+      rule.status = 'excluded';
+      rule.reason = 'placement';
+    }
+  });
+
+  const included = yearIds.filter((yearId) => policyDraft.yearRules[yearId]?.status !== 'excluded');
+  if (preset.mode === 'creditWeightedAllIncluded') {
+    included.forEach((yearId) => { policyDraft.yearRules[yearId].weight = 0; });
+    return;
+  }
+
+  if (preset.id === 'uk_0_40_60' && included.length >= 3) {
+    included.forEach((yearId, index) => { policyDraft.yearRules[yearId].weight = index === included.length - 2 ? 40 : (index === included.length - 1 ? 60 : 0); });
+    return;
+  }
+  if (preset.id === 'uk_0_33_67' && included.length >= 3) {
+    included.forEach((yearId, index) => { policyDraft.yearRules[yearId].weight = index === included.length - 2 ? 33.3 : (index === included.length - 1 ? 66.7 : 0); });
+    return;
+  }
+  if (preset.id === 'uk_honours_only' && included.length >= 2) {
+    included.forEach((yearId, index) => { policyDraft.yearRules[yearId].weight = index >= included.length - 2 ? 50 : 0; });
+    return;
+  }
+
+  const equalWeight = included.length ? 100 / included.length : 0;
+  included.forEach((yearId) => { policyDraft.yearRules[yearId].weight = Number(equalWeight.toFixed(1)); });
+}
+
+// Existing setters kept for compatibility with older inline handlers --------
+
+export function toggleDegreePolicy() {
+  const policy = getDegreePolicy();
+  saveDegreePolicy({ enabled: !policy.enabled });
+  renderDegreeDashboard();
+}
+
+export function toggleDegreePolicyEditor() {
+  openDegreePolicySetup();
 }
 
 export function setDegreePolicyPreset(presetId) {
@@ -728,32 +776,203 @@ export function setDegreeOutputYear(yearId) {
 }
 
 export function setYearRuleStatus(yearId, status) {
-  const rule  = getYearRule(yearId);
-  rule.status = status;
+  getYearRule(yearId).status = status;
   save();
   renderDegreeDashboard();
 }
 
 export function setYearRuleWeight(yearId, value) {
-  const rule  = getYearRule(yearId);
-  rule.weight = value === '' ? 0 : parseFloat(value) || 0;
+  getYearRule(yearId).weight = clampNumber(value, 0, 100);
   save();
+  renderDegreeDashboard();
 }
 
-export function setYearRuleReason(yearId, reason) {
-  const rule  = getYearRule(yearId);
-  rule.reason = reason;
+export function setYearRuleReason(yearId, value) {
+  getYearRule(yearId).reason = value;
   save();
+  renderDegreeDashboard();
 }
 
 export function setYearConvertedValue(yearId, value) {
-  const rule          = getYearRule(yearId);
-  rule.convertedValue = value === '' ? null : value;
+  getYearRule(yearId).convertedValue = value === '' ? null : Number(value);
   save();
+  renderDegreeDashboard();
 }
 
 export function setYearConversionNote(yearId, value) {
-  const rule          = getYearRule(yearId);
-  rule.conversionNote = value;
+  getYearRule(yearId).conversionNote = value;
   save();
+  renderDegreeDashboard();
+}
+
+export function toggleYearCard(yearId) {
+  openDegreeYearDetails(yearId);
+}
+
+export function toggleDegreeStatusDetails() {
+  statusDetailsOpen = !statusDetailsOpen;
+  renderDegreeDashboard();
+}
+
+// Helpers ------------------------------------------------------------------
+
+function getSortedYearIds(years) {
+  return Object.keys(years).sort((a, b) => {
+    const aLabel = years[a]?.label || a;
+    const bLabel = years[b]?.label || b;
+    const aNum = Number((aLabel.match(/\d+/) || [])[0]);
+    const bNum = Number((bLabel.match(/\d+/) || [])[0]);
+    if (Number.isFinite(aNum) && Number.isFinite(bNum) && aNum !== bNum) return aNum - bNum;
+    return aLabel.localeCompare(bLabel);
+  });
+}
+
+function isPolicyConfigured(policy, summaries, outputYear) {
+  if (!outputYear) return false;
+  const counted = summaries.filter((summary) => summary.counts);
+  if (!counted.length) return false;
+  if (policy.mode === 'creditWeightedAllIncluded') return true;
+  return counted.some((summary) => Number(summary.rule.weight || 0) > 0);
+}
+
+function getUnavailableState(model) {
+  if (!model.configured) {
+    return {
+      title: 'Policy setup needed',
+      subtitle: 'Choose which years count and how they are weighted.',
+      body: 'Your per-year overview is still available below.',
+      action: 'Set up degree policy',
+      actionClass: 'degree-primary-btn',
+    };
+  }
+
+  if (model.blockers.length) {
+    return {
+      title: 'Policy issue',
+      subtitle: model.blockers[0],
+      body: 'Fix the policy issue to calculate a degree-wide forecast.',
+      action: 'Fix policy issue',
+      actionClass: 'degree-primary-btn',
+    };
+  }
+
+  return {
+    title: 'More marks needed',
+    subtitle: 'Not enough counted data yet.',
+    body: 'Add module marks in counted years to unlock the forecast.',
+    action: 'Review policy',
+    actionClass: 'degree-subtle-pill',
+  };
+}
+
+function getCompactIssueText(model) {
+  if (model.warnings.length) return model.warnings[0];
+  if (model.missingCredits > 0) return `${model.missingCredits} counted credits are missing marks.`;
+  return 'Review the degree policy details.';
+}
+
+function getSystemLabel(system) {
+  return GRADING_SYSTEM_LABELS[system] || system || 'Selected grading system';
+}
+
+function formatDegreeResult(value, system) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return 'Pending';
+  const n = Number(value);
+  if (system === 'au7') return `${n.toFixed(1)} / 7.0 GPA`;
+  if (system === 'au4') return `${n.toFixed(2)} / 4.0 GPA`;
+  if (system === 'us4' || system === 'us43' || system === 'my4') return `${n.toFixed(2)} GPA`;
+  if (system === 'nz9') return `${n.toFixed(1)} / 9.0 GPA`;
+  if (system === 'de5') return `${n.toFixed(1)} grade`;
+  if (system === 'cn4') return `${n.toFixed(1)}%`;
+  return `${n.toFixed(1)}%`;
+}
+
+function getClassificationTag(value, system) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return 'Pending';
+  const result = classify(Number(value), system);
+  if (system === 'uk' && result.badge && result.label && result.badge !== result.label) {
+    return `${result.badge} / ${result.label}`;
+  }
+  if ((system === 'us4' || system === 'us43') && result.badge === 'A') return 'A range';
+  return result.badge || result.label || 'Classified';
+}
+
+function getYearCardResult(summary, value, displaySystem, outputSystem) {
+  if (!summary.counts) return 'Does not count';
+  if (summary.blocked) return 'Needs conversion';
+  if (value === null || value === undefined) return 'Not enough marks';
+  if (summary.hasConversion) {
+    return `${formatDegreeResult(summary.aggregate.value, summary.nativeSystem)} -> used as ${formatDegreeResult(summary.rule.convertedValue, outputSystem)}`;
+  }
+  return `${formatDegreeResult(value, displaySystem)} / ${getClassificationTag(value, displaySystem)}`;
+}
+
+function getYearStatusText(summary) {
+  if (!summary.counts) return 'Excluded';
+  if (summary.blocked) return 'Attention needed';
+  if (summary.hasConversion) return 'Converted';
+  if (summary.incomplete) return 'Compatible with missing data';
+  return 'Compatible';
+}
+
+function getBarPercent(value, system) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return 0;
+  const n = Number(value);
+  if (system === 'au7') return Math.max(0, Math.min(100, (n / 7) * 100));
+  if (system === 'au4' || system === 'us4' || system === 'us43' || system === 'my4') return Math.max(0, Math.min(100, (n / 4) * 100));
+  if (system === 'nz9') return Math.max(0, Math.min(100, (n / 9) * 100));
+  if (system === 'de5') return Math.max(0, Math.min(100, ((5 - n) / 4) * 100));
+  return Math.max(0, Math.min(100, n));
+}
+
+function getContributionShare(summary, model) {
+  if (model.policy.mode === 'creditWeightedAllIncluded') {
+    const total = model.counted.reduce((sum, year) => sum + (year.aggregate?.attempted || 0), 0);
+    const credits = summary.aggregate?.attempted || 0;
+    const percent = total ? (credits / total) * 100 : 0;
+    return { percent: percent.toFixed(1), label: `${credits} credits · ${percent.toFixed(1)}%` };
+  }
+  return { percent: String(Math.min(100, Number(summary.rule.weight || 0))), label: `${formatWeight(summary.rule.weight)}% weight` };
+}
+
+function compareDegreeValues(a, b, system) {
+  if (system === 'de5') return Number(a) - Number(b);
+  return Number(b) - Number(a);
+}
+
+function getDraftRule(yearId) {
+  ensureDraftRules();
+  if (!policyDraft.yearRules[yearId]) policyDraft.yearRules[yearId] = getDefaultYearRule();
+  return policyDraft.yearRules[yearId];
+}
+
+function ensureDraftRules() {
+  if (!policyDraft) return;
+  if (!policyDraft.yearRules) policyDraft.yearRules = {};
+  Object.keys(store.state.years || {}).forEach((yearId) => {
+    if (!policyDraft.yearRules[yearId]) policyDraft.yearRules[yearId] = getDefaultYearRule();
+  });
+}
+
+function getDraftTotalWeight() {
+  if (!policyDraft) return 0;
+  return Object.keys(store.state.years || {}).reduce((sum, yearId) => {
+    const rule = getDraftRule(yearId);
+    return rule.status === 'excluded' ? sum : sum + Number(rule.weight || 0);
+  }, 0);
+}
+
+function clonePolicy(policy) {
+  return JSON.parse(JSON.stringify(policy));
+}
+
+function clampNumber(value, min, max) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return min;
+  return Math.max(min, Math.min(max, parsed));
+}
+
+function formatWeight(value) {
+  const n = Number(value || 0);
+  return Number.isInteger(n) ? String(n) : n.toFixed(1);
 }

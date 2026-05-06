@@ -330,6 +330,15 @@ window.setYearRuleReason          = degreeDashboard.setYearRuleReason;
 window.setYearConvertedValue      = degreeDashboard.setYearConvertedValue;
 window.setYearConversionNote      = degreeDashboard.setYearConversionNote;
 window.toggleYearCard             = degreeDashboard.toggleYearCard;
+window.openDegreePolicySetup      = degreeDashboard.openDegreePolicySetup;
+window.closeDegreePolicySetup     = degreeDashboard.closeDegreePolicySetup;
+window.refreshDegreePolicyDraft   = degreeDashboard.refreshDegreePolicyDraft;
+window.applyDegreePolicyTemplate  = degreeDashboard.applyDegreePolicyTemplate;
+window.saveDegreePolicySetup      = degreeDashboard.saveDegreePolicySetup;
+window.openDegreeYearDetails      = degreeDashboard.openDegreeYearDetails;
+window.closeDegreeYearDetails     = degreeDashboard.closeDegreeYearDetails;
+window.openDegreeYearInTracker    = degreeDashboard.openDegreeYearInTracker;
+window.toggleDegreeStatusDetails  = degreeDashboard.toggleDegreeStatusDetails;
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 bootApp();
