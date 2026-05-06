@@ -75,6 +75,7 @@ export function renderDegreeDashboard() {
     + renderStatusStrip(model)
     + '</section>'
     + renderInsightsSection(model)
+    + renderImprovementSection(model)
     + renderYearJourneySection(model)
     + renderCompatibilityNotes(model)
     + '<p class="degree-disclaimer">Degree forecasts are planning aids only. Your university, faculty, or programme may use different rules, so always check your official academic regulations.</p>'
@@ -388,69 +389,6 @@ function renderAdaptiveInsightCards(model) {
     cards.push(renderMiniInsight('Lowest year', lowest, model.outputSystem));
   }
 
-  if (model.policy.mode === 'weightedYears' && model.counted.length) {
-    // Prefer the current active year if it counts; otherwise use the highest-weight counted year
-    const currentYearId = store.state.ui?.currentYearId;
-    const currentSummary = model.counted.find((s) => s.id === currentYearId && Number(s.rule.weight || 0) > 0);
-    const impactYear = currentSummary
-      || [...model.counted].sort((a, b) => Number(b.rule.weight || 0) - Number(a.rule.weight || 0))[0];
-
-    if (impactYear && Number(impactYear.rule.weight || 0) > 0) {
-      const weight = Number(impactYear.rule.weight || 0);
-      const totalWeight = model.counted.reduce((sum, s) => sum + Number(s.rule.weight || 0), 0);
-      const effectiveShare = totalWeight > 0 ? weight / totalWeight : weight / 100;
-      const per1 = effectiveShare.toFixed(2);
-      const per5 = (effectiveShare * 5).toFixed(1);
-      const isCurrentYear = impactYear.id === currentYearId;
-
-      // Module-level suggestions — only if this is the active year and has modules with credits
-      let modulesHtml = '';
-      if (isCurrentYear) {
-        const yearModules = Object.values(store.state.years?.[impactYear.id]?.store?.modules || {});
-        const creditedModules = yearModules.filter((m) => Number(m.credits || 0) > 0);
-        const yearTotalCredits = creditedModules.reduce((sum, m) => sum + Number(m.credits || 0), 0);
-        if (creditedModules.length >= 2 && yearTotalCredits > 0) {
-          const topModules = [...creditedModules]
-            .sort((a, b) => Number(b.credits || 0) - Number(a.credits || 0))
-            .slice(0, 4);
-          const chips = topModules.map((m) => {
-            const code = m.kanji || m.short || m.name || 'Module';
-            const modShare = Number(m.credits || 0) / yearTotalCredits;
-            const modPer1 = (modShare * effectiveShare).toFixed(2);
-            return `<span class="degree-insight-chip" title="${escapeHtml(m.name || code)}">${escapeHtml(code)}&thinsp;<em>+${escapeHtml(modPer1)}</em></span>`;
-          }).join('');
-          modulesHtml = `<p class="degree-insight-chips-label">Per module (+1 pt each):</p><div class="degree-insight-module-chips">${chips}</div>`;
-        }
-      }
-
-      cards.push('<article class="degree-insight-card degree-insight-card--accent">'
-        + '<p class="degree-insight-label">Where Improvement Matters Most</p>'
-        + `<h3>${escapeHtml(impactYear.year?.label || impactYear.id)} carries ${escapeHtml(formatWeight(weight))}% of your degree result.</h3>`
-        + `<p>Every +1 pt${isCurrentYear ? ' this year' : ' here'}: +${escapeHtml(per1)} on your degree · +5 pt gain ≈ +${escapeHtml(per5)}.</p>`
-        + modulesHtml
-        + '</article>');
-    }
-  } else if (model.policy.mode === 'creditWeightedAllIncluded' && model.counted.length) {
-    const currentYearId = store.state.ui?.currentYearId;
-    const currentSummary = model.counted.find((s) => s.id === currentYearId);
-    if (currentSummary) {
-      const currentCredits = currentSummary.aggregate?.attempted || 0;
-      const totalCredits = model.counted.reduce((sum, s) => sum + (s.aggregate?.attempted || 0), 0);
-      if (totalCredits > 0 && currentCredits > 0) {
-        const effectiveShare = currentCredits / totalCredits;
-        const per1 = effectiveShare.toFixed(2);
-        const per5 = (effectiveShare * 5).toFixed(1);
-        const sharePct = (effectiveShare * 100).toFixed(0);
-        cards.push('<article class="degree-insight-card degree-insight-card--accent">'
-          + '<p class="degree-insight-label">Where Improvement Matters Most</p>'
-          + `<h3>${escapeHtml(currentSummary.year?.label || currentYearId)} contributes ${escapeHtml(sharePct)}% of counted credits.</h3>`
-          + `<p>Every +1 pt improvement this year moves your projected result by +${escapeHtml(per1)}`
-          + ` · a +5 pt gain adds about +${escapeHtml(per5)}.</p>`
-          + '</article>');
-      }
-    }
-  }
-
   if (model.missingCredits > 0) {
     cards.push('<article class="degree-insight-card degree-insight-card--warning">'
       + '<p class="degree-insight-label">Missing data</p>'
@@ -469,6 +407,116 @@ function renderMiniInsight(title, summary, outputSystem) {
     + `<h3>${escapeHtml(summary.year?.label || summary.id)}</h3>`
     + `<p>${escapeHtml(formatDegreeResult(value, outputSystem))} · ${escapeHtml(getClassificationTag(value, outputSystem))}</p>`
     + '</article>';
+}
+
+function renderImprovementSection(model) {
+  if (!model.configured || !model.counted.length) return '';
+  const isWeighted = model.policy.mode === 'weightedYears';
+  const isCreditWeighted = model.policy.mode === 'creditWeightedAllIncluded';
+  if (!isWeighted && !isCreditWeighted) return '';
+
+  const totalWeight = isWeighted
+    ? model.counted.reduce((sum, s) => sum + Number(s.rule.weight || 0), 0)
+    : 0;
+  const totalCredits = isCreditWeighted
+    ? model.counted.reduce((sum, s) => sum + (s.aggregate?.attempted || 0), 0)
+    : 0;
+
+  // Compute effective share (0–1) for each counted year
+  const yearEntries = model.counted
+    .map((summary) => {
+      let effectiveShare = 0;
+      if (isWeighted && totalWeight > 0) {
+        effectiveShare = Number(summary.rule.weight || 0) / totalWeight;
+      } else if (isCreditWeighted && totalCredits > 0) {
+        effectiveShare = (summary.aggregate?.attempted || 0) / totalCredits;
+      }
+      return { summary, effectiveShare };
+    })
+    .filter(({ effectiveShare }) => effectiveShare > 0)
+    .sort((a, b) => b.effectiveShare - a.effectiveShare);
+
+  if (!yearEntries.length) return '';
+
+  // Year-level rows
+  const maxShare = yearEntries[0].effectiveShare;
+  const currentYearId = store.state.ui?.currentYearId;
+  const yearRowsHtml = yearEntries.map(({ summary, effectiveShare }) => {
+    const isCurrent = summary.id === currentYearId;
+    const impact = effectiveShare.toFixed(2);
+    const barPct = maxShare > 0 ? ((effectiveShare / maxShare) * 100).toFixed(1) : 0;
+    const meta = isWeighted
+      ? `${formatWeight(summary.rule.weight)}% weight`
+      : `${summary.aggregate?.attempted || 0} ${getCreditUnitLabel()} counted`;
+    return `<div class="degree-improvement-row${isCurrent ? ' degree-improvement-row--current' : ''}">`
+      + '<div class="degree-improvement-row-label">'
+      + `<strong>${escapeHtml(summary.year?.label || summary.id)}</strong>`
+      + `<span>${escapeHtml(meta)}${isCurrent ? ' · current year' : ''}</span>`
+      + '</div>'
+      + '<div class="degree-improvement-row-data">'
+      + `<span class="degree-improvement-impact">+${escapeHtml(impact)}%</span>`
+      + '<span class="degree-improvement-impact-desc">per 1% improvement</span>'
+      + `<div class="degree-improvement-bar-track"><div class="degree-improvement-bar-fill" style="width:${escapeHtml(String(barPct))}%"></div></div>`
+      + '</div>'
+      + '</div>';
+  }).join('');
+
+  // Module breakdown for the focus year (current if counted, else highest-impact)
+  const focusEntry = yearEntries.find(({ summary }) => summary.id === currentYearId) || yearEntries[0];
+  let moduleHtml = '';
+  if (focusEntry) {
+    const yearModules = Object.values(store.state.years?.[focusEntry.summary.id]?.store?.modules || {});
+    const creditedModules = yearModules.filter((m) => Number(m.credits || 0) > 0);
+    const yearTotalCredits = creditedModules.reduce((sum, m) => sum + Number(m.credits || 0), 0);
+    if (creditedModules.length > 0 && yearTotalCredits > 0) {
+      const sorted = [...creditedModules].sort((a, b) => Number(b.credits || 0) - Number(a.credits || 0));
+      const modRows = sorted.map((m) => {
+        const code = m.kanji || m.short || '';
+        const name = m.name || 'Module';
+        const modShare = Number(m.credits || 0) / yearTotalCredits;
+        const modImpact = (modShare * focusEntry.effectiveShare).toFixed(3);
+        const barPct = (modShare * 100).toFixed(1);
+        return '<div class="degree-improvement-module-row">'
+          + '<div class="degree-improvement-module-label">'
+          + `<strong>${escapeHtml(code || name)}</strong>`
+          + (code ? `<span>${escapeHtml(name)}</span>` : '')
+          + '</div>'
+          + `<span class="degree-improvement-module-cr">${escapeHtml(String(m.credits || 0))} cr</span>`
+          + `<span class="degree-improvement-module-impact">+${escapeHtml(modImpact)}%</span>`
+          + `<div class="degree-improvement-bar-track degree-improvement-bar-track--sm"><div class="degree-improvement-bar-fill" style="width:${escapeHtml(String(barPct))}%"></div></div>`
+          + '</div>';
+      }).join('');
+      const isCurrent = focusEntry.summary.id === currentYearId;
+      moduleHtml = '<div class="degree-improvement-modules">'
+        + '<p class="degree-improvement-modules-heading">'
+        + `Module breakdown — ${escapeHtml(focusEntry.summary.year?.label || focusEntry.summary.id)}`
+        + `${isCurrent ? ' <span class="degree-improvement-current-badge">current year</span>' : ''}`
+        + '</p>'
+        + '<p class="degree-improvement-modules-sub">How much your degree result shifts if you improve a single module by 1%</p>'
+        + '<div class="degree-improvement-modules-list">'
+        + '<div class="degree-improvement-module-row degree-improvement-module-row--header">'
+        + '<div class="degree-improvement-module-label"><span>Module</span></div>'
+        + '<span class="degree-improvement-module-cr">Credits</span>'
+        + '<span class="degree-improvement-module-impact">Degree impact / 1%</span>'
+        + '<div class="degree-improvement-bar-track degree-improvement-bar-track--sm" aria-hidden="true"></div>'
+        + '</div>'
+        + modRows
+        + '</div>'
+        + '</div>';
+    }
+  }
+
+  return '<section class="degree-panel degree-improvement-panel" aria-labelledby="degree-improvement-title">'
+    + '<div class="degree-section-heading">'
+    + '<p class="degree-section-kicker">Impact Analysis</p>'
+    + '<h2 id="degree-improvement-title">Where to Focus Your Effort</h2>'
+    + '<p class="degree-improvement-intro">For every 1% increase in a year\'s average grade, your projected degree result moves by this amount.</p>'
+    + '</div>'
+    + '<div class="degree-improvement-years">'
+    + yearRowsHtml
+    + '</div>'
+    + moduleHtml
+    + '</section>';
 }
 
 function renderYearJourneySection(model) {
@@ -751,6 +799,28 @@ function renderPolicyYearSetupRow(yearId) {
   const years = store.state.years || {};
   const year = years[yearId] || {};
   const rule = getDraftRule(yearId);
+
+  // Forecast years get a self-contained card with expected grade + weight inline
+  if (year.isForecast) {
+    const gradeVal = rule.convertedValue ?? '';
+    const weightVal = String(Number(rule.weight) || 0);
+    return '<article class="degree-setup-year degree-setup-year--forecast">'
+      + '<div class="degree-setup-year-forecast-head">'
+      + `<strong>${escapeHtml(year.label || yearId)}</strong>`
+      + '<span class="degree-setup-forecast-badge">Forecast</span>'
+      + `<button class="degree-forecast-remove-btn" type="button" onclick="removeForecastYear('${escapeHtml(yearId)}')">Remove</button>`
+      + '</div>'
+      + '<div class="degree-setup-year-forecast-inputs">'
+      + '<label>Expected grade'
+      + `<input id="degree-policy-forecast-grade-${escapeHtml(yearId)}" type="number" step="0.1" placeholder="e.g. 65" value="${escapeHtml(String(gradeVal))}" oninput="refreshDegreePolicyDraft()" onchange="refreshDegreePolicyDraft()">`
+      + '</label>'
+      + '<label>Weight (%)'
+      + `<input id="degree-policy-forecast-weight-${escapeHtml(yearId)}" type="number" step="0.1" min="0" max="100" placeholder="e.g. 40" value="${escapeHtml(weightVal)}" oninput="refreshDegreePolicyDraft()" onchange="refreshDegreePolicyDraft()">`
+      + '</label>'
+      + '</div>'
+      + '</article>';
+  }
+
   const reasonOptions = EXCLUDED_REASONS.map((reason) => (
     `<option value="${escapeHtml(reason.value)}"${reason.value === rule.reason ? ' selected' : ''}>${escapeHtml(reason.label)}</option>`
   )).join('');
@@ -767,6 +837,8 @@ function renderPolicyYearSetupRow(yearId) {
 }
 
 function renderWeightSetupRow(yearId) {
+  // Forecast years handle their own weight inline in Step 3
+  if (store.state.years?.[yearId]?.isForecast) return '';
   const years = store.state.years || {};
   const rule = getDraftRule(yearId);
   return '<label class="degree-weight-row">'
@@ -776,6 +848,8 @@ function renderWeightSetupRow(yearId) {
 }
 
 function renderConversionSetupRow(yearId, model) {
+  // Forecast years handle their own grade inline in Step 3
+  if (store.state.years?.[yearId]?.isForecast) return '';
   const years = store.state.years || {};
   const year = years[yearId] || {};
   const rule = getDraftRule(yearId);
@@ -798,8 +872,15 @@ function renderConversionSetupRow(yearId, model) {
 }
 
 export async function addForecastYear() {
-  const label = await window.appPrompt('Enter a label for the forecast year (e.g. "Year 3"):', 'Year 3');
-  if (!label || !label.trim()) return;
+  const result = await window.appPrompt({
+    title: 'Add forecast year',
+    inputLabel: 'Year label',
+    defaultValue: 'Year 3',
+    placeholder: 'e.g. Year 3, Final Year',
+    confirmText: 'Add year',
+  });
+  if (!result || !result.value.trim()) return;
+  const label = result.value.trim();
 
   const id = `forecast-${Date.now()}`;
 
@@ -834,6 +915,16 @@ export async function addForecastYear() {
     };
   }
 
+  save();
+  renderDegreeDashboard();
+}
+
+export function removeForecastYear(yearId) {
+  if (!store.state.years?.[yearId]?.isForecast) return;
+  delete store.state.years[yearId];
+  const livePolicy = getDegreePolicy();
+  if (livePolicy.yearRules?.[yearId]) delete livePolicy.yearRules[yearId];
+  if (policyDraft?.yearRules?.[yearId]) delete policyDraft.yearRules[yearId];
   save();
   renderDegreeDashboard();
 }
@@ -882,12 +973,24 @@ function syncPolicyDraftFromDom() {
 
   ensureDraftRules();
   Object.keys(store.state.years || {}).forEach((yearId) => {
+    const year = store.state.years[yearId];
+    const rule = getDraftRule(yearId);
+
+    if (year?.isForecast) {
+      // Forecast years use their own inline inputs in Step 3
+      const gradeInput = document.getElementById(`degree-policy-forecast-grade-${yearId}`);
+      const weightInput = document.getElementById(`degree-policy-forecast-weight-${yearId}`);
+      rule.status = 'manualConversion';
+      if (gradeInput) rule.convertedValue = gradeInput.value === '' ? null : Number(gradeInput.value);
+      if (weightInput) rule.weight = clampNumber(parseFloat(weightInput.value) || 0, 0, 100);
+      return;
+    }
+
     const status = document.getElementById(`degree-policy-status-${yearId}`);
     const reason = document.getElementById(`degree-policy-reason-${yearId}`);
     const weight = document.getElementById(`degree-policy-weight-${yearId}`);
     const converted = document.getElementById(`degree-policy-converted-${yearId}`);
     const note = document.getElementById(`degree-policy-note-${yearId}`);
-    const rule = getDraftRule(yearId);
 
     if (status) rule.status = status.value;
     if (reason) rule.reason = reason.value;
