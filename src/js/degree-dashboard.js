@@ -160,20 +160,19 @@ function buildYearSummary(yearId, year, policy, outputSystem) {
 // Sections -----------------------------------------------------------------
 
 function renderHeader(model = null) {
-  // Try multiple year IDs to find a non-empty course/university
-  const tryIds = [
-    model?.outputYear?.id,
-    ...(model?.yearIds || []),
-    store.state.ui?.currentYearId,
-  ].filter(Boolean);
-  let course = '';
-  let university = '';
-  for (const id of tryIds) {
-    if (!course) course = getEffectiveCourse(id);
-    if (!university) university = getEffectiveUniversity(id);
-    if (course && university) break;
+  // The degree title MUST come from the global profile — never from a year-specific
+  // course override (which could be "Industrial Placement Year", etc.).
+  const course = (store.state.profile?.course || '').trim() || 'My Degree';
+
+  // University: global profile first; fall back through years if not set globally
+  let university = (store.state.profile?.university || '').trim();
+  if (!university) {
+    const tryIds = [model?.outputYear?.id, ...(model?.yearIds || [])].filter(Boolean);
+    for (const id of tryIds) {
+      const u = getEffectiveUniversity(id);
+      if (u) { university = u; break; }
+    }
   }
-  course = course || 'My Degree';
   const yearCount = model?.summaries?.length || 0;
   const metaParts = [
     university,
@@ -199,10 +198,15 @@ function renderForecastHero(model) {
     const outputYearLabel = model.outputYear?.label || 'graduating year';
 
     const creditLabel = getCreditUnitLabel({ system: model.outputSystem }).toLowerCase();
+    // Determine whether the forecast covers all counted years or only those with marks
+    const skippedYears = model.warnings.filter((w) => w.includes('no grades yet'));
+    const heroLabel = skippedYears.length > 0
+      ? 'Projected degree result (based on years with marks)'
+      : 'Projected degree result';
     return '<article class="degree-result-hero degree-surface">'
       + '<div class="degree-hero-bg" aria-hidden="true"></div>'
       + '<div class="degree-result-copy">'
-      + '<p class="degree-hero-label">Projected degree result</p>'
+      + `<p class="degree-hero-label">${escapeHtml(heroLabel)}</p>`
       + `<div class="degree-result-mark">${escapeHtml(grade)}</div>`
       + `<div class="degree-result-tag">${escapeHtml(tag)}</div>`
       + `<p class="degree-result-system">${escapeHtml(outputLabel)}</p>`
@@ -395,12 +399,36 @@ function renderAdaptiveInsightCards(model) {
       const weight = Number(impactYear.rule.weight || 0);
       const totalWeight = model.counted.reduce((sum, s) => sum + Number(s.rule.weight || 0), 0);
       const effectiveShare = totalWeight > 0 ? weight / totalWeight : weight / 100;
-      const degreeImpact = (effectiveShare * 5).toFixed(1);
+      const per1 = effectiveShare.toFixed(2);
+      const per5 = (effectiveShare * 5).toFixed(1);
       const isCurrentYear = impactYear.id === currentYearId;
+
+      // Module-level suggestions — only if this is the active year and has modules with credits
+      let modulesHtml = '';
+      if (isCurrentYear) {
+        const yearModules = Object.values(store.state.years?.[impactYear.id]?.store?.modules || {});
+        const creditedModules = yearModules.filter((m) => Number(m.credits || 0) > 0);
+        const yearTotalCredits = creditedModules.reduce((sum, m) => sum + Number(m.credits || 0), 0);
+        if (creditedModules.length >= 2 && yearTotalCredits > 0) {
+          const topModules = [...creditedModules]
+            .sort((a, b) => Number(b.credits || 0) - Number(a.credits || 0))
+            .slice(0, 3);
+          const rows = topModules.map((m) => {
+            const modShare = Number(m.credits || 0) / yearTotalCredits;
+            const modPer1 = (modShare * effectiveShare).toFixed(2);
+            return `<li><span class="degree-insight-module-name">${escapeHtml(m.name || m.code || 'Unnamed module')}</span>`
+              + ` <span class="degree-insight-module-impact">+1 pt → +${escapeHtml(modPer1)}</span></li>`;
+          }).join('');
+          modulesHtml = `<ul class="degree-insight-modules">${rows}</ul>`;
+        }
+      }
+
       cards.push('<article class="degree-insight-card degree-insight-card--accent">'
         + '<p class="degree-insight-label">Where Improvement Matters Most</p>'
         + `<h3>${escapeHtml(impactYear.year?.label || impactYear.id)} carries ${escapeHtml(formatWeight(weight))}% of your degree result.</h3>`
-        + `<p>A +5 point improvement${isCurrentYear ? ' this year' : ' here'} would raise your projected degree by about +${escapeHtml(degreeImpact)} points.</p>`
+        + `<p>Every +1 pt improvement${isCurrentYear ? ' this year' : ' here'} moves your projected result by +${escapeHtml(per1)}`
+        + ` · a +5 pt gain adds about +${escapeHtml(per5)}.</p>`
+        + modulesHtml
         + '</article>');
     }
   } else if (model.policy.mode === 'creditWeightedAllIncluded' && model.counted.length) {
@@ -410,12 +438,15 @@ function renderAdaptiveInsightCards(model) {
       const currentCredits = currentSummary.aggregate?.attempted || 0;
       const totalCredits = model.counted.reduce((sum, s) => sum + (s.aggregate?.attempted || 0), 0);
       if (totalCredits > 0 && currentCredits > 0) {
-        const sharePct = ((currentCredits / totalCredits) * 100).toFixed(0);
-        const degreeImpact = ((currentCredits / totalCredits) * 5).toFixed(1);
+        const effectiveShare = currentCredits / totalCredits;
+        const per1 = effectiveShare.toFixed(2);
+        const per5 = (effectiveShare * 5).toFixed(1);
+        const sharePct = (effectiveShare * 100).toFixed(0);
         cards.push('<article class="degree-insight-card degree-insight-card--accent">'
           + '<p class="degree-insight-label">Where Improvement Matters Most</p>'
           + `<h3>${escapeHtml(currentSummary.year?.label || currentYearId)} contributes ${escapeHtml(sharePct)}% of counted credits.</h3>`
-          + `<p>A +5 point improvement this year would raise your projected degree by about +${escapeHtml(degreeImpact)} points.</p>`
+          + `<p>Every +1 pt improvement this year moves your projected result by +${escapeHtml(per1)}`
+          + ` · a +5 pt gain adds about +${escapeHtml(per5)}.</p>`
           + '</article>');
       }
     }
@@ -717,7 +748,7 @@ function renderPolicyYearSetupRow(yearId) {
   )).join('');
 
   return '<article class="degree-setup-year">'
-    + `<div><strong>${escapeHtml(year.label || yearId)}</strong><span>${escapeHtml(getSystemLabel(year.gradingSystem || getGradingSystem()))}</span></div>`
+    + `<div><strong>${escapeHtml(year.label || yearId)}</strong><span>${escapeHtml(getSystemLabel(getGradingSystem(yearId)))}</span></div>`
     + `<select id="degree-policy-status-${escapeHtml(yearId)}" onchange="refreshDegreePolicyDraft()">`
     + `<option value="included"${rule.status === 'included' ? ' selected' : ''}>Counts toward degree</option>`
     + `<option value="excluded"${rule.status === 'excluded' ? ' selected' : ''}>Does not count</option>`
@@ -732,7 +763,7 @@ function renderWeightSetupRow(yearId) {
   const rule = getDraftRule(yearId);
   return '<label class="degree-weight-row">'
     + `<span>${escapeHtml(years[yearId]?.label || yearId)}</span>`
-    + `<input id="degree-policy-weight-${escapeHtml(yearId)}" type="number" min="0" max="100" step="0.1" value="${escapeHtml(rule.weight || 0)}" onchange="refreshDegreePolicyDraft()">`
+    + `<input id="degree-policy-weight-${escapeHtml(yearId)}" type="number" min="0" max="100" step="0.1" value="${escapeHtml(String(Number(rule.weight) || 0))}" oninput="refreshDegreePolicyDraft()" onchange="refreshDegreePolicyDraft()">`
     + '</label>';
 }
 
@@ -741,13 +772,14 @@ function renderConversionSetupRow(yearId, model) {
   const year = years[yearId] || {};
   const rule = getDraftRule(yearId);
   const counts = rule.status !== 'excluded';
-  const needsConversion = counts && (year.gradingSystem || getGradingSystem()) !== model.outputSystem;
+  const yearSystem = getGradingSystem(yearId);
+  const needsConversion = counts && yearSystem !== model.outputSystem;
   if (!needsConversion && rule.status !== 'manualConversion') return '';
   const aggregate = computeYearAggregate(yearId);
 
   return '<article class="degree-conversion-card">'
-    + `<h4>${escapeHtml(year.label || yearId)} uses ${escapeHtml(getSystemLabel(year.gradingSystem || getGradingSystem()))}.</h4>`
-    + `<p>Original result: ${escapeHtml(aggregate.value === null || aggregate.value === undefined ? 'Not enough marks' : formatDegreeResult(aggregate.value, year.gradingSystem || getGradingSystem()))}</p>`
+    + `<h4>${escapeHtml(year.label || yearId)} uses ${escapeHtml(getSystemLabel(yearSystem))}.</h4>`
+    + `<p>Original result: ${escapeHtml(aggregate.value === null || aggregate.value === undefined ? 'Not enough marks' : formatDegreeResult(aggregate.value, yearSystem))}</p>`
     + '<label>Converted value'
     + `<input id="degree-policy-converted-${escapeHtml(yearId)}" type="number" step="0.1" value="${escapeHtml(rule.convertedValue ?? '')}" onchange="refreshDegreePolicyDraft()" placeholder="e.g. 68">`
     + '</label>'
@@ -810,7 +842,7 @@ function syncPolicyDraftFromDom() {
 
     if (status) rule.status = status.value;
     if (reason) rule.reason = reason.value;
-    if (weight) rule.weight = clampNumber(weight.value, 0, 100);
+    if (weight) rule.weight = clampNumber(parseFloat(weight.value) || 0, 0, 100);
     if (converted) rule.convertedValue = converted.value === '' ? null : Number(converted.value);
     if (note) rule.conversionNote = note.value;
   });
@@ -986,10 +1018,12 @@ function formatDegreeResult(value, system) {
   const n = Number(value);
   if (system === 'au7') return `${n.toFixed(1)} / 7.0 GPA`;
   if (system === 'au4') return `${n.toFixed(2)} / 4.0 GPA`;
-  if (system === 'us4' || system === 'us43' || system === 'my4') return `${n.toFixed(2)} GPA`;
+  if (system === 'us4' || system === 'my4') return `${n.toFixed(2)} / 4.0 GPA`;
+  if (system === 'us43') return `${n.toFixed(2)} / 4.3 GPA`;
   if (system === 'nz9') return `${n.toFixed(1)} / 9.0 GPA`;
   if (system === 'de5') return `${n.toFixed(1)} grade`;
   if (system === 'cn4') return `${n.toFixed(1)}%`;
+  if (system === 'custom') return `${n.toFixed(2)}`;
   return `${n.toFixed(1)}%`;
 }
 

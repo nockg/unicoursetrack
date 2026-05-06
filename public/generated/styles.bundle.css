@@ -14789,8 +14789,9 @@ body.font-mono .mobile-more-copy {
 }
 
 .degree-attention-strip--quiet {
-  border: 1px solid color-mix(in srgb, #3f7f5f 24%, var(--border, #ded4c6));
-  background: color-mix(in srgb, #3f7f5f 9%, var(--paper, #f8f5ef));
+  border: 1px solid var(--border, #ded4c6);
+  background: var(--paper2, #ede8dc);
+  color: var(--muted, #7a6e5e);
 }
 
 .degree-attention-strip--warning {
@@ -14864,6 +14865,44 @@ body.font-mono .mobile-more-copy {
   font-weight: 850;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.degree-insight-modules {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.degree-insight-modules li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: var(--muted, #7a6e5e);
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border, rgba(26,22,18,0.10));
+}
+
+.degree-insight-modules li:last-child {
+  border-bottom: 0;
+}
+
+.degree-insight-module-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.degree-insight-module-impact {
+  flex: 0 0 auto;
+  font-family: "DM Mono", monospace;
+  font-size: 0.78rem;
+  color: var(--accent, #8a5c2d);
 }
 
 .degree-bar-list {
@@ -14943,10 +14982,10 @@ body.font-mono .mobile-more-copy {
 
 .degree-timeline-connector {
   align-self: center;
-  width: 24px;
+  flex: 0 0 36px;
   height: 2px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--accent, #9c6a3c) 40%, var(--border, #ded4c6));
+  background: var(--border2, rgba(26,22,18,0.22));
 }
 
 .degree-year-node {
@@ -15572,7 +15611,7 @@ body.font-mono .mobile-more-copy {
     bottom: 24px;
     width: 2px;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--accent, #9c6a3c) 30%, var(--border, #ded4c6));
+    background: var(--border2, rgba(26,22,18,0.22));
   }
 
   .degree-timeline-connector {
