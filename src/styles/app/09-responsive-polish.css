@@ -2110,9 +2110,6 @@ body.theme-dark :focus-visible {
     display: block;
   }
 
-  .hero-title-separator {
-    display: none;
-  }
 
   .hero-title-course {
     display: block;
