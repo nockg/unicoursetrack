@@ -363,8 +363,7 @@ export function classifyGermanGrade(mark) {
   return { label: 'Fail', badge: 'Fail', cls: '', heroCls: '' };
 }
 
-export function classify(mark) {
-  const system = getGradingSystem();
+export function classifyWithSystem(mark, system = getGradingSystem()) {
   if (system === 'de5') return classifyGermanGrade(mark);
   if (system === 'cn4') return classifyChinaScore(mark);
   if (system === 'au7') return classifyAuGpa(mark);
@@ -377,6 +376,10 @@ export function classify(mark) {
   if (mark >= 50) return { label: '2:2', badge: 'Lower Second', cls: 'cls-s-22', heroCls: 'cls-22' };
   if (mark >= 40) return { label: 'Third', badge: 'Third', cls: 'cls-s-third', heroCls: 'cls-third' };
   return { label: 'Fail', badge: 'Fail', cls: '', heroCls: '' };
+}
+
+export function classify(mark) {
+  return classifyWithSystem(mark, getGradingSystem());
 }
 
 // ── Percent-to-native conversion ───────────────────────────────────────────
@@ -440,9 +443,8 @@ export function formatGradeInputValue(value) {
   return getGradingSystem() === 'uk' ? value.toFixed(1) : value.toFixed(2);
 }
 
-export function formatSelectedGrade(mark, options = {}) {
+export function formatSelectedGradeForSystem(mark, system = getGradingSystem(), options = {}) {
   if (mark === null || mark === undefined) return { main: '-', label: '', secondary: '' };
-  const system = getGradingSystem();
   if (['us4', 'us43', 'my4'].includes(system)) {
     const exact = options.courseDisplay ? getGradeOption(system, options.rawValue) : null;
     const grade = exact || (system === 'my4' ? classifyMalaysianGpa(mark) : classifyFourPointGpa(mark));
@@ -479,8 +481,12 @@ export function formatSelectedGrade(mark, options = {}) {
     return { main: `${mark.toFixed(2)} grade`, label: grade.label, secondary: 'Lower is better' };
   }
   const percent = `${mark.toFixed(1)}%`;
-  const cls = classify(mark);
+  const cls = classifyWithSystem(mark, system);
   return { main: percent, label: cls?.label || '', secondary: '' };
+}
+
+export function formatSelectedGrade(mark, options = {}) {
+  return formatSelectedGradeForSystem(mark, getGradingSystem(), options);
 }
 
 // ── Credit label helpers ───────────────────────────────────────────────────
@@ -507,6 +513,20 @@ export function getAggregateMetricLabel(system = getGradingSystem()) {
   if (system === 'uk') return 'Weighted average';
   if (system === 'de5') return 'Weighted grade';
   return 'GPA';
+}
+
+export function getGradingSystemTitle(system = getGradingSystem()) {
+  if (system === 'uk') return 'UK Honours / Percentage';
+  if (system === 'us4') return 'US 4.00 GPA';
+  if (system === 'us43') return 'US 4.30 GPA / A+ Scale';
+  if (system === 'au7') return 'Australia 7.00 GPA';
+  if (system === 'au4') return 'Australia 4.00 GPA';
+  if (system === 'my4') return 'Malaysia 4.00 GPA';
+  if (system === 'cn4') return 'China Mainland 100-point + GPA Estimate';
+  if (system === 'nz9') return 'New Zealand 9.00 GPA';
+  if (system === 'de5') return 'Germany 1.0-5.0';
+  if (system === 'custom') return 'Custom Grade Mapping';
+  return 'UK Honours / Percentage';
 }
 
 // ── Custom grade mapping ───────────────────────────────────────────────────

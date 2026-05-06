@@ -259,6 +259,8 @@ export const BLOCKING_MODAL_SELECTORS = [
   '#app-dialog-modal',
   '#auth-modal',
   '#dashboard-modal',
+  '#degree-policy-modal',
+  '#degree-year-modal',
   '#timeline-modal',
   '#todo-modal',
   '#calendar-modal',
