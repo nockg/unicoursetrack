@@ -517,7 +517,9 @@ h1 {
 }
 
 .hero-title-course {
+  display: inline-block;
   overflow-wrap: break-word;
+  vertical-align: baseline;
 }
 
 #hero-title.hero-title-long {
