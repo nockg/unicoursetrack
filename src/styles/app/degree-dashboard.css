@@ -1571,6 +1571,8 @@
 }
 
 .degree-mode-tab {
+  -webkit-appearance: none;
+  appearance: none;
   font-family: "DM Mono", monospace;
   font-size: 0.75rem;
   letter-spacing: .05em;
