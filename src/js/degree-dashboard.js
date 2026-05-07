@@ -8,7 +8,7 @@ import { store } from './store.js';
 import { escapeHtml } from './utils.js';
 import { getGradingSystem, classify, getCreditUnitLabel } from './grading.js';
 import {
-  save, createYearStore, getEffectiveUniversity, getEffectiveCourse,
+  save, getEffectiveUniversity, getEffectiveCourse,
   getEffectiveAcademicYearLabel, refreshActiveYear,
 } from './state.js';
 import {
@@ -17,6 +17,7 @@ import {
   computeYearAggregate, getYearDegreeValue,
   validateDegreePolicy, calculateDegreePrediction,
   calculateConfirmedPrediction, calculateTargetAverages,
+  getDegreeYears, getSortedDegreeYearIds,
   GRADING_SYSTEM_LABELS, DEGREE_MODES, EXCLUDED_REASONS,
   DEGREE_PRESETS, getDefaultYearRule,
 } from './degree-policy.js';
@@ -95,11 +96,11 @@ export function renderDegreeDashboard() {
 }
 
 function buildDashboardModel() {
-  const years = store.state.years || {};
-  const yearIds = getSortedYearIds(years);
-  const policy = getDegreePolicy();
-  const outputYear = getDegreeOutputYear();
-  const outputSystem = getDegreeOutputSystem();
+  const policy = policyDraft || getDegreePolicy();
+  const years = getDegreeYears(policy);
+  const yearIds = getSortedDegreeYearIds(years);
+  const outputYear = getModelOutputYear(policy, years);
+  const outputSystem = getModelOutputSystem(policy, outputYear);
   const validation = validateDegreePolicy();
   const prediction = calculateDegreePrediction();
   const confirmedPrediction = calculateConfirmedPrediction();
@@ -140,15 +141,17 @@ function buildDashboardModel() {
 }
 
 function buildYearSummary(yearId, year, policy, outputSystem) {
-  const rule = getYearRule(yearId);
+  const rule = policy.yearRules?.[yearId] || getYearRule(yearId);
   const aggregate = computeYearAggregate(yearId);
   const nativeSystem = getGradingSystem(yearId);
-  const degreeValue = getYearDegreeValue(yearId);
+  const degreeValue = rule.status === 'manualConversion'
+    ? (rule.convertedValue !== null && rule.convertedValue !== undefined && rule.convertedValue !== '' ? Number(rule.convertedValue) : null)
+    : getYearDegreeValue(yearId);
   const counts = rule.status !== 'excluded';
   const needsConversion = counts && nativeSystem !== outputSystem;
   const hasConversion = rule.status === 'manualConversion' && Number.isFinite(Number(rule.convertedValue));
   const blocked = needsConversion && !hasConversion;
-  const incomplete = counts && !blocked && (aggregate.missing || 0) > 0;
+  const incomplete = counts && !blocked && (aggregate?.missing || 0) > 0;
   const excludedReason = EXCLUDED_REASONS.find((item) => item.value === rule.reason)?.label || rule.reason || 'Excluded';
 
   let status = 'compatible';
@@ -783,6 +786,11 @@ export function closeDegreeYearDetails() {
 }
 
 export function openDegreeYearInTracker(yearId) {
+  if (getDegreeYears()[yearId]?.isForecast) {
+    activeYearDetailsId = null;
+    renderDegreeDashboard();
+    return;
+  }
   if (store.state.years?.[yearId]) {
     store.state.ui.currentYearId = yearId;
     store.state.ui.currentTermFilter = 'all';
@@ -872,7 +880,7 @@ function renderPolicySetupOverlay(model) {
 }
 
 function renderPolicyYearSetupRow(yearId) {
-  const years = store.state.years || {};
+  const years = getDegreeYears(policyDraft || getDegreePolicy());
   const year = years[yearId] || {};
   const rule = getDraftRule(yearId);
 
@@ -914,8 +922,8 @@ function renderPolicyYearSetupRow(yearId) {
 
 function renderWeightSetupRow(yearId) {
   // Forecast years handle their own weight inline in Step 3
-  if (store.state.years?.[yearId]?.isForecast) return '';
-  const years = store.state.years || {};
+  const years = getDegreeYears(policyDraft || getDegreePolicy());
+  if (years[yearId]?.isForecast) return '';
   const rule = getDraftRule(yearId);
   return '<label class="degree-weight-row">'
     + `<span>${escapeHtml(years[yearId]?.label || yearId)}</span>`
@@ -925,8 +933,8 @@ function renderWeightSetupRow(yearId) {
 
 function renderConversionSetupRow(yearId, model) {
   // Forecast years handle their own grade inline in Step 3
-  if (store.state.years?.[yearId]?.isForecast) return '';
-  const years = store.state.years || {};
+  const years = getDegreeYears(policyDraft || getDegreePolicy());
+  if (years[yearId]?.isForecast) return '';
   const year = years[yearId] || {};
   const rule = getDraftRule(yearId);
   const counts = rule.status !== 'excluded';
@@ -948,6 +956,7 @@ function renderConversionSetupRow(yearId, model) {
 }
 
 export async function addForecastYear() {
+  if (!policyDraft) openDegreePolicySetup();
   const result = await window.appPrompt({
     title: 'Add forecast year',
     inputLabel: 'Year label',
@@ -960,48 +969,30 @@ export async function addForecastYear() {
 
   const id = `forecast-${Date.now()}`;
 
-  // Add the year to the store
-  if (!store.state.years) store.state.years = {};
-  store.state.years[id] = {
+  if (!policyDraft.forecastYears) policyDraft.forecastYears = {};
+  policyDraft.forecastYears[id] = {
     id,
     label: label.trim(),
     isForecast: true,
-    store: createYearStore([]),
   };
 
-  // Write a manualConversion rule into the live policy so buildDashboardModel
-  // immediately shows it as "enter expected grade" rather than "Needs conversion".
-  const livePolicy = getDegreePolicy();
-  if (!livePolicy.yearRules) livePolicy.yearRules = {};
-  livePolicy.yearRules[id] = {
+  if (!policyDraft.yearRules) policyDraft.yearRules = {};
+  policyDraft.yearRules[id] = {
     ...getDefaultYearRule(),
     status: 'manualConversion',
     weight: 0,
     conversionNote: 'Hypothetical / forecast grade',
   };
 
-  // Mirror into the open draft (if policy overlay is open)
-  if (policyDraft) {
-    if (!policyDraft.yearRules) policyDraft.yearRules = {};
-    policyDraft.yearRules[id] = {
-      ...getDefaultYearRule(),
-      status: 'manualConversion',
-      weight: 0,
-      conversionNote: 'Hypothetical / forecast grade',
-    };
-  }
-
-  save();
   renderDegreeDashboard();
 }
 
 export function removeForecastYear(yearId) {
-  if (!store.state.years?.[yearId]?.isForecast) return;
-  delete store.state.years[yearId];
-  const livePolicy = getDegreePolicy();
-  if (livePolicy.yearRules?.[yearId]) delete livePolicy.yearRules[yearId];
-  if (policyDraft?.yearRules?.[yearId]) delete policyDraft.yearRules[yearId];
-  save();
+  const targetPolicy = policyDraft || getDegreePolicy();
+  if (!targetPolicy.forecastYears?.[yearId]) return;
+  delete targetPolicy.forecastYears[yearId];
+  if (targetPolicy.yearRules?.[yearId]) delete targetPolicy.yearRules[yearId];
+  if (!policyDraft) save();
   renderDegreeDashboard();
 }
 
@@ -1048,8 +1039,8 @@ function syncPolicyDraftFromDom() {
   if (presetMeta) policyDraft.mode = presetMeta.mode;
 
   ensureDraftRules();
-  Object.keys(store.state.years || {}).forEach((yearId) => {
-    const year = store.state.years[yearId];
+  Object.keys(getDegreeYears(policyDraft)).forEach((yearId) => {
+    const year = getDegreeYears(policyDraft)[yearId];
     const rule = getDraftRule(yearId);
 
     if (year?.isForecast) {
@@ -1077,8 +1068,8 @@ function syncPolicyDraftFromDom() {
 }
 
 function applyPresetToDraft(presetId) {
-  const years = store.state.years || {};
-  const yearIds = getSortedYearIds(years);
+  const years = getDegreeYears(policyDraft);
+  const yearIds = getSortedDegreeYearIds(years);
   const preset = DEGREE_PRESETS.find((item) => item.id === presetId) || DEGREE_PRESETS[0];
   policyDraft.presetId = preset.id;
   policyDraft.mode = preset.mode;
@@ -1181,17 +1172,6 @@ export function toggleDegreeStatusDetails() {
 }
 
 // Helpers ------------------------------------------------------------------
-
-function getSortedYearIds(years) {
-  return Object.keys(years).sort((a, b) => {
-    const aLabel = years[a]?.label || a;
-    const bLabel = years[b]?.label || b;
-    const aNum = Number((aLabel.match(/\d+/) || [])[0]);
-    const bNum = Number((bLabel.match(/\d+/) || [])[0]);
-    if (Number.isFinite(aNum) && Number.isFinite(bNum) && aNum !== bNum) return aNum - bNum;
-    return aLabel.localeCompare(bLabel);
-  });
-}
 
 function isPolicyConfigured(policy, summaries, outputYear) {
   if (!outputYear) return false;
@@ -1317,14 +1297,26 @@ function getDraftRule(yearId) {
 function ensureDraftRules() {
   if (!policyDraft) return;
   if (!policyDraft.yearRules) policyDraft.yearRules = {};
-  Object.keys(store.state.years || {}).forEach((yearId) => {
+  if (!policyDraft.forecastYears) policyDraft.forecastYears = {};
+  Object.keys(getDegreeYears(policyDraft)).forEach((yearId) => {
     if (!policyDraft.yearRules[yearId]) policyDraft.yearRules[yearId] = getDefaultYearRule();
   });
 }
 
+function getModelOutputYear(policy, years) {
+  if (policy.outputYearId && years[policy.outputYearId]) return years[policy.outputYearId];
+  const ids = getSortedDegreeYearIds(years);
+  return ids.length ? years[ids[ids.length - 1]] : getDegreeOutputYear();
+}
+
+function getModelOutputSystem(policy, outputYear) {
+  if (policy.outputSystemMode === 'graduatingYear' && outputYear) return getGradingSystem(outputYear.id);
+  return policy.outputGradingSystem || getDegreeOutputSystem();
+}
+
 function getDraftTotalWeight() {
   if (!policyDraft) return 0;
-  return Object.keys(store.state.years || {}).reduce((sum, yearId) => {
+  return Object.keys(getDegreeYears(policyDraft)).reduce((sum, yearId) => {
     const rule = getDraftRule(yearId);
     return rule.status === 'excluded' ? sum : sum + Number(rule.weight || 0);
   }, 0);

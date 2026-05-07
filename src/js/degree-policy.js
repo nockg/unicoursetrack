@@ -75,11 +75,12 @@ export const DEGREE_PRESETS = [
 export function getDefaultDegreePolicy() {
   return {
     enabled: true,
-    presetId: 'manual',
+    presetId: 'equal',
     mode: 'weightedYears',
     outputSystemMode: 'graduatingYear',
     outputYearId: null,
     outputGradingSystem: null,
+    forecastYears: {},
     yearRules: {},
   };
 }
@@ -104,6 +105,13 @@ export function getDegreePolicy() {
   if (!store.state.degreePolicy.mode) {
     store.state.degreePolicy.mode = 'weightedYears';
   }
+  if (!store.state.degreePolicy.forecastYears) {
+    store.state.degreePolicy.forecastYears = {};
+  }
+  if (!store.state.degreePolicy.yearRules) {
+    store.state.degreePolicy.yearRules = {};
+  }
+  seedFirstRunYearRules(store.state.degreePolicy);
   return store.state.degreePolicy;
 }
 
@@ -120,11 +128,22 @@ export function getYearRule(yearId) {
   return policy.yearRules[yearId];
 }
 
+export function getDegreeYears(policy = getDegreePolicy()) {
+  return {
+    ...(store.state.years || {}),
+    ...(policy.forecastYears || {}),
+  };
+}
+
+export function getSortedDegreeYearIds(years = getDegreeYears()) {
+  return Object.keys(years).sort((a, b) => compareDegreeYearOrder(years[a], years[b], a, b));
+}
+
 export function getDegreeOutputYear() {
   const policy  = getDegreePolicy();
-  const years   = store.state.years || {};
+  const years   = getDegreeYears(policy);
   if (policy.outputYearId && years[policy.outputYearId]) return years[policy.outputYearId];
-  const ids = Object.keys(years);
+  const ids = getSortedDegreeYearIds(years);
   return ids.length ? years[ids[ids.length - 1]] : null;
 }
 
@@ -190,8 +209,19 @@ function getYearModuleFinal(mod, mi, ys, yearId) {
 }
 
 export function computeYearAggregate(yearId) {
-  const year = store.state.years?.[yearId];
+  const year = getDegreeYears()[yearId];
   if (!year) return null;
+  if (year.isForecast) {
+    return {
+      system: getGradingSystem(yearId),
+      value: null,
+      gradedCredits: 0,
+      attempted: 0,
+      missing: 0,
+      moduleCount: 0,
+      gradedCount: 0,
+    };
+  }
   const ys      = year.store;
   const modules = ys.modules || [];
   const system  = getGradingSystem(yearId);
@@ -235,8 +265,8 @@ export function getYearDegreeValue(yearId) {
 
 export function validateDegreePolicy() {
   const policy       = getDegreePolicy();
-  const years        = store.state.years || {};
-  const yearIds      = Object.keys(years);
+  const years        = getDegreeYears(policy);
+  const yearIds      = getSortedDegreeYearIds(years);
   const outputSystem = getDegreeOutputSystem();
   const warnings     = [];
   const blockers     = [];
@@ -295,8 +325,8 @@ export function calculateDegreePrediction() {
   if (!validateDegreePolicy().canCompute) return null;
 
   const policy       = getDegreePolicy();
-  const years        = store.state.years || {};
-  const yearIds      = Object.keys(years);
+  const years        = getDegreeYears(policy);
+  const yearIds      = getSortedDegreeYearIds(years);
   const outputSystem = getDegreeOutputSystem();
 
   let actualCredits = 0, missingCredits = 0;
@@ -328,7 +358,8 @@ export function calculateDegreePrediction() {
       }
 
       // Included years: sum module-level grades directly
-      const year    = store.state.years[id];
+      const year    = years[id];
+      if (year?.isForecast) return;
       const ys      = year.store;
       const modules = ys.modules || [];
 
@@ -396,8 +427,8 @@ export function calculateDegreePrediction() {
 export function applyPreset(presetId) {
   const policy  = getDegreePolicy();
   const preset  = DEGREE_PRESETS.find((p) => p.id === presetId);
-  const years   = store.state.years || {};
-  const yearIds = Object.keys(years);
+  const years   = getDegreeYears(policy);
+  const yearIds = getSortedDegreeYearIds(years);
   const n       = yearIds.length;
   if (!n) return;
 
@@ -493,11 +524,12 @@ export function calculateConfirmedPrediction() {
   if (!validateDegreePolicy().canCompute) return null;
 
   const policy       = getDegreePolicy();
-  const years        = store.state.years || {};
-  const yearIds      = Object.keys(years);
+  const years        = getDegreeYears(policy);
+  const yearIds      = getSortedDegreeYearIds(years);
   const outputSystem = getDegreeOutputSystem();
 
   const isCreditWeighted = policy.mode === 'creditWeightedAllIncluded';
+  let actualCredits = 0, missingCredits = 0, omittedYearCount = 0, omittedWeight = 0;
 
   if (isCreditWeighted) {
     let weighted = 0, totalCredits = 0;
@@ -505,7 +537,14 @@ export function calculateConfirmedPrediction() {
       const rule = getYearRule(id);
       if (rule.status === 'excluded') return;
       const agg = computeYearAggregate(id);
-      if (!agg || agg.missing > 0 || agg.gradedCredits === 0) return;
+      if (agg) {
+        actualCredits += agg.gradedCredits || 0;
+        missingCredits += agg.missing || 0;
+      }
+      if (years[id]?.isForecast || !agg || agg.missing > 0 || agg.gradedCredits === 0) {
+        omittedYearCount += 1;
+        return;
+      }
       const v = rule.status === 'manualConversion' ? getYearDegreeValue(id) : agg.value;
       if (v === null) return;
       const credits = agg.gradedCredits;
@@ -513,15 +552,39 @@ export function calculateConfirmedPrediction() {
       totalCredits += credits;
     });
     if (totalCredits === 0) return null;
-    return { value: weighted / totalCredits, outputSystem, mode: 'creditWeightedAllIncluded', confirmed: true };
+    return {
+      value: weighted / totalCredits,
+      outputSystem,
+      mode: 'creditWeightedAllIncluded',
+      confirmed: true,
+      actualCredits,
+      missingCredits,
+      omittedYearCount,
+      omittedWeight,
+    };
   }
 
   let weightedSum = 0, totalWeight = 0;
+  const configuredWeight = yearIds.reduce((sum, id) => {
+    const rule = getYearRule(id);
+    return (rule.status === 'included' || rule.status === 'manualConversion')
+      ? sum + (Number(rule.weight) || 0)
+      : sum;
+  }, 0);
+
   yearIds.forEach((id) => {
     const rule = getYearRule(id);
     if (rule.status !== 'included' && rule.status !== 'manualConversion') return;
     const agg = computeYearAggregate(id);
-    if (!agg || agg.missing > 0 || agg.gradedCredits === 0) return;
+    if (agg) {
+      actualCredits += agg.gradedCredits || 0;
+      missingCredits += agg.missing || 0;
+    }
+    if (years[id]?.isForecast || !agg || agg.missing > 0 || agg.gradedCredits === 0) {
+      omittedYearCount += 1;
+      omittedWeight += configuredWeight > 0 ? ((Number(rule.weight) || 0) / configuredWeight) * 100 : 0;
+      return;
+    }
     const val = getYearDegreeValue(id);
     if (val === null) return;
     const w = Number(rule.weight) || 0;
@@ -530,7 +593,16 @@ export function calculateConfirmedPrediction() {
   });
 
   if (totalWeight === 0) return null;
-  return { value: weightedSum / totalWeight, outputSystem, mode: 'weightedYears', confirmed: true };
+  return {
+    value: weightedSum / totalWeight,
+    outputSystem,
+    mode: 'weightedYears',
+    confirmed: true,
+    actualCredits,
+    missingCredits,
+    omittedYearCount,
+    omittedWeight,
+  };
 }
 
 // ── Target averages ─────────────────────────────────────────────────────────
@@ -548,8 +620,8 @@ export function calculateTargetAverages() {
   if (!validateDegreePolicy().canCompute) return null;
 
   const policy       = getDegreePolicy();
-  const years        = store.state.years || {};
-  const yearIds      = Object.keys(years);
+  const years        = getDegreeYears(policy);
+  const yearIds      = getSortedDegreeYearIds(years);
   const outputSystem = getDegreeOutputSystem();
   if (outputSystem !== 'uk') return null;
 
@@ -566,6 +638,7 @@ export function calculateTargetAverages() {
     yearIds.forEach((id) => {
       const rule = getYearRule(id);
       if (rule.status === 'excluded') return;
+      if (years[id]?.isForecast) return;
       const agg = computeYearAggregate(id);
       if (!agg) return;
       totalCredits += agg.attempted || 0;
@@ -574,6 +647,10 @@ export function calculateTargetAverages() {
     yearIds.forEach((id) => {
       const rule = getYearRule(id);
       if (rule.status === 'excluded') return;
+      if (years[id]?.isForecast) {
+        missingW += 0;
+        return;
+      }
       const agg = computeYearAggregate(id);
       if (!agg) return;
       const w = (agg.attempted || 0) / totalCredits * 100;
@@ -596,7 +673,9 @@ export function calculateTargetAverages() {
       if (rule.status !== 'included' && rule.status !== 'manualConversion') return;
       const agg = computeYearAggregate(id);
       const w   = totalW > 0 ? (Number(rule.weight) || 0) / totalW * 100 : 0;
-      if (agg && agg.missing === 0 && agg.gradedCredits > 0) {
+      if (years[id]?.isForecast) {
+        missingW += w;
+      } else if (agg && agg.missing === 0 && agg.gradedCredits > 0) {
         const val = getYearDegreeValue(id);
         if (val !== null) { confirmedWS += val * w; confirmedW += w; }
       } else {
@@ -611,4 +690,31 @@ export function calculateTargetAverages() {
     const required = (threshold * 100 - confirmedWS) / missingW;
     return { label, cls, threshold, required: Math.round(required * 10) / 10 };
   });
+}
+
+function seedFirstRunYearRules(policy) {
+  const rules = policy.yearRules || {};
+  const existingRules = Object.keys(rules);
+  if (existingRules.length) return;
+
+  const years = store.state.years || {};
+  const yearIds = getSortedDegreeYearIds(years);
+  if (!yearIds.length) return;
+
+  policy.presetId = policy.presetId === 'manual' ? 'equal' : (policy.presetId || 'equal');
+  policy.mode = policy.mode || 'weightedYears';
+  const equalWeight = Number((100 / yearIds.length).toFixed(2));
+  yearIds.forEach((id) => {
+    policy.yearRules[id] = { ...getDefaultYearRule(), status: 'included', weight: equalWeight };
+  });
+}
+
+function compareDegreeYearOrder(aYear, bYear, aId, bId) {
+  const aLabel = aYear?.label || aId;
+  const bLabel = bYear?.label || bId;
+  const aNum = Number((aLabel.match(/\d+/) || [])[0]);
+  const bNum = Number((bLabel.match(/\d+/) || [])[0]);
+  if (Number.isFinite(aNum) && Number.isFinite(bNum) && aNum !== bNum) return aNum - bNum;
+  if (aYear?.isForecast !== bYear?.isForecast) return aYear?.isForecast ? 1 : -1;
+  return aLabel.localeCompare(bLabel);
 }

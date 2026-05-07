@@ -1,19 +1,25 @@
-const { defineConfig, devices } = require('@playwright/test');
+import { defineConfig, devices } from '@playwright/test';
 
-module.exports = defineConfig({
+export default defineConfig({
     testDir: './tests',
+    testIgnore: ['unit/**/*.test.js'],
     timeout: 30_000,
 
     use: {
-        baseURL: 'http://127.0.0.1:5173',
+        baseURL: 'http://127.0.0.1:3000',
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
     },
 
     webServer: {
-        command: 'npm run dev',
-        url: 'http://127.0.0.1:5173',
+        command: 'npm.cmd run dev -- --host 127.0.0.1',
+        env: {
+            VITE_SUPABASE_URL: 'https://unitrack-test.supabase.co',
+            VITE_SUPABASE_ANON_KEY: 'unitrack-test-anon-key',
+        },
+        url: 'http://127.0.0.1:3000',
+        timeout: 120_000,
         reuseExistingServer: !process.env.CI,
     },
 

@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 async function expectAuthGate(page) {
     await expect(page.getByText('Welcome back!')).toBeVisible();

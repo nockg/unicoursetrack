@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('mobile app navigation surfaces', () => {
   test.use({
@@ -8,22 +8,23 @@ test.describe('mobile app navigation surfaces', () => {
   });
 
   async function exposeMobileShellForUiTest(page) {
-    await page.evaluate(() => {
+    await page.evaluate(async () => {
+      const { store } = await import('/src/js/store.js');
       // Test-only signed-in state so Account opens the account modal,
       // instead of redirecting to the auth gate.
-      currentUser = {
+      store.currentUser = {
         id: "test-user",
         email: "test@example.com"
       };
 
-      currentSession = {
-        user: currentUser,
+      store.currentSession = {
+        user: store.currentUser,
         access_token: "test-token",
         expires_at: Math.floor(Date.now() / 1000) + 3600
       };
 
-      cloudReady = true;
-      cloudLoadSucceeded = true;
+      store.cloudReady = true;
+      store.cloudLoadSucceeded = true;
 
       document.body.classList.remove(
         'auth-required',
