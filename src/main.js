@@ -341,6 +341,7 @@ window.openDegreeYearInTracker    = degreeDashboard.openDegreeYearInTracker;
 window.toggleDegreeStatusDetails  = degreeDashboard.toggleDegreeStatusDetails;
 window.addForecastYear            = degreeDashboard.addForecastYear;
 window.removeForecastYear         = degreeDashboard.removeForecastYear;
+window.setForecastMode            = degreeDashboard.setForecastMode;
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 bootApp();

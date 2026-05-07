@@ -16,6 +16,7 @@ import {
   getDegreeOutputYear, getDegreeOutputSystem,
   computeYearAggregate, getYearDegreeValue,
   validateDegreePolicy, calculateDegreePrediction,
+  calculateConfirmedPrediction, calculateTargetAverages,
   GRADING_SYSTEM_LABELS, DEGREE_MODES, EXCLUDED_REASONS,
   DEGREE_PRESETS, getDefaultYearRule,
 } from './degree-policy.js';
@@ -23,6 +24,13 @@ import {
 let activeYearDetailsId = null;
 let policyDraft = null;
 let statusDetailsOpen = false;
+let forecastMode = 'predicted'; // 'predicted' | 'confirmed' | 'target'
+
+export function setForecastMode(mode) {
+  if (mode === forecastMode) return;
+  forecastMode = mode;
+  renderDegreeDashboard();
+}
 
 // View switching -----------------------------------------------------------
 
@@ -68,12 +76,14 @@ export function renderDegreeDashboard() {
   root.innerHTML = renderHeader(model)
     + '<main class="degree-command-centre" aria-label="Degree Overview">'
     + '<section class="degree-forecast-section">'
+    + renderForecastModeTabs(model)
     + '<div class="degree-forecast-grid">'
     + renderForecastHero(model)
     + renderPolicySummaryCard(model)
     + '</div>'
     + renderStatusStrip(model)
     + '</section>'
+    + (model.forecastMode === 'target' ? renderTargetSection(model) : '')
     + renderInsightsSection(model)
     + renderImprovementSection(model)
     + renderYearJourneySection(model)
@@ -92,15 +102,18 @@ function buildDashboardModel() {
   const outputSystem = getDegreeOutputSystem();
   const validation = validateDegreePolicy();
   const prediction = calculateDegreePrediction();
+  const confirmedPrediction = calculateConfirmedPrediction();
+  const targetAverages = forecastMode === 'target' ? calculateTargetAverages() : null;
   const summaries = yearIds.map((yearId) => buildYearSummary(yearId, years[yearId], policy, outputSystem));
   const counted = summaries.filter((year) => year.counts);
   const blockers = validation.blockers || [];
   const warnings = validation.warnings || [];
-  const missingCredits = prediction
-    ? prediction.missingCredits
+  const activePrediction = forecastMode === 'confirmed' ? confirmedPrediction : prediction;
+  const missingCredits = activePrediction
+    ? activePrediction.missingCredits || 0
     : counted.reduce((sum, year) => sum + (year.aggregate?.missing || 0), 0);
-  const gradedCredits = prediction
-    ? prediction.actualCredits
+  const gradedCredits = activePrediction
+    ? activePrediction.actualCredits || 0
     : counted.reduce((sum, year) => sum + (year.aggregate?.gradedCredits || 0), 0);
   const configured = isPolicyConfigured(policy, summaries, outputYear);
 
@@ -114,11 +127,15 @@ function buildDashboardModel() {
     outputSystem,
     validation,
     prediction,
+    confirmedPrediction,
+    targetAverages,
+    activePrediction,
     blockers,
     warnings,
     missingCredits,
     gradedCredits,
     configured,
+    forecastMode,
   };
 }
 
@@ -190,20 +207,79 @@ function renderHeader(model = null) {
     + '</header>';
 }
 
+function renderForecastModeTabs(model) {
+  if (!model.configured) return '';
+  const tabs = [
+    { mode: 'predicted',  label: 'Predicted',  title: 'All available marks' },
+    { mode: 'confirmed',  label: 'Confirmed',   title: 'Only fully-marked years' },
+    { mode: 'target',     label: 'Target',      title: 'Required averages' },
+  ];
+  return '<div class="degree-mode-tabs" role="tablist" aria-label="Forecast mode">'
+    + tabs.map((t) => `<button class="degree-mode-tab${model.forecastMode === t.mode ? ' degree-mode-tab--active' : ''}" `
+      + `type="button" role="tab" aria-selected="${model.forecastMode === t.mode}" `
+      + `title="${escapeHtml(t.title)}" onclick="setForecastMode('${escapeHtml(t.mode)}')">`
+      + escapeHtml(t.label)
+      + '</button>').join('')
+    + '</div>';
+}
+
+function renderTargetSection(model) {
+  const targets = model.targetAverages;
+  if (!targets) {
+    return '<section class="degree-panel degree-target-section" aria-labelledby="degree-target-title">'
+      + '<div class="degree-section-heading">'
+      + '<p class="degree-section-kicker">Target Planning</p>'
+      + '<h2 id="degree-target-title">Required averages</h2>'
+      + '</div>'
+      + '<p class="degree-target-unavailable">Target planning is only available for UK Honours degrees. Switch to a UK grading system in your degree policy to see required averages.</p>'
+      + '</section>';
+  }
+
+  const rows = targets.map(({ label, cls, threshold, required }) => {
+    const feasible = required <= 100;
+    const already  = required <= 0;
+    let note;
+    if (already)   note = 'Already achieved';
+    else if (!feasible) note = 'Not achievable with remaining marks';
+    else           note = `Need ${escapeHtml(String(required))}% average in remaining counted years`;
+
+    return `<div class="degree-target-row degree-target-row--${escapeHtml(cls)}${already ? ' degree-target-row--done' : ''}${!feasible && !already ? ' degree-target-row--hard' : ''}">`
+      + `<div class="degree-target-band"><strong>${escapeHtml(label)}</strong><span>≥${escapeHtml(String(threshold))}%</span></div>`
+      + `<div class="degree-target-note">${note}</div>`
+      + (feasible && !already ? `<div class="degree-target-bar-track"><div class="degree-target-bar-fill" style="width:${escapeHtml(String(Math.min(100, required)))}%"></div></div>` : '')
+      + '</div>';
+  }).join('');
+
+  return '<section class="degree-panel degree-target-section" aria-labelledby="degree-target-title">'
+    + '<div class="degree-section-heading">'
+    + '<p class="degree-section-kicker">Target Planning</p>'
+    + '<h2 id="degree-target-title">What you need to reach each classification</h2>'
+    + '<p class="degree-section-desc">Based on confirmed marks in complete years. Remaining years must hit this average.</p>'
+    + '</div>'
+    + '<div class="degree-target-list">'
+    + rows
+    + '</div>'
+    + '</section>';
+}
+
 function renderForecastHero(model) {
   const outputLabel = getSystemLabel(model.outputSystem);
 
-  if (model.prediction) {
-    const grade = formatDegreeResult(model.prediction.value, model.outputSystem);
-    const tag = getClassificationTag(model.prediction.value, model.outputSystem);
+  if (model.activePrediction) {
+    const pred  = model.activePrediction;
+    const grade = formatDegreeResult(pred.value, model.outputSystem);
+    const tag   = getClassificationTag(pred.value, model.outputSystem);
     const outputYearLabel = model.outputYear?.label || 'graduating year';
-
     const creditLabel = getCreditUnitLabel({ system: model.outputSystem }).toLowerCase();
-    // Determine whether the forecast covers all counted years or only those with marks
-    const skippedYears = model.warnings.filter((w) => w.includes('no grades yet'));
-    const heroLabel = skippedYears.length > 0
-      ? 'Projected degree result (based on years with marks)'
-      : 'Projected degree result';
+
+    const heroLabel = model.forecastMode === 'confirmed'
+      ? 'Confirmed result (fully-marked years only)'
+      : model.forecastMode === 'target'
+        ? 'Predicted result'
+        : (model.warnings.filter((w) => w.includes('no grades yet')).length > 0
+          ? 'Projected degree result (based on years with marks)'
+          : 'Projected degree result');
+
     return '<article class="degree-result-hero degree-surface">'
       + '<div class="degree-hero-bg" aria-hidden="true"></div>'
       + '<div class="degree-result-copy">'
@@ -214,7 +290,7 @@ function renderForecastHero(model) {
       + '</div>'
       + '<div class="degree-hero-context">'
       + `<span>Output: ${escapeHtml(outputYearLabel)}</span>`
-      + `<span>${escapeHtml(String(model.gradedCredits))} ${escapeHtml(creditLabel)} graded</span>`
+      + (pred.actualCredits ? `<span>${escapeHtml(String(pred.actualCredits))} ${escapeHtml(creditLabel)} graded</span>` : '')
       + (model.missingCredits > 0 ? `<span class="degree-hero-context--warn">${escapeHtml(String(model.missingCredits))} missing</span>` : '')
       + '</div>'
       + '</article>';

@@ -484,3 +484,131 @@ export function applyPreset(presetId) {
 
   save();
 }
+
+// ── Confirmed-only prediction ───────────────────────────────────────────────
+// Like calculateDegreePrediction but only counts years where every module has
+// a mark (aggregate.missing === 0). Gives a conservative "locked-in" result.
+
+export function calculateConfirmedPrediction() {
+  if (!validateDegreePolicy().canCompute) return null;
+
+  const policy       = getDegreePolicy();
+  const years        = store.state.years || {};
+  const yearIds      = Object.keys(years);
+  const outputSystem = getDegreeOutputSystem();
+
+  const isCreditWeighted = policy.mode === 'creditWeightedAllIncluded';
+
+  if (isCreditWeighted) {
+    let weighted = 0, totalCredits = 0;
+    yearIds.forEach((id) => {
+      const rule = getYearRule(id);
+      if (rule.status === 'excluded') return;
+      const agg = computeYearAggregate(id);
+      if (!agg || agg.missing > 0 || agg.gradedCredits === 0) return;
+      const v = rule.status === 'manualConversion' ? getYearDegreeValue(id) : agg.value;
+      if (v === null) return;
+      const credits = agg.gradedCredits;
+      weighted     += v * credits;
+      totalCredits += credits;
+    });
+    if (totalCredits === 0) return null;
+    return { value: weighted / totalCredits, outputSystem, mode: 'creditWeightedAllIncluded', confirmed: true };
+  }
+
+  let weightedSum = 0, totalWeight = 0;
+  yearIds.forEach((id) => {
+    const rule = getYearRule(id);
+    if (rule.status !== 'included' && rule.status !== 'manualConversion') return;
+    const agg = computeYearAggregate(id);
+    if (!agg || agg.missing > 0 || agg.gradedCredits === 0) return;
+    const val = getYearDegreeValue(id);
+    if (val === null) return;
+    const w = Number(rule.weight) || 0;
+    weightedSum += val * w;
+    totalWeight += w;
+  });
+
+  if (totalWeight === 0) return null;
+  return { value: weightedSum / totalWeight, outputSystem, mode: 'weightedYears', confirmed: true };
+}
+
+// ── Target averages ─────────────────────────────────────────────────────────
+// For UK system: given confirmed weighted score so far, compute the average
+// needed in remaining (incomplete) counted years to hit each classification.
+
+const UK_THRESHOLDS = [
+  { label: 'First',  cls: 'first',  threshold: 70 },
+  { label: '2:1',    cls: 'upper',  threshold: 60 },
+  { label: '2:2',    cls: 'lower',  threshold: 50 },
+  { label: 'Third',  cls: 'third',  threshold: 40 },
+];
+
+export function calculateTargetAverages() {
+  if (!validateDegreePolicy().canCompute) return null;
+
+  const policy       = getDegreePolicy();
+  const years        = store.state.years || {};
+  const yearIds      = Object.keys(years);
+  const outputSystem = getDegreeOutputSystem();
+  if (outputSystem !== 'uk') return null;
+
+  const isCreditWeighted = policy.mode === 'creditWeightedAllIncluded';
+
+  // Compute confirmed weight sum and the "missing" weight
+  let confirmedWS    = 0;
+  let confirmedW     = 0;
+  let missingW       = 0;
+
+  if (isCreditWeighted) {
+    // In credit-weighted mode: weight = credits
+    let totalCredits = 0;
+    yearIds.forEach((id) => {
+      const rule = getYearRule(id);
+      if (rule.status === 'excluded') return;
+      const agg = computeYearAggregate(id);
+      if (!agg) return;
+      totalCredits += agg.attempted || 0;
+    });
+    if (totalCredits === 0) return null;
+    yearIds.forEach((id) => {
+      const rule = getYearRule(id);
+      if (rule.status === 'excluded') return;
+      const agg = computeYearAggregate(id);
+      if (!agg) return;
+      const w = (agg.attempted || 0) / totalCredits * 100;
+      if (agg.missing === 0 && agg.gradedCredits > 0) {
+        const v = rule.status === 'manualConversion' ? getYearDegreeValue(id) : agg.value;
+        if (v !== null) { confirmedWS += v * w; confirmedW += w; }
+      } else {
+        missingW += w;
+      }
+    });
+  } else {
+    let totalW = 0;
+    yearIds.forEach((id) => {
+      const rule = getYearRule(id);
+      if (rule.status !== 'included' && rule.status !== 'manualConversion') return;
+      totalW += Number(rule.weight) || 0;
+    });
+    yearIds.forEach((id) => {
+      const rule = getYearRule(id);
+      if (rule.status !== 'included' && rule.status !== 'manualConversion') return;
+      const agg = computeYearAggregate(id);
+      const w   = totalW > 0 ? (Number(rule.weight) || 0) / totalW * 100 : 0;
+      if (agg && agg.missing === 0 && agg.gradedCredits > 0) {
+        const val = getYearDegreeValue(id);
+        if (val !== null) { confirmedWS += val * w; confirmedW += w; }
+      } else {
+        missingW += w;
+      }
+    });
+  }
+
+  if (missingW <= 0) return null; // all years already complete
+
+  return UK_THRESHOLDS.map(({ label, cls, threshold }) => {
+    const required = (threshold * 100 - confirmedWS) / missingW;
+    return { label, cls, threshold, required: Math.round(required * 10) / 10 };
+  });
+}

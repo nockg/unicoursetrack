@@ -1154,7 +1154,7 @@ export function applyPreferences() {
   if (densitySelect) densitySelect.value = prefs.density;
   if (fontSelect) fontSelect.value = prefs.font || 'mono';
   if (calendarSelect) calendarSelect.value = prefs.calendarProvider || 'google';
-  if (gradingSelect) gradingSelect.value = window.getGradingSystem?.() || 'uk';
+  if (gradingSelect) gradingSelect.value = store.state.profile?.gradingSystem || 'uk';
   document.getElementById('custom-grade-map-field')?.classList.toggle(
     'hidden', (window.getGradingSystem?.() || 'uk') !== 'custom'
   );
